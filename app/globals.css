@@ -1,0 +1,616 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Sans:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+:root {
+  /* Color System - Figma Red Theme */
+  --color-primary-50: #fef2f2;
+  --color-primary-100: #fee2e2;
+  --color-primary-200: #fecaca;
+  --color-primary-300: #fca5a5;
+  --color-primary-400: #f87171;
+  --color-primary-500: #ff0000; /* PRIMARY RED from Figma */
+  --color-primary-600: #dc2626;
+  --color-primary-700: #ce394d;
+  --color-primary-800: #991b1b;
+  --color-primary-900: #7f1d1d;
+  
+  /* Dark Blue/Navy backgrounds from Figma */
+  --color-secondary-50: #677aa6;
+  --color-secondary-100: #4b5563;
+  --color-secondary-200: #374151;
+  --color-secondary-300: #2f416b;
+  --color-secondary-400: #263252;
+  --color-secondary-500: #1f2937; /* Dark navy */
+  --color-secondary-600: #14172c;
+  --color-secondary-700: #0e1116;
+  --color-secondary-800: #0a0c12;
+  --color-secondary-900: #000000;
+
+  /* Semantic Colors */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  --color-card: #ffffff;
+  --color-card-foreground: #0f172a;
+  --color-border: #e2e8f0;
+  --color-input: #ffffff;
+  --color-muted: #f8fafc;
+  --color-muted-foreground: #64748b;
+  --color-accent: #f1f5f9;
+  --color-accent-foreground: #0f172a;
+
+  /* Theme System - Base (Light) */
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #6b7280;
+  --primary: #ff0000; /* RED from Figma */
+  --primary-fg: #ffffff;
+  --card: #ffffff;
+  --card-fg: #0a0a0a;
+  --border: #e5e7eb;
+  --accent: #111827;
+
+  /* Typography - From Figma */
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Spacing System */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+
+  /* Border Radius */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+@theme inline {
+  --color-background: var(--color-background);
+  --color-foreground: var(--color-foreground);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+  
+  /* Theme Variables for Tailwind */
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-card: var(--card);
+  --color-card-fg: var(--card-fg);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+}
+
+/* Layout & Responsive Fixes */
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  overflow-x: hidden;
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+/* Force color consistency across all browsers and OS */
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Prevent browser/OS from overriding text colors */
+input,
+textarea,
+select,
+button {
+  color: inherit;
+  background-color: inherit;
+}
+
+/* Explicit colors for form elements to prevent OS overrides */
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}
+
+/* Prevent dark mode from inverting colors */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light !important;
+  }
+
+  :root:not([data-theme="dark"]) body {
+    background-color: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+
+  :root:not([data-theme="dark"]) input:not([type="checkbox"]):not([type="radio"]),
+  :root:not([data-theme="dark"]) textarea,
+  :root:not([data-theme="dark"]) select {
+    background-color: #ffffff !important;
+    color: #0a0a0a !important;
+  }
+}
+
+/* Fix for Windows High Contrast mode */
+@media (prefers-contrast: high) {
+  * {
+    color: inherit !important;
+    background-color: inherit !important;
+  }
+}
+
+/* Navbar & Footer Optimizations */
+.navbar-mobile-menu {
+  transform: translateY(-100%);
+  transition: transform 0.3s ease-in-out;
+}
+
+.navbar-mobile-menu.open {
+  transform: translateY(0);
+}
+
+/* Scroll Progress Bar */
+.scroll-progress {
+  background: linear-gradient(90deg, #dc2626 0%, #ef4444 50%, #f87171 100%);
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile-padding {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-text-small {
+    font-size: 0.875rem;
+  }
+}
+
+/* Dark Theme */
+:root[data-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
+  --muted: #9ca3af;
+  --primary: #60a5fa;
+  --primary-fg: #0a0a0a;
+  --card: #111111;
+  --card-fg: #f5f5f5;
+  --border: #1f2937;
+  --accent: #fafafa;
+}
+
+/* Section-level theme overrides */
+[data-section-theme="light"] {
+  --bg: #ffffff;
+  --fg: #0a0a0a;
+  --muted: #6b7280;
+  --card: #ffffff;
+  --card-fg: #0a0a0a;
+  --border: #e5e7eb;
+  --accent: #111827;
+}
+
+[data-section-theme="dark"] {
+  --bg: #0b0b0b;
+  --fg: #f5f5f5;
+  --muted: #9ca3af;
+  --card: #111111;
+  --card-fg: #f5f5f5;
+  --border: #1f2937;
+  --accent: #fafafa;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #f8fafc;
+    --color-card: #1e293b;
+    --color-card-foreground: #f8fafc;
+    --color-border: #334155;
+    --color-input: #1e293b;
+    --color-muted: #1e293b;
+    --color-muted-foreground: #94a3b8;
+    --color-accent: #334155;
+    --color-accent-foreground: #f8fafc;
+  }
+}
+
+/* Base Styles */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Component Classes - Figma Design System */
+.btn-primary {
+  background-color: #ff0000;
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.625rem 1.5rem;
+  transition: all 0.2s;
+  @apply focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary:focus {
+  ring-color: #ff0000;
+}
+
+.btn-secondary {
+  @apply bg-white border border-gray-200 text-gray-700 font-medium rounded-lg transition-all duration-200 hover:bg-gray-50 hover:border-gray-300 focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+.btn-secondary:focus {
+  ring-color: #ff0000;
+}
+
+.btn-coral {
+  background-color: #ff0000;
+  color: #ffffff;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  transition: all 0.2s;
+  @apply focus:ring-2 focus:ring-offset-2;
+}
+
+.btn-coral:hover {
+  background-color: #ce394d;
+}
+
+.card {
+  @apply bg-white rounded-xl border border-gray-100 shadow-sm transition-shadow duration-200 hover:shadow-md;
+}
+
+.input {
+  @apply w-full px-3 py-2 border border-gray-200 rounded-lg bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors duration-200;
+}
+
+.gradient-primary {
+  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-primary-700) 100%);
+}
+
+.gradient-hero {
+  background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3730a3 100%);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+/* Theme Utility Classes */
+.bg-var     { background-color: var(--bg); }
+.text-var   { color: var(--fg); }
+.text-muted-var { color: var(--muted); }
+.bg-card    { background-color: var(--card); }
+.text-card  { color: var(--card-fg); }
+.border-var { border-color: var(--border); }
+.bg-primary-var { background-color: var(--primary); }
+.text-primary-var { color: var(--primary); }
+.bg-primary-fg-var { background-color: var(--primary-fg); }
+.text-primary-fg-var { color: var(--primary-fg); }
+.bg-accent-var { background-color: var(--accent); }
+.text-accent-var { color: var(--accent); }
+
+
+/* Progress bar animation */
+@keyframes progress {
+  0% {
+    width: 0%;
+    background-color: #f87171;
+  }
+  50% {
+    width: 70%;
+    background-color: #e53e3e;
+  }
+  100% {
+    width: 100%;
+    background-color: #dc2626;
+  }
+}
+
+
+/* ========================================
+   OS/BROWSER COLOR COMPATIBILITY FIXES
+   Prevents white text on white background
+======================================== */
+
+/* Force explicit colors on all text elements */
+.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+.text-white {
+  color: #ffffff !important;
+}
+
+.text-black {
+  color: #0a0a0a !important;
+}
+
+.text-gray-900 {
+  color: #111827 !important;
+}
+
+.text-gray-700 {
+  color: #374151 !important;
+}
+
+.text-gray-600 {
+  color: #4b5563 !important;
+}
+
+.text-gray-500 {
+  color: #6b7280 !important;
+}
+
+/* Ensure form fields always have correct colors */
+.bg-gray-50,
+.bg-gray-100 {
+  background-color: #f9fafb !important;
+  color: #0a0a0a !important;
+}
+
+/* Card elements */
+.bg-white .text-gray-900,
+.bg-white .text-gray-800,
+.bg-white .text-gray-700,
+.bg-white .text-gray-600 {
+  color: inherit !important;
+}
+
+/* Prevent color inversion on Safari/Webkit */
+@supports (-webkit-appearance: none) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    -webkit-appearance: none;
+    appearance: none;
+  }
+}
+
+/* Fix for Edge/IE */
+@supports (-ms-ime-align: auto) {
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    background-color: #ffffff;
+    color: #0a0a0a;
+  }
+}
+
+/* Fix autofill colors */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 30px white inset !important;
+  -webkit-text-fill-color: #0a0a0a !important;
+}
+
+/* Ensure buttons maintain their colors */
+button.bg-black {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+button.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+button.text-white {
+  color: #ffffff !important;
+}
+
+/* Fix for colored buttons - ensure white text is visible */
+button.bg-red-700,
+button.bg-red-600,
+button.bg-red-800,
+button.bg-blue-700,
+button.bg-blue-600,
+button.bg-green-600,
+button.bg-green-700 {
+  color: #ffffff !important;
+}
+
+button.bg-red-600 {
+  background-color: #dc2626 !important;
+}
+
+button.bg-red-700 {
+  background-color: #b91c1c !important;
+}
+
+button.bg-red-800 {
+  background-color: #991b1b !important;
+}
+
+button.bg-green-600 {
+  background-color: #16a34a !important;
+}
+
+button.bg-green-700 {
+  background-color: #15803d !important;
+}
+
+button.bg-red-700 span,
+button.bg-red-600 span,
+button.bg-red-800 span,
+button.bg-blue-700 span,
+button.bg-blue-600 span,
+button.bg-green-600 span,
+button.bg-green-700 span {
+  color: #ffffff !important;
+}
+
+button.bg-amber-500,
+button.bg-amber-600 {
+  color: #ffffff !important;
+}
+
+button.bg-amber-500 {
+  background-color: #f59e0b !important;
+}
+
+button.bg-amber-600 {
+  background-color: #d97706 !important;
+}
+
+button.bg-amber-500 span,
+button.bg-amber-600 span {
+  color: #ffffff !important;
+}
+
+/* Links */
+a {
+  color: inherit;
+}
+
+a.text-blue-600 {
+  color: #2563eb !important;
+}
+
+/* Prevent color override in containers */
+.bg-white > *:not(.bg-black):not(.bg-gray-900):not(.text-white) {
+  color: #0a0a0a;
+}
+
+/* Modal and overlay fixes */
+.fixed.bg-white {
+  background-color: #ffffff !important;
+  color: #0a0a0a !important;
+}
+
+/* Dropdown and select fixes */
+select option {
+  background-color: #ffffff;
+  color: #0a0a0a;
+}
+
+/* Table fixes */
+table {
+  background-color: inherit;
+  color: inherit;
+}
+
+td, th {
+  background-color: inherit;
+  color: inherit;
+}
+
+/* Label fixes */
+label {
+  color: #374151 !important;
+}
+
+/* Prevent forced colors mode issues */
+@media (forced-colors: active) {
+  * {
+    forced-color-adjust: none;
+  }
+}
+
+/* macOS Safari specific fixes */
+@supports (-webkit-backdrop-filter: blur(1px)) {
+  body {
+    -webkit-font-smoothing: antialiased;
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea {
+    -webkit-appearance: none;
+  }
+}
+
+/* ========================================
+   BROWSER EXTENSION COMPATIBILITY
+   Hide password manager icons to prevent hydration errors
+======================================== */
+
+/* Hide password manager icons from various extensions */
+.xv-pwm-icon,
+[data-test="password-manager-icon"],
+[class*="password-manager"],
+[class*="pwm-icon"],
+[data-lastpass-icon-root],
+[data-dashlanecreated],
+div[style*="chrome-extension://"] {
+  display: none !important;
+  visibility: hidden !important;
+  width: 0 !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Prevent password managers from injecting into specific inputs */
+input[type="email"]::-webkit-contacts-auto-fill-button,
+input[type="email"]::-webkit-credentials-auto-fill-button {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Hide all injected password manager elements */
+div[data-lastpass-icon-root],
+div[data-lastpass-root],
+span[data-lastpass-root],
+div[data-dashlanecreated="true"],
+div[id*="password-manager"] {
+  display: none !important;
+}

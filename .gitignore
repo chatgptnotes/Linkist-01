@@ -1,0 +1,58 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Next.js
+.next/
+out/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.env.vercel.check
+.env.vercel.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+
+# Temporary folders
+tmp/
+temp/
+.vercel
+
+# Documentation files that may contain secrets
+FIX_VERIFY_SID.md
+TWILIO_QUICK_SETUP.md
+TWILIO_NAVIGATION_GUIDE.md
+SMS_ENABLE_KARO.md
+CONSOLE_OTP_GUIDE.md
+check-twilio-config.sh
+
+# Local Netlify folder
+.netlify
