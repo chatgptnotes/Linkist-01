@@ -30,9 +30,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/admin-login') ||
                        pathname.startsWith('/admin-access');
 
-  // Check if current route is an authentication page (login, register, verify)
+  // Check if current route is an authentication page (login, verify)
   const isAuthPage = pathname.startsWith('/login') ||
-                     pathname.startsWith('/register') ||
                      pathname.startsWith('/verify-login') ||
                      pathname.startsWith('/verify-mobile') ||
                      pathname.startsWith('/verify-email');
@@ -108,26 +107,16 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage
-      localStorage.removeItem('userOnboarded');
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('session');
-      localStorage.removeItem('claimedUsername');
-      localStorage.removeItem('profileUrl');
-      localStorage.removeItem('productSelection');
-      localStorage.removeItem('pendingOrder');
-      localStorage.removeItem('orderConfirmation');
-      localStorage.removeItem('checkoutVoucherState');
-      localStorage.removeItem('nfcConfig');
-      localStorage.removeItem('cardConfig');
-      localStorage.removeItem('orderData');
+      // Clear all localStorage data
+      localStorage.clear();
 
       // Call logout API
       await fetch('/api/auth/logout', { method: 'POST' });
 
-      // Clear cookies
-      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-      document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      // Clear cookies with proper attributes matching how they were set
+      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
+      document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
+      document.cookie = 'admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
 
       // Show success message
       toast.success('Logged out successfully!');
@@ -300,7 +289,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // Username routes are single-level paths that don't match any known routes
   const knownRoutes = ['/admin', '/api', '/checkout', '/confirm-payment', '/thank-you', '/account',
                        '/profile-dashboard', '/verify-email', '/nfc', '/product-selection', '/choose-plan',
-                       '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login', '/register',
+                       '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login',
                        '/profiles', '/claim-url', '/help', '/contact', '/about', '/pricing', '/features',
                        '/founding-member', '/templates', '/new-card', '/_next', '/favicon'];
 

@@ -16,6 +16,7 @@ export interface OrderData {
     whatsapp?: boolean;
     logo?: string;
     quantity?: number;
+    fullName?: string;
   };
   shipping: {
     fullName: string;
@@ -32,17 +33,27 @@ export interface OrderData {
     shipping: number;
     tax: number;
     total: number;
+    materialPrice?: number;
+    isFoundersPricing?: boolean;
   };
   estimatedDelivery?: string;
   trackingNumber?: string;
   trackingUrl?: string;
+  isFoundingMember?: boolean;
+  voucherCode?: string;
+  voucherDiscount?: number;
+  voucherAmount?: number;
 }
 
 const baseEmailStyles = `
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
     .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-    .header { background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3730a3 100%); padding: 30px 40px; text-align: center; }
+    .header { background-color: #000000; padding: 40px 40px; text-align: center; }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .header-logo img { height: 40px; }
+    .header-brand { color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; }
+    .header-tagline { color: #9ca3af; font-size: 12px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase; }
     .header h1 { color: #ffffff; font-size: 28px; margin: 0; font-weight: 700; }
     .header .tagline { color: #e2e8f0; font-size: 14px; margin-top: 5px; }
     .content { padding: 40px; }
@@ -60,10 +71,73 @@ const baseEmailStyles = `
     .footer { background: #f8fafc; padding: 30px 40px; text-align: center; color: #64748b; font-size: 14px; }
     .footer-links { margin-top: 20px; }
     .footer-links a { color: #ef4444; text-decoration: none; margin: 0 12px; }
+    .plan-label { color: #f59e0b; font-weight: 600; }
+    .included-label { color: #10b981; }
+    .voucher-label { color: #10b981; font-weight: 500; }
   </style>
 `;
 
-export const orderConfirmationEmail = (data: OrderData) => `
+export const orderConfirmationEmail = (data: OrderData) => {
+  const quantity = data.cardConfig.quantity || 1;
+  const isFounder = data.isFoundingMember || data.pricing?.isFoundersPricing;
+  const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
+
+  // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
+  const fullCardName = data.cardConfig.fullName ||
+    `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
+
+  // Build pricing rows based on plan type
+  const pricingRows = isFounder ? `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span class="plan-label">Founder's Club</span>
+        </div>
+        <div class="detail-row">
+          <span>Exclusive Founder's Price × ${quantity}</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>1 Year Linkist Subscription:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping & Customization:</span>
+          <span class="included-label">Included</span>
+        </div>
+  ` : `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">Personnel</span>
+        </div>
+        <div class="detail-row">
+          <span>Base Material Price × ${quantity}</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Customization:</span>
+          <span class="included-label">Included</span>
+        </div>
+        ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
+        <div class="detail-row">
+          <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
+          <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
+        </div>
+        ` : ''}
+  `;
+
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -74,20 +148,24 @@ export const orderConfirmationEmail = (data: OrderData) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Order Confirmed! 🎉</h1>
-      <p class="tagline">Your Linkist NFC card is being prepared</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
     </div>
-    
+
     <div class="content">
       <p>Hi <strong>${data.customerName}</strong>,</p>
-      
+
       <p>Thank you for your order! We've received your payment and your custom NFC card is now in our production queue.</p>
-      
+
       <div class="status-badge">✓ Order Confirmed</div>
-      
+
       <div class="card-preview">
-        <div class="card-name">${data.cardConfig.cardFirstName || data.cardConfig.firstName} ${data.cardConfig.cardLastName || data.cardConfig.lastName}</div>
-        <div class="card-title">${data.cardConfig.title || 'Professional'}</div>
+        <div class="card-name">${fullCardName}</div>
         <div class="card-brand">LINKIST</div>
         <p style="color: #94a3b8; font-size: 12px; margin-top: 16px;">NFC ENABLED</p>
       </div>
@@ -99,32 +177,43 @@ export const orderConfirmationEmail = (data: OrderData) => `
           <strong>${data.orderNumber}</strong>
         </div>
         <div class="detail-row">
-          <span>Linkist NFC Card (Qty: ${data.cardConfig.quantity || 1}):</span>
-          <span>$${data.pricing.subtotal.toFixed(2)}</span>
+          <span>Card Name:</span>
+          <span>${fullCardName}</span>
         </div>
         <div class="detail-row">
-          <span>Shipping:</span>
-          <span>$${data.pricing.shipping.toFixed(2)}</span>
+          <span>Quantity:</span>
+          <span>${quantity}</span>
         </div>
-        <div class="detail-row">
-          <span>Tax (5% VAT):</span>
-          <span>$${data.pricing.tax.toFixed(2)}</span>
-        </div>
+        ${pricingRows}
         <div class="detail-row total-row">
-          <span>Total:</span>
-          <span>$${data.pricing.total.toFixed(2)} USD</span>
+          <span>Total Amount:</span>
+          <span>$${data.pricing.total.toFixed(2)}</span>
         </div>
       </div>
 
       <div class="shipping-address">
-        <h4 style="margin-top: 0; color: #1e293b;">Shipping Address</h4>
-        <p style="margin: 0; line-height: 1.5;">
-          ${data.shipping.fullName}<br>
-          ${data.shipping.addressLine1}<br>
-          ${data.shipping.addressLine2 ? data.shipping.addressLine2 + '<br>' : ''}
-          ${data.shipping.city}, ${data.shipping.state} ${data.shipping.postalCode}<br>
-          ${data.shipping.country}
-        </p>
+        <h4 style="margin-top: 0; color: #1e293b;">Shipping Information</h4>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Name:</p>
+          <p style="margin: 0; font-weight: 500;">${data.shipping.fullName}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Email:</p>
+          <p style="margin: 0;">${data.email}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Phone:</p>
+          <p style="margin: 0;">${data.shipping.phoneNumber || 'N/A'}</p>
+        </div>
+        <div>
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Shipping Address:</p>
+          <p style="margin: 0; line-height: 1.5;">
+            ${data.shipping.addressLine1}<br>
+            ${data.shipping.addressLine2 ? data.shipping.addressLine2 + '<br>' : ''}
+            ${data.shipping.city}, ${data.shipping.state} ${data.shipping.postalCode}<br>
+            ${data.shipping.country}
+          </p>
+        </div>
       </div>
 
       <p><strong>What's Next?</strong></p>
@@ -146,7 +235,7 @@ export const orderConfirmationEmail = (data: OrderData) => `
         <a href="https://linkist.ai/account">My Account</a>
       </div>
       <p style="margin-top: 20px; color: #94a3b8; font-size: 12px;">
-        © 2025 Linkist. All rights reserved.<br>
+        © ${new Date().getFullYear()} Linkist. All rights reserved.<br>
         You're receiving this email because you placed an order with us.
       </p>
     </div>
@@ -154,6 +243,7 @@ export const orderConfirmationEmail = (data: OrderData) => `
 </body>
 </html>
 `;
+};
 
 export const inProductionEmail = (data: OrderData) => `
 <!DOCTYPE html>
@@ -166,13 +256,18 @@ export const inProductionEmail = (data: OrderData) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Your Card is Being Made! 🏭</h1>
-      <p class="tagline">Production in progress</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
     </div>
-    
+
     <div class="content">
       <p>Hi <strong>${data.customerName}</strong>,</p>
-      
+
       <p>Great news! Your custom NFC card is now in production. Our team is carefully crafting your card with the highest quality standards.</p>
       
       <div class="status-badge">🏭 In Production</div>
@@ -235,10 +330,15 @@ export const shippedEmail = (data: OrderData) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Your Order is on the Way! 📦</h1>
-      <p class="tagline">Tracking information included</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
     </div>
-    
+
     <div class="content">
       <p>Hi <strong>${data.customerName}</strong>,</p>
       
@@ -316,8 +416,13 @@ export const deliveredEmail = (data: OrderData) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Your Linkist Card Has Arrived! 🎉</h1>
-      <p class="tagline">Welcome to the future of networking</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
     </div>
     
     <div class="content">
@@ -389,7 +494,67 @@ export const deliveredEmail = (data: OrderData) => `
 </html>
 `;
 
-export const receiptEmail = (data: OrderData) => `
+export const receiptEmail = (data: OrderData) => {
+  const quantity = data.cardConfig.quantity || 1;
+  const isFounder = data.isFoundingMember || data.pricing?.isFoundersPricing;
+  const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
+
+  // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
+  const fullCardName = data.cardConfig.fullName ||
+    `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
+
+  // Build pricing rows based on plan type (same as orderConfirmationEmail)
+  const pricingRows = isFounder ? `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span class="plan-label">Founder's Club</span>
+        </div>
+        <div class="detail-row">
+          <span>Exclusive Founder's Price × ${quantity}</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>1 Year Linkist Subscription:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping & Customization:</span>
+          <span class="included-label">Included</span>
+        </div>
+  ` : `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">Personnel</span>
+        </div>
+        <div class="detail-row">
+          <span>Base Material Price × ${quantity}</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Customization:</span>
+          <span class="included-label">Included</span>
+        </div>
+        ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
+        <div class="detail-row">
+          <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
+          <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
+        </div>
+        ` : ''}
+  `;
+
+  return `
 <!DOCTYPE html>
 <html>
 <head>
@@ -400,60 +565,64 @@ export const receiptEmail = (data: OrderData) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>Payment Receipt 🧾</h1>
-      <p class="tagline">Your purchase confirmation</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
     </div>
-    
+
     <div class="content">
       <p>Hi <strong>${data.customerName}</strong>,</p>
-      
+
       <p>This is your official receipt for order ${data.orderNumber}. Your payment has been processed successfully.</p>
-      
+
       <div class="order-details">
-        <h3 style="margin-top: 0; color: #1e293b;">Receipt Details</h3>
-        <div class="detail-row">
-          <span>Date:</span>
-          <strong>${new Date().toLocaleDateString()}</strong>
-        </div>
+        <h3 style="margin-top: 0; color: #1e293b;">Order Details</h3>
         <div class="detail-row">
           <span>Order Number:</span>
           <strong>${data.orderNumber}</strong>
         </div>
         <div class="detail-row">
-          <span>Payment Method:</span>
-          <strong>Credit Card ending in ****</strong>
-        </div>
-      </div>
-
-      <div class="order-details">
-        <h3 style="margin-top: 0; color: #1e293b;">Items Purchased</h3>
-        <div class="detail-row">
-          <span>Linkist NFC Card - ${data.cardConfig.cardFirstName || data.cardConfig.firstName} ${data.cardConfig.cardLastName || data.cardConfig.lastName}</span>
-          <span>$${data.pricing.subtotal.toFixed(2)}</span>
+          <span>Card Name:</span>
+          <span>${fullCardName}</span>
         </div>
         <div class="detail-row">
-          <span>Shipping & Handling:</span>
-          <span>$${data.pricing.shipping.toFixed(2)}</span>
+          <span>Quantity:</span>
+          <span>${quantity}</span>
         </div>
-        <div class="detail-row">
-          <span>Tax (5% VAT):</span>
-          <span>$${data.pricing.tax.toFixed(2)}</span>
-        </div>
+        ${pricingRows}
         <div class="detail-row total-row">
-          <span>Total Charged:</span>
-          <span>$${data.pricing.total.toFixed(2)} USD</span>
+          <span>Total Amount:</span>
+          <span>$${data.pricing.total.toFixed(2)}</span>
         </div>
       </div>
 
       <div class="shipping-address">
-        <h4 style="margin-top: 0; color: #1e293b;">Billing & Shipping Address</h4>
-        <p style="margin: 0; line-height: 1.5;">
-          ${data.shipping.fullName}<br>
-          ${data.shipping.addressLine1}<br>
-          ${data.shipping.addressLine2 ? data.shipping.addressLine2 + '<br>' : ''}
-          ${data.shipping.city}, ${data.shipping.state} ${data.shipping.postalCode}<br>
-          ${data.shipping.country}
-        </p>
+        <h4 style="margin-top: 0; color: #1e293b;">Shipping Information</h4>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Name:</p>
+          <p style="margin: 0; font-weight: 500;">${data.shipping.fullName}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Email:</p>
+          <p style="margin: 0;">${data.email}</p>
+        </div>
+        <div style="margin-bottom: 12px;">
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Phone:</p>
+          <p style="margin: 0;">${data.shipping.phoneNumber || 'N/A'}</p>
+        </div>
+        <div>
+          <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Shipping Address:</p>
+          <p style="margin: 0; line-height: 1.5;">
+            ${data.shipping.addressLine1}<br>
+            ${data.shipping.addressLine2 ? data.shipping.addressLine2 + '<br>' : ''}
+            ${data.shipping.city}, ${data.shipping.state} ${data.shipping.postalCode}<br>
+            ${data.shipping.country}
+          </p>
+        </div>
       </div>
 
       <p style="color: #64748b; font-size: 14px;">
@@ -469,13 +638,14 @@ export const receiptEmail = (data: OrderData) => `
         <a href="https://linkist.ai/account">My Account</a>
       </div>
       <p style="margin-top: 20px; color: #94a3b8; font-size: 12px;">
-        Linkist, Inc. • Tax ID: 12-3456789 • support@linkist.ai
+        © ${new Date().getFullYear()} Linkist. All rights reserved.
       </p>
     </div>
   </div>
 </body>
 </html>
 `;
+};
 
 // Printer batch email interface
 export interface PrinterOrderData {
@@ -509,9 +679,9 @@ const printerEmailStyles = `
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
     .email-container { max-width: 800px; margin: 0 auto; background-color: #ffffff; }
-    .header { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); padding: 25px 40px; text-align: center; }
+    .header { background-color: #000000; padding: 40px 40px; text-align: center; }
     .header h1 { color: #ffffff; font-size: 24px; margin: 0; font-weight: 700; }
-    .header .tagline { color: #fecaca; font-size: 14px; margin-top: 5px; }
+    .header .tagline { color: #9ca3af; font-size: 14px; margin-top: 5px; }
     .content { padding: 30px 40px; }
     .summary-box { background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 30px; text-align: center; }
     .summary-box h2 { margin: 0; color: #dc2626; font-size: 28px; }
@@ -546,8 +716,14 @@ export const printerBatchEmail = (orders: PrinterOrderData[], date: string) => `
 <body>
   <div class="email-container">
     <div class="header">
-      <h1>🖨️ Linkist Print Orders</h1>
-      <p class="tagline">${date}</p>
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+            <p class="tagline">Print Orders - ${date}</p>
+          </td>
+        </tr>
+      </table>
     </div>
 
     <div class="content">

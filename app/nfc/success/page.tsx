@@ -21,14 +21,15 @@ export default function SuccessPage() {
   const router = useRouter();
   const [orderData, setOrderData] = useState<{
     orderNumber: string;
-    cardConfig: { fullName: string; quantity?: number };
+    cardConfig: { fullName: string; quantity?: number; baseMaterial?: string };
     shipping: { fullName: string; email: string; phone: string; addressLine1: string; addressLine2?: string; city: string; stateProvince?: string; postalCode: string; country: string; isFounderMember: boolean; quantity: number };
-    pricing: { total: number; materialPrice?: number; appSubscriptionPrice?: number; taxAmount?: number; subtotal?: number };
+    pricing: { total: number; materialPrice?: number; appSubscriptionPrice?: number; taxAmount?: number; subtotal?: number; isFoundersPricing?: boolean };
     voucherCode?: string;
     voucherDiscount?: number;
     voucherAmount?: number;
     isDigitalOnly?: boolean;
     isDigitalProduct?: boolean;
+    isFoundingMember?: boolean;
     customerName?: string;
     email?: string;
     phoneNumber?: string;
@@ -151,69 +152,87 @@ export default function SuccessPage() {
               </div>
 
               <div className="pt-3 space-y-2">
-                {/* Display stored pricing values exactly as shown on payment page - NO recalculation */}
+                {/* Display pricing based on plan type - Founders Club vs Personnel */}
                 {(() => {
                   const quantity = orderData.cardConfig?.quantity || 1;
+                  const isFounder = orderData.isFoundingMember || orderData.pricing?.isFoundersPricing;
                   const materialPrice = orderData.pricing?.materialPrice || 99;
-                  const appSubscriptionPrice = orderData.pricing?.appSubscriptionPrice || 120;
-                  const taxAmount = orderData.pricing?.taxAmount || 0;
-                  const subtotal = orderData.pricing?.subtotal || ((materialPrice + appSubscriptionPrice) * quantity + taxAmount);
-                  const country = orderData.shipping?.country || '';
-                  const isIndia = country === 'IN' || country === 'India';
-                  const taxLabel = isIndia ? 'GST (18%)' : 'VAT (5%)';
+                  const total = orderData.pricing?.total || 0;
 
-                  return (
-                    <>
-                      {/* Base Material */}
-                      <div className="flex justify-between text-gray-600">
-                        <span>Base Material × {quantity}</span>
-                        <span>${(materialPrice * quantity).toFixed(2)}</span>
-                      </div>
-
-                      {/* 1 Year App Subscription - Must match payment page */}
-                      <div className="flex justify-between text-gray-600">
-                        <span>1 Year Linkist App Subscription × {quantity}</span>
-                        <span>${(appSubscriptionPrice * quantity).toFixed(2)}</span>
-                      </div>
-
-                      <div className="flex justify-between text-gray-600">
-                        <span>Customization</span>
-                        <span className="text-green-600">Included</span>
-                      </div>
-
-                      <div className="flex justify-between text-gray-600">
-                        <span>Shipping ({country === 'United Arab Emirates' ? 'UAE' : country || 'AE'})</span>
-                        <span className="text-green-600">Free</span>
-                      </div>
-
-                      {/* Tax - Use stored value, NO recalculation */}
-                      <div className="flex justify-between text-gray-600">
-                        <span>{taxLabel}</span>
-                        <span>${taxAmount.toFixed(2)}</span>
-                      </div>
-
-                      {/* Subtotal - Use stored value */}
-                      <div className="flex justify-between text-gray-600 border-t border-gray-200 pt-2 mt-2">
-                        <span>Subtotal</span>
-                        <span>${subtotal.toFixed(2)}</span>
-                      </div>
-
-                      {orderData.shipping?.isFounderMember && (
-                        <div className="flex justify-between text-green-600">
-                          <span>Founder Member Benefits (10% off)</span>
-                          <span>Included</span>
+                  if (isFounder) {
+                    // FOUNDERS CLUB: Flat exclusive price with everything included
+                    return (
+                      <>
+                        {/* Plan Name */}
+                        <div className="flex justify-between text-gray-600 mb-2">
+                          <span className="font-medium">Plan</span>
+                          <span className="text-amber-600 font-semibold">Founder&apos;s Club</span>
                         </div>
-                      )}
 
-                      {/* Voucher Discount - Use stored voucherAmount, NO recalculation */}
-                      {orderData.voucherCode && orderData.voucherAmount > 0 && (
-                        <div className="flex justify-between text-green-600 font-medium">
-                          <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
-                          <span>-${(orderData.voucherAmount || 0).toFixed(2)}</span>
+                        {/* Exclusive Founder's Price */}
+                        <div className="flex justify-between text-gray-600">
+                          <span>Exclusive Founder&apos;s Price × {quantity}</span>
+                          <span>${(materialPrice * quantity).toFixed(2)}</span>
                         </div>
-                      )}
-                    </>
-                  );
+
+                        {/* 1 Year Subscription - Included for founders */}
+                        <div className="flex justify-between text-gray-600">
+                          <span>1 Year Linkist Subscription</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+
+                        <div className="flex justify-between text-gray-600">
+                          <span>GST</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+
+                        <div className="flex justify-between text-gray-600">
+                          <span>Shipping & Customization</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                      </>
+                    );
+                  } else {
+                    // PERSONNEL (Non-founders): Flat material price with GST included
+                    return (
+                      <>
+                        {/* Plan Name */}
+                        <div className="flex justify-between text-gray-600 mb-2">
+                          <span className="font-medium">Plan</span>
+                          <span className="text-gray-700 font-semibold">Personnel</span>
+                        </div>
+
+                        {/* Base Material Price */}
+                        <div className="flex justify-between text-gray-600">
+                          <span>Base Material Price × {quantity}</span>
+                          <span>${(materialPrice * quantity).toFixed(2)}</span>
+                        </div>
+
+                        <div className="flex justify-between text-gray-600">
+                          <span>GST</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+
+                        <div className="flex justify-between text-gray-600">
+                          <span>Shipping</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+
+                        <div className="flex justify-between text-gray-600">
+                          <span>Customization</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+
+                        {/* Voucher Discount - Only for non-founders */}
+                        {orderData.voucherCode && orderData.voucherAmount && orderData.voucherAmount > 0 && (
+                          <div className="flex justify-between text-green-600 font-medium">
+                            <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
+                            <span>-${(orderData.voucherAmount || 0).toFixed(2)}</span>
+                          </div>
+                        )}
+                      </>
+                    );
+                  }
                 })()}
               </div>
 

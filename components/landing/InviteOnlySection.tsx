@@ -1,43 +1,43 @@
 import { motion } from 'framer-motion';
-import BadgeIcon from '@mui/icons-material/Badge'; // Placeholder for 'The Name'
-import CreditCardIcon from '@mui/icons-material/CreditCard'; // Placeholder for 'The Card'
-import VerifiedIcon from '@mui/icons-material/Verified'; // Placeholder for 'The Badge'
-import StarIcon from '@mui/icons-material/Star'; // Placeholder for 'The Value'
-import WorkspacePremiumIcon from '@mui/icons-material/WorkspacePremium'; // Placeholder for 'The Recognition'
-import RedeemIcon from '@mui/icons-material/Redeem'; // Placeholder for 'The Rewards'
+import Image from 'next/image';
 
 export default function InviteOnlySection() {
     const cards = [
         {
-            icon: BadgeIcon,
+            icon: '/icons/name.png',
             title: 'The Name',
-            description: 'Secure the cleanest version of your URL. Once it’s taken, it’s for life.'
+            description: "Secure the cleanest version of your URL. Once it's taken, it's for life.",
+            iconSize: 28
         },
         {
-            icon: CreditCardIcon, // Fallback/Type safety
-            image: '/card_black_iso.png',
+            icon: '/icons/card.png',
             title: 'The Card',
-            description: 'Get the Black Premium NFC card, available only to Founding Members during the invite-only pre-launch.'
+            description: 'Get the Black Premium NFC card, available only to Founding Members during the invite-only pre-launch.',
+            iconSize: 28
         },
         {
-            icon: VerifiedIcon,
+            icon: '/icons/badge.png',
             title: 'The Badge',
-            description: 'Your profile permanently carries the Founding Member status. A visible signal and recognition for early adoption.'
+            description: 'Your profile permanently carries the Founding Member status. A visible signal and recognition for early adoption.',
+            iconSize: 28
         },
         {
-            icon: StarIcon,
+            icon: '/icons/value.png',
             title: 'The Value',
-            description: 'You get 1 year of Linkist Pro and $50 in AI credits with no expiry, on terms others won’t get at public launch.'
+            description: "You get 1 year of Linkist Pro and $50 in AI credits with no expiry, on terms others won't get at public launch.",
+            iconSize: 48
         },
         {
-            icon: WorkspacePremiumIcon,
+            icon: '/icons/recognition.png',
             title: 'The Recognition',
-            description: 'Entry is by personal invite and approval only, limited to a small founding cohort.'
+            description: 'Entry is by personal invite and approval only, limited to a small founding cohort.',
+            iconSize: 28
         },
         {
-            icon: RedeemIcon,
+            icon: '/icons/reward.png',
             title: 'The Rewards',
-            description: 'Expect occasional surprise gifts and early perks directly from the founders.'
+            description: 'Expect occasional surprise gifts and early perks directly from the founders.',
+            iconSize: 28
         }
     ];
 
@@ -59,13 +59,21 @@ export default function InviteOnlySection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-4xl md:text-6xl font-bold text-white mb-20 leading-tight"
+                    className="text-white mb-20 text-center"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '32px',
+                        lineHeight: '44px',
+                        letterSpacing: '-0.02em'
+                    }}
                 >
-                    This Isn’t Early Access. It’s an Invite Only.
+                    This Isn't Early Access.<br />
+                    It's an invite Only.
                 </motion.h2>
 
                 {/* Grid of Cards */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
                     {cards.map((card, idx) => (
                         <motion.div
                             key={idx}
@@ -73,18 +81,40 @@ export default function InviteOnlySection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="bg-[#111] rounded-[32px] p-10 text-left border border-[#222] hover:border-[#333] transition-colors flex flex-col items-start min-h-[340px]"
+                            className="bg-[#1A1A1A] rounded-[24px] p-6 pt-8 text-left flex flex-col items-start w-[350px] h-[306px]"
                         >
-                            <div className="w-16 h-16 rounded-2xl bg-[#FF0000] flex items-center justify-center mb-8 shadow-[0_0_20px_rgba(255,0,0,0.3)] overflow-hidden">
-                                {card.image ? (
-                                    <img src={card.image} alt={card.title} className="w-full h-full object-cover" />
-                                ) : (
-                                    <card.icon className="text-white w-8 h-8" />
-                                )}
+                            <div className="w-[56px] h-[56px] rounded-[12px] bg-[#FF3A29] flex items-center justify-center mb-5 overflow-hidden flex-shrink-0">
+                                <Image
+                                    src={card.icon}
+                                    alt={card.title}
+                                    width={card.iconSize}
+                                    height={card.iconSize}
+                                    className="object-contain"
+                                />
                             </div>
 
-                            <h3 className="text-2xl font-bold text-white mb-4">{card.title}</h3>
-                            <p className="text-[#888] leading-relaxed">
+                            <h3
+                                className="text-white mb-3 text-left"
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 600,
+                                    fontSize: '24px',
+                                    lineHeight: '32px',
+                                    letterSpacing: '0%'
+                                }}
+                            >
+                                {card.title}
+                            </h3>
+                            <p
+                                className="text-[#888] text-left"
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 400,
+                                    fontSize: '16px',
+                                    lineHeight: '26px',
+                                    letterSpacing: '0%'
+                                }}
+                            >
                                 {card.description}
                             </p>
                         </motion.div>

@@ -29,6 +29,17 @@ export async function POST(
       return NextResponse.json({ error: 'Order not found' }, { status: 404 })
     }
 
+    // Check if this is a digital-only order (no physical card to print)
+    const isDigitalOrder = order.cardConfig?.baseMaterial === 'digital' ||
+                           (order.cardConfig as any)?.isDigitalOnly === true
+    if (isDigitalOrder) {
+      console.log(`⚠️ Order ${orderId} is a digital-only order - cannot send to printer`)
+      return NextResponse.json({
+        success: false,
+        error: 'This is a digital-only order and cannot be sent to printer. No physical card to print.'
+      }, { status: 400 })
+    }
+
     // Get printer settings
     const settings = await PrinterSettingsStore.get()
     if (!settings || !settings.printerEmail) {

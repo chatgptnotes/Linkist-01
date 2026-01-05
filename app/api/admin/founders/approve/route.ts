@@ -112,10 +112,13 @@ export async function POST(request: NextRequest) {
 
     // Send email with invite code using SMTP service
     try {
+      // Combine first_name and last_name since the database stores them separately
+      const fullName = `${foundersRequest.first_name || ''} ${foundersRequest.last_name || ''}`.trim();
+
       const emailResult = await sendOrderEmail({
         to: foundersRequest.email,
         subject: "You're approved — unlock your Founders Club access",
-        html: getEmailTemplate(foundersRequest.full_name, inviteCode, expiresAt)
+        html: getEmailTemplate(fullName, inviteCode, expiresAt)
       });
 
       if (emailResult.success) {
@@ -145,8 +148,8 @@ export async function POST(request: NextRequest) {
 }
 
 function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
-  // Extract first name from full name
-  const firstName = name ? name.split(' ')[0] : 'there';
+  // Use full name for greeting
+  const fullName = name || 'there';
 
   return `
 <!DOCTYPE html>
@@ -159,14 +162,14 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <tr>
-      <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Welcome to Founders Club</h1>
+      <td style="padding: 40px 30px; text-align: center; background-color: #000000;">
+        <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
       </td>
     </tr>
     <tr>
       <td style="padding: 40px 30px;">
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          Hi ${firstName},
+          Hi ${fullName},
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
           Great news — your request to join the Linkist Founders Club has been approved.
@@ -183,15 +186,9 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
           You can get started right away by unlocking your access and customising your NFC card.
         </p>
 
-        <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 15px;">
-          Click the button below to proceed directly to your Founders Club card customisation:
+        <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
+          <a href="https://temp-linkist.vercel.app/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Club card customisation.
         </p>
-
-        <div style="text-align: center; margin: 0 0 30px;">
-          <a href="https://temp-linkist.vercel.appl\/product-selection" style="display: inline-block; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #ffffff; text-decoration: none; padding: 15px 40px; border-radius: 8px; font-weight: bold; font-size: 16px;">
-            Unlock Founders Club & Customise Card
-          </a>
-        </div>
 
         <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">How to use your code:</h3>
         <ol style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">

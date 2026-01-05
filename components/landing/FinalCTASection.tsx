@@ -1,23 +1,31 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function FinalCTASection() {
     return (
-        <section className="relative py-40 overflow-hidden bg-[#050505]">
+        <section className="relative py-24 md:py-32 overflow-hidden bg-[#050505]">
 
-            {/* Red bottom gradient background */}
-            <div className="absolute bottom-0 left-0 right-0 h-[500px] bg-gradient-to-t from-[#8a0000] via-[#4d0000] to-transparent opacity-80 pointer-events-none" />
-            <div className="absolute -bottom-[20%] left-1/2 -translate-x-1/2 w-[120%] h-[300px] bg-[#FF0000] blur-[150px] opacity-40 rounded-[100%]" />
+            {/* Red ellipse arc at top */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">
+                <Image
+                    src="/Ellipse 115.png"
+                    alt=""
+                    width={800}
+                    height={200}
+                    className="w-full max-w-[600px] mx-auto object-contain"
+                />
+            </div>
 
-            <div className="max-w-7xl mx-auto px-4 relative z-10 text-center">
+            <div className="max-w-7xl mx-auto px-4 relative z-10 text-center pt-16">
 
                 <motion.h2
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight"
+                    className="font-poppins font-medium text-[40px] leading-[48px] tracking-[-0.02em] text-center text-white mb-6"
                 >
-                    History Favours the First.
+                    History Favors<br />the first.
                 </motion.h2>
 
                 <motion.p
@@ -25,9 +33,9 @@ export default function FinalCTASection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 }}
-                    className="text-xl text-[#ccc] mb-16"
+                    className="font-poppins font-normal text-[20px] leading-[32px] tracking-normal text-center text-white mb-10"
                 >
-                    This Isn’t Early Access. It’s invite-only, scarce digital territory.
+                    This Isn't Early Access. It's invite-<br className="md:hidden" />only, scarce digital territory.
                 </motion.p>
 
                 <motion.div
@@ -36,9 +44,11 @@ export default function FinalCTASection() {
                     viewport={{ once: true }}
                     transition={{ delay: 0.4 }}
                 >
-                    <Link href="/choose-plan" className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1a0505] border border-[#330a0a] rounded-full hover:border-[#E02424] hover:bg-[#2a0505] transition-all shadow-2xl">
-                        <img src="/logo_linkist.png" alt="Linkist" className="h-6 w-auto brightness-0 invert" style={{ filter: 'brightness(0) saturate(100%) invert(20%) sepia(93%) saturate(3078%) hue-rotate(349deg) brightness(88%) contrast(92%)' }} />
-                        <span className="text-white font-bold tracking-wide">JOIN LINKIST</span>
+                    <Link
+                        href="/choose-plan"
+                        className="inline-flex items-center justify-center w-[172px] h-[40px] py-[12px] px-[20px] gap-[12px] rounded-[80px] bg-[#FF3A29] text-white font-medium transition-transform hover:scale-105 active:scale-95"
+                    >
+                        Sign Up Today!
                     </Link>
                 </motion.div>
 

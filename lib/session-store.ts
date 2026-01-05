@@ -130,5 +130,5 @@ export const SessionStore = {
 };
 
 function generateSessionId(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return crypto.randomUUID();
 }

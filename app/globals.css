@@ -81,7 +81,8 @@
   --color-foreground: var(--color-foreground);
   --font-sans: var(--font-sans);
   --font-display: var(--font-display);
-  
+  --font-body: var(--font-body);
+
   /* Theme Variables for Tailwind */
   --color-bg: var(--bg);
   --color-fg: var(--fg);
@@ -92,6 +93,15 @@
   --color-card-fg: var(--card-fg);
   --color-border: var(--border);
   --color-accent: var(--accent);
+}
+
+/* Font utility classes */
+.font-body {
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
 }
 
 /* Layout & Responsive Fixes */
@@ -122,11 +132,23 @@ button {
 }
 
 /* Explicit colors for form elements to prevent OS overrides */
-input:not([type="checkbox"]):not([type="radio"]),
-textarea,
-select {
+input:not([type="checkbox"]):not([type="radio"]):not([data-dark-input]),
+textarea:not([data-dark-input]),
+select:not([data-dark-input]) {
   background-color: #ffffff !important;
   color: #0a0a0a !important;
+}
+
+/* Dark input fields (e.g., footer) */
+input[data-dark-input],
+textarea[data-dark-input] {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+  border: 1px solid #333 !important;
+}
+
+input[data-dark-input]::placeholder {
+  color: #666 !important;
 }
 
 input::placeholder,
@@ -311,6 +333,23 @@ body {
 
 .gradient-hero {
   background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #3730a3 100%);
+}
+
+/* Hero Title Gradient Text - Figma Specs */
+.hero-title-gradient {
+  background: linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.4));
+}
+
+/* Hero Subtitle Gradient Text - Figma Specs */
+.hero-subtitle-gradient {
+  background: linear-gradient(354.03deg, #BDBDBD 4.09%, #575757 131.18%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 /* Animation utilities */

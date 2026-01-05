@@ -481,9 +481,9 @@ export default function CheckoutPage() {
     const hasFoundersPricing = userIsFoundingMember && cardConfig?.foundersTotalPrice;
 
     if (hasFoundersPricing) {
-      // SIMPLIFIED PRICING: Founders pay flat admin-set price (e.g., $149)
+      // SIMPLIFIED PRICING: Founders pay flat admin-set price from admin panel
       // GST, subscription, shipping, customization are ALL INCLUDED
-      const founderPrice = cardConfig.foundersTotalPrice || 149;
+      const founderPrice = cardConfig.foundersTotalPrice;
       return {
         productPlanPrice: 0,
         materialPrice: founderPrice,
@@ -728,7 +728,7 @@ export default function CheckoutPage() {
 
       if (hasFoundersPricing) {
         // FOUNDERS: Flat admin-set price with everything included
-        const founderPrice = cardConfig.foundersTotalPrice || 149;
+        const founderPrice = cardConfig.foundersTotalPrice;
         console.log('🏆 Checkout: Using FOUNDERS pricing:', founderPrice);
         pricingData = {
           productPlanPrice: 0,

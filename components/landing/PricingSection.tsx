@@ -1,46 +1,96 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import Link from 'next/link';
+
+type Feature = {
+  text: string;
+  included: boolean;
+};
+
+type Plan = {
+  name: string;
+  price: string;
+  description: string;
+  features: Feature[];
+  badge: string | null;
+  cta: string;
+  href: string;
+};
 
 export default function PricingSection() {
-  const plans = [
+  const [foundersPrice, setFoundersPrice] = useState<number | null>(null);
+  const [foundersDescription, setFoundersDescription] = useState<string>('Built for the first believers.');
+  const [foundersFeatures, setFoundersFeatures] = useState<Feature[]>([
+    { text: 'Lifetime Linkist Pro App subscription', included: true },
+    { text: 'Linkist Digital Profile', included: true },
+    { text: 'AI Credits worth $50 (no expiry)', included: true },
+    { text: 'Premium Metal NFC Card', included: true },
+    { text: 'Up to 3 Founding Club referral invites', included: true },
+    { text: 'Access to exclusive Linkist partner privileges', included: true }
+  ]);
+
+  useEffect(() => {
+    // Fetch Founders Club pricing from API
+    const fetchFoundersPricing = async () => {
+      try {
+        const response = await fetch('/api/founders/pricing');
+        const data = await response.json();
+        if (data.success && data.founders_total_price) {
+          setFoundersPrice(data.founders_total_price);
+
+          // Update description and features from API if available
+          if (data.plan?.description) {
+            setFoundersDescription(data.plan.description);
+          }
+          if (data.plan?.features && Array.isArray(data.plan.features) && data.plan.features.length > 0) {
+            setFoundersFeatures(data.plan.features.map((f: string) => ({ text: f, included: true })));
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching founders pricing:', error);
+      }
+    };
+    fetchFoundersPricing();
+  }, []);
+
+  const plans: Plan[] = [
     {
-      name: 'Free',
-      price: '$ 0',
-      description: 'Starter (Digital Profile Only)',
+      name: 'Starter',
+      price: '$0',
+      description: 'A simple digital identity to get you started.',
       features: [
-        'Create your profile in minutes',
-        'Life-long digital profile (Free for life)',
-        'Basic analytics',
-        'Profile customization',
-        'Upgrade Anytime'
+        { text: 'Linkist Digital Profile', included: true },
+        { text: 'Personalised Linkist ID (yours for life)', included: true },
+        { text: 'Easy sharing via link & QR', included: true }
       ],
-      highlight: false
+      badge: null,
+      cta: 'Get Started',
+      href: '/choose-plan'
     },
     {
       name: 'Personal',
-      price: '$ 59',
-      description: 'Supercharged AI tools. Personalized guidance. Market insights.',
+      price: '$69',
+      description: 'Your digital profile, powered by a physical touchpoint.',
       features: [
-        'All Starter plan features included and more',
-        'Advanced analytics dashboard',
-        'One-year Linkist App access (worth $120)',
-        'Smart reminders & follow-ups'
+        { text: 'Everything in Starter and more', included: true },
+        { text: 'Linkist branded NFC card', included: true },
+        { text: 'No Founding Member tag', included: false },
+        { text: 'No Linkist Pro App subscription', included: false }
       ],
-      highlight: true
+      badge: null,
+      cta: 'Get Started',
+      href: '/choose-plan'
     },
     {
-      name: 'Business',
-      price: '$ 69',
-      description: 'Supercharged AI tools. Personalized guidance. Market insights.',
-      features: [
-        'All Personal plan features included and more',
-        'Advanced analytics dashboard',
-        'Premium NFC business card',
-        'Instant tap-to-share convenience',
-        'Custom branding & design'
-      ],
-      highlight: false
+      name: "Founder's Club",
+      price: foundersPrice ? `$${foundersPrice}` : '...',
+      description: foundersDescription,
+      features: foundersFeatures,
+      badge: 'Most Exclusive',
+      cta: 'Know More',
+      href: '/product-selection'
     }
   ];
 
@@ -62,17 +112,28 @@ export default function PricingSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-4xl md:text-5xl font-bold text-white mb-6"
+          className="mb-6 text-center"
+          style={{
+            fontFamily: 'Poppins, sans-serif',
+            fontWeight: 500,
+            fontSize: '32px',
+            lineHeight: '43px',
+            letterSpacing: '-0.02em',
+            background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}
         >
           Select the Right Plan for Your Needs
         </motion.h2>
 
-        <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-20 leading-relaxed">
+        <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-20 leading-relaxed font-body">
           Select the plan that best suits your needs, whether you're just getting started or need advanced features and support for your business.
         </p>
 
         {/* Pricing Cards Grid */}
-        <div className="grid lg:grid-cols-3 gap-8 items-center">
+        <div className="grid lg:grid-cols-3 gap-8 items-stretch">
           {plans.map((plan, idx) => (
             <motion.div
               key={idx}
@@ -80,58 +141,113 @@ export default function PricingSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1 }}
-              className={`
-                                relative rounded-[32px] p-8 text-left border transition-transform duration-300 flex flex-col h-full
-                                ${plan.highlight
-                  ? 'bg-gradient-to-b from-[#C41C1C] to-[#0A0A0A] border-[#FF4D4D]/20 scale-105 z-10 shadow-[0_0_60px_rgba(196,28,28,0.2)]'
-                  : 'bg-[#0A0A0A] border-[#222] hover:border-[#333]'
-                }
-                            `}
+              className="relative rounded-[32px] p-8 text-left bg-[#0F0F0F] border border-[#1A1A1A] flex flex-col"
             >
-              {plan.highlight && (
-                <div className="absolute top-6 right-6 bg-black/30 backdrop-blur px-3 py-1 rounded-full text-[10px] font-medium border border-white/10 text-white">
-                  Most popular
-                </div>
-              )}
+              {/* Header with title and badge */}
+              <div className="flex items-center justify-between mb-4">
+                <h3
+                  style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 500,
+                    fontSize: '24px',
+                    lineHeight: '32px',
+                    letterSpacing: '0',
+                    color: '#FFFFFF',
+                  }}
+                >
+                  {plan.name}
+                </h3>
+                {plan.badge && (
+                  <span className="px-4 py-1.5 rounded-full text-xs font-medium bg-[#3D1515] text-[#E85454] border border-[#5C2020]">
+                    {plan.badge}
+                  </span>
+                )}
+              </div>
 
-              {/* Circle Icon */}
-              <div className={`w-12 h-12 rounded-full mb-6 shadow-lg ${plan.highlight ? 'bg-[#FF4D4D]' : 'bg-gradient-to-br from-[#FFE5E5] to-[#999]'}`} />
-
-              <h3 className="text-xl font-bold text-white mb-2">{plan.name}</h3>
-              <p className="text-[#ccc] text-xs leading-relaxed mb-8 min-h-[40px] opacity-80">
+              {/* Description */}
+              <p
+                style={{
+                  fontFamily: 'Poppins, sans-serif',
+                  fontWeight: 400,
+                  fontSize: '16px',
+                  lineHeight: '26px',
+                  letterSpacing: '0',
+                  color: 'rgba(189, 189, 189, 1)',
+                }}
+                className="mb-6"
+              >
                 {plan.description}
               </p>
 
-              <div className="text-3xl font-bold text-white mb-8">
-                {plan.price} <span className="text-sm font-normal text-[#ccc]/70">/month</span>
+              {/* Divider */}
+              <div className="w-full h-px bg-[#222] mb-8" />
+
+              {/* Price */}
+              <div className="mb-8">
+                <span
+                  style={{
+                    fontFamily: 'Poppins, sans-serif',
+                    fontWeight: 500,
+                    fontSize: '80px',
+                    lineHeight: '88px',
+                    letterSpacing: '-0.04em',
+                    color: 'rgba(255, 255, 255, 1)',
+                  }}
+                >
+                  {plan.price}
+                </span>
               </div>
 
-              <button className={`w-full py-3 rounded-full font-medium text-xs tracking-wide transition-all mb-8 border border-[#333] ${plan.highlight ? 'bg-[#0A0A0A]/50 text-white hover:bg-black' : 'bg-transparent text-white hover:bg-[#111]'}`}>
-                Get Started
-              </button>
-
-              <div className="space-y-4 pt-6 border-t border-white/5 flex-grow">
-                <div className="text-[10px] text-[#666] uppercase tracking-wider font-semibold mb-4">
-                  TURQUOISE TREK +
-                </div>
-
+              {/* Features */}
+              <div className="space-y-5 flex-grow mb-8">
                 {plan.features.map((feature, fIdx) => (
                   <div key={fIdx} className="flex items-start gap-3">
-                    <CheckCircleOutlineIcon className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.highlight ? 'text-white' : 'text-[#555]'}`} />
-                    <div className="flex-1 flex items-center justify-between">
-                      <span className={`text-xs ${plan.highlight ? 'text-white' : 'text-[#888]'}`}>{feature}</span>
-
-                      {/* AI Badge Logic */}
-                      {((plan.name === 'Personal' && feature.includes('Advanced analytics')) ||
-                        (plan.name === 'Business' && feature.includes('Premium NFC'))) && (
-                          <span className="flex-shrink-0 flex items-center gap-1 bg-black/40 border border-white/10 px-2 py-0.5 rounded-full text-[9px] text-white">
-                            <AutoAwesomeIcon style={{ fontSize: 9 }} /> AI-based
-                          </span>
-                        )}
-                    </div>
+                    {feature.included ? (
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#888]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M9 12l2 2 4-4" />
+                      </svg>
+                    ) : (
+                      <svg
+                        className="w-5 h-5 mt-0.5 flex-shrink-0 text-[#555]"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M15 9l-6 6M9 9l6 6" />
+                      </svg>
+                    )}
+                    <span
+                      style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 400,
+                        fontSize: '16px',
+                        lineHeight: '26px',
+                        letterSpacing: '0',
+                        color: feature.included ? 'rgba(245, 245, 245, 1)' : 'rgba(102, 102, 102, 1)',
+                      }}
+                    >
+                      {feature.text}
+                    </span>
                   </div>
                 ))}
               </div>
+
+              {/* CTA Button */}
+              <Link
+                href={plan.href}
+                className="w-full py-4 rounded-full font-medium text-sm text-white bg-transparent border border-[#333] hover:border-[#444] hover:bg-[#111] transition-all text-center block"
+              >
+                {plan.cta}
+              </Link>
             </motion.div>
           ))}
         </div>

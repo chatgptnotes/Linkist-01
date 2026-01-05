@@ -60,6 +60,16 @@ export default function ProductSelectionPage() {
   const [showCodeModal, setShowCodeModal] = useState(false);
   const [foundersClubUnlocked, setFoundersClubUnlocked] = useState(false);
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
+  const [foundersClubPrice, setFoundersClubPrice] = useState<number | null>(null);
+  const [foundersClubOriginalPrice, setFoundersClubOriginalPrice] = useState<number>(999);
+  const [foundersClubDescription, setFoundersClubDescription] = useState<string>('Exclusive membership with lifetime benefits');
+  const [foundersClubFeatures, setFoundersClubFeatures] = useState<string[]>([
+    'Founders Tag on NFC Card',
+    'Exclusive Black Card Colors',
+    'Lifetime 50% Discount',
+    'Priority 24/7 Support',
+    'Early Access to Features'
+  ]);
 
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -104,7 +114,35 @@ export default function ProductSelectionPage() {
 
     // Fetch plans from API
     fetchPlans();
+
+    // Fetch Founders Club pricing from API
+    fetchFoundersPricing();
   }, []);
+
+  const fetchFoundersPricing = async () => {
+    try {
+      const response = await fetch('/api/founders/pricing');
+      const data = await response.json();
+
+      if (data.success && data.founders_total_price) {
+        setFoundersClubPrice(data.founders_total_price);
+        // Calculate original price (approximately 3x the sale price for "Save $X" display)
+        const originalPrice = Math.round(data.founders_total_price * 3);
+        setFoundersClubOriginalPrice(originalPrice);
+
+        // Update description and features from API if available
+        if (data.plan?.description) {
+          setFoundersClubDescription(data.plan.description);
+        }
+        if (data.plan?.features && Array.isArray(data.plan.features) && data.plan.features.length > 0) {
+          setFoundersClubFeatures(data.plan.features);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching founders pricing:', error);
+      // Don't set a fallback - let the UI show loading state
+    }
+  };
 
   const fetchPlans = async () => {
     try {
@@ -137,7 +175,7 @@ export default function ProductSelectionPage() {
           }
 
           // Determine price label
-          let priceLabel = 'Free';
+          let priceLabel = '';
           if (plan.popular) {
             priceLabel = 'Most Popular';
           } else if (plan.type === 'digital-with-app') {
@@ -179,7 +217,7 @@ export default function ProductSelectionPage() {
         title: 'Free',
         subtitle: 'Your professional identity - simple, shareable, sustainable.',
         price: '$0',
-        priceLabel: 'Free',
+        priceLabel: '',
         icon: <User className="w-6 h-6" />,
         features: [
           'Digital profile',
@@ -190,38 +228,21 @@ export default function ProductSelectionPage() {
       },
       {
         id: 'physical-digital',
-        title: 'Physical NFC Card + Linkist App',
-        subtitle: '1 year subscription & AI Credits',
-        price: '$29',
-        priceLabel: 'Most Popular',
+        title: 'Personal',
+        subtitle: 'Premium NFC business card with digital profile',
+        price: '$69',
+        priceLabel: '',
         icon: <CreditCard className="w-6 h-6" />,
         features: [
-          'Premium NFC Card',
-          'Linkist App Access (1 Year)',
-          'AI Credits worth $50',
-          'Unlimited Profile Updates',
-          'Analytics Dashboard',
-          'Priority Support'
+          'Premium NFC card',
+          'Unlimited profile updates',
+          'Analytics dashboard',
+          'Custom branding',
+          'Priority support'
         ],
-        popular: true,
+        popular: false,
         disabled: !isPhysicalCardAllowed,
         disabledMessage: `Physical cards are not available in ${userCountry}. Please choose a digital option.`
-      },
-      {
-        id: 'digital-with-app',
-        title: 'Digital Profile + Linkist App',
-        subtitle: '1 year subscription & AI Credits',
-        price: '$19',
-        priceLabel: 'Best Value',
-        icon: <Smartphone className="w-6 h-6" />,
-        features: [
-          'Digital Business Card',
-          'Linkist App Access (1 Year)',
-          'AI Credits worth $30',
-          'Unlimited Profile Updates',
-          'Analytics Dashboard',
-          'Email Support'
-        ]
       }
     ];
   };
@@ -590,9 +611,11 @@ export default function ProductSelectionPage() {
                       <p className="text-2xl md:text-xl font-bold text-gray-900">
                         {option.price}
                       </p>
-                      <p className="text-sm md:text-xs text-gray-500 mt-1 md:mt-0.5">
-                        {option.priceLabel}
-                      </p>
+                      {option.priceLabel && (
+                        <p className="text-sm md:text-xs text-gray-500 mt-1 md:mt-0.5">
+                          {option.priceLabel}
+                        </p>
+                      )}
                     </div>
 
                     {/* Features */}
@@ -619,13 +642,6 @@ export default function ProductSelectionPage() {
                 }`}
                 onClick={() => foundersClubUnlocked && handleCardClick('founders-club')}
               >
-                {/* Exclusive Badge */}
-                <div className="absolute -top-4 md:-top-5 left-1/2 transform -translate-x-1/2 z-20">
-                  <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-3 py-1 md:px-4 rounded-full text-[10px] md:text-xs font-semibold shadow-lg whitespace-nowrap">
-                    EXCLUSIVE
-                  </span>
-                </div>
-
                 {/* Locked Overlay */}
                 {!foundersClubUnlocked && (
                   <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-6">
@@ -685,42 +701,24 @@ export default function ProductSelectionPage() {
                     Founders Club
                   </h3>
                   <p className="text-sm md:text-xs text-gray-600 mb-4 md:mb-3">
-                    Exclusive membership with lifetime benefits
+                    {foundersClubDescription}
                   </p>
 
                   {/* Price */}
                   <div className="mb-4 md:mb-3">
                     <p className="text-2xl md:text-xl font-bold text-gray-900">
-                      $299
-                    </p>
-                    <p className="text-sm md:text-xs text-gray-500 mt-1 md:mt-0.5">
-                      <span className="line-through text-gray-400">$999</span>
-                      <span className="text-green-600 ml-1">Save $700</span>
+                      ${foundersClubPrice ?? '...'}
                     </p>
                   </div>
 
                   {/* Features */}
                   <ul className="space-y-2 md:space-y-1.5">
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm md:text-xs text-gray-700">Founders Tag on NFC Card</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm md:text-xs text-gray-700">Exclusive Black Card Colors</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm md:text-xs text-gray-700">Lifetime 50% Discount</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm md:text-xs text-gray-700">Priority 24/7 Support</span>
-                    </li>
-                    <li className="flex items-start">
-                      <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm md:text-xs text-gray-700">Early Access to Features</span>
-                    </li>
+                    {foundersClubFeatures.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Check className="w-5 h-5 md:w-4 md:h-4 text-amber-500 mr-2 mt-0.5 flex-shrink-0" />
+                        <span className="text-sm md:text-xs text-gray-700">{feature}</span>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>

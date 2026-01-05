@@ -276,4 +276,6 @@ export const formatOrderForEmail = (order: Order) => ({
   estimatedDelivery: order.estimatedDelivery,
   trackingNumber: order.trackingNumber,
   trackingUrl: order.trackingUrl,
+  // Pass founding member status for email template pricing display
+  isFoundingMember: (order.cardConfig as any)?.isFoundingMember || false,
 });

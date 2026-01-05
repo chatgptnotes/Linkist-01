@@ -123,7 +123,7 @@ export default function LoginPage() {
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Or{' '}
-            <Link href="/register" className="font-medium text-red-600 hover:text-red-500">
+            <Link href="/choose-plan" className="font-medium text-red-600 hover:text-red-500">
               create a new account
             </Link>
           </p>

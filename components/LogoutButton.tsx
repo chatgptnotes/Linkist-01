@@ -27,8 +27,10 @@ export default function LogoutButton() {
         // Clear local storage
         localStorage.clear();
 
-        // Clear session cookie
-        document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        // Clear cookies with proper attributes matching how they were set
+        document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
+        document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
+        document.cookie = 'admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
 
         // Redirect to home
         router.push('/');

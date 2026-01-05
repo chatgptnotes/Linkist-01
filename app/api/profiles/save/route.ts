@@ -382,9 +382,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Fetch user's country from users table
+    const { data: userData } = await supabase
+      .from('users')
+      .select('country, country_code')
+      .eq('id', userId)
+      .single()
+
     return NextResponse.json({
       success: true,
-      profile: result.profiles
+      profile: result.profiles,
+      userCountry: userData?.country || null,
+      userCountryCode: userData?.country_code || null
     })
 
   } catch (error) {

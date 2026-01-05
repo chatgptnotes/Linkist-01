@@ -83,8 +83,13 @@ export async function POST(request: NextRequest) {
       throw new Error(`User creation failed: ${userError instanceof Error ? userError.message : 'Unknown error'}`);
     }
 
-    // Determine order status - 'pending' if called from checkout, 'confirmed' if has payment
-    const orderStatus = paymentData ? 'confirmed' : 'pending';
+    // Determine if this is a digital-only order (no physical card)
+    const isDigitalOnlyOrder = cardConfig.isDigitalOnly === true || cardConfig.baseMaterial === 'digital';
+
+    // Determine order status:
+    // - Digital orders: 'delivered' (no physical card to ship)
+    // - Physical orders: 'pending' if no payment, 'confirmed' if has payment
+    const orderStatus = isDigitalOnlyOrder ? 'delivered' : (paymentData ? 'confirmed' : 'pending');
 
     let order;
 

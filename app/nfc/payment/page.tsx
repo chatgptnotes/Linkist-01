@@ -298,13 +298,13 @@ export default function NFCPaymentPage() {
 
     if (isFoundingMember) {
       // FOUNDERS: Use the flat founder's price (subscription + GST included)
-      const founderPrice = orderData.pricing?.materialPrice || orderData.cardConfig?.foundersTotalPrice || 149;
-      return founderPrice * quantity;
+      const founderPrice = orderData.pricing?.materialPrice || orderData.cardConfig?.foundersTotalPrice;
+      return (founderPrice || 0) * quantity;
     }
 
     // NON-FOUNDERS: Just material price (GST absorbed, no subscription)
-    const materialPrice = orderData.pricing?.materialPrice || 99;
-    return materialPrice * quantity;
+    const materialPrice = orderData.pricing?.materialPrice;
+    return (materialPrice || 0) * quantity;
   };
 
   const getFinalAmount = () => {

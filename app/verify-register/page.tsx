@@ -27,7 +27,7 @@ export default function VerifyRegisterPage() {
     // Get registration data from localStorage
     const data = localStorage.getItem('registrationData');
     if (!data) {
-      router.push('/register');
+      router.push('/choose-plan');
       return;
     }
 
@@ -239,9 +239,9 @@ export default function VerifyRegisterPage() {
       </div>
 
       <div className="mt-6 text-center">
-        <Link href="/register" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
+        <Link href="/choose-plan" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
           <ArrowLeft className="h-4 w-4 mr-1" />
-          Back to registration
+          Back to plans
         </Link>
       </div>
     </div>

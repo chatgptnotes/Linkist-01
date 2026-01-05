@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionStore } from '@/lib/session-store';
+import { createClient } from '@supabase/supabase-js';
 
 /**
  * POST /api/auth/logout
@@ -30,6 +31,18 @@ export async function POST(request: NextRequest) {
       console.log('ℹ️ No session cookie found - user may already be logged out');
     }
 
+    // Sign out from Supabase if there's an active Supabase session
+    try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      await supabase.auth.signOut();
+    } catch {
+      // Don't fail logout if Supabase signOut fails
+      console.log('ℹ️ Supabase signOut skipped (no active Supabase session)');
+    }
+
     // Always clear session cookie and return success
     // This ensures users can always logout, even if session is invalid
     const response = NextResponse.json({
@@ -42,6 +55,9 @@ export async function POST(request: NextRequest) {
 
     // Also clear userEmail cookie if it exists
     response.cookies.delete('userEmail');
+
+    // Clear admin session cookie if it exists
+    response.cookies.delete('admin_session');
 
     console.log('✅ Logout completed - all cookies cleared');
 
@@ -59,6 +75,7 @@ export async function POST(request: NextRequest) {
 
     response.cookies.delete('session');
     response.cookies.delete('userEmail');
+    response.cookies.delete('admin_session');
 
     return response;
   }

@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function StatsSection() {
     const stats = [
@@ -21,11 +22,14 @@ export default function StatsSection() {
         <section className="relative py-32 bg-[#050505]">
             {/* Floating CTA matches image 6 */}
             <div className="absolute top-0 left-0 w-full flex justify-center -translate-y-1/2 z-20">
-                <Link href="/choose-plan" className="group flex items-center gap-2 px-6 py-3 bg-[#111] border border-[#333] rounded-full hover:border-[#E02424] transition-colors shadow-2xl">
-                    <svg className="w-5 h-5 text-[#E02424] flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                    <span className="text-white font-medium tracking-wide text-sm">JOIN LINKIST</span>
+                <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95 shadow-2xl">
+                    <Image
+                        src="/joinbutton.png"
+                        alt="Join Linkist"
+                        width={180}
+                        height={46}
+                        className="w-auto h-[42px] object-contain"
+                    />
                 </Link>
             </div>
 
@@ -45,17 +49,24 @@ export default function StatsSection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-4xl md:text-6xl font-bold text-white mb-12 leading-tight max-w-5xl mx-auto"
+                    className="text-white mb-12 max-w-5xl mx-auto text-center"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '32px',
+                        lineHeight: '43px',
+                        letterSpacing: '-0.03em'
+                    }}
                 >
                     The "Nice to Meet You" Is Where Most Deals Die.
                 </motion.h2>
 
-                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-24 leading-relaxed">
+                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-24 leading-relaxed font-body">
                     The stats don’t lie. The moment the handshake ends, the clock starts ticking against you.
                 </p>
 
                 {/* Stats Grid */}
-                <div className="grid md:grid-cols-3 gap-16">
+                <div className="grid md:grid-cols-3 gap-16 justify-items-center">
                     {stats.map((stat, idx) => (
                         <motion.div
                             key={idx}
@@ -63,12 +74,30 @@ export default function StatsSection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.2 }}
-                            className="flex flex-col items-center"
+                            className="flex flex-col items-center w-[350px]"
                         >
-                            <div className="text-6xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-[#E02424] to-[#601010] mb-6 drop-shadow-[0_10px_20px_rgba(224,36,36,0.3)]">
+                            <div
+                                className="text-white text-center"
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 500,
+                                    fontSize: '56px',
+                                    lineHeight: '72px',
+                                    letterSpacing: '-0.04em'
+                                }}
+                            >
                                 {stat.value}
                             </div>
-                            <p className="text-[#A0A0A0] text-lg leading-relaxed max-w-xs">
+                            <p
+                                className="text-[#888] text-center"
+                                style={{
+                                    fontFamily: 'Poppins, sans-serif',
+                                    fontWeight: 400,
+                                    fontSize: '20px',
+                                    lineHeight: '32px',
+                                    letterSpacing: '0%'
+                                }}
+                            >
                                 {stat.description}
                             </p>
                         </motion.div>

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { emailOrPhone, email, mobile, firstName, lastName, isFoundingMember, foundingMemberPlan, foundingMemberSince } = body;
+    const { emailOrPhone, email, mobile, phone, firstName, lastName, isFoundingMember, foundingMemberPlan, foundingMemberSince } = body;
 
     // Determine identifier for rate limiting
     identifier = email || mobile || emailOrPhone;
@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
               firstName,
               lastName,
               email,
-              phone: null,
+              phone: phone || null,  // Use phone from request if provided
               isFoundingMember: isFoundingMember || false,
               foundingMemberPlan: foundingMemberPlan || null,
               foundingMemberSince: foundingMemberSince || null
@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
               firstName,
               lastName,
               email,
-              phone: null,
+              phone: phone || null,  // Use phone from request if provided
               isFoundingMember: isFoundingMember || false,
               foundingMemberPlan: foundingMemberPlan || null,
               foundingMemberSince: foundingMemberSince || null

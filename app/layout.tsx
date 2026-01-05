@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import GDPRConsentBanner from '@/components/gdpr-consent-banner';
 import { ToastProvider } from '@/components/ToastProvider';
@@ -8,7 +8,16 @@ import ConditionalLayout from '@/components/ConditionalLayout';
 import { Toaster } from 'sonner';
 import { PWAProvider } from '@/contexts/PWAContext';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-inter"
+});
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-poppins"
+});
 
 export const metadata: Metadata = {
   title: "Linkist NFC - Smart Business Cards",
@@ -83,7 +92,7 @@ export default function RootLayout({
           `
         }} />
       </head>
-      <body className={`${inter.className} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
+      <body className={`${inter.variable} ${poppins.variable} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
         <AdminInitializer />
         <Toaster position="top-center" richColors />
         <PWAProvider>

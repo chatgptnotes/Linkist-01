@@ -30,6 +30,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Check if email already exists in users table
+    const { data: existingUserByEmail } = await supabase
+      .from('users')
+      .select('id, email, is_founding_member')
+      .eq('email', email.toLowerCase().trim())
+      .single();
+
+    if (existingUserByEmail) {
+      if (existingUserByEmail.is_founding_member) {
+        return NextResponse.json(
+          { success: false, error: 'This email is already registered as a Founders Club member.' },
+          { status: 400 }
+        );
+      }
+      // User exists but not a founding member - they can still request (will upgrade existing account)
+    }
+
+    // Check if phone already exists in users table (with different email)
+    const { data: existingUserByPhone } = await supabase
+      .from('users')
+      .select('id, email, phone_number')
+      .eq('phone_number', phone.trim())
+      .single();
+
+    if (existingUserByPhone && existingUserByPhone.email.toLowerCase() !== email.toLowerCase().trim()) {
+      return NextResponse.json(
+        { success: false, error: 'This phone number is already registered with a different account. Please use a different phone number or use the email associated with this phone.' },
+        { status: 400 }
+      );
+    }
+
     // Check for existing pending request with same email
     const { data: existingRequest } = await supabase
       .from('founders_requests')
@@ -209,7 +240,7 @@ function getFoundersRequestConfirmationEmail(firstName: string, lastName: string
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <tr>
       <td style="padding: 40px 30px; text-align: center; background-color: #000000;">
-        <img src="https://linkist.2men.co/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+        <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
       </td>
     </tr>
     <tr>

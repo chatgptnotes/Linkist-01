@@ -28,6 +28,13 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Fetching profiles for user_id:', userId)
 
+    // Fetch user's country from users table
+    const { data: userData } = await supabase
+      .from('users')
+      .select('country, country_code')
+      .eq('id', userId)
+      .single()
+
     // Fetch profiles via profile_users junction table
     const { data: result, error } = await supabase
       .from('profile_users')
@@ -79,7 +86,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      profiles: profilesWithServices
+      profiles: profilesWithServices,
+      userCountry: userData?.country || null,
+      userCountryCode: userData?.country_code || null
     })
   } catch (error) {
     console.error('Error fetching profiles:', error)

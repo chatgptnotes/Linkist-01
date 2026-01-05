@@ -66,6 +66,13 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Fetch user's country from users table
+    const { data: userData } = await supabase
+      .from('users')
+      .select('country, country_code')
+      .eq('id', userId)
+      .single();
+
     // Fetch services for this profile
     const { data: services } = await supabase
       .from('profile_services')
@@ -126,6 +133,10 @@ export async function GET(request: NextRequest) {
       userId: profile.user_id,
       createdAt: profile.created_at,
       updatedAt: profile.updated_at,
+
+      // User's country (from users table)
+      userCountry: userData?.country || null,
+      userCountryCode: userData?.country_code || null,
     };
 
     return NextResponse.json({

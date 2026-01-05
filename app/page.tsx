@@ -21,8 +21,23 @@ export default function HomePage() {
 
       <main>
         <HeroSection />
-        <RealityCheckSection />
-        <WhyTimelineSection />
+        {/* Grid background wrapper for RealityCheck and WhyTimeline sections */}
+        <div
+          className="relative overflow-hidden bg-[#050505]"
+        >
+          <img
+            src="/Vector (1).png"
+            alt=""
+            className="absolute left-0 right-0 w-full h-full object-cover pointer-events-none md:hidden"
+            style={{
+              top: '15%',
+              opacity: 0.6,
+              filter: 'brightness(0.5) sepia(1) hue-rotate(-30deg) saturate(4)'
+            }}
+          />
+          <RealityCheckSection />
+          <WhyTimelineSection />
+        </div>
         <SuperpowerSection />
         <StatsSection />
         <InviteOnlySection />

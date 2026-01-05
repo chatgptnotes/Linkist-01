@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useToast } from '@/components/ToastProvider';
@@ -36,6 +36,23 @@ export default function FoundingMemberPage() {
   const { showToast } = useToast();
   const [selectedPlan, setSelectedPlan] = useState('lifetime');
   const [loading, setLoading] = useState(false);
+  const [foundersPrice, setFoundersPrice] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch Founders Club pricing from API
+    const fetchFoundersPricing = async () => {
+      try {
+        const response = await fetch('/api/founders/pricing');
+        const data = await response.json();
+        if (data.success && data.founders_total_price) {
+          setFoundersPrice(data.founders_total_price);
+        }
+      } catch (error) {
+        console.error('Error fetching founders pricing:', error);
+      }
+    };
+    fetchFoundersPricing();
+  }, []);
 
   const benefits = [
     {
@@ -70,12 +87,15 @@ export default function FoundingMemberPage() {
     }
   ];
 
+  // Calculate original price (approximately 3x the sale price)
+  const originalPrice = foundersPrice ? Math.round(foundersPrice * 3) : 999;
+
   const plans = [
     {
       id: 'lifetime',
       name: 'Lifetime Founding Member',
-      price: 299,
-      originalPrice: 999,
+      price: foundersPrice ?? 0,
+      originalPrice: originalPrice,
       description: 'One-time payment, lifetime benefits',
       features: [
         'Unlimited NFC cards',

@@ -170,6 +170,12 @@ export default function OrdersPage() {
     }
   };
 
+  // Helper function to check if order is digital-only (no physical card)
+  const isDigitalOrder = (order: Order) => {
+    return order.cardConfig.baseMaterial === 'digital' ||
+           (order.cardConfig as any).isDigitalOnly === true;
+  };
+
   const getPaymentStatusBadge = (payment: Payment | null | undefined) => {
     if (!payment) {
       return (
@@ -533,7 +539,11 @@ export default function OrdersPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      {order.printerEmailSent ? (
+                      {isDigitalOrder(order) ? (
+                        <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-100 text-cyan-800 border border-cyan-200">
+                          <span>Digital Only</span>
+                        </span>
+                      ) : order.printerEmailSent ? (
                         <div className="flex items-center space-x-1">
                           <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                             <CheckCircle className="h-3 w-3" />
@@ -571,17 +581,19 @@ export default function OrdersPage() {
                         >
                           <Mail className="h-4 w-4" />
                         </button>
-                        <button
-                          onClick={() => resendToPrinter(order.id)}
-                          className={`p-2 rounded-lg ${
-                            order.printerEmailSent
-                              ? 'text-orange-600 hover:text-orange-800 hover:bg-orange-50'
-                              : 'text-purple-600 hover:text-purple-800 hover:bg-purple-50'
-                          }`}
-                          title={order.printerEmailSent ? 'Resend to Printer' : 'Send to Printer'}
-                        >
-                          <Print className="h-4 w-4" />
-                        </button>
+                        {!isDigitalOrder(order) && (
+                          <button
+                            onClick={() => resendToPrinter(order.id)}
+                            className={`p-2 rounded-lg ${
+                              order.printerEmailSent
+                                ? 'text-orange-600 hover:text-orange-800 hover:bg-orange-50'
+                                : 'text-purple-600 hover:text-purple-800 hover:bg-purple-50'
+                            }`}
+                            title={order.printerEmailSent ? 'Resend to Printer' : 'Send to Printer'}
+                          >
+                            <Print className="h-4 w-4" />
+                          </button>
+                        )}
                         <button
                           className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg"
                           title="More Actions"
@@ -825,42 +837,54 @@ export default function OrdersPage() {
                 </div>
               </div>
 
-              {/* Printer Actions */}
-              <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-3 flex items-center">
-                  <Print className="h-4 w-4 mr-2 text-purple-600" />
-                  Printer Status
-                </h4>
-                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-3">
-                  <div className="flex items-center space-x-3">
-                    {selectedOrder.printerEmailSent ? (
-                      <>
-                        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Sent to Printer</span>
-                        </span>
-                        {selectedOrder.printerEmailSentAt && (
-                          <span className="text-sm text-gray-500">
-                            on {new Date(selectedOrder.printerEmailSentAt).toLocaleString()}
+              {/* Printer Actions - Only show for physical card orders */}
+              {!isDigitalOrder(selectedOrder) ? (
+                <div className="border-t pt-4">
+                  <h4 className="font-medium text-gray-900 mb-3 flex items-center">
+                    <Print className="h-4 w-4 mr-2 text-purple-600" />
+                    Printer Status
+                  </h4>
+                  <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3 mb-3">
+                    <div className="flex items-center space-x-3">
+                      {selectedOrder.printerEmailSent ? (
+                        <>
+                          <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
+                            <CheckCircle className="h-4 w-4" />
+                            <span>Sent to Printer</span>
                           </span>
-                        )}
-                      </>
-                    ) : (
-                      <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
-                        <Clock className="h-4 w-4" />
-                        <span>Not Sent to Printer</span>
-                      </span>
-                    )}
+                          {selectedOrder.printerEmailSentAt && (
+                            <span className="text-sm text-gray-500">
+                              on {new Date(selectedOrder.printerEmailSentAt).toLocaleString()}
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                          <Clock className="h-4 w-4" />
+                          <span>Not Sent to Printer</span>
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => resendToPrinter(selectedOrder.id)}
+                      className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center space-x-2"
+                    >
+                      <Print className="h-4 w-4" />
+                      <span>{selectedOrder.printerEmailSent ? 'Resend to Printer' : 'Send to Printer'}</span>
+                    </button>
                   </div>
-                  <button
-                    onClick={() => resendToPrinter(selectedOrder.id)}
-                    className="px-4 py-2 bg-purple-600 text-white text-sm rounded-lg hover:bg-purple-700 flex items-center space-x-2"
-                  >
-                    <Print className="h-4 w-4" />
-                    <span>{selectedOrder.printerEmailSent ? 'Resend to Printer' : 'Send to Printer'}</span>
-                  </button>
                 </div>
-              </div>
+              ) : (
+                <div className="border-t pt-4">
+                  <div className="flex items-center space-x-3 bg-cyan-50 rounded-lg p-3">
+                    <span className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-cyan-100 text-cyan-800 border border-cyan-200">
+                      <CheckCircle className="h-4 w-4" />
+                      <span>Digital Profile Only</span>
+                    </span>
+                    <span className="text-sm text-cyan-700">No physical card to print</span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

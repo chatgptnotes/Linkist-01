@@ -223,15 +223,123 @@ function VerifyMobileContent() {
       const pendingProductFlow = localStorage.getItem('pendingProductFlow');
       const productSelection = localStorage.getItem('productSelection');
 
-      setTimeout(() => {
+      setTimeout(async () => {
         if (pendingProductFlow === 'true' && productSelection) {
           // Clear the pending flow flag
           localStorage.removeItem('pendingProductFlow');
 
           // Redirect based on selected product
           if (productSelection === 'digital-only') {
-            // Free tier - go back to product selection to process order
-            router.push('/product-selection');
+            // Free tier - process order directly and redirect to success
+            try {
+              const userProfileStr = localStorage.getItem('userProfile');
+              let email = '';
+              let firstName = 'User';
+              let lastName = 'Name';
+              let phoneNumber = phone;
+              let country = 'IN';
+
+              if (userProfileStr) {
+                try {
+                  const profile = JSON.parse(userProfileStr);
+                  email = profile.email || '';
+                  firstName = profile.firstName || 'User';
+                  lastName = profile.lastName || 'Name';
+                  phoneNumber = profile.mobile || phone;
+                  country = profile.country || 'IN';
+                } catch (error) {
+                  console.error('Error parsing user profile:', error);
+                }
+              }
+
+              // Create order data for digital-only product (FREE - $0)
+              const cardConfig = {
+                firstName,
+                lastName,
+                baseMaterial: 'digital',
+                color: 'none',
+                quantity: 1,
+                isDigitalOnly: true,
+                fullName: `${firstName} ${lastName}`
+              };
+
+              const checkoutData = {
+                fullName: `${firstName} ${lastName}`,
+                email,
+                phoneNumber,
+                country,
+                addressLine1: 'N/A - Digital Product',
+                addressLine2: '',
+                city: 'N/A',
+                state: 'N/A',
+                postalCode: 'N/A'
+              };
+
+              // Call API to create order in database
+              const response = await fetch('/api/process-order', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  cardConfig,
+                  checkoutData,
+                  paymentData: null, // No payment needed for free tier
+                  pricing: {
+                    subtotal: 0,
+                    shipping: 0,
+                    tax: 0,
+                    total: 0
+                  }
+                }),
+              });
+
+              const result = await response.json();
+
+              if (result.success && result.order) {
+                // Order created successfully in database
+                const digitalOnlyOrder = {
+                  orderId: result.order.id,
+                  orderNumber: result.order.orderNumber,
+                  customerName: `${firstName} ${lastName}`,
+                  email,
+                  phoneNumber,
+                  cardConfig,
+                  shipping: {
+                    fullName: `${firstName} ${lastName}`,
+                    email,
+                    phone: phoneNumber,
+                    phoneNumber,
+                    country,
+                    addressLine1: 'N/A - Digital Product',
+                    city: 'N/A',
+                    postalCode: 'N/A',
+                    isFounderMember: false
+                  },
+                  pricing: {
+                    subtotal: 0,
+                    taxAmount: 0,
+                    shippingCost: 0,
+                    total: 0
+                  },
+                  isDigitalProduct: true,
+                  isDigitalOnly: true
+                };
+
+                // Store order confirmation for success page
+                localStorage.setItem('orderConfirmation', JSON.stringify(digitalOnlyOrder));
+
+                // Redirect to success page
+                router.push('/nfc/success');
+              } else {
+                // If order creation fails, redirect to product selection as fallback
+                console.error('Failed to create free tier order:', result.error);
+                router.push('/product-selection');
+              }
+            } catch (error) {
+              console.error('Error creating free tier order:', error);
+              router.push('/product-selection');
+            }
           } else if (productSelection === 'digital-with-app') {
             // Digital + App - go to payment
             router.push('/nfc/payment');
@@ -483,7 +591,8 @@ function VerifyMobileContent() {
                           body: JSON.stringify({
                             email: profile.email,
                             firstName: profile.firstName,
-                            lastName: profile.lastName
+                            lastName: profile.lastName,
+                            phone: phone || null  // Include phone number from state
                           }),
                         });
 
@@ -499,11 +608,6 @@ function VerifyMobileContent() {
                             password: profile.password || '',
                             registrationType: 'email'
                           }));
-
-                          // Show dev OTP if available
-                          if (data.devOtp) {
-                            alert(`Your verification code is: ${data.devOtp}`);
-                          }
 
                           setToast({ message: 'Verification code sent to your email!', type: 'success' });
 

@@ -19,12 +19,23 @@ export default function IdentitySection() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="text-5xl md:text-7xl font-bold text-white mb-8 tracking-tight"
+                    className="mb-8 text-center"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '32px',
+                        lineHeight: '44px',
+                        letterSpacing: '-0.02em',
+                        background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                    }}
                 >
-                    The Key to Your New Identity.
+                    The Key to your New Identity.
                 </motion.h2>
 
-                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-12 leading-relaxed">
+                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-12 leading-relaxed font-body">
                     The NFC card isn't what you're buying. It's the trigger that moves a handshake into your Linkist PRM ecosystem in one tap.
                 </p>
 
@@ -49,7 +60,7 @@ export default function IdentitySection() {
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.3 }}
-                    className="text-[#666] text-sm max-w-sm mx-auto mt-12"
+                    className="text-[#666] text-sm max-w-sm mx-auto mt-12 font-body"
                 >
                     Once this limited run is over, this exact Black Founding Member card will not be issued again.
                 </motion.p>

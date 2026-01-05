@@ -7,6 +7,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        poppins: ['var(--font-poppins)', 'sans-serif'],
+        inter: ['var(--font-inter)', 'Inter', 'sans-serif'],
+      },
       colors: {
         red: {
           50: '#fff0f0',  // Linkist Red - very light tint for backgrounds

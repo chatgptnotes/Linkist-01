@@ -53,11 +53,17 @@ export async function POST(request: NextRequest) {
     // Generate order number with plan-specific prefix
     const orderNumber = await generateOrderNumber(planType);
 
+    // Determine initial status - digital orders are auto-completed since no physical card needed
+    const isDigitalOrder = planType === 'digital-only' || planType === 'digital-profile-app';
+    const initialStatus = isDigitalOrder ? 'delivered' : 'pending';
+
+    console.log(`📋 Orders API: Initial status: ${initialStatus} (digital: ${isDigitalOrder})`);
+
     // Create order object
     const orderData: Omit<Order, 'id' | 'createdAt' | 'updatedAt'> = {
       orderNumber,
       userId: user.id, // Link to user
-      status: 'pending',
+      status: initialStatus,
       customerName: body.customerName,
       email: body.email,
       phoneNumber: body.phoneNumber || '',

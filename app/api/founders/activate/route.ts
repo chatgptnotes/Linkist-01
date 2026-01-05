@@ -111,19 +111,8 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ [founders/activate] Code validated successfully');
 
-    // Mark the invite code as used
-    const { error: updateCodeError } = await supabase
-      .from('founders_invite_codes')
-      .update({ used_at: new Date().toISOString() })
-      .eq('id', inviteCode.id);
-
-    if (updateCodeError) {
-      console.error('Error marking code as used:', updateCodeError);
-      return NextResponse.json(
-        { success: false, error: 'Failed to process code. Please try again.' },
-        { status: 500 }
-      );
-    }
+    // NOTE: We mark the code as used AFTER user creation/update succeeds
+    // to prevent the bug where code gets marked used but user update fails
 
     // Check if user exists with this email
     const { data: existingUser, error: userLookupError } = await supabase
@@ -174,6 +163,13 @@ export async function POST(request: NextRequest) {
 
       if (updateUserError) {
         console.error('Error updating user:', updateUserError);
+        // Check for phone number unique constraint violation
+        if (updateUserError.code === '23505' && updateUserError.message?.includes('phone')) {
+          return NextResponse.json(
+            { success: false, error: 'This phone number is already registered with another account. Please contact support.' },
+            { status: 400 }
+          );
+        }
         return NextResponse.json(
           { success: false, error: 'Failed to update user. Please try again.' },
           { status: 500 }
@@ -219,6 +215,20 @@ export async function POST(request: NextRequest) {
 
       if (createUserError) {
         console.error('Error creating user:', createUserError);
+        // Check for phone number unique constraint violation
+        if (createUserError.code === '23505' && createUserError.message?.includes('phone')) {
+          return NextResponse.json(
+            { success: false, error: 'This phone number is already registered with another account. Please contact support.' },
+            { status: 400 }
+          );
+        }
+        // Check for email unique constraint violation
+        if (createUserError.code === '23505' && createUserError.message?.includes('email')) {
+          return NextResponse.json(
+            { success: false, error: 'This email is already registered. Please try logging in instead.' },
+            { status: 400 }
+          );
+        }
         return NextResponse.json(
           { success: false, error: 'Failed to create user account. Please try again.' },
           { status: 500 }
@@ -227,6 +237,20 @@ export async function POST(request: NextRequest) {
 
       user = newUser;
       console.log('✅ [founders/activate] New user created:', user.id);
+    }
+
+    // NOW mark the invite code as used (after user creation/update succeeded)
+    const { error: updateCodeError } = await supabase
+      .from('founders_invite_codes')
+      .update({ used_at: new Date().toISOString() })
+      .eq('id', inviteCode.id);
+
+    if (updateCodeError) {
+      console.error('Error marking code as used:', updateCodeError);
+      // Don't fail the activation - user is already created/updated
+      // Just log the error and continue
+    } else {
+      console.log('✅ [founders/activate] Code marked as used');
     }
 
     // Update the founders request status

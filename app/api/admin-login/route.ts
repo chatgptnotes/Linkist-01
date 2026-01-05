@@ -50,8 +50,8 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('admin_session', sessionToken, {
       httpOnly: true,
-      secure: true, // Always secure for production (required for sameSite: 'none')
-      sameSite: 'none' as const, // Changed from 'strict' to 'none' for desktop browser compatibility
+      secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
+      sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies

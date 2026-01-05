@@ -94,7 +94,7 @@ const FooterSection = () => {
   ];
 
   const supportLinks = [
-    { href: '/register', label: 'Get Started' },
+    { href: '/choose-plan', label: 'Get Started' },
     { href: '/login', label: 'Login' },
     { href: '/landing#faq', label: 'FAQs' },
     { href: '/terms', label: 'Terms of Service' },

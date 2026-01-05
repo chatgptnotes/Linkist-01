@@ -6,6 +6,7 @@ import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { getBaseDomain } from '@/lib/get-base-url';
 import { searchSkills } from '@/lib/skills-data';
+import { getPhoneCode } from '@/lib/country-utils';
 
 const GoogleMapPicker = dynamic(() => import('@/components/GoogleMapPicker'), {
   ssr: false,
@@ -278,9 +279,10 @@ const SUB_DOMAINS = [
 const ALL_SUB_DOMAINS = SUB_DOMAINS.flatMap(group => group.subDomains);
 
 // Helper function to detect country code from phone number
-function detectCountryCodeFromNumber(phoneNumber: string): { countryCode: string; number: string } {
+// defaultCode parameter allows using the user's country-based code as fallback
+function detectCountryCodeFromNumber(phoneNumber: string, defaultCode: string = '+91'): { countryCode: string; number: string } {
   if (!phoneNumber) {
-    return { countryCode: '+971', number: '' };
+    return { countryCode: defaultCode, number: '' };
   }
 
   // Remove spaces and special characters except +
@@ -333,9 +335,9 @@ function detectCountryCodeFromNumber(phoneNumber: string): { countryCode: string
     return { countryCode: '+91', number: cleaned };
   }
 
-  // If no country code detected, assume +971 and return full number
-  console.log(`⚠️ No country code detected in "${phoneNumber}", defaulting to +971`);
-  return { countryCode: '+971', number: cleaned.startsWith('+') ? cleaned.substring(1) : cleaned };
+  // If no country code detected, use the provided default
+  console.log(`⚠️ No country code detected in "${phoneNumber}", defaulting to ${defaultCode}`);
+  return { countryCode: defaultCode, number: cleaned.startsWith('+') ? cleaned.substring(1) : cleaned };
 }
 
 function ProfileBuilderContent() {
@@ -901,6 +903,10 @@ function ProfileBuilderContent() {
           if (result.success && result.profiles && result.profiles.length > 0) {
             let profileToEdit = null;
 
+            // Get user's country-based phone code for fallback
+            const userDefaultPhoneCode = result.userCountry ? getPhoneCode(result.userCountry) : '+91';
+            console.log('🌍 User country:', result.userCountry, '-> Default phone code:', userDefaultPhoneCode);
+
             // If profileId is provided in URL, find that specific profile
             if (profileId) {
               profileToEdit = result.profiles.find((p: any) => p.id === profileId);
@@ -928,11 +934,12 @@ function ProfileBuilderContent() {
               }
 
               // Auto-detect country codes from phone numbers and split them
+              // Use user's country-based phone code as fallback if detection fails
               console.log('📱 Raw phone_number from database:', profileToEdit.phone_number);
               console.log('📱 Raw whatsapp_number from database:', profileToEdit.whatsapp_number);
 
-              const mobileDetected = detectCountryCodeFromNumber(profileToEdit.phone_number || '');
-              const whatsappDetected = detectCountryCodeFromNumber(profileToEdit.whatsapp_number || '');
+              const mobileDetected = detectCountryCodeFromNumber(profileToEdit.phone_number || '', userDefaultPhoneCode);
+              const whatsappDetected = detectCountryCodeFromNumber(profileToEdit.whatsapp_number || '', userDefaultPhoneCode);
 
               console.log('📞 Mobile detected - Code:', mobileDetected.countryCode, 'Number:', mobileDetected.number);
               console.log('📞 WhatsApp detected - Code:', whatsappDetected.countryCode, 'Number:', whatsappDetected.number);
@@ -1073,6 +1080,7 @@ function ProfileBuilderContent() {
               lastName: userProfile.lastName || mergedData.lastName,
               primaryEmail: userProfile.email || mergedData.primaryEmail,
               mobileNumber: userProfile.phone || userProfile.mobile || mergedData.mobileNumber,
+              country: userProfile.country || mergedData.country,
             };
           } catch (e) {
             console.error('❌ Error parsing userProfile:', e);
@@ -1098,8 +1106,12 @@ function ProfileBuilderContent() {
 
         // Apply merged data to profile
         if (Object.keys(mergedData).length > 0) {
+          // Get user's country-based phone code for fallback
+          const localStorageDefaultPhoneCode = mergedData.country ? getPhoneCode(mergedData.country) : '+91';
+          console.log('🌍 Country from localStorage:', mergedData.country, '-> Default phone code:', localStorageDefaultPhoneCode);
+
           // Auto-detect country code from phone number and split it
-          const mobileDetected = detectCountryCodeFromNumber(mergedData.mobileNumber || '');
+          const mobileDetected = detectCountryCodeFromNumber(mergedData.mobileNumber || '', localStorageDefaultPhoneCode);
 
           console.log('📞 Original phone from localStorage:', mergedData.mobileNumber);
           console.log('📞 Detected country code:', mobileDetected.countryCode);
@@ -1206,12 +1218,17 @@ function ProfileBuilderContent() {
           console.log('✅ Profile found:', profile);
           console.log('⚙️ Preferences:', prefs);
 
+          // Get user's country-based phone code for fallback
+          const apiDefaultPhoneCode = result.userCountry ? getPhoneCode(result.userCountry) : '+91';
+          console.log('🌍 User country from API:', result.userCountry, '-> Default phone code:', apiDefaultPhoneCode);
+
           // Auto-detect country codes from full phone numbers and split them
+          // Use user's country-based phone code as fallback if detection fails
           console.log('📱 Full mobile number from DB:', profile.phone_number);
           console.log('📱 Full WhatsApp number from DB:', prefs.whatsappNumber);
 
-          const mobileDetected = detectCountryCodeFromNumber(profile.phone_number || '');
-          const whatsappDetected = detectCountryCodeFromNumber(prefs.whatsappNumber || '');
+          const mobileDetected = detectCountryCodeFromNumber(profile.phone_number || '', apiDefaultPhoneCode);
+          const whatsappDetected = detectCountryCodeFromNumber(prefs.whatsappNumber || '', apiDefaultPhoneCode);
 
           console.log('📞 Mobile detected - Code:', mobileDetected.countryCode, 'Number:', mobileDetected.number);
           console.log('📞 WhatsApp detected - Code:', whatsappDetected.countryCode, 'Number:', whatsappDetected.number);

@@ -320,8 +320,8 @@ export async function POST(request: NextRequest) {
 
       response.cookies.set('session', sessionId, {
         httpOnly: true,
-        secure: true, // Always secure for production (required for sameSite: 'none')
-        sameSite: 'none' as const, // Changed from 'lax' to 'none' for desktop browser compatibility
+        secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
+        sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
         maxAge: 60 * 60 * 24 * 7, // 7 days
         path: '/',
         domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
@@ -382,8 +382,8 @@ export async function POST(request: NextRequest) {
 
         response.cookies.set('session', sessionId, {
           httpOnly: true,
-          secure: true, // Always secure for production (required for sameSite: 'none')
-          sameSite: 'none' as const, // Changed from 'lax' to 'none' for desktop browser compatibility
+          secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
+          sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
           maxAge: 60 * 60 * 24 * 7, // 7 days
           path: '/',
           domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies

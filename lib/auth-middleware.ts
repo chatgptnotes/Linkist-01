@@ -24,7 +24,7 @@ const AUTH_CONFIG: {
   // Protected user routes
   protectedRoutes: ['/account', '/dashboard'],
   // Public routes that don't need auth
-  publicRoutes: ['/', '/login', '/register', '/signup', '/verify-login', '/verify-register', '/nfc/configure', '/nfc/checkout', '/nfc/success', '/nfc/payment', '/welcome-to-linkist', '/verify-mobile', '/product-selection'],
+  publicRoutes: ['/', '/login', '/signup', '/verify-login', '/verify-register', '/nfc/configure', '/nfc/checkout', '/nfc/success', '/nfc/payment', '/welcome-to-linkist', '/verify-mobile', '/product-selection', '/choose-plan'],
   // API routes that need admin access
   adminApiRoutes: ['/api/admin'],
   // API routes that need user auth (excluding specific endpoints)

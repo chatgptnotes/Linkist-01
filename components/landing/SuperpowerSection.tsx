@@ -1,22 +1,81 @@
 import { motion } from 'framer-motion';
+import Image from 'next/image';
+
+interface FeatureCardProps {
+    iconSrc: string;
+    title: string;
+    description: string;
+    delay?: number;
+}
+
+const FeatureCard = ({ iconSrc, title, description, delay = 0 }: FeatureCardProps) => (
+    <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ delay }}
+        className="relative w-[350px] min-h-[456px] rounded-[40px] border border-[#222] bg-[rgba(74,74,74,0.4)] px-8 py-10 text-center"
+    >
+        {/* Icon - 170x170 container, 140x140 inner */}
+        <div className="mx-auto mb-6 flex h-[170px] w-[170px] items-center justify-center">
+            <Image
+                src={iconSrc}
+                alt=""
+                width={140}
+                height={140}
+                className="object-contain"
+            />
+        </div>
+
+        {/* Title - Poppins SemiBold 24px/32px */}
+        <h3
+            className="mb-6 text-white text-center"
+            style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 600,
+                fontSize: '24px',
+                lineHeight: '32px',
+                letterSpacing: '0%'
+            }}
+        >
+            {title}
+        </h3>
+
+        {/* Description - Poppins Regular 16px/26px */}
+        <p
+            className="text-[#888] text-center"
+            style={{
+                fontFamily: 'Poppins, sans-serif',
+                fontWeight: 400,
+                fontSize: '16px',
+                lineHeight: '26px',
+                letterSpacing: '0%'
+            }}
+        >
+            {description}
+        </p>
+    </motion.div>
+);
+
+const featureCardsData = [
+    {
+        iconSrc: "/icons/Group 1437253611.png",
+        title: "Context at your fingertips",
+        description: "Stop wondering \"Who introduced us?\" Linkist captures where you met, what you discussed, and why it mattered so you can re-engage with clarity."
+    },
+    {
+        iconSrc: "/icons/Group 1437253611 (1).png",
+        title: "Silence the Noise",
+        description: "Stop managing a messy contact list. Linkist identifies who matters right now based on fit and relevance, separating the signal from the noise."
+    },
+    {
+        iconSrc: "/icons/Group 1437253611 (2).png",
+        title: "Momentum That Doesn't Fade",
+        description: "Smart nudges show who to reconnect with and when, so your follow-ups are timely and deliberate, not random."
+    }
+];
 
 export default function SuperpowerSection() {
-    // Screenshot 5 shows 3 cards with grey circles
-    const cards = [
-        {
-            title: 'Context at your fingertips',
-            description: 'Stop wondering "Who introduced us?" Linkist captures where you met, what you discussed, and why it mattered so you can re-engage with clarity.'
-        },
-        {
-            title: 'To Silence the Noise',
-            description: 'Stop managing a messy contact list. Linkist identifies who matters right now based on fit and relevance, separating the signal from the noise.'
-        },
-        {
-            title: 'Momentum That Doesn’t Fade',
-            description: 'Smart nudges show who to reconnect with and when, so your follow-ups are timely and deliberate, not random.'
-        }
-    ];
-
     return (
         <section className="relative py-24 bg-[#050505] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
@@ -35,41 +94,43 @@ export default function SuperpowerSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-4xl md:text-6xl font-bold text-white mb-6 leading-tight"
+                    className="text-white mb-6 text-center"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 500,
+                        fontSize: '32px',
+                        lineHeight: '38px',
+                        letterSpacing: '-0.02em'
+                    }}
                 >
                     Stop Hoarding Contacts. Start Building Leverage.
                 </motion.h2>
 
-                <p className="text-[#888] max-w-2xl mx-auto mb-20 text-sm md:text-base">
+                <p
+                    className="text-[#888] max-w-2xl mx-auto mb-20 text-center"
+                    style={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 400,
+                        fontSize: '16px',
+                        lineHeight: '26px',
+                        letterSpacing: '0%'
+                    }}
+                >
                     Most tools are digital graveyards for phone numbers. Linkist turns your contact list into working relationship intelligence.
                 </p>
 
                 {/* 3 Column Grid */}
-                <div className="grid md:grid-cols-3 gap-8">
-                    {cards.map((card, idx) => (
-                        <motion.div
+                <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+                    {featureCardsData.map((card, idx) => (
+                        <FeatureCard
                             key={idx}
-                            initial={{ opacity: 0, y: 30 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.2 }}
-                            className="bg-[#111] border border-[#222] rounded-3xl p-8 hover:border-[#333] transition-colors"
-                        >
-                            {/* Circle Placeholder Icon (Grey Circle with Glow) */}
-                            <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-b from-[#444] to-[#222] p-[1px] mb-8 relative shadow-[0_0_30px_rgba(255,255,255,0.05)]">
-                                <div className="w-full h-full rounded-full bg-gradient-to-b from-[#333] to-[#111] border-[4px] border-[#2a2a2a]" />
-                            </div>
-
-                            <h3 className="text-xl font-bold text-white mb-4">{card.title}</h3>
-                            <p className="text-[#888] text-sm leading-relaxed">
-                                {card.description}
-                            </p>
-                        </motion.div>
+                            iconSrc={card.iconSrc}
+                            title={card.title}
+                            description={card.description}
+                            delay={idx * 0.2}
+                        />
                     ))}
                 </div>
-
-                {/* Receipt Visual Mockup */}
-
 
             </div>
         </section>
