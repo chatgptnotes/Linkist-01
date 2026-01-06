@@ -37,61 +37,104 @@ export default function ClaimURLPage() {
     }
   }, []);
 
+  // Fetch authenticated user's email from session
   useEffect(() => {
-    // Get user profile info from localStorage (actual user name, not card name)
-    const userProfileData = localStorage.getItem('userProfile');
-    const orderData = localStorage.getItem('lastCompletedOrder');
+    const fetchAuthenticatedUser = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user?.email) {
+            setEmail(data.user.email);
 
-    let first = '';
-    let last = '';
-    let userEmail = '';
+            // Also set name from authenticated user if available
+            if (data.user.first_name) {
+              setFirstName(data.user.first_name);
+            }
+            if (data.user.last_name) {
+              setLastName(data.user.last_name);
+            }
+            if (data.user.first_name && data.user.last_name) {
+              setFullName(`${data.user.first_name} ${data.user.last_name}`.trim());
 
-    // Priority 1: Use actual user profile data (from registration/welcome flow)
-    if (userProfileData) {
-      const userProfile = JSON.parse(userProfileData);
-      first = userProfile.firstName || '';
-      last = userProfile.lastName || '';
-      userEmail = userProfile.email || '';
+              // Generate username suggestion
+              const suggestedUsername = `${data.user.first_name}-${data.user.last_name}`
+                .toLowerCase()
+                .replace(/[^a-z0-9-]/g, '');
 
-      setFirstName(first);
-      setLastName(last);
-      setFullName(`${first} ${last}`.trim());
-      setEmail(userEmail);
-    }
+              if (suggestedUsername && suggestedUsername.length >= 3) {
+                setUsername(suggestedUsername);
+                handleUsernameChange(suggestedUsername, data.user.email);
+              }
+            }
+            return; // Exit early if authenticated
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching authenticated user:', error);
+      }
 
-    // Priority 2: Fallback to order data if no user profile (use shipping name, NOT card name)
-    if (!first && !last && orderData) {
-      const order = JSON.parse(orderData);
+      // Fallback to localStorage if not authenticated or API fails
+      loadFromLocalStorage();
+    };
 
-      // Use shipping full name (actual profile name), NOT cardConfig.fullName (card name)
-      const shippingFullName = order.shipping?.fullName || order.customerName || '';
-      if (shippingFullName) {
-        setFullName(shippingFullName);
-        const nameParts = shippingFullName.split(' ');
-        first = nameParts[0] || '';
-        last = nameParts.slice(1).join(' ') || '';
+    const loadFromLocalStorage = () => {
+      const userProfileData = localStorage.getItem('userProfile');
+      const orderData = localStorage.getItem('lastCompletedOrder');
+
+      let first = '';
+      let last = '';
+      let userEmail = '';
+
+      // Priority 1: Use actual user profile data (from registration/welcome flow)
+      if (userProfileData) {
+        const userProfile = JSON.parse(userProfileData);
+        first = userProfile.firstName || '';
+        last = userProfile.lastName || '';
+        userEmail = userProfile.email || '';
+
         setFirstName(first);
         setLastName(last);
-      }
-
-      // Get email
-      if (order.shipping?.email || order.email) {
-        userEmail = order.shipping?.email || order.email;
+        setFullName(`${first} ${last}`.trim());
         setEmail(userEmail);
       }
-    }
 
-    // Generate username suggestion from first and last name
-    if (first && last) {
-      const suggestedUsername = `${first}-${last}`
-        .toLowerCase()
-        .replace(/[^a-z0-9-]/g, '');
+      // Priority 2: Fallback to order data if no user profile (use shipping name, NOT card name)
+      if (!first && !last && orderData) {
+        const order = JSON.parse(orderData);
 
-      if (suggestedUsername && suggestedUsername.length >= 3) {
-        setUsername(suggestedUsername);
-        handleUsernameChange(suggestedUsername, userEmail);
+        // Use shipping full name (actual profile name), NOT cardConfig.fullName (card name)
+        const shippingFullName = order.shipping?.fullName || order.customerName || '';
+        if (shippingFullName) {
+          setFullName(shippingFullName);
+          const nameParts = shippingFullName.split(' ');
+          first = nameParts[0] || '';
+          last = nameParts.slice(1).join(' ') || '';
+          setFirstName(first);
+          setLastName(last);
+        }
+
+        // Get email
+        if (order.shipping?.email || order.email) {
+          userEmail = order.shipping?.email || order.email;
+          setEmail(userEmail);
+        }
       }
-    }
+
+      // Generate username suggestion from first and last name
+      if (first && last) {
+        const suggestedUsername = `${first}-${last}`
+          .toLowerCase()
+          .replace(/[^a-z0-9-]/g, '');
+
+        if (suggestedUsername && suggestedUsername.length >= 3) {
+          setUsername(suggestedUsername);
+          handleUsernameChange(suggestedUsername, userEmail);
+        }
+      }
+    };
+
+    fetchAuthenticatedUser();
   }, []);
 
   const generateSuggestions = (baseUsername: string, first: string, last: string) => {

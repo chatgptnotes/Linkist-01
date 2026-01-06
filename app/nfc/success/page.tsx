@@ -19,6 +19,7 @@ const ArrowRight = ArrowForwardIcon;
 
 export default function SuccessPage() {
   const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
   const [orderData, setOrderData] = useState<{
     orderNumber: string;
     cardConfig: { fullName: string; quantity?: number; baseMaterial?: string };
@@ -379,13 +380,27 @@ export default function SuccessPage() {
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mt-8">
-          <Link
-            href="/claim-url"
-            className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-lg font-semibold transition text-center flex items-center justify-center"
+          <button
+            onClick={() => {
+              setIsNavigating(true);
+              router.push('/claim-url');
+            }}
+            disabled={isNavigating}
+            className="w-full py-3 px-6 rounded-lg font-semibold transition text-center flex items-center justify-center disabled:opacity-80"
+            style={{ backgroundColor: isNavigating ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
           >
-            Start building Profile
-            <ArrowRight className="h-5 w-5 ml-2" />
-          </Link>
+            {isNavigating ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                Loading...
+              </>
+            ) : (
+              <>
+                Start building Profile
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </>
+            )}
+          </button>
         </div>
 
         {/* Support Information */}

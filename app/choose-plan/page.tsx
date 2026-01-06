@@ -14,6 +14,8 @@ const X = CloseIcon;
 export default function ChoosePlanPage() {
   const router = useRouter();
   const [showTeamModal, setShowTeamModal] = useState(false);
+  const [isLoadingPersonal, setIsLoadingPersonal] = useState(false);
+  const [isLoadingTeam, setIsLoadingTeam] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -22,11 +24,17 @@ export default function ChoosePlanPage() {
   });
 
   const handlePersonalUse = () => {
+    setIsLoadingPersonal(true);
     router.push('/product-selection');
   };
 
   const handleTeamUse = () => {
-    setShowTeamModal(true);
+    setIsLoadingTeam(true);
+    // Brief delay to show loader before modal opens
+    setTimeout(() => {
+      setIsLoadingTeam(false);
+      setShowTeamModal(true);
+    }, 300);
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,10 +99,18 @@ Team Size: ${formData.teamSize}`;
               </p>
               <button
                 onClick={handlePersonalUse}
-                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base"
+                disabled={isLoadingPersonal}
+                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base disabled:opacity-70 flex items-center justify-center"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
-                Get Started
+                {isLoadingPersonal ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  'Get Started'
+                )}
               </button>
             </div>
           </div>
@@ -115,10 +131,18 @@ Team Size: ${formData.teamSize}`;
               </p>
               <button
                 onClick={handleTeamUse}
-                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base"
+                disabled={isLoadingTeam}
+                className="w-full py-2.5 md:py-3 px-6 rounded-xl font-semibold transition-all mt-auto cursor-pointer text-sm md:text-base disabled:opacity-70 flex items-center justify-center"
                 style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
-                Request Now
+                {isLoadingTeam ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                    Loading...
+                  </>
+                ) : (
+                  'Request Now'
+                )}
               </button>
             </div>
           </div>

@@ -1863,11 +1863,23 @@ function ProfileBuilderContent() {
             <div className="flex items-center gap-3 absolute right-4 sm:relative sm:right-0">
               <button
                 onClick={handleSaveChanges}
-                className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm"
+                disabled={isSubmitting}
+                className="px-4 sm:px-6 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm disabled:opacity-70"
+                style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
               >
-                <CheckCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">Save Changes</span>
-                <span className="sm:hidden">Save</span>
+                {isSubmitting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                    <span className="hidden sm:inline">Saving...</span>
+                    <span className="sm:hidden">...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">Save Changes</span>
+                    <span className="sm:hidden">Save</span>
+                  </>
+                )}
               </button>
             </div>
           </div>
@@ -2140,10 +2152,14 @@ function ProfileBuilderContent() {
                           <div className="relative flex-1">
                             <input
                               type="tel"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={15}
                               value={profileData.mobileNumber}
                               onChange={(e) => {
-                                // FIXED: Just store the number, respect dropdown selection
-                                setProfileData({ ...profileData, mobileNumber: e.target.value });
+                                // Only allow digits and limit to 15 characters
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
+                                setProfileData({ ...profileData, mobileNumber: value });
                               }}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                               placeholder="8999355932"
@@ -2199,14 +2215,18 @@ function ProfileBuilderContent() {
                           <div className="relative flex-1">
                             <input
                               type="tel"
+                              inputMode="numeric"
+                              pattern="[0-9]*"
+                              maxLength={15}
                               value={profileData.whatsappNumber}
                               onChange={(e) => {
-                                const newValue = e.target.value;
+                                // Only allow digits and limit to 15 characters
+                                const value = e.target.value.replace(/\D/g, '').slice(0, 15);
                                 // Auto-enable toggle when user starts typing
-                                if (newValue && !profileData.showWhatsappPublicly) {
-                                  setProfileData({ ...profileData, whatsappNumber: newValue, showWhatsappPublicly: true });
+                                if (value && !profileData.showWhatsappPublicly) {
+                                  setProfileData({ ...profileData, whatsappNumber: value, showWhatsappPublicly: true });
                                 } else {
-                                  setProfileData({ ...profileData, whatsappNumber: newValue });
+                                  setProfileData({ ...profileData, whatsappNumber: value });
                                 }
                               }}
                               disabled={useSameNumberForWhatsapp}

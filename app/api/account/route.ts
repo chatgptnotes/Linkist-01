@@ -47,12 +47,19 @@ export async function GET(request: NextRequest) {
       .eq('email', email)
       .single()
 
+    // Fetch founding member status from users table
+    const { data: userRecord } = await supabase
+      .from('users')
+      .select('is_founding_member, founding_member_since, founding_member_plan')
+      .eq('email', email)
+      .single()
+
     // Calculate user stats
     const stats = {
       totalOrders: orders.length,
       totalSpent: orders.reduce((sum, order) => sum + order.pricing.total, 0),
       recentOrders: orders.slice(0, 5), // Last 5 orders
-      founderMember: orders.some(order => order.cardConfig?.quantity > 0), // Simple founder member logic
+      founderMember: userRecord?.is_founding_member || false,
       joinDate: profile?.created_at || orders[0]?.createdAt || new Date().toISOString()
     }
 
@@ -65,7 +72,10 @@ export async function GET(request: NextRequest) {
       email_verified: profile?.email_verified || false,
       mobile_verified: profile?.mobile_verified || false,
       role: profile?.role || 'user',
-      created_at: profile?.created_at || new Date().toISOString()
+      created_at: profile?.created_at || new Date().toISOString(),
+      is_founding_member: userRecord?.is_founding_member || false,
+      founding_member_since: userRecord?.founding_member_since || null,
+      founding_member_plan: userRecord?.founding_member_plan || null
     }
 
     console.log(`✅ Account data retrieved: ${orders.length} orders, $${stats.totalSpent.toFixed(2)} total`)

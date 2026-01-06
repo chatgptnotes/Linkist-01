@@ -42,6 +42,22 @@ export async function GET(
       );
     }
 
+    // Fetch user data to get founding member status
+    let isFoundingMember = false;
+    let foundingMemberPlan: string | null = null;
+    if (profile.user_id) {
+      const { data: userData } = await supabase
+        .from('users')
+        .select('is_founding_member, founding_member_plan')
+        .eq('id', profile.user_id)
+        .maybeSingle();
+
+      if (userData) {
+        isFoundingMember = userData.is_founding_member || false;
+        foundingMemberPlan = userData.founding_member_plan || null;
+      }
+    }
+
     // Fetch services for this profile
     const { data: services } = await supabase
       .from('profile_services')
@@ -92,7 +108,10 @@ export async function GET(
         category: service.category || '',
         currency: service.currency || 'USD',
         showPublicly: true // Only active services are fetched
-      }))
+      })),
+      // Founding member status
+      isFoundingMember: isFoundingMember,
+      foundingMemberPlan: foundingMemberPlan
     };
 
     // Track profile view - fire-and-forget (don't await to avoid slowing response)

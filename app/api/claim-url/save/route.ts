@@ -1,17 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { getCurrentUser } from '@/lib/auth-middleware';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
+    // Get authenticated user from session
+    const authSession = await getCurrentUser(request);
+    const authenticatedEmail = authSession?.user?.email;
+
     const { username, firstName, lastName, email, baseOrigin } = await request.json();
 
     if (!username) {
       return NextResponse.json(
         { error: 'Username is required' },
         { status: 400 }
+      );
+    }
+
+    // Require authentication
+    if (!authenticatedEmail) {
+      return NextResponse.json(
+        { error: 'Authentication required. Please log in first.' },
+        { status: 401 }
       );
     }
 
@@ -43,6 +56,9 @@ export async function POST(request: NextRequest) {
     const baseUrl = baseOrigin || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const fullProfileUrl = `${baseUrl}/${username}`;
 
+    // Use authenticated email (from session) - this is the source of truth
+    const userEmail = authenticatedEmail;
+
     // Check if username is still available (only if custom_url column exists)
     try {
       const { data: existingProfile, error: checkError } = await supabase
@@ -53,9 +69,8 @@ export async function POST(request: NextRequest) {
 
       // If username exists and belongs to a different user, reject
       if (existingProfile && !checkError) {
-        const currentUserEmail = email || '';
         // Allow if it's the user's own username
-        if (currentUserEmail && existingProfile.email !== currentUserEmail) {
+        if (existingProfile.email !== userEmail) {
           return NextResponse.json(
             { error: 'Username is already taken' },
             { status: 409 }
@@ -65,9 +80,6 @@ export async function POST(request: NextRequest) {
     } catch (error) {
       console.log('custom_url column might not exist yet, continuing...');
     }
-
-    // Get user email from order data or session
-    const userEmail = email || `user_${Date.now()}@linkist.ai`; // Unique fallback
 
     // First, get user_id from users table by email
     const { data: user } = await supabase

@@ -161,6 +161,19 @@ export default function AccountPage() {
     }
   }, [profileData, user]);
 
+  // Helper function for default analytics
+  const setDefaultAnalytics = () => {
+    setAnalytics({
+      totalViews: 0,
+      uniqueViews: 0,
+      whatsappEngagement: 0,
+      emailEngagement: 0,
+      socialMediaEngagement: 0,
+      recentViews: [],
+      recentEngagements: []
+    });
+  };
+
   const loadAnalyticsData = async (email: string) => {
     try {
       console.log('📊 Fetching analytics data for:', email);
@@ -173,22 +186,15 @@ export default function AccountPage() {
           setAnalytics(analyticsResult.data);
         } else {
           console.log('⚠️ No analytics data available');
-          // Set default zero values if no data
-          setAnalytics({
-            totalViews: 0,
-            uniqueViews: 0,
-            whatsappEngagement: 0,
-            emailEngagement: 0,
-            socialMediaEngagement: 0,
-            recentViews: [],
-            recentEngagements: []
-          });
+          setDefaultAnalytics();
         }
       } else {
-        console.error('❌ Failed to fetch analytics data');
+        console.error('❌ Failed to fetch analytics data, using defaults');
+        setDefaultAnalytics();
       }
     } catch (error) {
       console.error('❌ Error loading analytics:', error);
+      setDefaultAnalytics();
     }
   };
 
@@ -425,6 +431,11 @@ export default function AccountPage() {
     return profileData && profileData.profilePhoto;
   };
 
+  // Check if user has claimed their custom URL
+  const isUrlClaimed = () => {
+    return !!(profileData?.customUrl || profileData?.custom_url);
+  };
+
 
   // Calculate profile completion percentage based on actual user data
   const calculateProfileCompletion = () => {
@@ -644,28 +655,30 @@ export default function AccountPage() {
 
         {/* Profile URL Section */}
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">Your Profile URL</h3>
-          <div className="flex flex-col gap-3">
-            <div className="w-full">
-              <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-[#263252] rounded-lg px-3 sm:px-4 py-3 overflow-hidden">
-                <code className="text-xs sm:text-sm font-mono text-[#263252] font-semibold break-all w-full">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-gray-700">Your Profile URL</h3>
+            {!isUrlClaimed() && (
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                <Clock className="w-3 h-3 mr-1" />
+                Temporary
+              </span>
+            )}
+          </div>
+
+          {!isUrlClaimed() ? (
+            /* Unclaimed URL state */
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center bg-amber-50 border-2 border-amber-300 border-dashed rounded-lg px-3 sm:px-4 py-3 overflow-hidden">
+                <code className="text-xs sm:text-sm font-mono text-amber-700 break-all w-full">
                   {(() => {
                     const baseUrl = getBaseUrl();
-
-                    // Generate username from custom_url or first name
                     let username = 'your-profile';
 
-                    if (profileData?.customUrl) {
-                      // Use custom_url from database
-                      username = profileData.customUrl;
-                    } else if (user?.first_name) {
-                      // Use first name as username
+                    if (user?.first_name) {
                       username = user.first_name.toLowerCase().replace(/\s+/g, '-');
                     } else if (profileData?.first_name) {
-                      // Check profile data for first name
                       username = profileData.first_name.toLowerCase().replace(/\s+/g, '-');
                     } else if (profileData?.email) {
-                      // Last resort fallback to email username
                       username = profileData.email.split('@')[0];
                     }
 
@@ -673,30 +686,36 @@ export default function AccountPage() {
                   })()}
                 </code>
               </div>
+              <p className="text-sm text-gray-600">
+                This is a temporary URL. Claim your personalized URL to make it memorable and professional!
+              </p>
+              <Link
+                href="/claim-url"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-lg font-semibold transition-colors"
+              >
+                Claim Your Unique URL →
+              </Link>
             </div>
-            <div className="flex gap-2">
-            <button
+          ) : (
+            /* Claimed URL state */
+            <div className="flex flex-col gap-3">
+              <div className="w-full">
+                <div className="flex items-center bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-[#263252] rounded-lg px-3 sm:px-4 py-3 overflow-hidden">
+                  <code className="text-xs sm:text-sm font-mono text-[#263252] font-semibold break-all w-full">
+                    {(() => {
+                      const baseUrl = getBaseUrl();
+                      const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
+                      return `${baseUrl}/${username}`;
+                    })()}
+                  </code>
+                </div>
+              </div>
+              <div className="flex gap-2">
+              <button
               type="button"
               onClick={() => {
                 const baseUrl = getBaseUrl();
-
-                // Generate username from custom_url or first name
-                let username = 'your-profile';
-
-                if (profileData?.customUrl) {
-                  // Use custom_url from database
-                  username = profileData.customUrl;
-                } else if (user?.first_name) {
-                  // Use first name as username
-                  username = user.first_name.toLowerCase().replace(/\s+/g, '-');
-                } else if (profileData?.first_name) {
-                  // Check profile data for first name
-                  username = profileData.first_name.toLowerCase().replace(/\s+/g, '-');
-                } else if (profileData?.email) {
-                  // Last resort fallback to email username
-                  username = profileData.email.split('@')[0];
-                }
-
+                const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
                 const urlToCopy = `${baseUrl}/${username}`;
 
                 // Mobile-compatible copy function with fallback
@@ -778,18 +797,7 @@ export default function AccountPage() {
               type="button"
               onClick={() => {
                 const baseUrl = getBaseUrl();
-                let username = 'your-profile';
-
-                if (profileData?.customUrl) {
-                  username = profileData.customUrl;
-                } else if (user?.first_name) {
-                  username = user.first_name.toLowerCase().replace(/\s+/g, '-');
-                } else if (profileData?.first_name) {
-                  username = profileData.first_name.toLowerCase().replace(/\s+/g, '-');
-                } else if (profileData?.email) {
-                  username = profileData.email.split('@')[0];
-                }
-
+                const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
                 const profileUrl = `${baseUrl}/${username}`;
                 window.open(profileUrl, '_blank');
               }}
@@ -850,8 +858,9 @@ export default function AccountPage() {
               <QrCode2 style={{ width: '20px', height: '20px' }} />
               QR Code
             </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Two Column Layout */}
