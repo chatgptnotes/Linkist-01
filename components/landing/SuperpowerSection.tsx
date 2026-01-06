@@ -14,7 +14,7 @@ const FeatureCard = ({ iconSrc, title, description, delay = 0 }: FeatureCardProp
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay }}
-        className="relative w-[350px] min-h-[456px] rounded-[40px] border border-[#222] bg-[rgba(74,74,74,0.4)] px-8 py-10 text-center"
+        className="relative w-full max-w-[350px] min-h-[456px] rounded-[40px] border border-[#222] bg-[rgba(74,74,74,0.4)] px-8 py-10 text-center"
     >
         {/* Icon - 170x170 container, 140x140 inner */}
         <div className="mx-auto mb-6 flex h-[170px] w-[170px] items-center justify-center">
@@ -120,7 +120,7 @@ export default function SuperpowerSection() {
                 </p>
 
                 {/* 3 Column Grid */}
-                <div className="grid md:grid-cols-3 gap-6 justify-items-center">
+                <div className="grid md:grid-cols-3 gap-6 justify-items-center px-4 md:px-0">
                     {featureCardsData.map((card, idx) => (
                         <FeatureCard
                             key={idx}

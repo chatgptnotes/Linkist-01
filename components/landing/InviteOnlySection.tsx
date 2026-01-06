@@ -73,7 +73,7 @@ export default function InviteOnlySection() {
                 </motion.h2>
 
                 {/* Grid of Cards */}
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center px-4 md:px-0">
                     {cards.map((card, idx) => (
                         <motion.div
                             key={idx}
@@ -81,7 +81,7 @@ export default function InviteOnlySection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="bg-[#1A1A1A] rounded-[24px] p-6 pt-8 text-left flex flex-col items-start w-[350px] h-[306px]"
+                            className="bg-[#1A1A1A] rounded-[24px] p-6 pt-8 text-left flex flex-col items-start w-full max-w-[350px] h-[306px]"
                         >
                             <div className="w-[56px] h-[56px] rounded-[12px] bg-[#FF3A29] flex items-center justify-center mb-5 overflow-hidden flex-shrink-0">
                                 <Image

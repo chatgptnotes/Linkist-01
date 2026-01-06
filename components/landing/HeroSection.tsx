@@ -30,7 +30,7 @@ export default function HeroSection() {
           width: '763px',
           height: '508px',
           top: 'calc(278px + 2%)',
-          left: 'calc(-152px + 1%)',
+          left: 'clamp(-190px, calc(-152px + (100vw - 390px) * 0.5), -152px)',
           transform: 'rotate(12.16deg)',
         }}
       >
@@ -42,7 +42,7 @@ export default function HeroSection() {
       </motion.div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[390px] mx-auto">
+      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full mx-auto">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
