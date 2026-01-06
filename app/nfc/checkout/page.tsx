@@ -128,7 +128,8 @@ export default function CheckoutPage() {
   // FIXED: Don't initialize from localStorage - causes stale state issues
   // Let auto-apply run fresh validation on each page load
   // Voucher state - starts fresh, no localStorage initialization
-  const [voucherCode, setVoucherCode] = useState('LINKISTFM');
+  // FIXED: Initialize as empty string, let auto-apply logic set it only after validation
+  const [voucherCode, setVoucherCode] = useState('');
   const [voucherDiscount, setVoucherDiscount] = useState(0);
   const [voucherDiscountAmount, setVoucherDiscountAmount] = useState(0);
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');

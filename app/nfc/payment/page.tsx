@@ -446,9 +446,10 @@ export default function NFCPaymentPage() {
           subtotal: getSubtotal(),
           total: getFinalAmount()
         },
-        voucherCode: appliedVoucherCode || voucherCode || null,
-        voucherDiscount: voucherDiscount || 0,
-        voucherAmount: voucherAmount || 0,
+        // FIXED: Only include voucher if it was successfully validated
+        voucherCode: voucherValid === true && appliedVoucherCode ? appliedVoucherCode : null,
+        voucherDiscount: voucherValid === true && appliedVoucherCode ? voucherDiscount : 0,
+        voucherAmount: voucherValid === true && appliedVoucherCode ? voucherAmount : 0,
         timestamp: new Date().toISOString()
       };
 
@@ -475,9 +476,10 @@ export default function NFCPaymentPage() {
           paymentData: {
             paymentMethod: 'card',
             paymentId: paymentIntentId,
-            voucherCode: appliedVoucherCode || voucherCode || null,
-            voucherDiscount: voucherDiscount || 0,
-            voucherAmount: voucherAmount || 0,
+            // FIXED: Only include voucher if it was successfully validated
+            voucherCode: voucherValid === true && appliedVoucherCode ? appliedVoucherCode : null,
+            voucherDiscount: voucherValid === true && appliedVoucherCode ? voucherDiscount : 0,
+            voucherAmount: voucherValid === true && appliedVoucherCode ? voucherAmount : 0,
           },
           pricing: {
             ...orderData.pricing,

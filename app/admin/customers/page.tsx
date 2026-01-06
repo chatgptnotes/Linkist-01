@@ -37,6 +37,25 @@ const Edit = EditIcon;
 const Trash2 = DeleteIcon;
 const MapPin = LocationOnIcon;
 
+// Helper function to derive plan name from order number
+const getPlanFromOrderNumber = (orderNumber: string): string => {
+  if (orderNumber.startsWith('LKFM-FC-')) return "Founder's Club";
+  if (orderNumber.startsWith('LKFM-DO-')) return 'Starter';
+  if (orderNumber.startsWith('LKFM-DPLA-')) return 'Starter';
+  if (orderNumber.startsWith('LKFM-CDPLA-')) return 'Personal';
+  return 'Personal'; // Default for legacy orders
+};
+
+// Helper function for plan badge styling
+const getPlanBadgeStyle = (plan: string): string => {
+  const styles: Record<string, string> = {
+    "Founder's Club": 'bg-amber-100 text-amber-800',
+    'Personal': 'bg-blue-100 text-blue-800',
+    'Starter': 'bg-gray-100 text-gray-800',
+  };
+  return styles[plan] || styles['Personal'];
+};
+
 interface Customer {
   email: string;
   customerName: string;
@@ -45,6 +64,7 @@ interface Customer {
   totalOrders: number;
   totalSpent: number;
   lastOrderDate: string;
+  lastPlan: string;
   orders: Order[];
 }
 
@@ -53,6 +73,7 @@ export default function CustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'orders' | 'spent' | 'recent'>('recent');
+  const [filterByPlan, setFilterByPlan] = useState<'all' | 'Starter' | 'Personal' | "Founder's Club">('all');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
@@ -61,7 +82,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     filterAndSortCustomers();
-  }, [customers, searchQuery, sortBy]);
+  }, [customers, searchQuery, sortBy, filterByPlan]);
 
   const loadCustomers = async () => {
     try {
@@ -95,6 +116,7 @@ export default function CustomersPage() {
           totalOrders: customerOrders.length,
           totalSpent,
           lastOrderDate: new Date(lastOrder.createdAt).toLocaleDateString(),
+          lastPlan: getPlanFromOrderNumber(lastOrder.orderNumber),
           orders: sortedOrders.reverse(), // Show most recent first
         };
       });
@@ -111,11 +133,16 @@ export default function CustomersPage() {
     // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = customers.filter(customer =>
+      filtered = filtered.filter(customer =>
         customer.customerName.toLowerCase().includes(query) ||
         customer.email.toLowerCase().includes(query) ||
         customer.phoneNumber.toLowerCase().includes(query)
       );
+    }
+
+    // Apply plan filter
+    if (filterByPlan !== 'all') {
+      filtered = filtered.filter(customer => customer.lastPlan === filterByPlan);
     }
 
     // Apply sorting
@@ -355,6 +382,16 @@ export default function CustomersPage() {
               <div className="flex items-center space-x-2">
                 <Filter className="w-5 h-5 text-gray-400" />
                 <select
+                  value={filterByPlan}
+                  onChange={(e) => setFilterByPlan(e.target.value as 'all' | 'Starter' | 'Personal' | "Founder's Club")}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                >
+                  <option value="all">All Plans</option>
+                  <option value="Starter">Starter</option>
+                  <option value="Personal">Personal</option>
+                  <option value="Founder's Club">Founder&apos;s Club</option>
+                </select>
+                <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as 'name' | 'orders' | 'spent' | 'recent')}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
@@ -384,6 +421,9 @@ export default function CustomersPage() {
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total Spent
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Plan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Last Order
@@ -424,6 +464,11 @@ export default function CustomersPage() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">{formatCurrency(customer.totalSpent)}</div>
                       <div className="text-sm text-gray-500">lifetime</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanBadgeStyle(customer.lastPlan)}`}>
+                        {customer.lastPlan}
+                      </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {customer.lastOrderDate}
