@@ -124,8 +124,8 @@ export default function ConfigureNewPage() {
           const profile = JSON.parse(userProfile);
           setFormData(prev => ({
             ...prev,
-            cardFirstName: profile.firstName || '',
-            cardLastName: profile.lastName || ''
+            cardFirstName: (profile.firstName || '').toUpperCase(),
+            cardLastName: (profile.lastName || '').toUpperCase()
           }));
           console.log('Configure: Pre-filled card name from profile:', {
             cardFirstName: profile.firstName,
@@ -435,10 +435,10 @@ export default function ConfigureNewPage() {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="e.g. John"
+                        placeholder="e.g. JOHN"
                         value={formData.cardFirstName}
                         onChange={(e) => {
-                          const newFormData = {...formData, cardFirstName: e.target.value};
+                          const newFormData = {...formData, cardFirstName: e.target.value.toUpperCase()};
                           setFormData(newFormData);
                         }}
                         maxLength={15}
@@ -454,10 +454,10 @@ export default function ConfigureNewPage() {
                     <div className="relative">
                       <input
                         type="text"
-                        placeholder="e.g. Doe"
+                        placeholder="e.g. DOE"
                         value={formData.cardLastName}
                         onChange={(e) => {
-                          const newFormData = {...formData, cardLastName: e.target.value};
+                          const newFormData = {...formData, cardLastName: e.target.value.toUpperCase()};
                           setFormData(newFormData);
                         }}
                         maxLength={15}
@@ -782,7 +782,7 @@ export default function ConfigureNewPage() {
                           } else {
                             return (
                               <div className={`${getTextColor()} text-base font-medium`}>
-                                {firstName} {lastName}
+                                {firstName.toUpperCase()} {lastName.toUpperCase()}
                               </div>
                             );
                           }

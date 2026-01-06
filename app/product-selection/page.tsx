@@ -17,8 +17,6 @@ import RequestAccessModal from '@/components/RequestAccessModal';
 import EnterCodeModal from '@/components/EnterCodeModal';
 import SignupOverlay from '@/components/SignupOverlay';
 import { getTaxRate } from '@/lib/country-utils';
-import Link from 'next/link';
-import LoginIcon from '@mui/icons-material/Login';
 
 const Check = CheckIcon;
 const CreditCard = CreditCardIcon;
@@ -61,7 +59,6 @@ export default function ProductSelectionPage() {
   const [foundersClubUnlocked, setFoundersClubUnlocked] = useState(false);
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const [foundersClubPrice, setFoundersClubPrice] = useState<number | null>(null);
-  const [foundersClubOriginalPrice, setFoundersClubOriginalPrice] = useState<number>(999);
   const [foundersClubDescription, setFoundersClubDescription] = useState<string>('Exclusive membership with lifetime benefits');
   const [foundersClubFeatures, setFoundersClubFeatures] = useState<string[]>([
     'Founders Tag on NFC Card',
@@ -74,7 +71,6 @@ export default function ProductSelectionPage() {
   // Auth state
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showSignupOverlay, setShowSignupOverlay] = useState(false);
-  const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
     // Check if user is logged in
@@ -89,8 +85,6 @@ export default function ProductSelectionPage() {
         }
       } catch (error) {
         console.error('Error checking auth:', error);
-      } finally {
-        setCheckingAuth(false);
       }
     };
     checkAuth();
@@ -126,9 +120,6 @@ export default function ProductSelectionPage() {
 
       if (data.success && data.founders_total_price) {
         setFoundersClubPrice(data.founders_total_price);
-        // Calculate original price (approximately 3x the sale price for "Save $X" display)
-        const originalPrice = Math.round(data.founders_total_price * 3);
-        setFoundersClubOriginalPrice(originalPrice);
 
         // Update description and features from API if available
         if (data.plan?.description) {
@@ -503,23 +494,8 @@ export default function ProductSelectionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
-      {/* Header with Login Button */}
-      {!isLoggedIn && !checkingAuth && (
-        <div className="w-full px-4 md:px-6 py-4">
-          <div className="max-w-7xl mx-auto flex justify-end">
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"
-            >
-              <LoginIcon className="w-5 h-5" />
-              Login
-            </Link>
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 flex-grow">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 flex-grow pb-28 md:pb-0">
         {/* Title Section */}
         <div className="text-center mb-8 md:mb-12">
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2 px-4">
@@ -633,33 +609,37 @@ export default function ProductSelectionPage() {
 
               {/* 4th Card: Founders Club (Locked/Unlocked) */}
               <div
-                className={`relative rounded-2xl border-2 transition-all overflow-hidden w-full md:w-[calc(50%-12px)] lg:w-[calc(25%-12px)] max-w-[350px] ${
+                className={`relative rounded-2xl border-2 transition-all w-full md:w-[calc(50%-12px)] lg:w-[calc(25%-12px)] max-w-[350px] ${
                   foundersClubUnlocked
                     ? selectedProduct === 'founders-club'
                       ? 'border-amber-500 shadow-lg scale-[1.02] ring-1 ring-amber-500 ring-offset-2 md:shadow-2xl md:scale-105 md:ring-2 md:ring-offset-4 cursor-pointer'
                       : 'border-amber-300 hover:border-amber-400 hover:shadow-lg cursor-pointer bg-gradient-to-b from-amber-50 to-white'
-                    : 'border-gray-300 bg-gray-100 min-h-[320px]'
+                    : 'border-gray-300 bg-gray-100'
                 }`}
                 onClick={() => foundersClubUnlocked && handleCardClick('founders-club')}
               >
+                {/* Info Icon - Top Right */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowBenefitsModal(true);
+                  }}
+                  className="absolute top-3 right-3 z-20 text-gray-400 hover:text-amber-600 cursor-pointer p-1 rounded-full hover:bg-amber-50 transition-colors"
+                >
+                  <InfoOutlinedIcon className="w-5 h-5" />
+                </button>
+
                 {/* Locked Overlay */}
                 {!foundersClubUnlocked && (
-                  <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-6">
+                  <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center p-6 rounded-2xl">
+                    {/* Exclusive Badge - Inside Card */}
+                    <span className="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 py-1.5 rounded-full text-xs font-semibold shadow-lg whitespace-nowrap mb-4 -mt-8">
+                      EXCLUSIVE
+                    </span>
                     <Lock className="w-12 h-12 text-gray-400 mb-3" />
-                    <div className="flex items-center justify-center gap-1 mb-1">
-                      <p className="text-gray-700 font-semibold text-center text-base">
-                        Exclusive. Invite-Only Access.
-                      </p>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowBenefitsModal(true);
-                        }}
-                        className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                      >
-                        <InfoOutlinedIcon className="w-5 h-5" />
-                      </button>
-                    </div>
+                    <p className="text-gray-700 font-semibold text-center text-base mb-1">
+                      Exclusive. Invite-Only Access.
+                    </p>
                     <p className="text-gray-500 text-sm text-center mb-5">
                       Request access or enter your invite code
                     </p>
@@ -726,11 +706,44 @@ export default function ProductSelectionPage() {
           )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 min-h-[52px]">
+      </div>
+
+      {/* Desktop Action Buttons - In normal flow */}
+      <div className="hidden md:flex flex-row items-center justify-center gap-4 mb-8">
+        <button
+          onClick={() => router.back()}
+          className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer text-center"
+        >
+          ← Go Back
+        </button>
+
+        <button
+          onClick={handleConfirmSelection}
+          disabled={loading || !selectedProduct}
+          className={`px-8 py-3 rounded-xl font-semibold transition-all cursor-pointer disabled:cursor-not-allowed ${
+            selectedProduct
+              ? 'shadow-lg hover:shadow-xl opacity-100'
+              : 'opacity-50 cursor-not-allowed'
+          }`}
+          style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
+        >
+          {loading ? (
+            <div className="flex items-center">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+              Processing...
+            </div>
+          ) : (
+            'Continue →'
+          )}
+        </button>
+      </div>
+
+      {/* Mobile Fixed Bottom Action Bar */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 z-40 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+        <div className="flex flex-row items-center justify-center gap-4">
           <button
             onClick={() => router.back()}
-            className="w-full sm:w-auto px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer text-center"
+            className="px-6 py-3 text-gray-600 hover:text-gray-900 font-medium transition-colors cursor-pointer text-center"
           >
             ← Go Back
           </button>
@@ -738,10 +751,10 @@ export default function ProductSelectionPage() {
           <button
             onClick={handleConfirmSelection}
             disabled={loading || !selectedProduct}
-            className={`w-full sm:w-auto px-8 py-3 rounded-xl font-semibold transition-all cursor-pointer disabled:cursor-not-allowed ${
+            className={`px-8 py-3 rounded-xl font-semibold transition-all cursor-pointer disabled:cursor-not-allowed ${
               selectedProduct
                 ? 'shadow-lg hover:shadow-xl opacity-100'
-                : 'opacity-0 pointer-events-none'
+                : 'opacity-50 cursor-not-allowed'
             }`}
             style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
           >
@@ -757,7 +770,9 @@ export default function ProductSelectionPage() {
         </div>
       </div>
 
-      <Footer />
+      <div className="hidden md:block">
+        <Footer />
+      </div>
 
       {/* Request Access Modal */}
       <RequestAccessModal

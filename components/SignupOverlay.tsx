@@ -16,6 +16,14 @@ interface SignupOverlayProps {
   selectedProduct: string;
 }
 
+// Helper function to format names in title case (e.g., "tom hendrik" → "Tom Hendrik")
+const toTitleCase = (str: string): string => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export default function SignupOverlay({ isOpen, onClose, selectedProduct }: SignupOverlayProps) {
   const router = useRouter();
   const { showToast } = useToast();
@@ -356,7 +364,7 @@ export default function SignupOverlay({ isOpen, onClose, selectedProduct }: Sign
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4 overflow-y-auto overflow-x-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center p-4 pt-8 overflow-y-auto overflow-x-hidden">
       <div className="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-4 sm:p-6 relative my-8 overflow-hidden">
         {/* Close Button */}
         <button
@@ -526,7 +534,7 @@ export default function SignupOverlay({ isOpen, onClose, selectedProduct }: Sign
                     value={formData.firstName}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[0-9]/g, '');
-                      setFormData({ ...formData, firstName: value });
+                      setFormData({ ...formData, firstName: toTitleCase(value) });
                     }}
                     minLength={2}
                     maxLength={30}
@@ -555,7 +563,7 @@ export default function SignupOverlay({ isOpen, onClose, selectedProduct }: Sign
                     value={formData.lastName}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[0-9]/g, '');
-                      setFormData({ ...formData, lastName: value });
+                      setFormData({ ...formData, lastName: toTitleCase(value) });
                     }}
                     minLength={2}
                     maxLength={30}

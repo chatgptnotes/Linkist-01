@@ -17,6 +17,7 @@ interface StripePaymentModalProps {
   orderDetails: {
     customerName: string;
     email: string;
+    phoneNumber?: string;
     orderNumber?: string;
     voucherCode?: string;
     discount?: number;
@@ -122,20 +123,26 @@ export default function StripePaymentModal({
         {/* Order Summary */}
         <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
           <div className="space-y-2 text-sm">
+            {orderDetails.orderNumber && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">Order ID:</span>
+                <span className="font-medium text-gray-900 font-mono text-xs">
+                  {orderDetails.orderNumber}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between">
-              <span className="text-gray-600">Customer:</span>
+              <span className="text-gray-600">Customer Name:</span>
               <span className="font-medium text-gray-900">{orderDetails.customerName}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Email:</span>
               <span className="font-medium text-gray-900">{orderDetails.email}</span>
             </div>
-            {orderDetails.orderNumber && (
+            {orderDetails.phoneNumber && (
               <div className="flex justify-between">
-                <span className="text-gray-600">Order:</span>
-                <span className="font-medium text-gray-900 font-mono text-xs">
-                  {orderDetails.orderNumber}
-                </span>
+                <span className="text-gray-600">Number:</span>
+                <span className="font-medium text-gray-900">{orderDetails.phoneNumber}</span>
               </div>
             )}
             {orderDetails.voucherCode && (

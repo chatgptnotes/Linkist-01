@@ -139,7 +139,7 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
         {/* Close Button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+          className="absolute top-1 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
         >
           <CloseIcon className="w-6 h-6" />
         </button>

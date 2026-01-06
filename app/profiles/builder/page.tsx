@@ -63,6 +63,14 @@ const Edit = EditIcon;
 const Trash = DeleteIcon;
 const Service = BuildCircle;
 
+// Helper function to format names in title case (e.g., "tom hendrik" → "Tom Hendrik")
+const toTitleCase = (str: string): string => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 interface ProfileData {
   // Basic Information
   salutation: string;
@@ -2050,7 +2058,7 @@ function ProfileBuilderContent() {
                         <input
                           type="text"
                           value={profileData.firstName}
-                          onChange={(e) => setProfileData({ ...profileData, firstName: e.target.value })}
+                          onChange={(e) => setProfileData({ ...profileData, firstName: toTitleCase(e.target.value) })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="Enter first name"
                         />
@@ -2060,7 +2068,7 @@ function ProfileBuilderContent() {
                         <input
                           type="text"
                           value={profileData.lastName}
-                          onChange={(e) => setProfileData({ ...profileData, lastName: e.target.value })}
+                          onChange={(e) => setProfileData({ ...profileData, lastName: toTitleCase(e.target.value) })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="Enter last name"
                         />
@@ -3783,81 +3791,83 @@ function ProfileBuilderContent() {
 
                     <div className="grid md:grid-cols-2 gap-6">
                       <div>
-                        {/* Banner Preview */}
-                        <div className="bg-gray-200 rounded-lg overflow-hidden border border-gray-200" style={{ aspectRatio: '16/9' }}>
-                          {profileData.backgroundImage ? (
-                            <img src={profileData.backgroundImage} alt="Banner" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="flex items-center justify-center h-full text-gray-400">
-                              <span className="text-sm">No banner image</span>
+                        <div className="flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6">
+                          <div className="text-center w-full">
+                            {/* Banner Preview */}
+                            <div className="bg-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                              {profileData.backgroundImage ? (
+                                <img src={profileData.backgroundImage} alt="Banner" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="flex items-center justify-center h-full text-gray-400">
+                                  <span className="text-sm">No banner image</span>
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                            <input
+                              type="file"
+                              id="background-image-upload"
+                              accept="image/png,image/jpeg,image/jpg"
+                              className="hidden"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  try {
+                                    setIsUploadingBannerImage(true);
+                                    setBannerImageUploadProgress(0);
 
-                        {/* Always-visible Upload Button */}
-                        <input
-                          type="file"
-                          id="background-image-upload"
-                          accept="image/png,image/jpeg,image/jpg"
-                          className="hidden"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0];
-                            if (file) {
-                              try {
-                                setIsUploadingBannerImage(true);
-                                setBannerImageUploadProgress(0);
+                                    // Compress with upscaling for small images (never throws errors)
+                                    const base64String = await compressImageToBase64WithUpscale(file, (progress) => {
+                                      setBannerImageUploadProgress(progress);
+                                    });
 
-                                // Compress with upscaling for small images (never throws errors)
-                                const base64String = await compressImageToBase64WithUpscale(file, (progress) => {
-                                  setBannerImageUploadProgress(progress);
-                                });
-
-                                if (base64String) {
-                                  setProfileData(prev => ({
-                                    ...prev,
-                                    backgroundImage: base64String
-                                  }));
-                                  toast.success('Banner image uploaded successfully!');
-                                } else {
-                                  console.warn('Banner image processing returned empty, but continuing');
+                                    if (base64String) {
+                                      setProfileData(prev => ({
+                                        ...prev,
+                                        backgroundImage: base64String
+                                      }));
+                                      toast.success('Banner image uploaded successfully!');
+                                    } else {
+                                      console.warn('Banner image processing returned empty, but continuing');
+                                    }
+                                  } catch (error) {
+                                    // Graceful error handling - never show error to user
+                                    console.error('Banner image upload error:', error);
+                                    // Silently continue - the function should have handled this
+                                  } finally {
+                                    setIsUploadingBannerImage(false);
+                                    setBannerImageUploadProgress(0);
+                                  }
                                 }
-                              } catch (error) {
-                                // Graceful error handling - never show error to user
-                                console.error('Banner image upload error:', error);
-                                // Silently continue - the function should have handled this
-                              } finally {
-                                setIsUploadingBannerImage(false);
-                                setBannerImageUploadProgress(0);
-                              }
-                            }
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const input = document.getElementById('background-image-upload') as HTMLInputElement;
-                            if (input) {
-                              input.click();
-                            }
-                          }}
-                          disabled={isUploadingBannerImage}
-                          className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                          style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
-                        >
-                          <Upload className="w-4 h-4" />
-                          {isUploadingBannerImage ? `Uploading... ${bannerImageUploadProgress}%` : (profileData.backgroundImage ? 'Change Banner' : 'Upload Banner')}
-                        </button>
-                        {isUploadingBannerImage && (
-                          <div className="mt-2 w-full">
-                            <div className="w-full bg-gray-200 rounded-full h-2">
-                              <div
-                                className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                                style={{ width: `${bannerImageUploadProgress}%` }}
-                              />
-                            </div>
+                              }}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const input = document.getElementById('background-image-upload') as HTMLInputElement;
+                                if (input) {
+                                  input.click();
+                                }
+                              }}
+                              disabled={isUploadingBannerImage}
+                              className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
+                              style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                            >
+                              <Upload className="w-4 h-4" />
+                              {isUploadingBannerImage ? `Uploading... ${bannerImageUploadProgress}%` : (profileData.backgroundImage ? 'Change Banner' : 'Upload Banner')}
+                            </button>
+                            {isUploadingBannerImage && (
+                              <div className="mt-2 w-full">
+                                <div className="w-full bg-gray-200 rounded-full h-2">
+                                  <div
+                                    className="bg-red-600 h-2 rounded-full transition-all duration-300"
+                                    style={{ width: `${bannerImageUploadProgress}%` }}
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <p className="text-xs text-gray-500 mt-2">JPG or PNG up to 15MB</p>
                           </div>
-                        )}
-                        <p className="text-xs text-gray-500 mt-2 text-center">JPG or PNG up to 15MB</p>
+                        </div>
                       </div>
 
                       <div>

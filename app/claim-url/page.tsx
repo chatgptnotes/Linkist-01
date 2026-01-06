@@ -298,7 +298,7 @@ export default function ClaimURLPage() {
            Choose Your Linkist Identity
           </h1>
           <p className="text-gray-600 mb-8">
-            Change description to “Your Linkist ID is your personal digital handshake. Make it memorable.
+            Your Linkist ID is your personal digital handshake. Make it memorable.
           </p>
 
           <div className="mb-8">

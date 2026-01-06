@@ -10,6 +10,14 @@ const Globe = LanguageIcon;
 import { useToast } from '@/components/ToastProvider';
 import Footer from '@/components/Footer';
 
+// Helper function to format names in title case (e.g., "tom hendrik" → "Tom Hendrik")
+const toTitleCase = (str: string): string => {
+  return str
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+};
+
 export default function WelcomeToLinkist() {
   const router = useRouter();
   const { showToast } = useToast();
@@ -537,7 +545,7 @@ export default function WelcomeToLinkist() {
                     value={formData.firstName}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[0-9]/g, '');
-                      setFormData({ ...formData, firstName: value });
+                      setFormData({ ...formData, firstName: toTitleCase(value) });
                     }}
                     minLength={2}
                     maxLength={30}
@@ -566,7 +574,7 @@ export default function WelcomeToLinkist() {
                     value={formData.lastName}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[0-9]/g, '');
-                      setFormData({ ...formData, lastName: value });
+                      setFormData({ ...formData, lastName: toTitleCase(value) });
                     }}
                     minLength={2}
                     maxLength={30}

@@ -859,6 +859,7 @@ export default function NFCPaymentPage() {
           orderDetails={{
             customerName: orderData.customerName,
             email: orderData.email,
+            phoneNumber: orderData.phoneNumber,
             orderNumber: orderData.orderNumber,
             // Only show voucher for non-founders AND only when successfully applied
             voucherCode: !isFoundingMember && voucherValid && appliedVoucherCode ? appliedVoucherCode : undefined,
