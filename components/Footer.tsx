@@ -51,7 +51,7 @@ export default function Footer() {
               <h4 className="text-white font-medium mb-6">Connect</h4>
               <div className="flex items-center gap-4">
                 <a
-                  href="https://www.instagram.com/p/DR6q3B3GCfp/?igsh=ZG03cmQyZjAwMXcx"
+                  href="https://www.instagram.com/linkist.ai/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
