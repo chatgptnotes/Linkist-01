@@ -105,7 +105,7 @@ const FooterSection = () => {
   ];
 
   const socialLinks = [
-    { href: 'https://www.instagram.com/p/DR6q3B3GCfp/?igsh=ZG03cmQyZjAwMXcx', icon: Instagram, label: 'Instagram' },
+    { href: 'https://www.instagram.com/linkist.ai/', icon: Instagram, label: 'Instagram' },
     { href: 'https://www.facebook.com/share/p/17juDWRqcQ/?mibextid=wwXIfr', icon: Facebook, label: 'Facebook' },
     { href: 'https://www.linkedin.com/company/linkist-ai/', icon: Linkedin, label: 'LinkedIn' },
     { href: 'https://x.com/Linkist_ai/status/1997236781612421201?s=20', icon: Twitter, label: 'X' },
