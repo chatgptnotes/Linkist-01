@@ -11,7 +11,8 @@ import SendIcon from '@mui/icons-material/Send';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import XIcon from '@mui/icons-material/X';
 import InstagramIcon from '@mui/icons-material/Instagram';
-import YouTubeIcon from '@mui/icons-material/YouTube';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import FacebookIcon from '@mui/icons-material/Facebook';
 import SecurityIcon from '@mui/icons-material/Security';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
@@ -27,7 +28,8 @@ const Send = SendIcon;
 const Linkedin = LinkedInIcon;
 const Twitter = XIcon;
 const Instagram = InstagramIcon;
-const Youtube = YouTubeIcon;
+const WhatsApp = WhatsAppIcon;
+const Facebook = FacebookIcon;
 const Shield = SecurityIcon;
 const CreditCard = CreditCardIcon;
 const Truck = LocalShippingIcon;
@@ -103,10 +105,10 @@ const FooterSection = () => {
   ];
 
   const socialLinks = [
-    { href: 'https://linkedin.com/company/linkist-nfc', icon: Linkedin, label: 'LinkedIn' },
-    { href: 'https://twitter.com/linkistnfc', icon: Twitter, label: 'Twitter' },
-    { href: 'https://instagram.com/linkistnfc', icon: Instagram, label: 'Instagram' },
-    { href: 'https://youtube.com/@linkistnfc', icon: Youtube, label: 'YouTube' },
+    { href: 'https://www.instagram.com/p/DR6q3B3GCfp/?igsh=ZG03cmQyZjAwMXcx', icon: Instagram, label: 'Instagram' },
+    { href: 'https://www.facebook.com/share/p/17juDWRqcQ/?mibextid=wwXIfr', icon: Facebook, label: 'Facebook' },
+    { href: 'https://www.linkedin.com/company/linkist-ai/', icon: Linkedin, label: 'LinkedIn' },
+    { href: 'https://x.com/Linkist_ai/status/1997236781612421201?s=20', icon: Twitter, label: 'X' },
   ];
 
   const trustBadges = [
@@ -325,6 +327,41 @@ const FooterSection = () => {
           </motion.div>
         </div>
 
+        {/* Contact Us Section */}
+        <motion.div
+          className="mt-12 pt-8 border-t border-gray-800"
+          variants={itemVariants}
+        >
+          <h4 className="font-semibold text-lg mb-4">Contact Us</h4>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            {/* Address */}
+            <div className="flex items-start text-gray-400">
+              <MapPin className="h-5 w-5 mr-3 mt-0.5 flex-shrink-0" />
+              <span>RatioX Labs DWC-LLC, A3, Business Park, Dubai South, Dubai, UAE</span>
+            </div>
+
+            {/* Phone & WhatsApp */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <a
+                href="tel:+971504408656"
+                className="flex items-center text-gray-400 hover:text-white transition-colors group"
+              >
+                <Phone className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
+                <span>+971 50 440 8656</span>
+              </a>
+              <a
+                href="https://wa.me/971504408656"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center text-gray-400 hover:text-green-400 transition-colors group"
+              >
+                <WhatsApp className="h-5 w-5 mr-2 group-hover:scale-110 transition-transform" />
+                <span>+971 50 440 8656</span>
+              </a>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Bottom Bar */}
         <motion.div
           className="mt-16 pt-8 border-t border-gray-800"
@@ -333,7 +370,7 @@ const FooterSection = () => {
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-4 lg:space-y-0">
             <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6 text-gray-400 text-sm">
               <p>
-                © {currentYear} Linkist NFC. All rights reserved.
+                © {currentYear} Ratioxlabs. All Rights Reserved.
               </p>
               <div className="flex items-center space-x-4">
                 <Link href="/terms" className="hover:text-white transition-colors">

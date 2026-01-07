@@ -3,6 +3,9 @@ import InstagramIcon from '@mui/icons-material/Instagram';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import XIcon from '@mui/icons-material/X';
+import PhoneIcon from '@mui/icons-material/Phone';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 export default function Footer() {
   return (
@@ -48,7 +51,7 @@ export default function Footer() {
               <h4 className="text-white font-medium mb-6">Connect</h4>
               <div className="flex items-center gap-4">
                 <a
-                  href="https://instagram.com/linkistnfc"
+                  href="https://www.instagram.com/p/DR6q3B3GCfp/?igsh=ZG03cmQyZjAwMXcx"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -57,7 +60,7 @@ export default function Footer() {
                   <InstagramIcon className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://facebook.com/linkistnfc"
+                  href="https://www.facebook.com/share/p/17juDWRqcQ/?mibextid=wwXIfr"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
@@ -66,7 +69,7 @@ export default function Footer() {
                   <FacebookIcon className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://linkedin.com/company/linkistnfc"
+                  href="https://www.linkedin.com/company/linkist-ai/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
@@ -75,7 +78,7 @@ export default function Footer() {
                   <LinkedInIcon className="w-5 h-5" />
                 </a>
                 <a
-                  href="https://x.com/linkistnfc"
+                  href="https://x.com/Linkist_ai/status/1997236781612421201?s=20"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="X (Twitter)"
@@ -84,6 +87,37 @@ export default function Footer() {
                   <XIcon className="w-5 h-5" />
                 </a>
               </div>
+            </div>
+
+            {/* Contact Us */}
+            <div>
+              <h4 className="text-white font-medium mb-6">Contact Us</h4>
+              <ul className="space-y-4 text-[#888]">
+                <li className="flex items-start gap-2">
+                  <LocationOnIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <span>RatioX Labs DWC-LLC, A3, Business Park, Dubai South, Dubai, UAE</span>
+                </li>
+                <li>
+                  <a
+                    href="tel:+971504408656"
+                    className="flex items-center gap-2 hover:text-white transition-colors"
+                  >
+                    <PhoneIcon className="w-5 h-5" />
+                    <span>+971 50 440 8656</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="https://wa.me/971504408656"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 hover:text-green-400 transition-colors"
+                  >
+                    <WhatsAppIcon className="w-5 h-5" />
+                    <span>+971 50 440 8656</span>
+                  </a>
+                </li>
+              </ul>
             </div>
 
           </div>
