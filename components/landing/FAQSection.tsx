@@ -68,7 +68,7 @@ export default function FAQSection() {
             backgroundClip: 'text',
           }}
         >
-          About us
+          About Linkist
         </motion.h2>
 
         {/* FAQ Items */}
@@ -76,6 +76,7 @@ export default function FAQSection() {
           {faqs.map((faq, idx) => (
             <motion.div
               key={idx}
+              
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

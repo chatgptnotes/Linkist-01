@@ -73,7 +73,7 @@ export default function InviteOnlySection() {
                     }}
                 >
                     This isn't early access.<br />
-                    It's Invite-only.
+                    It's invite-only.
                 </motion.h2>
 
                 {/* Grid of Cards */}

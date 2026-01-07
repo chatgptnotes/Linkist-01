@@ -32,7 +32,7 @@ export default function IdentitySection() {
                         backgroundClip: 'text',
                     }}
                 >
-                    The key to your New Identity.
+                    The key to your <br className="md:hidden" />New Identity.
                 </motion.h2>
 
                 <p className="text-[#888] text-lg max-w-2xl mx-auto mb-12 leading-relaxed font-body">

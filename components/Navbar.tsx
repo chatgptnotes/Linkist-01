@@ -12,6 +12,8 @@ export default function Navbar() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [isJoinLoading, setIsJoinLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,15 +122,29 @@ export default function Navbar() {
         {!isLoggedIn && (
           <div className="hidden md:flex items-center gap-6">
             <button
-              onClick={() => router.push('/login')}
-              className="text-white/90 hover:text-white font-medium text-base transition-colors cursor-pointer"
+              onClick={() => {
+                setIsLoginLoading(true);
+                router.push('/login');
+              }}
+              disabled={isLoginLoading}
+              className="text-white/90 hover:text-white font-medium text-base transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
+              {isLoginLoading && (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+              )}
               Login
             </button>
             <button
-              onClick={() => router.push('/choose-plan')}
-              className="bg-[#C84C4C] hover:bg-[#B43E3E] text-white font-medium text-base px-7 py-2.5 rounded-full transition-colors cursor-pointer"
+              onClick={() => {
+                setIsJoinLoading(true);
+                router.push('/choose-plan');
+              }}
+              disabled={isJoinLoading}
+              className="bg-[#C84C4C] hover:bg-[#B43E3E] text-white font-medium text-base px-7 py-2.5 rounded-full transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
+              {isJoinLoading && (
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+              )}
               Join Now
             </button>
           </div>
@@ -269,20 +285,30 @@ export default function Navbar() {
         <div className="md:hidden absolute top-16 left-0 right-0 bg-[#1A1A1A]/95 backdrop-blur-sm border-b border-white/10 px-4 py-4 space-y-3">
           <button
             onClick={() => {
+              setIsLoginLoading(true);
               setIsMobileMenuOpen(false);
               router.push('/login');
             }}
-            className="block w-full text-center py-3 text-white/90 hover:text-white font-medium text-base transition-colors border border-white/20 rounded-full hover:border-white/40"
+            disabled={isLoginLoading}
+            className="w-full text-center py-3 text-white/90 hover:text-white font-medium text-base transition-colors border border-white/20 rounded-full hover:border-white/40 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
+            {isLoginLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+            )}
             Login
           </button>
           <button
             onClick={() => {
+              setIsJoinLoading(true);
               setIsMobileMenuOpen(false);
               router.push('/choose-plan');
             }}
-            className="block w-full text-center py-3 bg-[#C84C4C] hover:bg-[#B43E3E] text-white font-medium text-base rounded-full transition-colors"
+            disabled={isJoinLoading}
+            className="w-full text-center py-3 bg-[#C84C4C] hover:bg-[#B43E3E] text-white font-medium text-base rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
+            {isJoinLoading && (
+              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
+            )}
             Join Now
           </button>
         </div>
