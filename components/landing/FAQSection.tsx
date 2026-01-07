@@ -38,7 +38,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative py-24 md:py-32 bg-[#050505]">
+    <section className="relative py-20 md:py-24 bg-[#050505]">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Badge */}
@@ -46,7 +46,7 @@ export default function FAQSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-6"
         >
           <span className="inline-block px-5 py-2 rounded-full border border-[#E02424]/40 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase">
             FAQ
@@ -76,7 +76,7 @@ export default function FAQSection() {
           {faqs.map((faq, idx) => (
             <motion.div
               key={idx}
-              
+
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -85,13 +85,23 @@ export default function FAQSection() {
             >
               <button
                 onClick={() => toggleFAQ(idx)}
-                className={`w-full bg-[rgba(74,74,74,0.7)] border border-[#333] px-5 py-4 md:px-6 md:py-5 rounded-2xl flex items-center justify-center text-center transition-all duration-300 ${
+                className={`w-full bg-[rgba(74,74,74,0.7)] border border-[#333] px-5 py-4 md:px-6 md:py-5 rounded-2xl flex items-center justify-between transition-all duration-300 ${
                   openIndex === idx ? 'rounded-b-none border-b-0' : ''
                 }`}
               >
-                <span className="text-sm md:text-base text-white font-medium font-body">
+                <span className="text-sm md:text-base text-white font-medium font-body text-left">
                   {faq.question}
                 </span>
+                <svg
+                  className={`w-5 h-5 text-white flex-shrink-0 ml-4 transition-transform duration-300 ${
+                    openIndex === idx ? 'rotate-180' : ''
+                  }`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
               </button>
 
               {/* Dropdown Content */}

@@ -19,20 +19,7 @@ export default function StatsSection() {
     ];
 
     return (
-        <section className="relative py-32 bg-[#050505]">
-            {/* Floating CTA matches image 6 */}
-            <div className="absolute top-0 left-0 w-full flex justify-center -translate-y-1/2 z-20">
-                <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95 shadow-2xl">
-                    <Image
-                        src="/joinbutton.png"
-                        alt="Join Linkist"
-                        width={180}
-                        height={46}
-                        className="w-auto h-[42px] object-contain"
-                    />
-                </Link>
-            </div>
-
+        <section className="relative py-20 md:py-24 bg-[#050505]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
@@ -40,9 +27,9 @@ export default function StatsSection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="inline-block px-5 py-2 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-12"
+                    className="inline-block px-5 py-2 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
                 >
-                    Reality
+                    THE FACTS
                 </motion.div>
 
                 <motion.h2

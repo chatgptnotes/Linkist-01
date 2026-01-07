@@ -103,8 +103,8 @@ export default function WhyTimelineSection() {
             iconHeight: 56,
             title: 'Day 7:',
             description: 'You forget what made them relevant.',
-            titleFontWeight: 600,
-            descriptionFontWeight: 600,
+            titleFontWeight: 500,
+            descriptionFontWeight: 500,
             height: 168,
         },
         {
@@ -116,14 +116,14 @@ export default function WhyTimelineSection() {
             iconHeight: 56,
             title: 'Day 30:',
             description: 'The lead goes cold after a generic, low-context follow-up.',
-            titleFontWeight: 600,
-            descriptionFontWeight: 600,
+            titleFontWeight: 500,
+            descriptionFontWeight: 500,
             height: 190,
         },
     ];
 
     return (
-        <section className="relative pt-16 pb-16 md:pt-20 md:pb-24 overflow-hidden">
+        <section className="relative py-20 md:py-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Mobile Layout */}
@@ -135,13 +135,17 @@ export default function WhyTimelineSection() {
                         viewport={{ once: true }}
                         className="mb-6"
                     >
-                        <Image
-                            src="/label.png"
-                            alt="How It Works"
-                            width={140}
-                            height={40}
-                            className="w-auto h-[36px] object-contain"
-                        />
+                        <span
+                            className="inline-flex items-center justify-center px-5 py-2 rounded-full border-2 border-[#F04438] bg-[#1a0a09]"
+                            style={{
+                                fontFamily: 'Inter, sans-serif',
+                                fontWeight: 500,
+                                fontSize: '14px',
+                                color: '#F04438',
+                            }}
+                        >
+                            TURNING CONTACTS TO LEVERAGE
+                        </span>
                     </motion.div>
 
                     {/* Heading - 350x72 with 24px gap */}
@@ -216,13 +220,17 @@ export default function WhyTimelineSection() {
                     >
                         {/* Badge */}
                         <div className="mb-8">
-                            <Image
-                                src="/label.png"
-                                alt="How It Works"
-                                width={160}
-                                height={44}
-                                className="w-auto h-[40px] object-contain"
-                            />
+                            <span
+                                className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border-2 border-[#F04438] bg-[#1a0a09]"
+                                style={{
+                                    fontFamily: 'Inter, sans-serif',
+                                    fontWeight: 500,
+                                    fontSize: '16px',
+                                    color: '#F04438',
+                                }}
+                            >
+                                TURNING CONTACTS TO LEVERAGE
+                            </span>
                         </div>
 
                         <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight">

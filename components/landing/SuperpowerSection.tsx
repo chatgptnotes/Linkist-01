@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface FeatureCardProps {
     iconSrc: string;
@@ -77,7 +78,7 @@ const featureCardsData = [
 
 export default function SuperpowerSection() {
     return (
-        <section className="relative py-24 bg-[#050505] overflow-hidden">
+        <section className="relative py-20 md:py-24 bg-[#050505] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
@@ -85,7 +86,7 @@ export default function SuperpowerSection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="inline-block px-4 py-1.5 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-8"
+                    className="inline-block px-4 py-1.5 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
                 >
                     The Superpower
                 </motion.div>
@@ -135,6 +136,24 @@ export default function SuperpowerSection() {
                         />
                     ))}
                 </div>
+
+                {/* CTA Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-12 flex justify-center"
+                >
+                    <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+                        <Image
+                            src="/joinbutton.png"
+                            alt="Join Linkist"
+                            width={200}
+                            height={52}
+                            className="w-auto h-[48px] object-contain"
+                        />
+                    </Link>
+                </motion.div>
 
             </div>
         </section>

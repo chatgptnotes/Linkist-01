@@ -32,54 +32,65 @@ export default function Footer() {
           </div>
 
           {/* Links Columns */}
-          <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="lg:col-span-3 flex flex-col sm:flex-row justify-between gap-8">
 
-            {/* Column 1 */}
-            <div>
-              <h4 className="text-white font-medium mb-6">Company</h4>
-              <ul className="space-y-4 text-[#888]">
-                <li><Link href="#" className="hover:text-white transition-colors">Company Details</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Mission</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Values</Link></li>
-              </ul>
-            </div>
-
-            {/* Column 2 */}
-            <div>
-              <h4 className="text-white font-medium mb-6">Resources</h4>
-              <ul className="space-y-4 text-[#888]">
-                <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">FAQs</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Support Center</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Contact Us</Link></li>
-              </ul>
-            </div>
-
-            {/* Column 3 */}
+            {/* Legal */}
             <div>
               <h4 className="text-white font-medium mb-6">Legal</h4>
               <ul className="space-y-4 text-[#888]">
-                <li><Link href="#" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
 
-            {/* Column 4 */}
+            {/* Connect - Horizontal Icons */}
             <div>
               <h4 className="text-white font-medium mb-6">Connect</h4>
-              <ul className="space-y-4 text-[#888]">
-                <li><Link href="#" className="hover:text-white transition-colors">Instagram</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Facebook</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">LinkedIn</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">Twitter/X</Link></li>
-              </ul>
+              <div className="flex items-center gap-4">
+                <a
+                  href="https://instagram.com/linkistnfc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#111] text-[#888] hover:text-white hover:bg-[#E84C4C] transition-all hover:scale-110"
+                >
+                  <InstagramIcon className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://facebook.com/linkistnfc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Facebook"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#111] text-[#888] hover:text-white hover:bg-[#E84C4C] transition-all hover:scale-110"
+                >
+                  <FacebookIcon className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://linkedin.com/company/linkistnfc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="LinkedIn"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#111] text-[#888] hover:text-white hover:bg-[#E84C4C] transition-all hover:scale-110"
+                >
+                  <LinkedInIcon className="w-5 h-5" />
+                </a>
+                <a
+                  href="https://x.com/linkistnfc"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="X (Twitter)"
+                  className="w-10 h-10 flex items-center justify-center rounded-full bg-[#111] text-[#888] hover:text-white hover:bg-[#E84C4C] transition-all hover:scale-110"
+                >
+                  <XIcon className="w-5 h-5" />
+                </a>
+              </div>
             </div>
 
           </div>
         </div>
 
         <div className="border-t border-[#111] mt-20 pt-8 text-center text-[#444]">
-          © 2025 Linkist. All Rights Reserved.
+          © 2026 Ratioxlabs. All Rights Reserved.
         </div>
       </div>
     </footer>

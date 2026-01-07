@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function FinalCTASection() {
     return (
-        <section className="relative py-24 md:py-32 overflow-hidden bg-[#050505]">
+        <section className="relative py-20 md:py-24 overflow-hidden bg-[#050505]">
 
             {/* Red ellipse arc at top */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">

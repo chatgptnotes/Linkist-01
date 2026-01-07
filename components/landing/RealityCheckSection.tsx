@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function RealityCheckSection() {
     return (
-        <section className="relative pt-24 pb-16 md:pt-32 md:pb-20 overflow-hidden">
+        <section className="relative py-20 md:py-24 overflow-hidden">
             <div className="max-w-[1306px] mx-auto px-4 sm:px-6 md:px-[100px] relative z-10">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -13,10 +13,10 @@ export default function RealityCheckSection() {
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="flex justify-center md:justify-start"
+                            className="flex justify-center md:justify-start mb-6"
                         >
                             <span className="inline-block px-4 py-1.5 rounded-full border border-[#8B2020] bg-[#1a0a0a] text-[#E02424] text-xs font-medium">
-                                The Reality Check
+                                THE HUMAN LIMIT
                             </span>
                         </motion.div>
 
@@ -49,7 +49,7 @@ export default function RealityCheckSection() {
                                 The memory is the hard part.
                             </p> */}
 
-                            <div className="pt-[56px] flex justify-center md:justify-start">
+                            <div className="mt-12 flex justify-center md:justify-start">
                                 <Link href="/choose-plan">
                                     <button
                                         className="w-[172px] h-[40px] rounded-full text-black text-sm font-medium hover:opacity-90 transition-all cursor-pointer"

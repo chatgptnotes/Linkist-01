@@ -66,8 +66,8 @@ export default function HeroSection() {
             className="text-[35px] leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
             The world's first<br />
-            personal relationship<br />
-            manager tool
+            Personal Relationship<br />
+            Manager (PRM)<br />
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -96,7 +96,7 @@ export default function HeroSection() {
             />
           </Link>
           <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
-            Includes 1-Year Pro Access (TBD) + $50 AI Credits
+            Includes 1-Year Pro Access + $50 AI Credits
           </p>
         </motion.div>
       </div>
