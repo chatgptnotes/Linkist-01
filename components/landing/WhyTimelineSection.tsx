@@ -123,7 +123,7 @@ export default function WhyTimelineSection() {
     ];
 
     return (
-        <section className="relative pt-[115px] pb-16 md:pt-[170px] md:pb-24 overflow-hidden">
+        <section className="relative pt-16 pb-16 md:pt-20 md:pb-24 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Mobile Layout */}
@@ -156,12 +156,16 @@ export default function WhyTimelineSection() {
                             fontSize: '32px',
                             lineHeight: '36px',
                             letterSpacing: '-0.02em',
-                            maxWidth: '350px'
+                            maxWidth: '350px',
+                            background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                            WebkitBackgroundClip: 'text',
+                            WebkitTextFillColor: 'transparent',
+                            backgroundClip: 'text'
                         }}
                     >
-                        <span className="text-white">The handshake is easy.</span>
+                        The handshake is easy.
                         <br />
-                        <span className="text-[#888]">Remembering is hard.</span>
+                        Remembering is hard.
                     </motion.h2>
 
                     {/* Mobile Timeline - Component based */}

@@ -49,16 +49,20 @@ export default function StatsSection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-white mb-12 max-w-5xl mx-auto text-center"
+                    className="mb-12 max-w-5xl mx-auto text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,
                         fontSize: '32px',
                         lineHeight: '43px',
-                        letterSpacing: '-0.03em'
+                        letterSpacing: '-0.03em',
+                        background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
                     }}
                 >
-                    The "Nice to Meet You" Is Where Most Deals Die.
+                    The "Nice to meet you" is where most deals die.
                 </motion.h2>
 
                 <p className="text-[#888] text-lg max-w-2xl mx-auto mb-24 leading-relaxed font-body">

@@ -68,7 +68,7 @@ export default function FAQSection() {
             backgroundClip: 'text',
           }}
         >
-          Find Quick Answers to Common Linkist Questions.
+          About us
         </motion.h2>
 
         {/* FAQ Items */}

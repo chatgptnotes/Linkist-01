@@ -58,16 +58,16 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-[45%] px-5 text-center relative z-20">
+        <div className="pt-[35%] px-5 text-center relative z-20">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[35px] leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-4"
+            className="text-[35px] leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            The World First<br />
-            Personal Relationship<br />
-            Manager Tool
+            The world's first<br />
+            personal relationship<br />
+            manager tool
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}

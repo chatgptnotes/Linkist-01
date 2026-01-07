@@ -341,33 +341,18 @@ export default function ProfilePreviewPage() {
     }
   }, [profileData]);
 
-  // Handle Add to Home Screen
-  const handleAddToHomeScreen = async () => {
+  // Handle Add to Home Screen - Show instructions for manual shortcut creation
+  const handleAddToHomeScreen = () => {
     console.log('🏠 Add to Home Screen clicked');
     console.log('📱 Platform: iOS =', isIOS, ', Android =', isAndroid);
-    console.log('📦 PWA Installable:', isInstallable);
-    console.log('🔍 Window deferred prompt:', typeof window !== 'undefined' ? !!(window as any).deferredPrompt : 'N/A');
 
     if (isIOS) {
-      // iOS doesn't support programmatic install, show instructions directly
+      // iOS - show Safari instructions
       console.log('📱 iOS detected - showing instructions');
       setShowIOSInstructions(true);
-      return;
-    }
-
-    // Try native PWA install first
-    const result = await triggerInstall();
-
-    if (result === 'accepted') {
-      console.log('✅ User accepted the install prompt');
-      // Success - native popup handled everything
-    } else if (result === 'dismissed') {
-      console.log('❌ User dismissed the install prompt');
-      // User dismissed - that's fine, no fallback needed
     } else {
-      // No deferred prompt available - show instructions modal
-      console.log('❌ No deferred prompt available, showing instructions');
-      console.log('ℹ️ This usually means: not HTTPS, already installed, or browser doesn\'t support beforeinstallprompt');
+      // Android and other platforms - show Chrome instructions
+      console.log('📱 Android/Other detected - showing instructions');
       setShowAndroidInstructions(true);
     }
   };
@@ -1257,7 +1242,7 @@ export default function ProfilePreviewPage() {
                     2
                   </div>
                   <p className="text-sm text-gray-700">
-                    Select <strong>&quot;Add to Home screen&quot;</strong> or <strong>&quot;Install app&quot;</strong>
+                    Select <strong>&quot;Add to Home screen&quot;</strong>
                   </p>
                 </div>
 
@@ -1271,9 +1256,9 @@ export default function ProfilePreviewPage() {
                 </div>
               </div>
 
-              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                <p className="text-xs text-blue-700">
-                  <strong>Note:</strong> This works best on the live site with HTTPS. The native install prompt will appear automatically in production.
+              <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-xs text-green-700">
+                  <strong>Tip:</strong> This creates a shortcut on your home screen for quick access to your Linkist dashboard.
                 </p>
               </div>
             </div>

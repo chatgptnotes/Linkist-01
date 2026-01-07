@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function RealityCheckSection() {
     return (
-        <section className="relative pt-24 pb-36 md:pt-32 md:pb-44 overflow-hidden">
+        <section className="relative pt-24 pb-16 md:pt-32 md:pb-20 overflow-hidden">
             <div className="max-w-[1306px] mx-auto px-4 sm:px-6 md:px-[100px] relative z-10">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -30,8 +30,8 @@ export default function RealityCheckSection() {
                                 backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)'
                             }}
                         >
-                            Your Brain Wasn't Built<br />
-                            for 5,000 Connections.<br />
+                            Your brain isn't built<br />
+                            or 5,000 connections.<br />
                             Linkist is.
                         </motion.h2>
 
@@ -42,12 +42,12 @@ export default function RealityCheckSection() {
                                 of paper business cards. You lose them because<br />
                                 you lost the context, the timing, and the moment.
                             </p>
-                            <p className="text-[16px] md:text-[22px] text-[#888] leading-snug font-poppins font-normal">
+                            {/* <p className="text-[16px] md:text-[22px] text-[#888] leading-snug font-poppins font-normal">
                                 The handshake is easy.
                             </p>
                             <p className="text-[16px] md:text-[22px] text-[#888] leading-snug font-poppins font-normal">
                                 The memory is the hard part.
-                            </p>
+                            </p> */}
 
                             <div className="pt-[56px] flex justify-center md:justify-start">
                                 <Link href="/choose-plan">

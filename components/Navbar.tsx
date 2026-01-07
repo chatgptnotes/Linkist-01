@@ -11,6 +11,7 @@ export default function Navbar() {
   const [userData, setUserData] = useState<any>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -105,12 +106,19 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 bg-[#1A1A1A]/90 backdrop-blur-sm border-b border-white/10 z-50 h-16 w-full">
       <div className="max-w-7xl mx-auto px-4 md:px-6 h-full flex items-center justify-between">
-        {/* Logo */}
-        <Logo width={140} height={45} variant="dark" />
+        {/* Logo - Responsive sizing */}
+        <div className="flex items-center">
+          <div className="hidden md:block">
+            <Logo width={140} height={45} variant="dark" />
+          </div>
+          <div className="block md:hidden">
+            <Logo width={110} height={36} variant="dark" />
+          </div>
+        </div>
 
-        {/* Auth Buttons - Show Login/Join when not logged in */}
+        {/* Desktop Auth Buttons - Hidden on mobile */}
         {!isLoggedIn && (
-          <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => router.push('/login')}
               className="text-white/90 hover:text-white font-medium text-base transition-colors cursor-pointer"
@@ -124,6 +132,25 @@ export default function Navbar() {
               Join Now
             </button>
           </div>
+        )}
+
+        {/* Mobile Hamburger Button */}
+        {!isLoggedIn && (
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="md:hidden p-2 text-white/90 hover:text-white transition-colors"
+            aria-label="Toggle menu"
+          >
+            {isMobileMenuOpen ? (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
         )}
 
         {/* User Dropdown - Only show if user is logged in */}
@@ -236,6 +263,30 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* Mobile Dropdown Menu */}
+      {isMobileMenuOpen && !isLoggedIn && (
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-[#1A1A1A]/95 backdrop-blur-sm border-b border-white/10 px-4 py-4 space-y-3">
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              router.push('/login');
+            }}
+            className="block w-full text-center py-3 text-white/90 hover:text-white font-medium text-base transition-colors border border-white/20 rounded-full hover:border-white/40"
+          >
+            Login
+          </button>
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(false);
+              router.push('/choose-plan');
+            }}
+            className="block w-full text-center py-3 bg-[#C84C4C] hover:bg-[#B43E3E] text-white font-medium text-base rounded-full transition-colors"
+          >
+            Join Now
+          </button>
+        </div>
+      )}
     </nav>
   );
 }

@@ -59,17 +59,21 @@ export default function InviteOnlySection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-white mb-20 text-center"
+                    className="mb-20 text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,
                         fontSize: '32px',
                         lineHeight: '44px',
-                        letterSpacing: '-0.02em'
+                        letterSpacing: '-0.02em',
+                        background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
                     }}
                 >
-                    This Isn't Early Access.<br />
-                    It's an invite Only.
+                    This isn't early access.<br />
+                    It's Invite-only.
                 </motion.h2>
 
                 {/* Grid of Cards */}
@@ -81,37 +85,39 @@ export default function InviteOnlySection() {
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
-                            className="bg-[#1A1A1A] rounded-[24px] p-6 pt-8 text-left flex flex-col items-start w-full max-w-[350px] h-[306px]"
+                            className="bg-[#1A1A1A] rounded-[24px] p-6 text-left flex flex-col w-full max-w-[350px]"
                         >
-                            <div className="w-[56px] h-[56px] rounded-[12px] bg-[#FF3A29] flex items-center justify-center mb-5 overflow-hidden flex-shrink-0">
-                                <Image
-                                    src={card.icon}
-                                    alt={card.title}
-                                    width={card.iconSize}
-                                    height={card.iconSize}
-                                    className="object-contain"
-                                />
+                            {/* Header row with icon + title */}
+                            <div className="flex items-center mb-4">
+                                <div className="w-[48px] h-[48px] rounded-[12px] bg-[#FF3A29] flex items-center justify-center overflow-hidden flex-shrink-0">
+                                    <Image
+                                        src={card.icon}
+                                        alt={card.title}
+                                        width={card.iconSize}
+                                        height={card.iconSize}
+                                        className="object-contain"
+                                    />
+                                </div>
+                                <h3
+                                    className="text-white ml-4"
+                                    style={{
+                                        fontFamily: 'Poppins, sans-serif',
+                                        fontWeight: 600,
+                                        fontSize: '20px',
+                                        lineHeight: '28px',
+                                        letterSpacing: '0%'
+                                    }}
+                                >
+                                    {card.title}
+                                </h3>
                             </div>
-
-                            <h3
-                                className="text-white mb-3 text-left"
-                                style={{
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontWeight: 600,
-                                    fontSize: '24px',
-                                    lineHeight: '32px',
-                                    letterSpacing: '0%'
-                                }}
-                            >
-                                {card.title}
-                            </h3>
                             <p
                                 className="text-[#888] text-left"
                                 style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     fontWeight: 400,
-                                    fontSize: '16px',
-                                    lineHeight: '26px',
+                                    fontSize: '15px',
+                                    lineHeight: '24px',
                                     letterSpacing: '0%'
                                 }}
                             >

@@ -65,12 +65,12 @@ const featureCardsData = [
     },
     {
         iconSrc: "/icons/Group 1437253611 (1).png",
-        title: "Silence the Noise",
+        title: "Silence the noise",
         description: "Stop managing a messy contact list. Linkist identifies who matters right now based on fit and relevance, separating the signal from the noise."
     },
     {
         iconSrc: "/icons/Group 1437253611 (2).png",
-        title: "Momentum That Doesn't Fade",
+        title: "Momentum that doesn't fade",
         description: "Smart nudges show who to reconnect with and when, so your follow-ups are timely and deliberate, not random."
     }
 ];
@@ -94,16 +94,20 @@ export default function SuperpowerSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="text-white mb-6 text-center"
+                    className="mb-6 text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,
                         fontSize: '32px',
                         lineHeight: '38px',
-                        letterSpacing: '-0.02em'
+                        letterSpacing: '-0.02em',
+                        background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text'
                     }}
                 >
-                    Stop Hoarding Contacts. Start Building Leverage.
+                    Stop hoarding contacts. Start building leverage.
                 </motion.h2>
 
                 <p

@@ -25,7 +25,7 @@ export default function FinalCTASection() {
                     viewport={{ once: true }}
                     className="font-poppins font-medium text-[40px] leading-[48px] tracking-[-0.02em] text-center text-white mb-6"
                 >
-                    History Favors<br />the first.
+                    History favors<br />the first.
                 </motion.h2>
 
                 <motion.p
@@ -35,7 +35,7 @@ export default function FinalCTASection() {
                     transition={{ delay: 0.2 }}
                     className="font-poppins font-normal text-[20px] leading-[32px] tracking-normal text-center text-white mb-10"
                 >
-                    This Isn't Early Access. It's invite-<br className="md:hidden" />only, scarce digital territory.
+                    This isn't early access. It's invite-<br className="md:hidden" />only, scarce digital territory.
                 </motion.p>
 
                 <motion.div

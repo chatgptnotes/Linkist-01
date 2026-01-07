@@ -125,7 +125,7 @@ export default function PricingSection() {
             backgroundClip: 'text',
           }}
         >
-          Select the Right Plan for Your Needs
+          Select the right plan for your needs
         </motion.h2>
 
         <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-20 leading-relaxed font-body">
