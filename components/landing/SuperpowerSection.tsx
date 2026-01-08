@@ -78,7 +78,7 @@ const featureCardsData = [
 
 export default function SuperpowerSection() {
     return (
-        <section className="relative py-20 md:py-24 bg-[#050505] overflow-hidden">
+        <section className="relative pt-12 pb-12 bg-[#050505] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
@@ -88,7 +88,7 @@ export default function SuperpowerSection() {
                     viewport={{ once: true }}
                     className="inline-block px-4 py-1.5 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
                 >
-                    The Superpower
+                    TURNING CONTACTS INTO LEVERAGE
                 </motion.div>
 
                 <motion.h2
@@ -112,7 +112,7 @@ export default function SuperpowerSection() {
                 </motion.h2>
 
                 <p
-                    className="text-[#888] max-w-2xl mx-auto mb-20 text-center"
+                    className="text-[#888] max-w-2xl mx-auto mb-8 text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 400,
@@ -142,7 +142,7 @@ export default function SuperpowerSection() {
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-12 flex justify-center"
+                    className="mt-[42px] flex justify-center"
                 >
                     <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
                         <Image

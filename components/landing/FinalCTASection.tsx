@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function FinalCTASection() {
     return (
-        <section className="relative py-20 md:py-24 overflow-hidden bg-[#050505]">
+        <section className="relative pt-12 pb-12 overflow-hidden bg-[#050505]">
 
             {/* Red ellipse arc at top */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">
@@ -33,7 +33,7 @@ export default function FinalCTASection() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ delay: 0.2 }}
-                    className="font-poppins font-normal text-[20px] leading-[32px] tracking-normal text-center text-white mb-10"
+                    className="font-poppins font-normal text-[20px] leading-[32px] tracking-normal text-center text-white mb-[42px]"
                 >
                     This isn't early access. It's invite-<br className="md:hidden" />only, scarce digital territory.
                 </motion.p>
@@ -46,7 +46,7 @@ export default function FinalCTASection() {
                 >
                     <Link
                         href="/choose-plan"
-                        className="inline-flex items-center justify-center w-[172px] h-[40px] py-[12px] px-[20px] gap-[12px] rounded-[80px] bg-[#FF3A29] text-white font-medium transition-transform hover:scale-105 active:scale-95"
+                        className="inline-flex items-center justify-center w-[172px] h-[40px] py-[12px] px-[20px] gap-[12px] rounded-[80px] bg-[#E02424] text-white font-medium transition-transform hover:scale-105 active:scale-95"
                     >
                         Sign Up Today!
                     </Link>

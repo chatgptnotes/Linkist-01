@@ -9,7 +9,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 export default function Footer() {
   return (
-    <footer className="bg-[#050505] border-t border-[#111] py-20 text-sm">
+    <footer className="bg-[#050505] border-t border-[#111] pt-8 pb-20 text-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-4 gap-12 lg:gap-24">
 
@@ -27,7 +27,7 @@ export default function Footer() {
               />
               <button
                 className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-5 rounded-full text-white text-sm font-medium hover:opacity-90 transition-colors"
-                style={{ backgroundColor: '#E84C4C' }}
+                style={{ backgroundColor: '#E02424' }}
               >
                 Send
               </button>

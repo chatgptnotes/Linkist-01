@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 export default function RealityCheckSection() {
     return (
-        <section className="relative py-20 md:py-24 overflow-hidden">
+        <section className="relative pt-12 pb-12 overflow-hidden">
             <div className="max-w-[1306px] mx-auto px-4 sm:px-6 md:px-[100px] relative z-10">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -25,22 +25,24 @@ export default function RealityCheckSection() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="font-inter font-medium text-[32px] leading-[38px] tracking-[-0.02em] text-center mb-[40px] bg-clip-text text-transparent"
+                            className="font-inter font-medium text-[32px] leading-[38px] tracking-[-0.02em] text-center mb-6 bg-clip-text text-transparent"
                             style={{
                                 backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)'
                             }}
                         >
                             Your brain isn't built<br />
-                            or 5,000 connections.<br />
+                            for 5,000 connections.<br />
                             Linkist is.
                         </motion.h2>
 
                         <div className="space-y-1 md:space-y-4 pt-0 md:pt-2">
                             <p className="text-[18px] md:text-[29px] text-[#888] font-poppins font-normal">Let's be honest about "networking."</p>
                             <p className="text-[16px] md:text-[22px] text-[#888] leading-snug max-w-xl mx-auto md:mx-0 font-poppins font-normal">
-                                You don't lose opportunities because you ran out<br />
-                                of paper business cards. You lose them because<br />
-                                you lost the context, the timing, and the moment.
+                                You don't lose opportunities because you ran out
+                                <br className="hidden md:inline" />
+                                of paper business cards. You lose them because
+                                <br className="hidden md:inline" />
+                                you lost the context, the timing, and the&nbsp;moment.
                             </p>
                             {/* <p className="text-[16px] md:text-[22px] text-[#888] leading-snug font-poppins font-normal">
                                 The handshake is easy.
@@ -49,13 +51,13 @@ export default function RealityCheckSection() {
                                 The memory is the hard part.
                             </p> */}
 
-                            <div className="mt-12 flex justify-center md:justify-start">
+                            <div className="mt-[42px] flex justify-center md:justify-start">
                                 <Link href="/choose-plan">
                                     <button
                                         className="w-[172px] h-[40px] rounded-full text-black text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
                                         style={{ backgroundColor: '#E02424' }}
                                     >
-                                        Join Linkist Now
+                                        JOIN LINKIST NOW
                                     </button>
                                 </Link>
                             </div>

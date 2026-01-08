@@ -36,13 +36,13 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                 {!isLast && (
                     <div
                         className="w-[4px] bg-[#F04438] absolute left-1/2 -translate-x-1/2"
-                        style={{ top: '80px', bottom: '-80px' }}
+                        style={{ top: '80px', bottom: '-40px' }}
                     />
                 )}
             </div>
 
             {/* Right side - Icon and text, aligned with number circle */}
-            <div className="flex-1 pt-4">
+            <div className="flex-1 pt-1">
                 {/* Icon - no background, displayed directly */}
                 <div className="mb-3">
                     <Image
@@ -87,43 +87,43 @@ export default function WhyTimelineSection() {
             numberImage: '/number-1.png',
             icon: '/handshake.png',
             iconAlt: 'Handshake icon',
-            iconWidth: 49,
-            iconHeight: 45,
+            iconWidth: 36,
+            iconHeight: 33,
             title: 'Day 1: You Meet',
             description: undefined,
             titleFontWeight: 500,
-            height: 80,
+            height: 140,
         },
         {
             number: '02',
             numberImage: '/number-02.png',
             icon: '/questionmark.png',
             iconAlt: 'Question mark icon',
-            iconWidth: 56,
-            iconHeight: 56,
+            iconWidth: 40,
+            iconHeight: 40,
             title: 'Day 7:',
             description: 'You forget what made them relevant.',
             titleFontWeight: 500,
             descriptionFontWeight: 500,
-            height: 168,
+            height: 140,
         },
         {
             number: '03',
             numberImage: '/number-03.png',
             icon: '/spiral.png',
             iconAlt: 'Spiral icon',
-            iconWidth: 56,
-            iconHeight: 56,
+            iconWidth: 40,
+            iconHeight: 40,
             title: 'Day 30:',
             description: 'The lead goes cold after a generic, low-context follow-up.',
             titleFontWeight: 500,
             descriptionFontWeight: 500,
-            height: 190,
+            height: 140,
         },
     ];
 
     return (
-        <section className="relative py-20 md:py-24 overflow-hidden">
+        <section className="relative pt-12 pb-12 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Mobile Layout */}
@@ -144,7 +144,7 @@ export default function WhyTimelineSection() {
                                 color: '#F04438',
                             }}
                         >
-                            TURNING CONTACTS TO LEVERAGE
+                            WHERE NETWORKING BREAKS
                         </span>
                     </motion.div>
 
@@ -153,7 +153,7 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mb-10 text-center"
+                        className="mb-6 text-center"
                         style={{
                             fontFamily: 'Inter, sans-serif',
                             fontWeight: 500,
@@ -195,7 +195,7 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mt-12"
+                        className="mt-[42px]"
                     >
                         <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
@@ -229,7 +229,7 @@ export default function WhyTimelineSection() {
                                     color: '#F04438',
                                 }}
                             >
-                                TURNING CONTACTS TO LEVERAGE
+                                WHERE NETWORKING BREAKS
                             </span>
                         </div>
 
@@ -244,7 +244,7 @@ export default function WhyTimelineSection() {
                         </p>
 
                         {/* Desktop CTA */}
-                        <Link href="/choose-plan" className="mt-8 inline-block transition-transform hover:scale-105 active:scale-95">
+                        <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
                                 src="/joinbutton.png"
                                 alt="Join Linkist"

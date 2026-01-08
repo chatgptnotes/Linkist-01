@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 
 export default function IdentitySection() {
     return (
-        <section className="relative py-20 md:py-24 bg-[#050505] overflow-hidden text-center">
+        <section className="relative pt-12 pb-12 bg-[#050505] overflow-hidden text-center">
             <div className="max-w-7xl mx-auto px-4 relative z-10">
 
                 {/* Badge */}
@@ -19,7 +19,7 @@ export default function IdentitySection() {
                     initial={{ opacity: 0, scale: 0.95 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="mb-8 text-center"
+                    className="mb-6 text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,

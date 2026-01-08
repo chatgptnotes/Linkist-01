@@ -42,7 +42,7 @@ export default function InviteOnlySection() {
     ];
 
     return (
-        <section className="relative py-20 md:py-24 bg-[#050505]">
+        <section className="relative pt-12 pb-12 bg-[#050505]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
 
                 {/* Badge */}
@@ -59,7 +59,7 @@ export default function InviteOnlySection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mb-20 text-center"
+                    className="mb-6 text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,

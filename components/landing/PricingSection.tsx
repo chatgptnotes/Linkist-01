@@ -95,7 +95,7 @@ export default function PricingSection() {
   ];
 
   return (
-    <section className="relative py-20 md:py-24 bg-[#050505] overflow-visible">
+    <section className="relative pt-12 pb-12 bg-[#050505] overflow-visible">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
         {/* Badge */}
@@ -128,7 +128,7 @@ export default function PricingSection() {
           Select the right plan for your needs
         </motion.h2>
 
-        <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-20 leading-relaxed font-body">
+        <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-12 leading-relaxed font-body">
           Select the plan that best suits your needs, whether you're just getting started or need advanced features and support for your business.
         </p>
 

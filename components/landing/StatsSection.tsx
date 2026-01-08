@@ -19,7 +19,7 @@ export default function StatsSection() {
     ];
 
     return (
-        <section className="relative py-20 md:py-24 bg-[#050505]">
+        <section className="relative pt-12 pb-12 bg-[#050505]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
@@ -36,7 +36,7 @@ export default function StatsSection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mb-12 max-w-5xl mx-auto text-center"
+                    className="mb-6 max-w-5xl mx-auto text-center"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 500,
@@ -52,12 +52,12 @@ export default function StatsSection() {
                     The "Nice to meet you" is where most deals die.
                 </motion.h2>
 
-                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-24 leading-relaxed font-body">
+                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-16 leading-relaxed font-body">
                     The stats don’t lie. The moment the handshake ends, the clock starts ticking against you.
                 </p>
 
                 {/* Stats Grid */}
-                <div className="grid md:grid-cols-3 gap-16 justify-items-center">
+                <div className="grid md:grid-cols-3 gap-8 justify-items-center">
                     {stats.map((stat, idx) => (
                         <motion.div
                             key={idx}
