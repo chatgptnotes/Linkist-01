@@ -42,9 +42,9 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
             </div>
 
             {/* Right side - Icon and text, aligned with number circle */}
-            <div className="flex-1 pt-1">
-                {/* Icon - no background, displayed directly */}
-                <div className="mb-3">
+            <div className="flex-1">
+                {/* Icon - aligned horizontally with number circle */}
+                <div className="flex items-center h-[80px] mb-0">
                     <Image
                         src={icon}
                         alt={iconAlt}
@@ -55,7 +55,7 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                 </div>
                 {/* Text */}
                 <p
-                    className="text-white"
+                    className="text-white -mt-4"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: titleFontWeight,
@@ -91,7 +91,7 @@ export default function WhyTimelineSection() {
             iconHeight: 33,
             title: 'Day 1: You Meet',
             description: undefined,
-            titleFontWeight: 500,
+            titleFontWeight: 400,
             height: 140,
         },
         {
@@ -103,8 +103,8 @@ export default function WhyTimelineSection() {
             iconHeight: 40,
             title: 'Day 7:',
             description: 'You forget what made them relevant.',
-            titleFontWeight: 500,
-            descriptionFontWeight: 500,
+            titleFontWeight: 400,
+            descriptionFontWeight: 400,
             height: 140,
         },
         {
@@ -116,8 +116,8 @@ export default function WhyTimelineSection() {
             iconHeight: 40,
             title: 'Day 30:',
             description: 'The lead goes cold after a generic, low-context follow-up.',
-            titleFontWeight: 500,
-            descriptionFontWeight: 500,
+            titleFontWeight: 400,
+            descriptionFontWeight: 400,
             height: 140,
         },
     ];
@@ -140,7 +140,7 @@ export default function WhyTimelineSection() {
                             style={{
                                 fontFamily: 'Inter, sans-serif',
                                 fontWeight: 500,
-                                fontSize: '14px',
+                                fontSize: '12px',
                                 color: '#F04438',
                             }}
                         >
@@ -225,7 +225,7 @@ export default function WhyTimelineSection() {
                                 style={{
                                     fontFamily: 'Inter, sans-serif',
                                     fontWeight: 500,
-                                    fontSize: '16px',
+                                    fontSize: '12px',
                                     color: '#F04438',
                                 }}
                             >

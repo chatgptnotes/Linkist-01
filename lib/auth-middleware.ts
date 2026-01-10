@@ -32,7 +32,7 @@ const AUTH_CONFIG: {
   // Public API routes that don't need auth
   publicApiRoutes: ['/api/user/profile'],
   // Session duration
-  sessionDuration: 24 * 60 * 60 * 1000, // 24 hours in milliseconds
+  sessionDuration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
   // Admin PIN for admin access (in production, this should be more secure)
   adminPin: process.env.ADMIN_PIN || '1234',
 }

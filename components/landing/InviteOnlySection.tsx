@@ -12,7 +12,7 @@ export default function InviteOnlySection() {
         {
             icon: '/icons/card.png',
             title: 'The Card',
-            description: 'Get the Black Premium NFC card, available only to Founding Members during the invite-only pre-launch.',
+            description: 'Get the Black Premium NFC card, only available to Founding Members during the prelaunch phase.',
             iconSize: 28
         },
         {
@@ -116,8 +116,8 @@ export default function InviteOnlySection() {
                                 style={{
                                     fontFamily: 'Poppins, sans-serif',
                                     fontWeight: 400,
-                                    fontSize: '15px',
-                                    lineHeight: '24px',
+                                    fontSize: '16px',
+                                    lineHeight: '26px',
                                     letterSpacing: '0%'
                                 }}
                             >

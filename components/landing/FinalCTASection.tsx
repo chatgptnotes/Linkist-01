@@ -25,7 +25,7 @@ export default function FinalCTASection() {
                     viewport={{ once: true }}
                     className="font-poppins font-medium text-[40px] leading-[48px] tracking-[-0.02em] text-center text-white mb-6"
                 >
-                    History favors<br />the first.
+                    History favors<br />the first
                 </motion.h2>
 
                 <motion.p

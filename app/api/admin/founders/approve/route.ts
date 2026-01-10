@@ -187,7 +187,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
         </p>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
-          <a href="https://temp-linkist.vercel.app/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Club card customisation.
+          <a href="https://www.linkist.ai/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Club card customisation.
         </p>
 
         <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">How to use your code:</h3>

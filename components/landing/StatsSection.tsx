@@ -52,7 +52,7 @@ export default function StatsSection() {
                     The "Nice to meet you" is where most deals die.
                 </motion.h2>
 
-                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-16 leading-relaxed font-body">
+                <p className="text-[#888] max-w-2xl mx-auto mb-8 font-body" style={{ fontSize: '16px', lineHeight: '26px' }}>
                     The stats don’t lie. The moment the handshake ends, the clock starts ticking against you.
                 </p>
 

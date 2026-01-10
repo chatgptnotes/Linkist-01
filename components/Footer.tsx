@@ -5,6 +5,7 @@ import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import XIcon from '@mui/icons-material/X';
 import PhoneIcon from '@mui/icons-material/Phone';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
 export default function Footer() {
@@ -16,7 +17,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="space-y-6">
             <h3 className="text-xl font-bold text-white">Subscribe for Updates</h3>
-            <p className="text-[#666]">Stay updated with the latest news in cryptocurrency.</p> {/* Copy from screenshot says cryptocurrency? Checking text... looks like 'cryptocurrency' in screenshot 15 but context is PRM. Will keep as per screenshot but potentially flag user. */}
+            <p className="text-[#666]">Stay updated with the latest news about Linkist.</p>
 
             <div className="relative max-w-xs">
               <input
@@ -40,15 +41,15 @@ export default function Footer() {
             {/* Legal */}
             <div>
               <h4 className="text-white font-medium mb-6">Legal</h4>
-              <ul className="space-y-4 text-[#888]">
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
-              </ul>
+              <div className="flex items-center gap-5 text-[#888]">
+                <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+                <Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link>
+              </div>
             </div>
 
             {/* Connect - Horizontal Icons */}
             <div>
-              <h4 className="text-white font-medium mb-6">Connect</h4>
+              <h4 className="text-white font-medium mb-6">Follow Linkist</h4>
               <div className="flex items-center gap-4">
                 <a
                   href="https://www.instagram.com/linkist.ai/"
@@ -93,10 +94,16 @@ export default function Footer() {
             <div>
               <h4 className="text-white font-medium mb-6">Contact Us</h4>
               <ul className="space-y-4 text-[#888]">
-                <li className="flex items-start gap-2">
-                  <LocationOnIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                  <span>RatioX Labs DWC-LLC, A3, Business Park, Dubai South, Dubai, UAE</span>
+                <li>
+                  <a
+                    href="mailto:support@linkist.ai"
+                    className="flex items-center gap-2 hover:text-white transition-colors"
+                  >
+                    <EmailIcon className="w-5 h-5" />
+                    <span>support@linkist.ai</span>
+                  </a>
                 </li>
+                
                 <li>
                   <a
                     href="tel:+971504408656"
@@ -117,6 +124,12 @@ export default function Footer() {
                     <span>+971 50 440 8656</span>
                   </a>
                 </li>
+                <li className="flex items-start gap-2">
+                  <LocationOnIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                  <span>RatioX Labs DWC-LLC, A3, Business Park, Dubai South, Dubai, UAE</span>
+                
+                </li>
+                
               </ul>
             </div>
 

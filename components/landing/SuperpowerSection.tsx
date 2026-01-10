@@ -18,7 +18,7 @@ const FeatureCard = ({ iconSrc, title, description, delay = 0 }: FeatureCardProp
         className="relative w-full max-w-[350px] min-h-[456px] rounded-[40px] border border-[#222] bg-[rgba(74,74,74,0.4)] px-8 py-10 text-center"
     >
         {/* Icon - 170x170 container, 140x140 inner */}
-        <div className="mx-auto mb-6 flex h-[170px] w-[170px] items-center justify-center">
+        <div className="mx-auto mb-[12px] flex h-[170px] w-[170px] items-center justify-center">
             <Image
                 src={iconSrc}
                 alt=""

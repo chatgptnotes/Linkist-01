@@ -35,7 +35,7 @@ export default function IdentitySection() {
                     The key to your <br className="md:hidden" />New Identity.
                 </motion.h2>
 
-                <p className="text-[#888] text-lg max-w-2xl mx-auto mb-12 leading-relaxed font-body">
+                <p className="text-[#888] max-w-2xl mx-auto mb-12 font-body" style={{ fontSize: '16px', lineHeight: '26px' }}>
                     The NFC card isn't what you're buying. It's the trigger that moves a handshake into your Linkist PRM ecosystem in one tap.
                 </p>
 

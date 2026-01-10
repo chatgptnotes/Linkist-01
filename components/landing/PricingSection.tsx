@@ -21,7 +21,7 @@ type Plan = {
 
 export default function PricingSection() {
   const [foundersPrice, setFoundersPrice] = useState<number | null>(null);
-  const [foundersDescription, setFoundersDescription] = useState<string>('Built for the first believers.');
+  const [foundersDescription, setFoundersDescription] = useState<string>("Exclusive Founder's Club membership with premium benefits");
   const [foundersFeatures, setFoundersFeatures] = useState<Feature[]>([
     { text: 'Lifetime Linkist Pro App subscription', included: true },
     { text: 'Linkist Digital Profile', included: true },
@@ -128,7 +128,16 @@ export default function PricingSection() {
           Select the right plan for your needs
         </motion.h2>
 
-        <p className="text-[#888] text-sm md:text-base max-w-2xl mx-auto mb-12 leading-relaxed font-body">
+        <p
+          className="text-[#888] max-w-2xl mx-auto mb-12 text-center"
+          style={{
+            fontFamily: 'Poppins, sans-serif',
+            fontWeight: 400,
+            fontSize: '16px',
+            lineHeight: '26px',
+            letterSpacing: '0%'
+          }}
+        >
           Select the plan that best suits your needs, whether you're just getting started or need advanced features and support for your business.
         </p>
 
