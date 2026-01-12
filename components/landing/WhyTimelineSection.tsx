@@ -153,12 +153,10 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="mb-6 text-center"
+                        className="mb-6 text-center text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[36px]"
                         style={{
                             fontFamily: 'Inter, sans-serif',
                             fontWeight: 500,
-                            fontSize: '32px',
-                            lineHeight: '36px',
                             letterSpacing: '-0.02em',
                             maxWidth: '350px',
                             background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',

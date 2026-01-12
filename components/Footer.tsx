@@ -19,19 +19,32 @@ export default function Footer() {
             <h3 className="text-xl font-bold text-white">Subscribe for Updates</h3>
             <p className="text-[#666]">Stay updated with the latest news about Linkist.</p>
 
-            <div className="relative max-w-xs">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                data-dark-input="true"
-                className="w-full rounded-full py-3 pl-5 pr-20 focus:outline-none"
-              />
-              <button
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-5 rounded-full text-white text-sm font-medium hover:opacity-90 transition-colors"
-                style={{ backgroundColor: '#E02424' }}
-              >
-                Send
-              </button>
+            <div className="space-y-3 max-w-xs">
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="First Name"
+                  className="w-1/2 rounded-full py-3 px-4 bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-[#888] focus:outline-none focus:border-[#E02424]/60 focus:bg-white/15 transition-all text-sm"
+                />
+                <input
+                  type="text"
+                  placeholder="Last Name"
+                  className="w-1/2 rounded-full py-3 px-4 bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-[#888] focus:outline-none focus:border-[#E02424]/60 focus:bg-white/15 transition-all text-sm"
+                />
+              </div>
+              <div className="relative">
+                <input
+                  type="email"
+                  placeholder="Enter your email"
+                  className="w-full rounded-full py-3 pl-5 pr-20 bg-white/10 backdrop-blur-md border border-white/20 text-white placeholder-[#888] focus:outline-none focus:border-[#E02424]/60 focus:bg-white/15 transition-all"
+                />
+                <button
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 px-5 rounded-full text-white text-sm font-medium hover:opacity-90 transition-colors"
+                  style={{ backgroundColor: '#E02424' }}
+                >
+                  Send
+                </button>
+              </div>
             </div>
           </div>
 

@@ -63,9 +63,9 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[35px] leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
+            className="text-[28px] leading-[32px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            The world's first<br />
+            World's first<br />
             Personal Relationship<br />
             Manager (PRM)<br />
           </motion.h1>
