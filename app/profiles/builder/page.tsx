@@ -359,6 +359,7 @@ function ProfileBuilderContent() {
   const [showSkillDropdown, setShowSkillDropdown] = useState(false);
   const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const skillDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastState, setToastState] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [mobileCountryCode, setMobileCountryCode] = useState('+91'); // FIXED: Default to India
@@ -1358,6 +1359,16 @@ function ProfileBuilderContent() {
     };
   }, [showSkillDropdown]);
 
+  // Auto-scroll mobile navigation to show active section
+  useEffect(() => {
+    if (mobileNavRef.current) {
+      const activeButton = mobileNavRef.current.querySelector(`[data-section="${activeSection}"]`) as HTMLElement;
+      if (activeButton) {
+        activeButton.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+  }, [activeSection]);
+
   // Detect user's location and set default currency
   useEffect(() => {
     const detectCurrency = async () => {
@@ -1924,10 +1935,11 @@ function ProfileBuilderContent() {
           <div className="lg:hidden mb-4">
             <div className="bg-white rounded-lg border border-gray-200 p-3">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">SECTIONS</h3>
-              <nav className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
+              <nav ref={mobileNavRef} className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
                 {sections.map((section) => (
                   <button
                     key={section.id}
+                    data-section={section.id}
                     onClick={() => {
                       setActiveSection(section.id);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -2116,12 +2128,11 @@ function ProfileBuilderContent() {
                             type="email"
                             value={profileData.secondaryEmail}
                             onChange={(e) => setProfileData({ ...profileData, secondaryEmail: e.target.value })}
-                            className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="Add secondary email"
                             suppressHydrationWarning
                             autoComplete="email"
                           />
-                          <Plus className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" />
                         </div>
                         <div className="flex items-center justify-end mt-2">
                           <div className="flex items-center gap-2">

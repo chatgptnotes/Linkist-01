@@ -70,6 +70,9 @@ export default function ConfigureNewPage() {
 
   // Clear any existing corrupted data on component mount
   useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
+
     // Clear old config data to prevent corruption
     localStorage.removeItem('nfcConfig');
     localStorage.removeItem('cardConfig');

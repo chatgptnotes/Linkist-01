@@ -162,6 +162,9 @@ export default function CheckoutPage() {
   // Location dropdown sync moved to LocationDropdowns component
 
   useEffect(() => {
+    // Scroll to top when page loads
+    window.scrollTo(0, 0);
+
     console.log('Checkout: Loading configuration data...');
 
     // Check founding member status and populate contact fields from DB

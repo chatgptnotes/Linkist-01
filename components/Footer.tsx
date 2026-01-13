@@ -8,7 +8,25 @@ import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import EmailIcon from '@mui/icons-material/Email';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-export default function Footer() {
+interface FooterProps {
+  variant?: 'full' | 'minimal';
+}
+
+export default function Footer({ variant = 'minimal' }: FooterProps) {
+  // Minimal footer - just copyright
+  if (variant === 'minimal') {
+    return (
+      <footer className="bg-[#050505] border-t border-[#111] py-6 text-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center text-[#444]">
+            © 2026 Ratioxlabs. All Rights Reserved.
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Full footer - only for landing page
   return (
     <footer className="bg-[#050505] border-t border-[#111] pt-8 pb-20 text-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +134,7 @@ export default function Footer() {
                     <span>support@linkist.ai</span>
                   </a>
                 </li>
-                
+
                 <li>
                   <a
                     href="tel:+971504408656"
@@ -140,9 +158,9 @@ export default function Footer() {
                 <li className="flex items-start gap-2">
                   <LocationOnIcon className="w-5 h-5 mt-0.5 flex-shrink-0" />
                   <span>RatioX Labs DWC-LLC, A3, Business Park, Dubai South, Dubai, UAE</span>
-                
+
                 </li>
-                
+
               </ul>
             </div>
 
