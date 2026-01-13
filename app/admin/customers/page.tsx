@@ -106,7 +106,10 @@ export default function CustomersPage() {
         const sortedOrders = customerOrders.sort((a, b) => a.createdAt - b.createdAt);
         const firstOrder = sortedOrders[0];
         const lastOrder = sortedOrders[sortedOrders.length - 1];
-        const totalSpent = customerOrders.reduce((sum, order) => sum + order.pricing.total, 0);
+        // Only count confirmed orders (not pending or cancelled) for total spent
+        const totalSpent = customerOrders
+          .filter(order => order.status !== 'pending' && order.status !== 'cancelled')
+          .reduce((sum, order) => sum + order.pricing.total, 0);
 
         return {
           email,

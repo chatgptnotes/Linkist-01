@@ -703,12 +703,12 @@ export default function NFCPaymentPage() {
                     {/* FOUNDERS CLUB: Exclusive pricing with everything included */}
                     <div className="flex justify-between">
                       <span>
-                        Exclusive Founder&apos;s Price × {orderData?.cardConfig?.quantity || 1}
+                        Founder&apos;s Club × {orderData?.cardConfig?.quantity || 1}
                       </span>
                       <span>${getSubtotal().toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>1 Year Linkist Subscription</span>
+                      <span>1 Year Linkist App Subscription</span>
                       <span className="text-green-600">Included</span>
                     </div>
                     <div className="flex justify-between">

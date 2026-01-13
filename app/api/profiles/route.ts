@@ -28,10 +28,10 @@ export async function GET(request: NextRequest) {
 
     console.log('🔍 Fetching profiles for user_id:', userId)
 
-    // Fetch user's country from users table
+    // Fetch user's country and founding member status from users table
     const { data: userData } = await supabase
       .from('users')
-      .select('country, country_code')
+      .select('country, country_code, is_founding_member, founding_member_plan')
       .eq('id', userId)
       .single()
 
@@ -88,7 +88,9 @@ export async function GET(request: NextRequest) {
       success: true,
       profiles: profilesWithServices,
       userCountry: userData?.country || null,
-      userCountryCode: userData?.country_code || null
+      userCountryCode: userData?.country_code || null,
+      isFoundingMember: userData?.is_founding_member || false,
+      foundingMemberPlan: userData?.founding_member_plan || null
     })
   } catch (error) {
     console.error('Error fetching profiles:', error)

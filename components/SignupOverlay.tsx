@@ -419,10 +419,10 @@ export default function SignupOverlay({ isOpen, onClose, selectedProduct }: Sign
                   }}
                   className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
-                  <option value="India">India (INR)</option>
-                  <option value="UAE">UAE (AED)</option>
-                  <option value="USA">USA (USD)</option>
-                  <option value="UK">UK (GBP)</option>
+                  <option value="India">India</option>
+                  <option value="UAE">UAE</option>
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
                 </select>
               </div>
 
