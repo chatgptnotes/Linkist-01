@@ -4,6 +4,7 @@ import { SupabaseMobileOTPStore } from '@/lib/supabase-otp-store';
 import { createClient } from '@supabase/supabase-js';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 import { SessionStore } from '@/lib/session-store';
+import { sendWelcomeEmail } from '@/lib/smtp-email-service';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -145,6 +146,17 @@ export async function POST(request: NextRequest) {
               // Activate user now that OTP is verified
               const activatedUser = await SupabaseUserStore.activateUser(newUser.id, 'mobile');
               console.log('✅ [verify-mobile-otp] Twilio: User activated successfully with mobile verification');
+
+              // Send welcome email to new user (non-blocking) - only for starter/personal plans (not founders)
+              const userEmail = mobileOTPRecord.temp_user_data.email;
+              if (userEmail && !mobileOTPRecord.temp_user_data.isFoundingMember) {
+                sendWelcomeEmail({
+                  firstName: mobileOTPRecord.temp_user_data.firstName || '',
+                  lastName: mobileOTPRecord.temp_user_data.lastName || '',
+                  email: userEmail,
+                  isFoundingMember: false,
+                }).catch((err) => console.error('Failed to send welcome email:', err));
+              }
 
               // Create session
               const sessionId = await SessionStore.create(activatedUser.id, activatedUser.email, activatedUser.role);
@@ -364,6 +376,17 @@ export async function POST(request: NextRequest) {
         // Activate user now that OTP is verified
         const activatedUser = await SupabaseUserStore.activateUser(newUser.id, 'mobile');
         console.log('✅ [verify-mobile-otp] User activated successfully with mobile verification');
+
+        // Send welcome email to new user (non-blocking) - only for starter/personal plans (not founders)
+        const userEmail = mobileOTPRecord.temp_user_data.email;
+        if (userEmail && !mobileOTPRecord.temp_user_data.isFoundingMember) {
+          sendWelcomeEmail({
+            firstName: mobileOTPRecord.temp_user_data.firstName || '',
+            lastName: mobileOTPRecord.temp_user_data.lastName || '',
+            email: userEmail,
+            isFoundingMember: false,
+          }).catch((err) => console.error('Failed to send welcome email:', err));
+        }
 
         // Create session
         const sessionId = await SessionStore.create(activatedUser.id, activatedUser.email, activatedUser.role);

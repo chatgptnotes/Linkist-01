@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import type { Transporter } from 'nodemailer';
+import { welcomeEmail, type WelcomeEmailData } from './email-templates';
 
 // SMTP Configuration
 const SMTP_CONFIG = {
@@ -277,6 +278,42 @@ export async function verifySMTPConnection(): Promise<boolean> {
       command: (error as any)?.command
     });
     return false;
+  }
+}
+
+// Send welcome email to new users after signup
+export async function sendWelcomeEmail(data: WelcomeEmailData) {
+  try {
+    const transporterInstance = getTransporterInstance();
+
+    if (!transporterInstance) {
+      console.error('❌ SMTP transporter not configured for welcome email');
+      return { success: false, error: 'SMTP service not configured' };
+    }
+
+    const mailOptions = {
+      from: EMAIL_CONFIG.from,
+      to: data.email,
+      subject: 'Welcome to Linkist!',
+      html: welcomeEmail(data),
+      replyTo: EMAIL_CONFIG.replyTo,
+    };
+
+    const info = await transporterInstance.sendMail(mailOptions);
+
+    console.log('✅ Welcome email sent successfully:', info.messageId);
+    return { success: true, id: info.messageId };
+
+  } catch (error) {
+    console.error('❌ Failed to send welcome email:', error);
+    console.error('Error details:', {
+      message: error instanceof Error ? error.message : String(error),
+      code: (error as any)?.code,
+      response: (error as any)?.response,
+      responseCode: (error as any)?.responseCode,
+      command: (error as any)?.command
+    });
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
   }
 }
 

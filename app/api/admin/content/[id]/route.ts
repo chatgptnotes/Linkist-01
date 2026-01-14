@@ -19,9 +19,12 @@ function getAdminClient() {
 // GET - Fetch single content item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params for Next.js 15 compatibility
+    const { id } = await params;
+
     // Verify admin access
     const session = await getCurrentUser(request);
     if (!session.isAdmin) {
@@ -50,7 +53,7 @@ export async function GET(
         created_at,
         updated_at
       `)
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (error || !data) {
@@ -76,9 +79,12 @@ export async function GET(
 // PUT - Update content item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params for Next.js 15 compatibility
+    const { id } = await params;
+
     // Verify admin access
     const session = await getCurrentUser(request);
     if (!session.isAdmin) {
@@ -97,7 +103,7 @@ export async function PUT(
     const { data: existing, error: fetchError } = await supabase
       .from('cms_pages')
       .select('id, slug, status')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (fetchError || !existing) {
@@ -113,7 +119,7 @@ export async function PUT(
         .from('cms_pages')
         .select('id')
         .eq('slug', slug)
-        .neq('id', params.id)
+        .neq('id', id)
         .single();
 
       if (existingSlug) {
@@ -148,7 +154,7 @@ export async function PUT(
     const { data, error } = await supabase
       .from('cms_pages')
       .update(updateData)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
       .single();
 
@@ -177,9 +183,12 @@ export async function PUT(
 // DELETE - Delete content item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params for Next.js 15 compatibility
+    const { id } = await params;
+
     // Verify admin access
     const session = await getCurrentUser(request);
     if (!session.isAdmin) {
@@ -195,7 +204,7 @@ export async function DELETE(
     const { data: existing, error: fetchError } = await supabase
       .from('cms_pages')
       .select('id')
-      .eq('id', params.id)
+      .eq('id', id)
       .single();
 
     if (fetchError || !existing) {
@@ -209,7 +218,7 @@ export async function DELETE(
     const { error } = await supabase
       .from('cms_pages')
       .delete()
-      .eq('id', params.id);
+      .eq('id', id);
 
     if (error) {
       console.error('Supabase error:', error);

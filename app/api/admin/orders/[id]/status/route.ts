@@ -4,17 +4,19 @@ import { requireAdmin } from '@/lib/auth-middleware';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Await params for Next.js 15 compatibility
+    const { id: orderId } = await params;
+
     // Check admin access
     const session = await import('@/lib/auth-middleware').then(m => m.getCurrentUser(request));
     if (!session.isAdmin) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 401 });
     }
-    
+
     const { status } = await request.json();
-    const orderId = params.id;
 
     if (!status || !['pending', 'confirmed', 'production', 'shipped', 'delivered', 'cancelled'].includes(status)) {
       return NextResponse.json(

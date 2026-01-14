@@ -12,13 +12,28 @@ export interface Order {
   email: string;
   phoneNumber: string;
   cardConfig: {
+    // Customer name (for legacy compatibility)
     firstName: string;
     lastName: string;
+    // Card display name (what appears on the physical card)
+    cardFirstName?: string;
+    cardLastName?: string;
     title?: string;
+    company?: string;
     mobile?: string;
     whatsapp?: boolean;
     logo?: string;
     quantity?: number;
+    // Card customization options
+    baseMaterial?: string;
+    color?: string;
+    colour?: string; // Alternative spelling for UK compatibility
+    texture?: string;
+    pattern?: string;
+    // Digital-only flag
+    isDigitalOnly?: boolean;
+    // Founding member flag
+    isFoundingMember?: boolean;
   };
   shipping: {
     fullName: string;

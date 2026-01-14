@@ -530,3 +530,6 @@ export const generateOrderNumber = async (
 
 // Export the same interface for easy migration
 export { SupabaseOrderStore as OrderStore }
+
+// Re-export types from order-store for convenience
+export type { Order, OrderStatus } from './order-store'

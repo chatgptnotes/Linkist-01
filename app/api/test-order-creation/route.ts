@@ -4,6 +4,11 @@ import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { generateOrderNumber } from '@/lib/order-store';
 
 export async function GET(request: NextRequest) {
+  // Only allow in development
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not available in production' }, { status: 403 });
+  }
+
   console.log('🧪 [test-order-creation] Test endpoint called');
 
   try {
@@ -99,6 +104,11 @@ export async function GET(request: NextRequest) {
 
 // POST endpoint to test with custom data
 export async function POST(request: NextRequest) {
+  // Only allow in development
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not available in production' }, { status: 403 });
+  }
+
   console.log('🧪 [test-order-creation] POST test endpoint called');
 
   try {

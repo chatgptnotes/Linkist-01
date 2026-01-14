@@ -3,6 +3,7 @@ import { SupabaseEmailOTPStore, SupabaseMobileOTPStore, type EmailOTPRecord } fr
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { SessionStore } from '@/lib/session-store';
 import { memoryOTPStore } from '@/lib/memory-otp-store';
+import { sendWelcomeEmail } from '@/lib/smtp-email-service';
 import twilio from 'twilio';
 
 export async function POST(request: NextRequest) {
@@ -196,6 +197,14 @@ export async function POST(request: NextRequest) {
 
             // Activate user now that OTP is verified
             user = await SupabaseUserStore.activateUser(user.id, 'mobile');
+
+            // Send welcome email to new user (non-blocking)
+            sendWelcomeEmail({
+              firstName: mobileRecord.temp_user_data.firstName,
+              lastName: mobileRecord.temp_user_data.lastName,
+              email: mobileRecord.temp_user_data.email || user.email,
+              isFoundingMember: mobileRecord.temp_user_data.isFoundingMember || false,
+            }).catch((err) => console.error('Failed to send welcome email:', err));
           } catch (createError) {
             return NextResponse.json(
               { error: 'Failed to create user account. Please try again.' },
@@ -289,6 +298,14 @@ export async function POST(request: NextRequest) {
 
             // Activate user now that OTP is verified
             user = await SupabaseUserStore.activateUser(user.id, 'email');
+
+            // Send welcome email to new user (non-blocking)
+            sendWelcomeEmail({
+              firstName: storedRecord.temp_user_data.firstName,
+              lastName: storedRecord.temp_user_data.lastName,
+              email: normalizedIdentifier,
+              isFoundingMember: storedRecord.temp_user_data.isFoundingMember || false,
+            }).catch((err) => console.error('Failed to send welcome email:', err));
           } catch (createError) {
             return NextResponse.json(
               { error: 'Failed to create user account. Please try again.' },

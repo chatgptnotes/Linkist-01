@@ -1,5 +1,116 @@
 // Email templates for order lifecycle notifications
 
+// Welcome email interface
+export interface WelcomeEmailData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  isFoundingMember?: boolean;
+}
+
+// Base email styles used across all templates
+const baseEmailStyles = `
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
+    .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
+    .header { background-color: #000000; padding: 40px 40px; text-align: center; }
+    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
+    .header-logo img { height: 40px; }
+    .header-brand { color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; }
+    .header-tagline { color: #9ca3af; font-size: 12px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase; }
+    .header h1 { color: #ffffff; font-size: 28px; margin: 0; font-weight: 700; }
+    .header .tagline { color: #e2e8f0; font-size: 14px; margin-top: 5px; }
+    .content { padding: 40px; }
+    .card-preview { background: #1e293b; border-radius: 12px; padding: 24px; color: #ffffff; margin: 24px 0; text-align: center; }
+    .card-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+    .card-title { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
+    .card-brand { color: #ef4444; font-size: 16px; font-weight: 700; }
+    .order-details { background: #f8fafc; border-radius: 8px; padding: 24px; margin: 24px 0; }
+    .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
+    .detail-row:last-child { margin-bottom: 0; font-weight: 600; border-top: 1px solid #e2e8f0; padding-top: 12px; }
+    .total-row { font-size: 18px; }
+    .shipping-address { background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 20px 0; }
+    .status-badge { display: inline-block; background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 12px 0; }
+    .tracking-button { display: inline-block; background: #ef4444; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0; }
+    .footer { background: #f8fafc; padding: 30px 40px; text-align: center; color: #64748b; font-size: 14px; }
+    .footer-links { margin-top: 20px; }
+    .footer-links a { color: #ef4444; text-decoration: none; margin: 0 12px; }
+    .plan-label { color: #f59e0b; font-weight: 600; }
+    .included-label { color: #10b981; }
+    .voucher-label { color: #10b981; font-weight: 500; }
+  </style>
+`;
+
+// Welcome email template sent after successful signup
+export const welcomeEmail = (data: WelcomeEmailData) => `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Linkist</title>
+  ${baseEmailStyles}
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="content">
+      <h2 style="color: #1e293b; margin-top: 0;">Welcome to Linkist${data.isFoundingMember ? ', Founding Member' : ''}!</h2>
+
+      <p>Hi <strong>${data.firstName}</strong>,</p>
+
+      <p>We're thrilled to have you join the Linkist community! Your account has been successfully created and you're now ready to revolutionize the way you network.</p>
+
+      ${data.isFoundingMember ? `
+      <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 12px; padding: 20px; margin: 24px 0; text-align: center;">
+        <p style="margin: 0; color: #92400e; font-size: 14px; font-weight: 600;">FOUNDING MEMBER</p>
+        <p style="margin: 8px 0 0; color: #78350f; font-size: 16px;">Thank you for being one of our earliest supporters! You'll enjoy exclusive benefits and pricing.</p>
+      </div>
+      ` : ''}
+
+      <div class="card-preview">
+        <p style="color: #94a3b8; font-size: 14px; margin: 0 0 12px;">Your Digital Identity Awaits</p>
+        <div class="card-name">${data.firstName} ${data.lastName}</div>
+        <div class="card-brand">LINKIST</div>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 16px;">NFC ENABLED</p>
+      </div>
+
+      <p><strong>What's Next?</strong></p>
+      <ul style="color: #64748b; padding-left: 20px;">
+        <li style="margin-bottom: 12px;"><strong>Complete your profile</strong> - Add your contact info, social links, and bio</li>
+        <li style="margin-bottom: 12px;"><strong>Order your NFC card</strong> - Get your premium NFC business card</li>
+        <li style="margin-bottom: 12px;"><strong>Start networking</strong> - Share your digital profile with a tap</li>
+      </ul>
+
+      <p style="color: #64748b;">Need help getting started? Check out our <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/help" style="color: #ef4444;">help center</a> or reply to this email.</p>
+    </div>
+
+    <div class="footer">
+      <p>Welcome to the future of networking!</p>
+      <div class="footer-links">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/dashboard">Dashboard</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/support">Support</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/shop">Shop</a>
+      </div>
+      <p style="margin-top: 20px; color: #94a3b8; font-size: 12px;">
+        © ${new Date().getFullYear()} Linkist. All rights reserved.<br>
+        You're receiving this email because you created an account with us.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+
 export interface OrderData {
   orderNumber: string;
   customerName: string;  // User's actual profile name for greetings
@@ -44,38 +155,6 @@ export interface OrderData {
   voucherDiscount?: number;
   voucherAmount?: number;
 }
-
-const baseEmailStyles = `
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8fafc; }
-    .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-    .header { background-color: #000000; padding: 40px 40px; text-align: center; }
-    .header-logo { display: flex; align-items: center; justify-content: center; gap: 10px; }
-    .header-logo img { height: 40px; }
-    .header-brand { color: #ffffff; font-size: 32px; font-weight: 700; margin: 0; }
-    .header-tagline { color: #9ca3af; font-size: 12px; letter-spacing: 3px; margin-top: 5px; text-transform: uppercase; }
-    .header h1 { color: #ffffff; font-size: 28px; margin: 0; font-weight: 700; }
-    .header .tagline { color: #e2e8f0; font-size: 14px; margin-top: 5px; }
-    .content { padding: 40px; }
-    .card-preview { background: #1e293b; border-radius: 12px; padding: 24px; color: #ffffff; margin: 24px 0; text-align: center; }
-    .card-name { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
-    .card-title { color: #94a3b8; font-size: 14px; margin-bottom: 20px; }
-    .card-brand { color: #ef4444; font-size: 16px; font-weight: 700; }
-    .order-details { background: #f8fafc; border-radius: 8px; padding: 24px; margin: 24px 0; }
-    .detail-row { display: flex; justify-content: space-between; margin-bottom: 12px; }
-    .detail-row:last-child { margin-bottom: 0; font-weight: 600; border-top: 1px solid #e2e8f0; padding-top: 12px; }
-    .total-row { font-size: 18px; }
-    .shipping-address { background: #f1f5f9; border-radius: 8px; padding: 20px; margin: 20px 0; }
-    .status-badge { display: inline-block; background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin: 12px 0; }
-    .tracking-button { display: inline-block; background: #ef4444; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: 600; margin: 16px 0; }
-    .footer { background: #f8fafc; padding: 30px 40px; text-align: center; color: #64748b; font-size: 14px; }
-    .footer-links { margin-top: 20px; }
-    .footer-links a { color: #ef4444; text-decoration: none; margin: 0 12px; }
-    .plan-label { color: #f59e0b; font-weight: 600; }
-    .included-label { color: #10b981; }
-    .voucher-label { color: #10b981; font-weight: 500; }
-  </style>
-`;
 
 export const orderConfirmationEmail = (data: OrderData) => {
   const quantity = data.cardConfig.quantity || 1;
