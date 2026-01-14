@@ -123,7 +123,7 @@ export default function WhyTimelineSection() {
     ];
 
     return (
-        <section className="relative pt-12 pb-12 overflow-hidden">
+        <section className="relative pt-12 pb-12 lg:pb-48 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Mobile Layout */}
@@ -231,15 +231,11 @@ export default function WhyTimelineSection() {
                             </span>
                         </div>
 
-                        <h2 className="text-5xl md:text-6xl font-bold mb-8 leading-tight">
-                            <span className="text-white">The handshake is easy.</span>
+                        <h2 className="font-inter font-medium text-[56px] leading-[72px] tracking-[-0.04em] mb-8">
+                            <span className="text-white whitespace-nowrap">The handshake is easy.</span>
                             <br />
                             <span className="text-[#888]">Remembering is hard.</span>
                         </h2>
-
-                        <p className="text-[#888] leading-relaxed max-w-md font-body">
-                            You don't lose opportunities because you run out of business cards. You lose them when you lose context, timing, and recall.
-                        </p>
 
                         {/* Desktop CTA */}
                         <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
@@ -258,7 +254,7 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative max-w-[450px]"
+                        className="relative max-w-[450px] translate-x-[15%] translate-y-[40%]"
                     >
                         <div className="flex flex-col">
                             {timelineItems.map((item, index) => (

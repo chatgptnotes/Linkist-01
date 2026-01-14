@@ -107,11 +107,14 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 md:mb-8 text-[#E1E1E1]"
+          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 md:mb-8 bg-clip-text text-transparent"
+          style={{
+            backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
+          }}
         >
-          The Worlds First <br />
-          <span className="text-[#A0A0A0]">Personal Relationship</span> <br />
-          <span className="text-[#E1E1E1]">Management Tool</span>
+          World's first <br />
+          Personal Relationship <br />
+          Manager (PRM)
         </motion.h1>
 
         <motion.p

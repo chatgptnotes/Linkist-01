@@ -23,7 +23,7 @@ export default function FinalCTASection() {
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="font-poppins font-medium text-[40px] leading-[48px] tracking-[-0.02em] text-center text-white mb-6"
+                    className="font-inter font-medium text-[40px] leading-[48px] md:text-[56px] md:leading-[72px] tracking-[-0.04em] text-center text-white mb-6"
                 >
                     History favors<br />the first
                 </motion.h2>

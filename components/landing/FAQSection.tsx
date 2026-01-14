@@ -58,10 +58,9 @@ export default function FAQSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-[32px] font-medium text-center mb-12 md:mb-16 font-poppins"
+          className="text-[32px] md:text-[56px] md:leading-[72px] font-inter font-medium text-center mb-12 md:mb-16 tracking-[-0.04em]"
           style={{
             lineHeight: '43px',
-            letterSpacing: '-0.02em',
             background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',

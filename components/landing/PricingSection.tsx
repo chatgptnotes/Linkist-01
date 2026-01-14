@@ -112,11 +112,8 @@ export default function PricingSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mb-6 text-center text-[28px] leading-[36px] min-[390px]:text-[32px] min-[390px]:leading-[43px]"
+          className="mb-6 text-center text-[28px] leading-[36px] min-[390px]:text-[32px] min-[390px]:leading-[43px] md:text-[56px] md:leading-[72px] font-inter font-medium tracking-[-0.04em]"
           style={{
-            fontFamily: 'Poppins, sans-serif',
-            fontWeight: 500,
-            letterSpacing: '-0.02em',
             background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',

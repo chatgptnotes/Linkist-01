@@ -25,13 +25,13 @@ export default function RealityCheckSection() {
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] tracking-[-0.02em] text-center mb-6 bg-clip-text text-transparent"
+                            className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-left mb-6 bg-clip-text text-transparent"
                             style={{
                                 backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)'
                             }}
                         >
                             Your brain isn't built<br />
-                            for 5,000 connections.<br />
+                            <span className="md:whitespace-nowrap">for 5,000 connections.</span><br />
                             Linkist is.
                         </motion.h2>
 

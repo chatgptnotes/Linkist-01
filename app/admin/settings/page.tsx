@@ -126,6 +126,253 @@ interface SystemSettings {
   };
 }
 
+// Security Tab Component with Change Password
+function SecurityTabContent({ settings, updateSettings }: {
+  settings: SystemSettings;
+  updateSettings: (section: keyof SystemSettings, field: string, value: any) => void;
+}) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      setChangingPassword(true);
+      const response = await fetch('/api/admin/settings/password', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setPasswordSuccess('Password changed successfully!');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+      } else {
+        setPasswordError(data.error || 'Failed to change password');
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      setPasswordError('Failed to change password');
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Change Password Section */}
+      <div className="border-b pb-8">
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Change Admin Password</h3>
+        <p className="text-sm text-gray-500 mb-6">
+          Update the password used to access the admin panel
+        </p>
+
+        <form onSubmit={handleChangePassword} className="max-w-md space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Current Password
+            </label>
+            <div className="relative">
+              <input
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-red-600 focus:border-red-600"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showCurrentPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              New Password
+            </label>
+            <div className="relative">
+              <input
+                type={showNewPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:ring-red-600 focus:border-red-600"
+                placeholder="Minimum 6 characters"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                {showNewPassword ? (
+                  <EyeOff className="h-4 w-4 text-gray-400" />
+                ) : (
+                  <Eye className="h-4 w-4 text-gray-400" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Confirm New Password
+            </label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
+              required
+            />
+          </div>
+
+          {passwordError && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+              <div className="flex items-center">
+                <X className="h-4 w-4 text-red-500 mr-2" />
+                <span className="text-red-800 text-sm">{passwordError}</span>
+              </div>
+            </div>
+          )}
+
+          {passwordSuccess && (
+            <div className="bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="flex items-center">
+                <Check className="h-4 w-4 text-green-500 mr-2" />
+                <span className="text-green-800 text-sm">{passwordSuccess}</span>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+            className="flex items-center space-x-2 px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              backgroundColor: '#b91c1c',
+              color: '#ffffff',
+              border: 'none',
+              cursor: changingPassword ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {changingPassword ? (
+              <RefreshCw className="h-4 w-4 animate-spin" style={{ color: '#ffffff' }} />
+            ) : (
+              <Key className="h-4 w-4" style={{ color: '#ffffff' }} />
+            )}
+            <span style={{ color: '#ffffff', fontWeight: 500 }}>
+              {changingPassword ? 'Changing...' : 'Change Password'}
+            </span>
+          </button>
+        </form>
+      </div>
+
+      {/* Other Security Settings */}
+      <div>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Other Security Settings</h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Password Minimum Length
+            </label>
+            <input
+              type="number"
+              min="6"
+              max="50"
+              value={settings.security.passwordMinLength}
+              onChange={(e) => updateSettings('security', 'passwordMinLength', parseInt(e.target.value))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Session Timeout (minutes)
+            </label>
+            <input
+              type="number"
+              min="5"
+              max="1440"
+              value={settings.security.sessionTimeout}
+              onChange={(e) => updateSettings('security', 'sessionTimeout', parseInt(e.target.value))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Max Login Attempts
+            </label>
+            <input
+              type="number"
+              min="3"
+              max="10"
+              value={settings.security.maxLoginAttempts}
+              onChange={(e) => updateSettings('security', 'maxLoginAttempts', parseInt(e.target.value))}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
+            />
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-gray-700">
+              Two-Factor Authentication
+            </span>
+            <button
+              onClick={() => updateSettings('security', 'twoFactorEnabled', !settings.security.twoFactorEnabled)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                settings.security.twoFactorEnabled ? 'bg-red-700' : 'bg-gray-200'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                  settings.security.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+          <p className="text-sm text-gray-500">
+            Require two-factor authentication for admin users
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SettingsPage() {
   const [settings, setSettings] = useState<SystemSettings | null>(null);
   const [loading, setLoading] = useState(true);
@@ -898,76 +1145,7 @@ export default function SettingsPage() {
 
                 {/* Security Settings */}
                 {activeTab === 'security' && (
-                  <div className="space-y-6">
-                    <h3 className="text-lg font-medium text-gray-900">Security Settings</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Password Minimum Length
-                        </label>
-                        <input
-                          type="number"
-                          min="6"
-                          max="50"
-                          value={settings.security.passwordMinLength}
-                          onChange={(e) => updateSettings('security', 'passwordMinLength', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Session Timeout (minutes)
-                        </label>
-                        <input
-                          type="number"
-                          min="5"
-                          max="1440"
-                          value={settings.security.sessionTimeout}
-                          onChange={(e) => updateSettings('security', 'sessionTimeout', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Max Login Attempts
-                        </label>
-                        <input
-                          type="number"
-                          min="3"
-                          max="10"
-                          value={settings.security.maxLoginAttempts}
-                          onChange={(e) => updateSettings('security', 'maxLoginAttempts', parseInt(e.target.value))}
-                          className="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-red-600 focus:border-red-600"
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-medium text-gray-700">
-                          Two-Factor Authentication
-                        </span>
-                        <button
-                          onClick={() => updateSettings('security', 'twoFactorEnabled', !settings.security.twoFactorEnabled)}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                            settings.security.twoFactorEnabled ? 'bg-red-700' : 'bg-gray-200'
-                          }`}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              settings.security.twoFactorEnabled ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
-                      </div>
-                      <p className="text-sm text-gray-500">
-                        Require two-factor authentication for admin users
-                      </p>
-                    </div>
-                  </div>
+                  <SecurityTabContent settings={settings} updateSettings={updateSettings} />
                 )}
 
                 {/* Notifications Settings */}

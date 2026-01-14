@@ -81,10 +81,23 @@ export default function ProductSelectionPage() {
           const data = await response.json();
           if (data.user) {
             setIsLoggedIn(true);
+
+            // Only check Founders Club unlock status if user is logged in
+            const foundersValidated = localStorage.getItem('foundersClubValidated');
+            if (foundersValidated === 'true') {
+              setFoundersClubUnlocked(true);
+            }
+          } else {
+            // User is not logged in - clear founders unlock status
+            setFoundersClubUnlocked(false);
           }
+        } else {
+          // User is not logged in - clear founders unlock status
+          setFoundersClubUnlocked(false);
         }
       } catch (error) {
         console.error('Error checking auth:', error);
+        setFoundersClubUnlocked(false);
       }
     };
     checkAuth();
@@ -98,12 +111,6 @@ export default function ProductSelectionPage() {
       } catch (error) {
         console.error('Error parsing user profile:', error);
       }
-    }
-
-    // Check if Founders Club is already unlocked
-    const foundersValidated = localStorage.getItem('foundersClubValidated');
-    if (foundersValidated === 'true') {
-      setFoundersClubUnlocked(true);
     }
 
     // Fetch plans from API

@@ -1,48 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSession } from '@/lib/auth-middleware'
-
-// Force mock credentials regardless of environment variables
-const ADMIN_EMAIL = 'admin@gmail.com'
-const ADMIN_PASSWORD = '12345678'
+import { supabaseAdmin } from '@/lib/supabase/admin-client'
+import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const { password } = await request.json()
 
-    console.log('🔐 Admin login attempt:', {
-      receivedEmail: email,
-      receivedPasswordLength: password?.length,
-      expectedEmail: ADMIN_EMAIL,
-      expectedPasswordLength: ADMIN_PASSWORD.length
-    })
-
-    if (!email || !password) {
+    if (!password) {
       return NextResponse.json(
-        { success: false, error: 'Email and password are required' },
+        { success: false, error: 'Password is required' },
         { status: 400 }
       )
     }
 
-    // Verify admin credentials with detailed logging
-    const emailMatch = email === ADMIN_EMAIL
-    const passwordMatch = password === ADMIN_PASSWORD
+    // Get admin password from database
+    const { data: adminPassword, error: dbError } = await supabaseAdmin
+      .from('admin_password')
+      .select('password_hash')
+      .eq('id', 1)
+      .single()
 
-    console.log('🔍 Credential check:', { emailMatch, passwordMatch })
-
-    if (!emailMatch || !passwordMatch) {
-      console.log(`❌ Invalid admin credentials attempt: ${email}`)
+    if (dbError || !adminPassword) {
+      console.error('Failed to fetch admin password:', dbError)
       return NextResponse.json(
-        { success: false, error: 'Invalid email or password' },
+        { success: false, error: 'Authentication system error' },
+        { status: 500 }
+      )
+    }
+
+    // Verify password with bcrypt
+    const isValidPassword = await bcrypt.compare(password, adminPassword.password_hash)
+
+    if (!isValidPassword) {
+      console.log('Invalid admin password attempt')
+      return NextResponse.json(
+        { success: false, error: 'Invalid password' },
         { status: 401 }
       )
     }
 
     // Create admin session token
     const sessionToken = await createAdminSession()
-    
-    console.log('✅ Admin login successful')
 
-    // Set secure cookie with the session token
+    console.log('Admin login successful')
+
+    // Set secure cookie with the session token (24 hours)
     const response = NextResponse.json({
       success: true,
       message: 'Admin login successful'
@@ -50,11 +53,11 @@ export async function POST(request: NextRequest) {
 
     response.cookies.set('admin_session', sessionToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
-      sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+      domain: process.env.COOKIE_DOMAIN || undefined
     })
 
     return response
@@ -70,8 +73,8 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE() {
   try {
-    console.log('🚪 Admin logout requested')
-    
+    console.log('Admin logout requested')
+
     // Clear admin session cookie
     const response = NextResponse.json({
       success: true,
@@ -80,8 +83,8 @@ export async function DELETE() {
 
     response.cookies.set('admin_session', '', {
       httpOnly: true,
-      secure: true,
-      sameSite: 'none' as const,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
       maxAge: 0,
       path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined

@@ -159,6 +159,9 @@ export async function POST(request: NextRequest) {
           founding_member_since: new Date().toISOString(),
           founding_member_plan: memberPlan,
           status: 'active', // Activate user
+          // Update names from referral if user doesn't have them
+          ...(inviteCode.referral_type === 'referral' && inviteCode.referred_first_name && !existingUser.first_name && { first_name: inviteCode.referred_first_name }),
+          ...(inviteCode.referral_type === 'referral' && inviteCode.referred_last_name && !existingUser.last_name && { last_name: inviteCode.referred_last_name }),
           // Always update phone_number if we have it from founders_requests
           ...(phoneFromRequest && { phone_number: phoneFromRequest })
         })
@@ -204,9 +207,9 @@ export async function POST(request: NextRequest) {
       let phoneNumber = '';
 
       if (inviteCode.referral_type === 'referral') {
-        // Leave empty for referrals - user fills at checkout
-        firstName = '';
-        lastName = '';
+        // Use referred name from invite code
+        firstName = inviteCode.referred_first_name || '';
+        lastName = inviteCode.referred_last_name || '';
         phoneNumber = '';
       } else if (originalRequest?.first_name) {
         firstName = originalRequest.first_name;
