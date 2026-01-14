@@ -27,6 +27,8 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import SendIcon from '@mui/icons-material/Send';
+import ReferralForm from '@/components/ReferralForm';
 
 // Icon aliases
 const Package = Inventory2Icon;
@@ -118,6 +120,20 @@ export default function AccountPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [showQrCode, setShowQrCode] = useState(false);
+  const [showReferralModal, setShowReferralModal] = useState(false);
+  const [referralStats, setReferralStats] = useState<{
+    referralsUsed: number;
+    maxReferrals: number;
+    remaining: number;
+    referrals: Array<{
+      id: string;
+      firstName: string;
+      lastName: string;
+      email: string;
+      status: 'pending' | 'used' | 'expired';
+      createdAt: string;
+    }>;
+  } | null>(null);
 
   useEffect(() => {
     checkAuthAndLoadData();
@@ -397,6 +413,33 @@ export default function AccountPage() {
     }
   };
 
+  // Load referral stats for founding members
+  const loadReferralStats = async () => {
+    try {
+      const response = await fetch('/api/founders/referral');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setReferralStats({
+            referralsUsed: data.referralsUsed,
+            maxReferrals: data.maxReferrals,
+            remaining: data.remaining,
+            referrals: data.referrals
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error loading referral stats:', error);
+    }
+  };
+
+  // Load referral stats when user is loaded and is a founding member
+  useEffect(() => {
+    if (user?.is_founding_member) {
+      loadReferralStats();
+    }
+  }, [user?.is_founding_member]);
+
   // Helper functions to check section completion based on user data
   const isBasicInfoComplete = () => {
     // Check if user has basic info filled
@@ -652,6 +695,68 @@ export default function AccountPage() {
 
           </div>
         </div>
+
+        {/* Referral Section - Only for Founding Members */}
+        {user?.is_founding_member && (
+          <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl shadow-sm p-4 sm:p-6 mb-6 sm:mb-8 border border-amber-200">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+                  <SendIcon className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">Refer a Friend</h2>
+                  <p className="text-xs sm:text-sm text-gray-600">Share the Founders Club with others</p>
+                </div>
+              </div>
+              <div className="inline-flex items-center px-3 py-1.5 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
+                {referralStats?.remaining ?? 3} of {referralStats?.maxReferrals ?? 3} remaining
+              </div>
+            </div>
+
+            {/* Referral List */}
+            {referralStats && referralStats.referrals.length > 0 && (
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-700 mb-2">Your Referrals</h3>
+                <div className="space-y-2">
+                  {referralStats.referrals.map((referral) => (
+                    <div key={referral.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-amber-100">
+                      <div>
+                        <span className="font-medium text-gray-900">{referral.firstName} {referral.lastName}</span>
+                        <span className="text-gray-500 text-sm ml-2">{referral.email}</span>
+                      </div>
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        referral.status === 'used'
+                          ? 'bg-green-100 text-green-800'
+                          : referral.status === 'expired'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }`}>
+                        {referral.status === 'used' ? 'Joined' : referral.status === 'expired' ? 'Expired' : 'Pending'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Refer Button */}
+            <button
+              onClick={() => setShowReferralModal(true)}
+              disabled={(referralStats?.remaining ?? 3) <= 0}
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <SendIcon className="w-5 h-5" />
+              Refer Someone to Founders Club
+            </button>
+
+            {(referralStats?.remaining ?? 3) <= 0 && (
+              <p className="text-center text-sm text-gray-500 mt-2">
+                You have used all your referrals
+              </p>
+            )}
+          </div>
+        )}
 
         {/* Profile URL Section */}
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 border border-gray-100">
@@ -1059,6 +1164,16 @@ export default function AccountPage() {
           </div>
         </div>
       )}
+
+      {/* Referral Form Modal */}
+      <ReferralForm
+        isOpen={showReferralModal}
+        onClose={() => setShowReferralModal(false)}
+        onSuccess={() => {
+          loadReferralStats();
+        }}
+        remainingReferrals={referralStats?.remaining ?? 3}
+      />
     </div>
   );
 }

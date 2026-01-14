@@ -145,6 +145,11 @@ export async function POST(request: NextRequest) {
         phoneFromRequest = inviteCode.phone;
       }
 
+      // Determine the plan - use inherited_plan for referrals, otherwise 'lifetime'
+      const memberPlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
+        ? inviteCode.inherited_plan
+        : 'lifetime';
+
       // Update existing user as founding member and activate (include phone if available)
       // Always update phone_number if we have it from founders_requests (even if user already has one)
       const { data: updatedUser, error: updateUserError } = await supabase
@@ -152,7 +157,7 @@ export async function POST(request: NextRequest) {
         .update({
           is_founding_member: true,
           founding_member_since: new Date().toISOString(),
-          founding_member_plan: 'lifetime',
+          founding_member_plan: memberPlan,
           status: 'active', // Activate user
           // Always update phone_number if we have it from founders_requests
           ...(phoneFromRequest && { phone_number: phoneFromRequest })
@@ -192,8 +197,30 @@ export async function POST(request: NextRequest) {
         console.error('Error fetching original request:', requestError);
       }
 
-      const firstName = originalRequest?.first_name || 'Founder';
-      const lastName = originalRequest?.last_name || '';
+      // For referrals, leave name and phone empty - user fills at checkout
+      // For admin codes, use the original request data
+      let firstName = '';
+      let lastName = '';
+      let phoneNumber = '';
+
+      if (inviteCode.referral_type === 'referral') {
+        // Leave empty for referrals - user fills at checkout
+        firstName = '';
+        lastName = '';
+        phoneNumber = '';
+      } else if (originalRequest?.first_name) {
+        firstName = originalRequest.first_name;
+        lastName = originalRequest?.last_name || '';
+        phoneNumber = originalRequest?.phone || inviteCode.phone || '';
+      } else {
+        firstName = 'Founder';
+        phoneNumber = inviteCode.phone || '';
+      }
+
+      // Determine the plan - use inherited_plan for referrals, otherwise 'lifetime'
+      const newMemberPlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
+        ? inviteCode.inherited_plan
+        : 'lifetime';
 
       // Create new user with founding member status
       const { data: newUser, error: createUserError } = await supabase
@@ -202,10 +229,10 @@ export async function POST(request: NextRequest) {
           email: normalizedEmail,
           first_name: firstName,
           last_name: lastName,
-          phone_number: originalRequest?.phone || inviteCode.phone,
+          phone_number: phoneNumber || null,
           is_founding_member: true,
           founding_member_since: new Date().toISOString(),
-          founding_member_plan: 'lifetime',
+          founding_member_plan: newMemberPlan,
           status: 'active', // Activate immediately - code verification = email verification
           email_verified: true, // Email is verified since they received the code
           role: 'user'
@@ -348,6 +375,11 @@ export async function POST(request: NextRequest) {
     console.log('🔑 [founders/activate] Creating session for user:', user.id);
     const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
 
+    // Determine the actual plan for response
+    const responsePlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
+      ? inviteCode.inherited_plan
+      : 'lifetime';
+
     // Create response with user data including profile slug
     const response = NextResponse.json({
       success: true,
@@ -359,7 +391,7 @@ export async function POST(request: NextRequest) {
         last_name: user.last_name,
         phone_number: user.phone_number,
         is_founding_member: true,
-        founding_member_plan: 'lifetime',
+        founding_member_plan: responsePlan,
         custom_url: customUrl // Include the auto-generated profile slug
       },
       isFoundingMember: true,

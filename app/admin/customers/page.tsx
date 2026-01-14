@@ -19,6 +19,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
+import GroupIcon from '@mui/icons-material/Group';
 
 // Icon aliases
 const Search = SearchIcon;
@@ -36,15 +37,7 @@ const MoreVertical = MoreVertIcon;
 const Edit = EditIcon;
 const Trash2 = DeleteIcon;
 const MapPin = LocationOnIcon;
-
-// Helper function to derive plan name from order number
-const getPlanFromOrderNumber = (orderNumber: string): string => {
-  if (orderNumber.startsWith('LKFM-FC-')) return "Founder's Club";
-  if (orderNumber.startsWith('LKFM-DO-')) return 'Starter';
-  if (orderNumber.startsWith('LKFM-DPLA-')) return 'Starter';
-  if (orderNumber.startsWith('LKFM-CDPLA-')) return 'Personal';
-  return 'Personal'; // Default for legacy orders
-};
+const Group = GroupIcon;
 
 // Helper function for plan badge styling
 const getPlanBadgeStyle = (plan: string): string => {
@@ -56,6 +49,15 @@ const getPlanBadgeStyle = (plan: string): string => {
   return styles[plan] || styles['Personal'];
 };
 
+interface Referral {
+  email: string;
+  name: string;
+  code: string;
+  status: 'used' | 'pending' | 'expired';
+  createdAt: string;
+  usedAt: string | null;
+}
+
 interface Customer {
   email: string;
   customerName: string;
@@ -66,6 +68,12 @@ interface Customer {
   lastOrderDate: string;
   lastPlan: string;
   orders: Order[];
+  // Referral fields
+  userId?: string | null;
+  isFoundingMember?: boolean;
+  referredBy?: { userId: string; email: string; name: string } | null;
+  referrals?: Referral[];
+  referralCount?: number;
 }
 
 export default function CustomersPage() {
@@ -86,45 +94,13 @@ export default function CustomersPage() {
 
   const loadCustomers = async () => {
     try {
-      const response = await fetch('/api/admin/orders');
+      const response = await fetch('/api/admin/customers');
       if (!response.ok) {
-        throw new Error('Failed to fetch orders');
+        throw new Error('Failed to fetch customers');
       }
-      
+
       const data = await response.json();
-      const orders: Order[] = data.orders;
-      
-      // Group orders by customer email
-      const customerMap = new Map<string, Order[]>();
-      orders.forEach(order => {
-        const existing = customerMap.get(order.email) || [];
-        customerMap.set(order.email, [...existing, order]);
-      });
-
-      // Convert to customer objects
-      const customerList: Customer[] = Array.from(customerMap.entries()).map(([email, customerOrders]) => {
-        const sortedOrders = customerOrders.sort((a, b) => a.createdAt - b.createdAt);
-        const firstOrder = sortedOrders[0];
-        const lastOrder = sortedOrders[sortedOrders.length - 1];
-        // Only count confirmed orders (not pending or cancelled) for total spent
-        const totalSpent = customerOrders
-          .filter(order => order.status !== 'pending' && order.status !== 'cancelled')
-          .reduce((sum, order) => sum + order.pricing.total, 0);
-
-        return {
-          email,
-          customerName: firstOrder.customerName,
-          phoneNumber: firstOrder.phoneNumber,
-          firstOrderDate: new Date(firstOrder.createdAt).toLocaleDateString(),
-          totalOrders: customerOrders.length,
-          totalSpent,
-          lastOrderDate: new Date(lastOrder.createdAt).toLocaleDateString(),
-          lastPlan: getPlanFromOrderNumber(lastOrder.orderNumber),
-          orders: sortedOrders.reverse(), // Show most recent first
-        };
-      });
-
-      setCustomers(customerList);
+      setCustomers(data.customers);
     } catch (error) {
       console.error('Failed to load customers:', error);
     }
@@ -249,6 +225,70 @@ export default function CustomersPage() {
               </div>
             </div>
           </div>
+
+          {/* Referral Information Section */}
+          {(selectedCustomer.referredBy || (selectedCustomer.referrals && selectedCustomer.referrals.length > 0)) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              {/* Referred By Card */}
+              {selectedCustomer.referredBy && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <UserPlus className="w-5 h-5 text-amber-500 mr-2" />
+                    Referred By
+                  </h3>
+                  <div className="flex items-center">
+                    <div className="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center mr-3">
+                      <User className="w-5 h-5 text-amber-600" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-gray-900">
+                        {selectedCustomer.referredBy.name}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {selectedCustomer.referredBy.email}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Referrals Made Card */}
+              {selectedCustomer.referrals && selectedCustomer.referrals.length > 0 && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <Group className="w-5 h-5 text-green-500 mr-2" />
+                    People Referred ({selectedCustomer.referrals.length})
+                  </h3>
+                  <div className="space-y-3 max-h-48 overflow-y-auto">
+                    {selectedCustomer.referrals.map((referral, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            <User className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {referral.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {referral.email}
+                            </div>
+                          </div>
+                        </div>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          referral.status === 'used' ? 'bg-green-100 text-green-800' :
+                          referral.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {referral.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Customer Orders */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -429,6 +469,12 @@ export default function CustomersPage() {
                     Plan
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Referred By
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Referrals
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Last Order
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -472,6 +518,26 @@ export default function CustomersPage() {
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPlanBadgeStyle(customer.lastPlan)}`}>
                         {customer.lastPlan}
                       </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {customer.referredBy ? (
+                        <div className="flex items-center text-sm">
+                          <UserPlus className="w-4 h-4 text-amber-500 mr-2" />
+                          <span className="text-gray-900">{customer.referredBy.name}</span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-sm">-</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {customer.referralCount && customer.referralCount > 0 ? (
+                        <span className="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                          <Group className="w-3 h-3 mr-1" />
+                          {customer.referralCount}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400 text-sm">0</span>
+                      )}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {customer.lastOrderDate}

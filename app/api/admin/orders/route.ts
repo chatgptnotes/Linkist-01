@@ -1,36 +1,50 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
 import { SupabaseUserStore } from '@/lib/supabase-user-store';
-import { SupabasePaymentStore } from '@/lib/supabase-payment-store';
 import { requireAdmin } from '@/lib/auth-middleware';
+
+// Create admin client with service role key
+const createAdminClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  });
+};
 
 export const GET = requireAdmin(
   async function GET(request: NextRequest) {
     try {
+      const supabase = createAdminClient();
+
       console.log('🔍 Admin orders API: Starting to fetch orders...');
       const orders = await SupabaseOrderStore.getAll();
 
       console.log(`📊 Admin orders API: Found ${orders.length} orders in database`);
 
-      // Fetch payment data for each order
-      console.log('💳 Admin orders API: Fetching payment data for orders...');
-      const ordersWithPayments = await Promise.all(
-        orders.map(async (order) => {
-          try {
-            const payments = await SupabasePaymentStore.getByOrderId(order.id);
-            return {
-              ...order,
-              payment: payments.length > 0 ? payments[0] : null, // Get the first (latest) payment
-            };
-          } catch (error) {
-            console.error(`❌ Error fetching payment for order ${order.id}:`, error);
-            return {
-              ...order,
-              payment: null,
-            };
-          }
-        })
+      // Fetch ALL payment data in one batch query (optimized - no N+1)
+      console.log('💳 Admin orders API: Fetching payments (batch)...');
+      const orderIds = orders.map(o => o.id);
+      const { data: allPayments } = await supabase
+        .from('payments')
+        .select('*')
+        .in('order_id', orderIds);
+
+      // Map payments by order_id for quick lookup
+      const paymentsByOrderId = new Map(
+        allPayments?.map(p => [p.order_id, p]) || []
       );
+
+      // Attach payments to orders
+      const ordersWithPayments = orders.map(order => ({
+        ...order,
+        payment: paymentsByOrderId.get(order.id) || null,
+      }));
 
       console.log(`✅ Admin orders API: Fetched payment data for ${ordersWithPayments.length} orders`);
 
