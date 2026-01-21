@@ -17,6 +17,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import StarIcon from '@mui/icons-material/Star';
+import TuneIcon from '@mui/icons-material/Tune';
+import CardCustomizationTab from './components/CardCustomizationTab';
 
 // Icon aliases
 const Package = Inventory2Icon;
@@ -68,7 +70,7 @@ interface SubscriptionPlan {
   updated_at: string;
 }
 
-type TabType = 'products' | 'plans';
+type TabType = 'products' | 'plans' | 'customization';
 
 export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('plans');
@@ -490,26 +492,28 @@ export default function ProductsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Products & Plans</h1>
             <p className="text-gray-500">Manage your products and subscription plans</p>
           </div>
-          <button
-            onClick={() => {
-              if (activeTab === 'products') {
-                resetProductForm();
-                setSelectedProduct(null);
-                setShowProductModal(true);
-              } else {
-                resetForm();
-                setSelectedPlan(null);
-                setShowAddModal(true);
-              }
-            }}
-            style={{ backgroundColor: '#dc2626' }}
-            className="flex items-center gap-2 px-6 py-2.5 text-white rounded-lg hover:bg-red-700 font-medium shadow-lg transition-all border-2 border-red-700"
-          >
-            <Plus className="h-5 w-5 text-white" />
-            <span className="text-white font-semibold">
-              {activeTab === 'products' ? 'Add Product' : 'Add Plan'}
-            </span>
-          </button>
+          {activeTab !== 'customization' && (
+            <button
+              onClick={() => {
+                if (activeTab === 'products') {
+                  resetProductForm();
+                  setSelectedProduct(null);
+                  setShowProductModal(true);
+                } else {
+                  resetForm();
+                  setSelectedPlan(null);
+                  setShowAddModal(true);
+                }
+              }}
+              style={{ backgroundColor: '#dc2626' }}
+              className="flex items-center gap-2 px-6 py-2.5 text-white rounded-lg hover:bg-red-700 font-medium shadow-lg transition-all border-2 border-red-700"
+            >
+              <Plus className="h-5 w-5 text-white" />
+              <span className="text-white font-semibold">
+                {activeTab === 'products' ? 'Add Product' : 'Add Plan'}
+              </span>
+            </button>
+          )}
         </div>
 
         {/* Tabs */}
@@ -535,66 +539,82 @@ export default function ProductsPage() {
             >
               Physical Products
             </button>
+            <button
+              onClick={() => setActiveTab('customization')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                activeTab === 'customization'
+                  ? 'border-red-600 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <TuneIcon className="h-4 w-4" />
+              Card Customization
+            </button>
           </nav>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-full">
-                <Package className="h-6 w-6 text-blue-600" />
+        {/* Card Customization Tab */}
+        {activeTab === 'customization' ? (
+          <CardCustomizationTab />
+        ) : (
+          <>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-blue-100 rounded-full">
+                    <Package className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Total {activeTab === 'products' ? 'Products' : 'Plans'}</p>
+                    <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total {activeTab === 'products' ? 'Products' : 'Plans'}</p>
-                <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-full">
-                <Tag className="h-6 w-6 text-green-600" />
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-green-100 rounded-full">
+                    <Tag className="h-6 w-6 text-green-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Active</p>
+                    <p className="text-2xl font-bold text-gray-900">{activeItems}</p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Active</p>
-                <p className="text-2xl font-bold text-gray-900">{activeItems}</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-full">
-                <Layers className="h-6 w-6 text-purple-600" />
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-purple-100 rounded-full">
+                    <Layers className="h-6 w-6 text-purple-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">
+                      {activeTab === 'products' ? 'Categories' : 'Featured'}
+                    </p>
+                    <p className="text-2xl font-bold text-gray-900">
+                      {activeTab === 'products'
+                        ? 1
+                        : plans.filter(p => p.popular).length
+                      }
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
-                  {activeTab === 'products' ? 'Categories' : 'Featured'}
-                </p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {activeTab === 'products'
-                    ? 1
-                    : plans.filter(p => p.popular).length
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-yellow-100 rounded-full">
-                <DollarSign className="h-6 w-6 text-yellow-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Avg. Price</p>
-                <p className="text-2xl font-bold text-gray-900">${avgPrice.toFixed(2)}</p>
+              <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                <div className="flex items-center">
+                  <div className="p-2 bg-yellow-100 rounded-full">
+                    <DollarSign className="h-6 w-6 text-yellow-600" />
+                  </div>
+                  <div className="ml-4">
+                    <p className="text-sm font-medium text-gray-600">Avg. Price</p>
+                    <p className="text-2xl font-bold text-gray-900">${avgPrice.toFixed(2)}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
 
         {/* Filters */}
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200 mb-6">
@@ -799,6 +819,8 @@ export default function ProductsPage() {
             </table>
           </div>
         </div>
+          </>
+        )}
 
         {/* Add/Edit Plan Modal */}
         {(showAddModal || showEditModal) && (

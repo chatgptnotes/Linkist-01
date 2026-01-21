@@ -68,6 +68,55 @@ export default function ConfigureNewPage() {
   const [foundersTotalPrice, setFoundersTotalPrice] = useState<number | null>(null);
   const [foundersPricing, setFoundersPricing] = useState<FoundersPricingBreakdown | null>(null);
 
+  // Dynamic customization options from API
+  const [customizationOptions, setCustomizationOptions] = useState<{
+    materials: Array<{ option_key: string; label: string; description: string | null; price: number | null; is_enabled: boolean }>;
+    textures: Array<{ option_key: string; label: string; description: string | null; applicable_materials: string[] | null; is_enabled: boolean }>;
+    colours: Array<{ option_key: string; label: string; hex_color: string | null; gradient_class: string | null; applicable_materials: string[] | null; is_founders_only: boolean; is_enabled: boolean }>;
+    patterns: Array<{ option_key: string; label: string; is_enabled: boolean; display_order: number }>;
+    materialPrices: Record<string, number>;
+    textureOptions: Record<string, string[]>;
+    colourOptions: Record<string, string[]>;
+  } | null>(null);
+  const [optionsLoading, setOptionsLoading] = useState(true);
+  const [userPlanType, setUserPlanType] = useState<string | null>(null);
+
+  // Fetch customization options from API based on user's plan type
+  const fetchCustomizationOptions = async (planType: string | null) => {
+    try {
+      // Build URL with plan_type parameter if available
+      const url = planType
+        ? `/api/card-customization?plan_type=${planType}`
+        : '/api/card-customization';
+
+      const response = await fetch(url);
+      if (response.ok) {
+        const data = await response.json();
+        setCustomizationOptions(data);
+        console.log('Configure: Loaded customization options from API', { planType, data });
+      } else {
+        console.log('Configure: Using fallback options');
+      }
+    } catch (error) {
+      console.error('Configure: Error fetching customization options:', error);
+    } finally {
+      setOptionsLoading(false);
+    }
+  };
+
+  // Initial fetch without plan type (will be refetched when user status is known)
+  useEffect(() => {
+    fetchCustomizationOptions(null);
+  }, []);
+
+  // Refetch options when user plan type is determined
+  useEffect(() => {
+    if (userPlanType) {
+      setOptionsLoading(true);
+      fetchCustomizationOptions(userPlanType);
+    }
+  }, [userPlanType]);
+
   // Clear any existing corrupted data on component mount
   useEffect(() => {
     // Scroll to top when page loads
@@ -153,6 +202,12 @@ export default function ConfigureNewPage() {
           setIsFoundingMember(foundingMemberStatus);
           console.log('Configure: Founding member status:', foundingMemberStatus);
 
+          // Set user plan type based on founding member status
+          // This will trigger a refetch of customization options
+          const planType = foundingMemberStatus ? 'founders-club' : 'physical-digital';
+          setUserPlanType(planType);
+          console.log('Configure: User plan type:', planType);
+
           // Pre-select Metal + Matte + Black for founding members
           if (foundingMemberStatus) {
             setFormData(prev => ({
@@ -166,9 +221,14 @@ export default function ConfigureNewPage() {
             // Fetch founders pricing with the detected country
             await fetchFoundersPricing(country);
           }
+        } else {
+          // Not logged in or error - default to personal plan
+          setUserPlanType('physical-digital');
         }
       } catch (error) {
         console.log('Configure: Could not check founding member status');
+        // Default to personal plan on error
+        setUserPlanType('physical-digital');
       }
     };
 
@@ -202,78 +262,109 @@ export default function ConfigureNewPage() {
     }
   }, [userCountry, isFoundingMember, foundersTotalPrice]);
 
-  // Admin-configured prices (these would come from admin panel)
-  const prices: Record<BaseMaterial, number> = {
+  // Fallback hardcoded options (used if API fails)
+  const fallbackPrices: Record<BaseMaterial, number> = {
     pvc: 69,
     wood: 79,
     metal: 99
   };
 
-  // Define dependencies
-  const textureOptions: Record<BaseMaterial, TextureOption[]> = {
+  const fallbackTextureOptions: Record<BaseMaterial, TextureOption[]> = {
     pvc: ['matte', 'glossy'],
     wood: ['none'],
     metal: ['matte', 'brushed']
   };
 
-  const colourOptions: Record<BaseMaterial, ColourOption[]> = {
+  const fallbackColourOptions: Record<BaseMaterial, ColourOption[]> = {
     pvc: ['white', 'black-pvc'],
     wood: ['cherry', 'birch'],
     metal: ['black-metal', 'silver', 'rose-gold']
   };
 
-  // Base materials with descriptions
-  const baseMaterials: Array<{ value: BaseMaterial; label: string; description: string }> = [
-    { value: 'pvc', label: 'PVC', description: 'Lightweight and affordable' },
-    { value: 'wood', label: 'Wood', description: 'Natural and sustainable' },
-    { value: 'metal', label: 'Metal', description: 'Premium and durable' }
-  ];
+  // Use API options if available, otherwise use fallbacks
+  const prices: Record<string, number> = customizationOptions?.materialPrices || fallbackPrices;
+  const textureOptions: Record<string, string[]> = customizationOptions?.textureOptions || fallbackTextureOptions;
+  const colourOptions: Record<string, string[]> = customizationOptions?.colourOptions || fallbackColourOptions;
 
-  // All texture options for display
-  const allTextures: Array<{ value: TextureOption; label: string; description: string }> = [
-    { value: 'matte', label: 'Matte', description: 'Soft anti-reflective finish' },
-    { value: 'glossy', label: 'Glossy', description: 'High-shine reflective surface' },
-    { value: 'brushed', label: 'Brushed', description: 'Directional brushed pattern' },
-    { value: 'none', label: 'Natural', description: 'Natural material texture' }
-  ];
+  // Base materials with descriptions - from API or fallback
+  const baseMaterials: Array<{ value: string; label: string; description: string }> = customizationOptions?.materials
+    ? customizationOptions.materials.map(m => ({
+        value: m.option_key,
+        label: m.label,
+        description: m.description || ''
+      }))
+    : [
+        { value: 'pvc', label: 'PVC', description: 'Lightweight and affordable' },
+        { value: 'wood', label: 'Wood', description: 'Natural and sustainable' },
+        { value: 'metal', label: 'Metal', description: 'Premium and durable' }
+      ];
 
-  // All colour options for display with exact hex codes
-  const allColours: Array<{ value: ColourOption; label: string; hex: string; gradient: string }> = [
-    // PVC colors
-    { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
-    { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
-    // Wood colors
-    { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
-    { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
-    // Metal colors
-    { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
-    { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
-    { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
-  ];
+  // All texture options for display - from API or fallback
+  const allTextures: Array<{ value: string; label: string; description: string }> = customizationOptions?.textures
+    ? customizationOptions.textures.map(t => ({
+        value: t.option_key,
+        label: t.label,
+        description: t.description || ''
+      }))
+    : [
+        { value: 'matte', label: 'Matte', description: 'Soft anti-reflective finish' },
+        { value: 'glossy', label: 'Glossy', description: 'High-shine reflective surface' },
+        { value: 'brushed', label: 'Brushed', description: 'Directional brushed pattern' },
+        { value: 'none', label: 'Natural', description: 'Natural material texture' }
+      ];
 
-  // Admin-configured patterns
-  const patterns = [
-    { id: 1, name: 'Geometric' },
-    { id: 2, name: 'Minimalist' },
-    { id: 3, name: 'Abstract' }
-  ];
+  // All colour options for display with exact hex codes - from API or fallback
+  const allColours: Array<{ value: string; label: string; hex: string; gradient: string; isFoundersOnly?: boolean }> = customizationOptions?.colours
+    ? customizationOptions.colours.map(c => ({
+        value: c.option_key,
+        label: c.label,
+        hex: c.hex_color || '#CCCCCC',
+        gradient: c.gradient_class || 'from-gray-300 to-gray-400',
+        isFoundersOnly: c.is_founders_only
+      }))
+    : [
+        // PVC colors
+        { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
+        { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black', isFoundersOnly: true },
+        // Wood colors
+        { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
+        { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
+        // Metal colors
+        { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900', isFoundersOnly: true },
+        { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
+        { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
+      ];
+
+  // Admin-configured patterns - from API or fallback
+  const patterns = customizationOptions?.patterns
+    ? customizationOptions.patterns.map((p, index) => ({
+        id: index + 1,
+        name: p.label
+      }))
+    : [
+        { id: 1, name: 'Geometric' },
+        { id: 2, name: 'Minimalist' },
+        { id: 3, name: 'Abstract' }
+      ];
 
   // Check if an option is available based on current base selection
-  const isTextureAvailable = (texture: TextureOption): boolean => {
+  const isTextureAvailable = (texture: string): boolean => {
     if (!formData.baseMaterial) return false;
-    return textureOptions[formData.baseMaterial].includes(texture);
+    const availableTextures = textureOptions[formData.baseMaterial];
+    return availableTextures ? availableTextures.includes(texture) : false;
   };
 
-  const isColourAvailable = (colour: ColourOption): boolean => {
+  const isColourAvailable = (colour: string): boolean => {
     if (!formData.baseMaterial) return false;
 
     // Check if color is available for this material
-    const isValidForMaterial = colourOptions[formData.baseMaterial].includes(colour);
+    const availableColours = colourOptions[formData.baseMaterial];
+    const isValidForMaterial = availableColours ? availableColours.includes(colour) : false;
     if (!isValidForMaterial) return false;
 
-    // Black colors (black-pvc and black-metal) are exclusive to founding members
-    const isBlackColor = colour === 'black-pvc' || colour === 'black-metal';
-    if (isBlackColor && !isFoundingMember) {
+    // Check if this color is founders-only
+    const colourOption = allColours.find(c => c.value === colour);
+    if (colourOption?.isFoundersOnly && !isFoundingMember) {
       return false;
     }
 
@@ -282,15 +373,18 @@ export default function ConfigureNewPage() {
 
   // Handle base material change
   const handleBaseMaterialChange = (material: BaseMaterial) => {
+    const availableTextures = textureOptions[material] || [];
+    const availableColours = colourOptions[material] || [];
+
     const newFormData: StepData = {
       ...formData,
       baseMaterial: material,
       // Clear texture if not valid for new base
-      texture: formData.texture && textureOptions[material].includes(formData.texture)
+      texture: formData.texture && availableTextures.includes(formData.texture)
         ? formData.texture
         : null,
       // Clear colour if not valid for new base
-      colour: formData.colour && colourOptions[material].includes(formData.colour)
+      colour: formData.colour && availableColours.includes(formData.colour)
         ? formData.colour
         : null
     };
