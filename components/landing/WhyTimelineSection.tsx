@@ -136,7 +136,7 @@ export default function WhyTimelineSection() {
                         className="mb-6"
                     >
                         <span
-                            className="inline-flex items-center justify-center px-5 py-2 rounded-full border-2 border-[#F04438] bg-[#1a0a09]"
+                            className="inline-flex items-center justify-center"
                             style={{
                                 fontFamily: 'Inter, sans-serif',
                                 fontWeight: 500,
@@ -219,7 +219,7 @@ export default function WhyTimelineSection() {
                         {/* Badge */}
                         <div className="mb-8">
                             <span
-                                className="inline-flex items-center justify-center px-6 py-2.5 rounded-full border-2 border-[#F04438] bg-[#1a0a09]"
+                                className="inline-flex items-center justify-center"
                                 style={{
                                     fontFamily: 'Inter, sans-serif',
                                     fontWeight: 500,

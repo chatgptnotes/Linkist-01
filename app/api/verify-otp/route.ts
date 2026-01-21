@@ -404,7 +404,7 @@ export async function POST(request: NextRequest) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP in development
       sameSite: 'lax' as const, // 'lax' works on both mobile and desktop when configured correctly
-      maxAge: 30 * 24 * 60 * 60, // 30 days
+      maxAge: 365 * 24 * 60 * 60, // 1 year
       path: '/',
       domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
     };

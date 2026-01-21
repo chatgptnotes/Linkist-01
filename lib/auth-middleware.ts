@@ -32,7 +32,7 @@ const AUTH_CONFIG: {
   // Public API routes that don't need auth
   publicApiRoutes: ['/api/user/profile'],
   // Session duration
-  sessionDuration: 30 * 24 * 60 * 60 * 1000, // 30 days in milliseconds
+  sessionDuration: 365 * 24 * 60 * 60 * 1000, // 1 year in milliseconds
   // Admin PIN for admin access (in production, this should be more secure)
   adminPin: process.env.ADMIN_PIN || '1234',
 }
@@ -119,6 +119,15 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
       const sessionData = await SessionStore.get(customSessionId)
 
       if (sessionData) {
+        // Auto-refresh session if it expires within 30 days (keeps active users logged in)
+        const thirtyDaysFromNow = Date.now() + (30 * 24 * 60 * 60 * 1000);
+        if (sessionData.expiresAt < thirtyDaysFromNow) {
+          // Refresh session in the background (non-blocking)
+          SessionStore.refresh(customSessionId).catch(err => {
+            console.warn('Failed to refresh session:', err);
+          });
+        }
+
         // Fetch user details from database to get first_name, last_name, status, and founding member fields
         let firstName: string | null = null
         let lastName: string | null = null

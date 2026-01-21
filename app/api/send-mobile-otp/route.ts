@@ -153,7 +153,8 @@ export async function POST(request: NextRequest) {
         .services(verifyServiceSid)
         .verifications.create({
           to: mobile,
-          channel: 'sms'
+          channel: 'sms',
+          locale: 'en'
         });
 
       console.log('✅ Twilio verification sent:', verification.status);

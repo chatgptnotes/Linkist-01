@@ -10,7 +10,7 @@ interface LogoProps {
   width?: number;
   height?: number;
   noLink?: boolean; // Add flag to disable Link wrapper
-  variant?: 'light' | 'dark'; // light = logo1.png (for white bg), dark = logo2.png (for dark bg)
+  variant?: 'light' | 'dark'; // light = for white bg (dark text), dark = for dark bg (white text)
 }
 
 export default function Logo({
@@ -20,10 +20,10 @@ export default function Logo({
   width = 120,
   height = 40,
   noLink = false,
-  variant = 'light' // Default to light (logo1.png)
+  variant = 'dark', // Default to dark (white text for dark backgrounds)
 }: LogoProps) {
-  // Select logo based on variant
-  const logoSrc = variant === 'dark' ? '/logo2.png' : '/logo1.png';
+  // Use logo1.png for light backgrounds (has dark text), new SVG for dark backgrounds (has white text)
+  const logoSrc = variant === 'light' ? '/logo1.png' : '/Linkist Full Logo SVG (1).svg';
 
   const imageElement = (
     <Image
@@ -32,7 +32,7 @@ export default function Logo({
       width={width}
       height={height}
       className={imageClassName}
-      style={{ width: 'auto', height: 'auto' }}
+      style={{ width: `${width}px`, height: 'auto', maxHeight: `${height}px` }}
       priority
     />
   );

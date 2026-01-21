@@ -48,7 +48,7 @@ export default function FAQSection() {
           viewport={{ once: true }}
           className="flex justify-center mb-6"
         >
-          <span className="inline-block px-5 py-2 rounded-full border border-[#E02424]/40 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase">
+          <span className="inline-block text-[#E02424] text-xs font-semibold tracking-wider uppercase">
             FAQ
           </span>
         </motion.div>
@@ -114,7 +114,7 @@ export default function FAQSection() {
                     className="overflow-hidden"
                   >
                     <div className="bg-transparent border border-t-0 border-[#333] px-5 md:px-6 pb-4 md:pb-5 pt-3 rounded-b-2xl">
-                      <p className="text-[#888] text-sm leading-relaxed font-body text-center">
+                      <p className="text-[#888] text-sm leading-relaxed font-body text-left">
                         {faq.answer}
                       </p>
                     </div>

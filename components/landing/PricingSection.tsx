@@ -12,6 +12,7 @@ type Feature = {
 type Plan = {
   name: string;
   price: string;
+  priceSubtext?: string;
   description: string;
   features: Feature[];
   badge: string | null;
@@ -72,6 +73,7 @@ export default function PricingSection() {
     {
       name: 'Personal',
       price: '$69',
+      priceSubtext: 'onwards',
       description: 'Your digital profile, powered by a physical touchpoint.',
       features: [
         { text: 'Everything in Starter and more', included: true },
@@ -88,14 +90,14 @@ export default function PricingSection() {
       price: foundersPrice ? `$${foundersPrice}` : '...',
       description: foundersDescription,
       features: foundersFeatures,
-      badge: 'Most Exclusive',
-      cta: 'Know More',
+      badge: 'Exclusive / Invite Only',
+      cta: 'Get Started',
       href: '/product-selection'
     }
   ];
 
   return (
-    <section className="relative pt-12 pb-12 bg-[#050505] overflow-visible">
+    <section id="pricing" className="relative pt-12 pb-12 bg-[#050505] overflow-visible">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
         {/* Badge */}
@@ -103,7 +105,7 @@ export default function PricingSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
-          className="inline-block px-5 py-2 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
+          className="inline-block text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
         >
           Pricing Plan
         </motion.div>
@@ -200,6 +202,20 @@ export default function PricingSection() {
                 >
                   {plan.price}
                 </span>
+                {plan.priceSubtext && (
+                  <span
+                    style={{
+                      fontFamily: 'Poppins, sans-serif',
+                      fontWeight: 400,
+                      fontSize: '24px',
+                      lineHeight: '32px',
+                      color: 'rgba(136, 136, 136, 1)',
+                      marginLeft: '8px',
+                    }}
+                  >
+                    {plan.priceSubtext}
+                  </span>
+                )}
               </div>
 
               {/* Features */}

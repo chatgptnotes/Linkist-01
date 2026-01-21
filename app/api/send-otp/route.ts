@@ -206,7 +206,8 @@ export async function POST(request: NextRequest) {
               .services(twilioVerifyServiceSid)
               .verifications.create({
                 to: mobile,
-                channel: 'sms'
+                channel: 'sms',
+                locale: 'en'
               });
 
             // Store in database as backup with registration data (with fallback)
@@ -417,7 +418,8 @@ export async function POST(request: NextRequest) {
             .services(twilioVerifyServiceSid)
             .verifications.create({
               to: userPhone,
-              channel: 'sms'
+              channel: 'sms',
+              locale: 'en'
             });
 
           // Store identifier for verification (use email for session later)

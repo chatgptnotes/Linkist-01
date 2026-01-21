@@ -50,7 +50,7 @@ export default function InviteOnlySection() {
                     initial={{ opacity: 0, scale: 0.9 }}
                     whileInView={{ opacity: 1, scale: 1 }}
                     viewport={{ once: true }}
-                    className="inline-block px-5 py-2 rounded-full border border-[#E02424]/30 bg-[#E02424]/10 text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
+                    className="inline-block text-[#E02424] text-xs font-semibold tracking-wider uppercase mb-6"
                 >
                     The Founding Member Offer
                 </motion.div>

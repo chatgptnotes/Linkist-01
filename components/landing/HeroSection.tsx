@@ -58,7 +58,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-[35%] px-5 text-center relative z-20">
+        <div className="pt-[25%] px-5 text-center relative z-20">
           <motion.h1
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -75,7 +75,9 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
           >
-            Linkist gives you the tools to strategically track, nurture, and leverage every key relationship.
+            Linkist is an intelligent networking platform that lets professionals own and
+instantly share a smart digital identity, build stronger relationships, and turn
+every connection into a meaningful opportunity.
           </motion.p>
         </div>
 
@@ -96,7 +98,7 @@ export default function HeroSection() {
             />
           </Link>
           <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
-            Includes 1-Year Pro Access + $50 AI Credits
+            Includes 1-Year Pro Access + $50 AI Credits *
           </p>
         </motion.div>
       </div>

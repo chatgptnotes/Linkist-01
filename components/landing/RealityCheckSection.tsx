@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import Link from 'next/link';
 
 export default function RealityCheckSection() {
     return (
@@ -15,7 +14,7 @@ export default function RealityCheckSection() {
                             viewport={{ once: true }}
                             className="flex justify-center md:justify-start mb-6"
                         >
-                            <span className="inline-block px-4 py-1.5 rounded-full border border-[#8B2020] bg-[#1a0a0a] text-[#E02424] text-xs font-medium">
+                            <span className="inline-block text-[#E02424] text-xs font-medium">
                                 THE HUMAN LIMIT
                             </span>
                         </motion.div>
@@ -52,14 +51,17 @@ export default function RealityCheckSection() {
                             </p> */}
 
                             <div className="mt-[42px] flex justify-center md:justify-start">
-                                <Link href="/choose-plan">
-                                    <button
-                                        className="w-[172px] h-[40px] rounded-full text-black text-sm font-medium hover:opacity-90 transition-all cursor-pointer"
-                                        style={{ backgroundColor: '#E02424' }}
-                                    >
-                                        JOIN LINKIST NOW
-                                    </button>
-                                </Link>
+                                <a
+                                    href="#pricing"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
+                                    }}
+                                    className="w-[172px] h-[40px] rounded-full text-white text-sm font-medium hover:opacity-90 transition-all cursor-pointer flex items-center justify-center"
+                                    style={{ backgroundColor: '#E02424' }}
+                                >
+                                    Know More
+                                </a>
                             </div>
                         </div>
                     </div>

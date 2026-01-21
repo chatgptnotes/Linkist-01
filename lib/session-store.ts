@@ -18,7 +18,7 @@ export const SessionStore = {
   // Create a new session
   create: async (userId: string, email: string, role: 'user' | 'admin'): Promise<string> => {
     const sessionId = generateSessionId();
-    const expiresAt = Date.now() + (30 * 24 * 60 * 60 * 1000); // 30 days
+    const expiresAt = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year
 
     try {
       const { error } = await supabase
@@ -103,6 +103,28 @@ export const SessionStore = {
         .lt('expires_at', new Date().toISOString());
     } catch (error) {
       console.error('Session cleanup failed:', error);
+    }
+  },
+
+  // Refresh session expiry (extend by 1 year from now)
+  refresh: async (sessionId: string): Promise<boolean> => {
+    const newExpiresAt = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year from now
+
+    try {
+      const { error } = await supabase
+        .from('user_sessions')
+        .update({ expires_at: new Date(newExpiresAt).toISOString() })
+        .eq('session_id', sessionId);
+
+      if (error) {
+        console.error('Session refresh failed:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Session refresh failed:', error);
+      return false;
     }
   },
 

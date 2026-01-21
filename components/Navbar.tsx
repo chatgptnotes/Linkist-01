@@ -145,7 +145,7 @@ export default function Navbar() {
               {isJoinLoading && (
                 <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
               )}
-              Join Now
+              Sign Up
             </button>
           </div>
         )}
@@ -309,7 +309,7 @@ export default function Navbar() {
             {isJoinLoading && (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
             )}
-            Join Now
+            Sign Up
           </button>
         </div>
       )}
