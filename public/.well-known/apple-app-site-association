@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "74NJAP26ZV.com.linkist.app"
+        ],
+        "paths": [
+          "/profile/*"
+        ],
+        "components": [
+          {
+            "/": "/profile/*"
+          }
+        ]
+      }
+    ]
+  }
+}

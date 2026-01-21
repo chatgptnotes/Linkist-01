@@ -1,0 +1,9 @@
+[{
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.linkist.app",
+      "sha256_cert_fingerprints":
+      ["FF:B1:86:7E:56:D6:53:EB:B9:80:90:B6:15:53:96:6B:4E:0B:C6:A6:27:BB:1F:C9:A0:E2:FC:90:39:7E:D6:0E"]
+    }
+  }]
