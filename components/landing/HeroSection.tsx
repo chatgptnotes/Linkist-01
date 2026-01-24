@@ -65,9 +65,9 @@ export default function HeroSection() {
             transition={{ duration: 0.8 }}
             className="text-[28px] leading-[32px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            World's best<br />
-            Personal Relationship<br />
-            Manager (PRM)<br />
+            Your Network<br />
+            Isn't the Problem.<br />
+            Recall is.<br />
           </motion.h1>
           <motion.p
             initial={{ opacity: 0 }}
@@ -114,9 +114,9 @@ every connection into a meaningful opportunity.
             backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
           }}
         >
-          World's best <br />
-          Personal Relationship <br />
-          Manager (PRM)
+          Your Network<br />
+            Isn't the Problem.<br />
+            Recall is.
         </motion.h1>
 
         <motion.p
@@ -125,7 +125,11 @@ every connection into a meaningful opportunity.
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-          Linkist gives you the tools to strategically track, nurture, and leverage every key relationship.
+          Join Linkist - World's First Personal Reationship Manager (PRM)<br />
+          that helps you<br />
+          remember every contact<br />
+          capture context<br />
+          keep reationships alive.
         </motion.p>
 
         {/* Hero Visual - Dashboard Mockup */}
