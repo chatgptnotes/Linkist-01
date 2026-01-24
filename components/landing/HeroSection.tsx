@@ -65,7 +65,7 @@ export default function HeroSection() {
             transition={{ duration: 0.8 }}
             className="text-[28px] leading-[32px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            World's first<br />
+            World's best<br />
             Personal Relationship<br />
             Manager (PRM)<br />
           </motion.h1>
@@ -114,7 +114,7 @@ every connection into a meaningful opportunity.
             backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
           }}
         >
-          World's first <br />
+          World's best <br />
           Personal Relationship <br />
           Manager (PRM)
         </motion.h1>
