@@ -52,7 +52,7 @@ export default function RealityCheckSection() {
 
                             <div className="mt-[42px] flex justify-center md:justify-start">
                                 <a
-                                    href="#pricing"
+                                    href="https://linkist.ai"
                                     onClick={(e) => {
                                         e.preventDefault();
                                         document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
@@ -60,7 +60,7 @@ export default function RealityCheckSection() {
                                     className="w-[172px] h-[40px] rounded-full text-white text-sm font-medium hover:opacity-90 transition-all cursor-pointer flex items-center justify-center"
                                     style={{ backgroundColor: '#E02424' }}
                                 >
-                                    Know More
+                                    Start Your Journey
                                 </a>
                             </div>
                         </div>
