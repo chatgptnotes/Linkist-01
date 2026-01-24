@@ -75,9 +75,12 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
           >
-            Linkist is an intelligent networking platform that lets professionals own and
-instantly share a smart digital identity, build stronger relationships, and turn
-every connection into a meaningful opportunity.
+          Join Linkist <br />
+          World's First Personal Reationship Manager (PRM)<br />
+          that helps you<br />
+          remember every contact<br />
+          capture context<br />
+          keep reationships alive.
           </motion.p>
         </div>
 
@@ -91,7 +94,7 @@ every connection into a meaningful opportunity.
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
               src="/joinbutton.png"
-              alt="Join Linkist"
+              alt="See How it Works"
               width={220}
               height={56}
               className="w-auto h-[48px] sm:h-[56px] object-contain"
@@ -125,11 +128,9 @@ every connection into a meaningful opportunity.
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-          Join Linkist - World's First Personal Reationship Manager (PRM)<br />
-          that helps you<br />
-          remember every contact<br />
-          capture context<br />
-          keep reationships alive.
+         Linkist is an intelligent networking platform that lets professionals own and
+instantly share a smart digital identity, build stronger relationships, and turn
+every connection into a meaningful opportunity.
         </motion.p>
 
         {/* Hero Visual - Dashboard Mockup */}
