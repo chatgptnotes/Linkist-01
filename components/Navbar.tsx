@@ -295,7 +295,7 @@ export default function Navbar() {
             {isLoginLoading && (
               <div className="animate-spin rounded-full h-4 w-4 border-2 border-white/30 border-t-white"></div>
             )}
-            Login
+            Sign In
           </button>
           <button
             onClick={() => {
