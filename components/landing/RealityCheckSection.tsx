@@ -50,19 +50,26 @@ export default function RealityCheckSection() {
                                 The memory is the hard part.
                             </p> */}
 
-                            <div className="mt-[42px] flex justify-center md:justify-start">
-                                <a
-                                    href="https://linkist.ai"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                                    }}
-                                    className="w-[172px] h-[40px] rounded-full text-white text-sm font-medium hover:opacity-90 transition-all cursor-pointer flex items-center justify-center"
-                                    style={{ backgroundColor: '#E02424' }}
-                                >
-                                    Start Your Journey
-                                </a>
-                            </div>
+                            {/* Join Linkist Button - positioned at bottom */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="absolute bottom-2 left-0 right-0 z-30 px-5 flex flex-col items-center"
+        >
+          <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+            <Image
+              src="/start_your_journey.png"
+              alt="See How it Works"
+              width={220}
+              height={56}
+              className="w-auto h-[48px] sm:h-[56px] object-contain"
+            />
+          </Link>
+          <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
+            Includes 1-Year Pro Access + $50 AI Credits *
+          </p>
+        </motion.div>
                         </div>
                     </div>
 
