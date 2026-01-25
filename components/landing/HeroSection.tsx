@@ -63,7 +63,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[36px] leading-[36px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
             Your Network<br />
             Isn't the Problem.<br />
@@ -73,7 +73,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[16px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+            className="text-[16px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
            Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive.
           </motion.h1>
@@ -81,7 +81,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
@@ -96,7 +96,7 @@ export default function HeroSection() {
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/joinbutton.png"
+              src="/Start Your Journey.png"
               alt="See How it Works"
               width={220}
               height={56}
@@ -138,7 +138,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+            className="text-[14px] leading-[32px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
           >
            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
