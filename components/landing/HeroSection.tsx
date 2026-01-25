@@ -96,7 +96,7 @@ export default function HeroSection() {
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/Start Your Journey.png"
+              src="/start_your_journey.png"
               alt="See How it Works"
               width={220}
               height={56}
@@ -138,7 +138,7 @@ export default function HeroSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[32px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
