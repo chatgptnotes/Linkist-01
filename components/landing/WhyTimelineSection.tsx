@@ -197,7 +197,7 @@ export default function WhyTimelineSection() {
                     >
                         <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/joinbutton.png"
+                                src="/start_your_journey.png"
                                 alt="Join Linkist"
                                 width={200}
                                 height={52}
@@ -240,7 +240,7 @@ export default function WhyTimelineSection() {
                         {/* Desktop CTA */}
                         <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/joinbutton.png"
+                                src="/start_your_journey.png"
                                 alt="Join Linkist"
                                 width={220}
                                 height={56}
