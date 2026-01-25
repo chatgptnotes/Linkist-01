@@ -67,7 +67,7 @@ export default function RealityCheckSection() {
             />
           </Link>
           <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
-            Includes 1-Year Pro Access + $50 AI Credits *
+            Includes 1-Year Pro Access + $50 AI Credits*
           </p>
         </motion.div>
                         </div>
