@@ -59,23 +59,31 @@ export default function HeroSection() {
 
         {/* Text Section */}
         <div className="pt-[25%] px-5 text-center relative z-20">
-          <motion.h1
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[28px] leading-[32px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
+            className="text-[32px] leading-[34px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
             Your Network<br />
             Isn't the Problem.<br />
             Recall is.<br />
+          </motion.h2>
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="text-[18px] leading-[18px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+          >
+           Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive.
           </motion.h1>
-          <motion.p
+        <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
           >
-           Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive.
+           Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
         </div>
 
