@@ -35,7 +35,7 @@ export default function HeroSection() {
         }}
       >
         <img
-          src="/Psd 1 1.png"
+          src="/new_hero.png"
           alt="Linkist App"
           className="w-full h-full object-contain"
         />
@@ -96,7 +96,7 @@ export default function HeroSection() {
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/new_hero.png"
+              src="/start_your_journey.png"
               alt="See How it Works"
               width={220}
               height={56}
