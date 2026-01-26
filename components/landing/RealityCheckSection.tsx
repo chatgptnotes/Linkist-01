@@ -57,7 +57,7 @@ export default function RealityCheckSection() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.6 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
           className="flex flex-col items-center md:items-start mt-6 md:mt-8"
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
