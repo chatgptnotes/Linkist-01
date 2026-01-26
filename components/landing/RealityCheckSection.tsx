@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function RealityCheckSection() {
     return (
@@ -50,19 +52,27 @@ export default function RealityCheckSection() {
                                 The memory is the hard part.
                             </p> */}
 
-                            <div className="mt-[42px] flex justify-center md:justify-start">
-                                <a
-                                    href="#pricing"
-                                    onClick={(e) => {
-                                        e.preventDefault();
-                                        document.getElementById('pricing')?.scrollIntoView({ behavior: 'smooth' });
-                                    }}
-                                    className="w-[172px] h-[40px] rounded-full text-white text-sm font-medium hover:opacity-90 transition-all cursor-pointer flex items-center justify-center"
-                                    style={{ backgroundColor: '#E02424' }}
-                                >
-                                    Know More
-                                </a>
-                            </div>
+                            {/* Join Linkist Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="flex flex-col items-center md:items-start mt-6 md:mt-8"
+        >
+          <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+            <Image
+              src="/start_your_journey.png"
+              alt="See How it Works"
+              width={220}
+              height={56}
+              className="w-auto h-[48px] sm:h-[56px] object-contain"
+            />
+          </Link>
+          <p className="text-[#666666] text-[12px] mt-3 text-center md:text-left font-body">
+            Includes 1-Year Pro Access + $50 AI Credits*
+          </p>
+        </motion.div>
                         </div>
                     </div>
 

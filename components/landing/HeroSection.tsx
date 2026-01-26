@@ -4,13 +4,14 @@ import Link from 'next/link';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden">
+    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden max-w-[100vw]">
       {/* Background - curved light lines (mobile only) */}
-      <div className="absolute inset-0 top-[10%] md:hidden">
+      <div className="absolute inset-0 top-[10%] md:hidden max-w-full">
         <img
           src="/Homepage (Mobile Version).png"
           alt=""
           className="w-full h-full object-cover opacity-60"
+          style={{ maxWidth: '100%' }}
         />
       </div>
 
@@ -25,59 +26,69 @@ export default function HeroSection() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.8 }}
-        className="absolute z-20 md:hidden pointer-events-none"
+        className="absolute z-20 md:hidden pointer-events-none left-1/2"
         style={{
-          width: '763px',
-          height: '508px',
-          top: 'calc(278px + 2%)',
-          left: 'clamp(-190px, calc(-152px + (100vw - 390px) * 0.5), -152px)',
-          transform: 'rotate(12.16deg)',
+          width: 'min(90vw, 763px)',
+          maxWidth: '100%',
+          height: 'auto',
+          aspectRatio: '763 / 508',
+          top: '320px',
+          transform: 'translateX(-50%) rotate(12.16deg)',
         }}
       >
         <img
-          src="/Psd 1 1.png"
+          src="/new_hero.png"
           alt="Linkist App"
           className="w-full h-full object-contain"
+          style={{ maxWidth: '100%' }}
         />
       </motion.div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full mx-auto">
+      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-[140%] pointer-events-none"
+          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
+          style={{ maxWidth: 'min(140%, 100vw)' }}
         >
           <img
             src="/globe.png"
             alt=""
             className="w-full h-auto"
+            style={{ maxWidth: '100%' }}
           />
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-[25%] px-5 text-center relative z-20">
-          <motion.h1
+        <div className="pt-12 px-5 text-center relative z-20 mb-8">
+          <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[28px] leading-[32px] min-[390px]:text-[35px] min-[390px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            World's first<br />
-            Personal Relationship<br />
-            Manager (PRM)<br />
-          </motion.h1>
-          <motion.p
+            Your network<br />
+            isn't the problem.<br />
+            Recall is.<br />
+          </motion.h2>
+          <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[300px] mx-auto"
+            className="text-[16px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
-            Linkist is an intelligent networking platform that lets professionals own and
-instantly share a smart digital identity, build stronger relationships, and turn
-every connection into a meaningful opportunity.
+           Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive  with relevant actionable insights.
+          </motion.h1>
+        <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="text-[12px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
+          >
+           <br />Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
         </div>
 
@@ -90,8 +101,8 @@ every connection into a meaningful opportunity.
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/joinbutton.png"
-              alt="Join Linkist"
+              src="/start_your_journey.png"
+              alt="See How it Works"
               width={220}
               height={56}
               className="w-auto h-[48px] sm:h-[56px] object-contain"
@@ -114,9 +125,9 @@ every connection into a meaningful opportunity.
             backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
           }}
         >
-          World's first <br />
-          Personal Relationship <br />
-          Manager (PRM)
+          Your network<br />
+            isn't the problem.<br />
+            Recall is.
         </motion.h1>
 
         <motion.p
@@ -125,8 +136,17 @@ every connection into a meaningful opportunity.
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-          Linkist gives you the tools to strategically track, nurture, and leverage every key relationship.
+         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
         </motion.p>
+
+        <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
+          >
+           Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
+          </motion.p>
 
         {/* Hero Visual - Dashboard Mockup */}
         <motion.div
@@ -137,7 +157,7 @@ every connection into a meaningful opportunity.
         >
           <div className="relative z-10">
             <img
-              src="/hero_dashboard_hand.png"
+              src="/new_hero.png"
               alt="Linkist Dashboard"
               className="w-full h-auto drop-shadow-2xl"
             />
