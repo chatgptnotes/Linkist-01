@@ -75,7 +75,7 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[16px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
-           Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep reationships alive  with relevant actionable insights.
+           Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive  with relevant actionable insights.
           </motion.h1>
         <motion.p
             initial={{ opacity: 0 }}
@@ -96,7 +96,7 @@ export default function HeroSection() {
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/start_your_journey.png"
+              src="/new_hero.png"
               alt="See How it Works"
               width={220}
               height={56}
@@ -152,7 +152,7 @@ export default function HeroSection() {
         >
           <div className="relative z-10">
             <img
-              src="/hero_dashboard_hand.png"
+              src="/new_hero.png"
               alt="Linkist Dashboard"
               className="w-full h-auto drop-shadow-2xl"
             />
