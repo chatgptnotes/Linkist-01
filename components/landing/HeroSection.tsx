@@ -4,13 +4,14 @@ import Link from 'next/link';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden">
+    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden max-w-[100vw]">
       {/* Background - curved light lines (mobile only) */}
-      <div className="absolute inset-0 top-[10%] md:hidden">
+      <div className="absolute inset-0 top-[10%] md:hidden max-w-full">
         <img
           src="/Homepage (Mobile Version).png"
           alt=""
           className="w-full h-full object-cover opacity-60"
+          style={{ maxWidth: '100%' }}
         />
       </div>
 
@@ -25,10 +26,11 @@ export default function HeroSection() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.8 }}
-        className="absolute z-20 md:hidden pointer-events-none"
+        className="absolute z-20 md:hidden pointer-events-none max-w-[100vw]"
         style={{
-          width: '763px',
-          height: '508px',
+          width: 'min(763px, 150vw)',
+          height: 'auto',
+          aspectRatio: '763 / 508',
           top: 'calc(278px + 2%)',
           left: 'clamp(-190px, calc(-152px + (100vw - 390px) * 0.5), -152px)',
           transform: 'rotate(12.16deg)',
@@ -38,22 +40,25 @@ export default function HeroSection() {
           src="/new_hero.png"
           alt="Linkist App"
           className="w-full h-full object-contain"
+          style={{ maxWidth: '100%' }}
         />
       </motion.div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full mx-auto">
+      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-[140%] pointer-events-none"
+          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
+          style={{ maxWidth: 'min(140%, 100vw)' }}
         >
           <img
             src="/globe.png"
             alt=""
             className="w-full h-auto"
+            style={{ maxWidth: '100%' }}
           />
         </motion.div>
 
@@ -131,7 +136,7 @@ export default function HeroSection() {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep reationships alive with relevant actionable insights.
+         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
         </motion.p>
 
         <motion.p
