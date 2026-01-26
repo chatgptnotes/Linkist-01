@@ -28,7 +28,7 @@ export default function HeroSection() {
         transition={{ delay: 0.4, duration: 0.8 }}
         className="absolute z-20 md:hidden pointer-events-none max-w-[100vw]"
         style={{
-          width: 'min(763px, 200vw)',
+          width: 'min(763px, 150vw)',
           height: 'auto',
           aspectRatio: '763 / 508',
           top: 'calc(278px + 2%)',
@@ -51,7 +51,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-full max-w-[100vw] pointer-events-none"
+          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
           style={{ maxWidth: 'min(140%, 100vw)' }}
         >
           <img
@@ -136,7 +136,7 @@ export default function HeroSection() {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep reationships alive with relevant actionable insights.
+         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
         </motion.p>
 
         <motion.p
