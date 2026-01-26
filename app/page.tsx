@@ -9,7 +9,6 @@ import WhyTimelineSection from '@/components/landing/WhyTimelineSection';
 import SuperpowerSection from '@/components/landing/SuperpowerSection';
 import StatsSection from '@/components/landing/StatsSection';
 import InviteOnlySection from '@/components/landing/InviteOnlySection';
-import IdentitySection from '@/components/landing/IdentitySection';
 
 import FAQSection from '@/components/landing/FAQSection';
 import FinalCTASection from '@/components/landing/FinalCTASection';
@@ -41,7 +40,6 @@ export default function HomePage() {
         <SuperpowerSection />
         <StatsSection />
         <InviteOnlySection />
-        <IdentitySection />
         <FAQSection />
         <FinalCTASection />
       </main>
