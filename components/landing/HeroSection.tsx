@@ -65,8 +65,8 @@ export default function HeroSection() {
             transition={{ duration: 0.8 }}
             className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
           >
-            Your Network<br />
-            Isn't the Problem.<br />
+            Your network<br />
+            isn't the problem.<br />
             Recall is.<br />
           </motion.h2>
           <motion.h1
@@ -75,13 +75,13 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[16px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
-           Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive.
+           Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive  with relevant actionable insights.
           </motion.h1>
         <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
+            className="text-[12px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
@@ -120,8 +120,8 @@ export default function HeroSection() {
             backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
           }}
         >
-          Your Network<br />
-            Isn't the Problem.<br />
+          Your network<br />
+            isn't the problem.<br />
             Recall is.
         </motion.h1>
 
@@ -131,7 +131,7 @@ export default function HeroSection() {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
         >
-         Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive.
+         Join Linkist. World's First Personal Reationship Manager (PRM) that helps you remember every contact, capture context & keep reationships alive with relevant actionable insights.
         </motion.p>
 
         <motion.p
