@@ -83,7 +83,7 @@ export default function HeroSection() {
             transition={{ delay: 0.2, duration: 0.8 }}
             className="text-[12px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
           >
-           <br>Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
+           <br />Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </motion.p>
         </div>
 
