@@ -52,12 +52,13 @@ export default function RealityCheckSection() {
                                 The memory is the hard part.
                             </p> */}
 
-                            {/* Join Linkist Button - positioned at bottom */}
+                            {/* Join Linkist Button */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="absolute bottom-2 left-0 right-0 z-30 px-5 flex flex-col items-center"
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="flex flex-col items-center md:items-start mt-6 md:mt-8"
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
@@ -68,7 +69,7 @@ export default function RealityCheckSection() {
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
           </Link>
-          <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
+          <p className="text-[#666666] text-[12px] mt-3 text-center md:text-left font-body">
             Includes 1-Year Pro Access + $50 AI Credits*
           </p>
         </motion.div>
