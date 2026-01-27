@@ -32,16 +32,18 @@ export default function HeroSection() {
           maxWidth: '100%',
           height: 'auto',
           aspectRatio: '763 / 508',
-          top: '320px',
+          top: '340px',
           left: '50%',
           transform: 'translateX(-50%) rotate(12.16deg)',
+          marginLeft: '0',
+          marginRight: '0',
         }}
       >
         <img
           src="/new_hero.png"
           alt="Linkist App"
-          className="w-full h-full object-contain"
-          style={{ maxWidth: '100%' }}
+          className="w-full h-full object-contain mx-auto"
+          style={{ maxWidth: '100%', display: 'block' }}
         />
       </motion.div>
 
@@ -64,12 +66,12 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-12 px-5 text-center relative z-20 mb-8">
+        <div className="pt-20 px-5 text-center relative z-20 mb-12">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2 mt-4"
           >
             Your network<br />
             isn't the problem.<br />
