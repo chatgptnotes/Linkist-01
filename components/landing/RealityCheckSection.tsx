@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function RealityCheckSection() {
     return (
-        <section className="relative pt-12 pb-12 overflow-hidden">
+        <section id="human-limit" className="relative pt-16 pb-16 md:pt-20 md:pb-20 overflow-hidden">
             <div className="max-w-[1306px] mx-auto px-4 sm:px-6 md:px-[100px] relative z-10">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -69,9 +69,6 @@ export default function RealityCheckSection() {
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
           </Link>
-          <p className="text-[#666666] text-[12px] mt-3 text-center md:text-left font-body">
-            Includes 1-Year Pro Access + $50 AI Credits*
-          </p>
         </motion.div>
                         </div>
                     </div>

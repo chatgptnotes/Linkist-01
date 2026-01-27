@@ -26,13 +26,14 @@ export default function HeroSection() {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.8 }}
-        className="absolute z-20 md:hidden pointer-events-none left-1/2"
+        className="absolute z-20 md:hidden pointer-events-none"
         style={{
           width: 'min(90vw, 763px)',
           maxWidth: '100%',
           height: 'auto',
           aspectRatio: '763 / 508',
           top: '320px',
+          left: '50%',
           transform: 'translateX(-50%) rotate(12.16deg)',
         }}
       >
@@ -99,7 +100,7 @@ export default function HeroSection() {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="absolute bottom-2 left-0 right-0 z-30 px-5 flex flex-col items-center"
         >
-          <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+          <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
               src="/start_your_journey.png"
               alt="See How it Works"
@@ -107,7 +108,7 @@ export default function HeroSection() {
               height={56}
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
-          </Link>
+          </a>
           <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
             Includes 1-Year Pro Access + $50 AI Credits *
           </p>
