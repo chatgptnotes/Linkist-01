@@ -62,7 +62,7 @@ export default function RealityCheckSection() {
         >
           <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/product-hunt-label.png"
+              src="/product-hunt-label-2.png"
               alt="Join Linkist"
               width={276}
               height={62}

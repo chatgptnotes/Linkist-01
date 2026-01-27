@@ -45,8 +45,8 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
 
             {/* Right side - Icon and text, aligned horizontally */}
             <div className="flex-1 flex items-start gap-3">
-                {/* Icon - aligned horizontally with text */}
-                <div className="flex items-center flex-shrink-0 mt-1">
+                {/* Icon - aligned with text top */}
+                <div className="flex items-start justify-center flex-shrink-0 pt-[6px]">
                     <Image
                         src={icon}
                         alt={iconAlt}
@@ -199,7 +199,7 @@ export default function WhyTimelineSection() {
                     >
                         <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/product-hunt-label.png"
+                                src="/product-hunt-label-2.png"
                                 alt="Join Linkist"
                                 width={276}
                                 height={62}
@@ -242,7 +242,7 @@ export default function WhyTimelineSection() {
                         {/* Desktop CTA */}
                         <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/product-hunt-label.png"
+                                src="/product-hunt-label-2.png"
                                 alt="Join Linkist"
                                 width={276}
                                 height={62}
@@ -256,7 +256,7 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative max-w-[450px] translate-x-[15%] translate-y-[40%]"
+                        className="relative max-w-[450px]"
                     >
                         <div className="flex flex-col">
                             {timelineItems.map((item, index) => (
