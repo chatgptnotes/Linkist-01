@@ -333,7 +333,7 @@ export default function PrivacyPolicyPage() {
           
           <Link
             href="/terms"
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-700 text-base font-medium rounded-lg text-gray-200 bg-[#0A0A0A] hover:bg-[#151515] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-700 text-base font-medium rounded-lg text-white bg-[#0A0A0A] hover:bg-[#151515] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             View Terms of Service
           </Link>

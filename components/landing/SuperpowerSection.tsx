@@ -141,10 +141,10 @@ export default function SuperpowerSection() {
                 >
                     <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
                         <Image
-                            src="/joinbutton.png"
+                            src="/product-hunt-label.png"
                             alt="Join Linkist"
-                            width={200}
-                            height={52}
+                            width={276}
+                            height={62}
                             className="w-auto h-[48px] object-contain"
                         />
                     </Link>

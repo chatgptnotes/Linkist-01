@@ -102,10 +102,10 @@ export default function HeroSection() {
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/start_your_journey.png"
+              src="/product-hunt-label.png"
               alt="See How it Works"
-              width={220}
-              height={56}
+              width={276}
+              height={62}
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
           </a>

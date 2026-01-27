@@ -204,24 +204,24 @@ export default function PrivacyManagePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#050505]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
           <Link 
             href="/privacy"
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 mb-6"
+            className="inline-flex items-center text-red-400 hover:text-red-300 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Privacy Policy
           </Link>
           
           <div className="flex items-center space-x-3 mb-4">
-            <Shield className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold text-gray-900">Privacy Management</h1>
+            <Shield className="w-8 h-8 text-red-400" />
+            <h1 className="text-3xl font-bold text-[#F5F7FA]">Privacy Management</h1>
           </div>
           
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Manage your privacy settings and exercise your data rights under GDPR.
           </p>
         </div>
@@ -245,8 +245,8 @@ export default function PrivacyManagePage() {
         )}
 
         {/* Email Input */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Email Address</h2>
+        <div className="bg-[#0A0A0A] rounded-xl shadow-sm border border-gray-800 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-[#F5F7FA] mb-4">Your Email Address</h2>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -254,9 +254,9 @@ export default function PrivacyManagePage() {
                 placeholder="Enter your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-700 bg-[#151515] text-gray-200 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent placeholder-gray-500"
               />
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-sm text-gray-400 mt-2">
                 Enter the email address associated with your Linkist account to manage your privacy settings.
               </p>
             </div>
@@ -267,18 +267,18 @@ export default function PrivacyManagePage() {
         <div className="grid md:grid-cols-2 gap-6 mb-8">
           
           {/* Data Export */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#0A0A0A] rounded-xl shadow-sm border border-gray-800 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <Download className="w-6 h-6 text-blue-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Export Your Data</h2>
+              <Download className="w-6 h-6 text-red-400" />
+              <h2 className="text-lg font-semibold text-[#F5F7FA]">Export Your Data</h2>
             </div>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-300 mb-6">
               Download a complete copy of all personal data we have stored about you, 
               including orders, preferences, and account information.
             </p>
             
-            <div className="space-y-3 text-sm text-gray-600 mb-6">
+            <div className="space-y-3 text-sm text-gray-400 mb-6">
               <p>• Order history and shipping information</p>
               <p>• Account preferences and settings</p>
               <p>• Communication history</p>
@@ -296,21 +296,21 @@ export default function PrivacyManagePage() {
           </div>
 
           {/* Data Deletion */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <div className="bg-[#0A0A0A] rounded-xl shadow-sm border border-gray-800 p-6">
             <div className="flex items-center space-x-3 mb-4">
-              <Trash2 className="w-6 h-6 text-red-600" />
-              <h2 className="text-lg font-semibold text-gray-900">Delete Your Data</h2>
+              <Trash2 className="w-6 h-6 text-red-400" />
+              <h2 className="text-lg font-semibold text-[#F5F7FA]">Delete Your Data</h2>
             </div>
             
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-300 mb-6">
               Permanently delete all your personal data from our systems. 
               This action cannot be undone.
             </p>
             
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-4 mb-6">
               <div className="flex items-start">
-                <AlertCircle className="w-5 h-5 text-red-600 mt-0.5 mr-2 flex-shrink-0" />
-                <div className="text-sm text-red-800">
+                <AlertCircle className="w-5 h-5 text-red-400 mt-0.5 mr-2 flex-shrink-0" />
+                <div className="text-sm text-red-200/80">
                   <p className="font-medium mb-1">Warning: This action is irreversible</p>
                   <ul className="list-disc list-inside space-y-1">
                     <li>All order history will be deleted</li>
@@ -333,36 +333,36 @@ export default function PrivacyManagePage() {
         </div>
 
         {/* Consent Management */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-[#0A0A0A] rounded-xl shadow-sm border border-gray-800 p-6">
           <div className="flex items-center space-x-3 mb-6">
-            <Shield className="w-6 h-6 text-green-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Privacy Preferences</h2>
+            <Shield className="w-6 h-6 text-green-400" />
+            <h2 className="text-lg font-semibold text-[#F5F7FA]">Privacy Preferences</h2>
           </div>
           
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-300 mb-6">
             Control how your data is used for analytics and marketing purposes.
           </p>
 
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-[#151515]">
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900">Essential Cookies</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="font-medium text-[#F5F7FA]">Essential Cookies</h3>
+                <p className="text-sm text-gray-400 mt-1">
                   Required for website functionality and order processing. Cannot be disabled.
                 </p>
               </div>
               <div className="flex items-center">
-                <span className="text-sm text-gray-500 mr-3">Always On</span>
+                <span className="text-sm text-gray-400 mr-3">Always On</span>
                 <div className="w-12 h-6 bg-green-500 rounded-full relative">
                   <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-[#151515]">
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900">Analytics Cookies</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="font-medium text-[#F5F7FA]">Analytics Cookies</h3>
+                <p className="text-sm text-gray-400 mt-1">
                   Help us understand website usage and improve our services.
                 </p>
               </div>
@@ -370,24 +370,24 @@ export default function PrivacyManagePage() {
                 <button
                   onClick={() => handleConsentUpdate({ analytics: true, marketing: false })}
                   disabled={loading || !email}
-                  className="px-3 py-1 text-sm font-medium text-green-700 bg-green-100 hover:bg-green-200 rounded disabled:opacity-50"
+                  className="px-3 py-1 text-sm font-medium text-green-100 bg-green-900/50 hover:bg-green-900/70 rounded disabled:opacity-50"
                 >
                   Allow
                 </button>
                 <button
                   onClick={() => handleConsentUpdate({ analytics: false, marketing: false })}
                   disabled={loading || !email}
-                  className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50"
+                  className="px-3 py-1 text-sm font-medium text-gray-200 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
                 >
                   Deny
                 </button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+            <div className="flex items-center justify-between p-4 border border-gray-700 rounded-lg bg-[#151515]">
               <div className="flex-1">
-                <h3 className="font-medium text-gray-900">Marketing Communications</h3>
-                <p className="text-sm text-gray-600 mt-1">
+                <h3 className="font-medium text-[#F5F7FA]">Marketing Communications</h3>
+                <p className="text-sm text-gray-400 mt-1">
                   Receive promotional emails about new products and special offers.
                 </p>
               </div>
@@ -395,14 +395,14 @@ export default function PrivacyManagePage() {
                 <button
                   onClick={() => handleConsentUpdate({ analytics: false, marketing: true })}
                   disabled={loading || !email}
-                  className="px-3 py-1 text-sm font-medium text-blue-700 bg-blue-100 hover:bg-blue-200 rounded disabled:opacity-50"
+                  className="px-3 py-1 text-sm font-medium text-blue-100 bg-blue-900/50 hover:bg-blue-900/70 rounded disabled:opacity-50"
                 >
                   Allow
                 </button>
                 <button
                   onClick={() => handleConsentUpdate({ analytics: false, marketing: false })}
                   disabled={loading || !email}
-                  className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50"
+                  className="px-3 py-1 text-sm font-medium text-gray-200 bg-gray-700 hover:bg-gray-600 rounded disabled:opacity-50"
                 >
                   Deny
                 </button>
@@ -412,18 +412,18 @@ export default function PrivacyManagePage() {
         </div>
 
         {/* Contact Information */}
-        <div className="mt-8 bg-blue-50 rounded-xl border border-blue-200 p-6">
+        <div className="mt-8 bg-red-950/30 border border-red-900/30 rounded-xl p-6">
           <div className="flex items-center space-x-3 mb-4">
-            <Mail className="w-6 h-6 text-blue-600" />
-            <h2 className="text-lg font-semibold text-blue-900">Need Help?</h2>
+            <Mail className="w-6 h-6 text-red-400" />
+            <h2 className="text-lg font-semibold text-red-300">Need Help?</h2>
           </div>
           
-          <p className="text-blue-800 mb-4">
+          <p className="text-red-200/80 mb-4">
             If you have questions about your privacy or need assistance with your data rights, 
             please contact our Data Protection Officer.
           </p>
           
-          <div className="space-y-2 text-blue-800">
+          <div className="space-y-2 text-red-200/80">
             <p><strong>Email:</strong> privacy@linkist.ai</p>
             <p><strong>Data Protection Officer:</strong> dpo@linkist.ai</p>
             <p><strong>Response Time:</strong> Within 30 days</p>
