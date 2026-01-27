@@ -19,7 +19,7 @@ export default function StatsSection() {
     ];
 
     return (
-        <section className="relative pt-12 pb-12 bg-[#050505]">
+        <section className="relative pt-16 pb-16 md:pt-20 md:pb-20 bg-[#050505]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
