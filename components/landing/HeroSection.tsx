@@ -41,7 +41,7 @@ export default function HeroSection() {
           src="/new_hero.png"
           alt="Linkist App"
           className="w-full h-full object-contain"
-          style={{ display: 'block', margin: '0 auto' }}
+          style={{ display: 'block' }}
         />
       </motion.div>
 
