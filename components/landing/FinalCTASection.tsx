@@ -49,7 +49,7 @@ export default function FinalCTASection() {
                         className="inline-block transition-transform hover:scale-105 active:scale-95"
                     >
                         <Image
-                            src="/product-hunt-label.png"
+                            src="/product-hunt-label-2.png"
                             alt="Sign Up Today!"
                             width={276}
                             height={62}

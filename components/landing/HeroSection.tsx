@@ -35,6 +35,7 @@ export default function HeroSection() {
           top: '360px',
           left: '50%',
           transform: 'translateX(-50%) rotate(12.16deg)',
+          marginLeft: '0px',
         }}
       >
         <img
@@ -102,7 +103,7 @@ export default function HeroSection() {
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/product-hunt-label.png"
+              src="/product-hunt-label-2.png"
               alt="Join Linkist"
               width={276}
               height={62}
@@ -154,13 +155,13 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="relative mx-auto w-full max-w-6xl mt-8 md:mt-12 px-0 sm:px-0"
+          className="relative mx-auto w-full max-w-6xl mt-8 md:mt-12 px-0 sm:px-0 flex justify-center"
         >
-          <div className="relative z-10">
+          <div className="relative z-10 flex justify-center w-full">
             <img
               src="/new_hero.png"
               alt="Linkist Dashboard"
-              className="w-full h-auto drop-shadow-2xl"
+              className="w-full h-auto drop-shadow-2xl mx-auto"
             />
           </div>
 
