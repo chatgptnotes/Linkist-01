@@ -46,9 +46,15 @@ export default function FinalCTASection() {
                 >
                     <Link
                         href="/choose-plan"
-                        className="inline-flex items-center justify-center w-[172px] h-[40px] py-[12px] px-[20px] gap-[12px] rounded-[80px] bg-[#E02424] text-white font-medium transition-transform hover:scale-105 active:scale-95"
+                        className="inline-block transition-transform hover:scale-105 active:scale-95"
                     >
-                        Sign Up Today!
+                        <Image
+                            src="/product-hunt-label.png"
+                            alt="Sign Up Today!"
+                            width={276}
+                            height={62}
+                            className="w-auto h-[40px] object-contain"
+                        />
                     </Link>
                 </motion.div>
 
