@@ -32,18 +32,16 @@ export default function HeroSection() {
           maxWidth: '100%',
           height: 'auto',
           aspectRatio: '763 / 508',
-          top: '340px',
+          top: '360px',
           left: '50%',
           transform: 'translateX(-50%) rotate(12.16deg)',
-          marginLeft: '0',
-          marginRight: '0',
         }}
       >
         <img
           src="/new_hero.png"
           alt="Linkist App"
-          className="w-full h-full object-contain mx-auto"
-          style={{ maxWidth: '100%', display: 'block' }}
+          className="w-full h-full object-contain"
+          style={{ display: 'block' }}
         />
       </motion.div>
 
@@ -66,7 +64,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-20 px-5 text-center relative z-20 mb-12">
+        <div className="pt-16 px-5 text-center relative z-20 mb-12">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
