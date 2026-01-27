@@ -34,8 +34,8 @@ export default function HeroSection() {
           aspectRatio: '763 / 508',
           top: '360px',
           left: '50%',
-          transform: 'translateX(-50%) rotate(12.16deg)',
-          marginLeft: '0px',
+          marginLeft: 'calc(-1 * min(90vw, 763px) / 2)',
+          transform: 'rotate(12.16deg)',
         }}
       >
         <img
