@@ -104,7 +104,7 @@ export default function HeroSection() {
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
               src="/see-how-it-works.png"
-              alt="Join Linkist"
+              alt="See how it works"
               width={276}
               height={62}
               className="w-auto h-[48px] sm:h-[56px] object-contain"
