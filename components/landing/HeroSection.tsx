@@ -39,7 +39,7 @@ export default function HeroSection() {
         }}
       >
         <img
-          src="/new_hero.png"
+          src="/Scene-3-Recovered.png"
           alt="Linkist App"
           className="w-full h-full object-contain"
           style={{ display: 'block' }}
@@ -70,7 +70,7 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-2 mt-4"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-8 mt-4"
           >
             Your network<br />
             isn't the problem.<br />
@@ -103,7 +103,7 @@ export default function HeroSection() {
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
-              src="/product-hunt-label-2.png"
+              src="/see-how-it-works.png"
               alt="Join Linkist"
               width={276}
               height={62}
