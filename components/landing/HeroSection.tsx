@@ -65,7 +65,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-16 px-5 text-center relative z-20 mb-12">
+        <div className="pt-24 px-5 text-center relative z-20 mb-12">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -99,7 +99,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="absolute bottom-2 left-0 right-0 z-30 px-5 flex flex-col items-center"
+          className="absolute bottom-8 left-0 right-0 z-30 px-5 flex flex-col items-center"
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
