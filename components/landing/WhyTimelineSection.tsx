@@ -197,7 +197,7 @@ export default function WhyTimelineSection() {
                         viewport={{ once: true }}
                         className="mt-[42px]"
                     >
-                        <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+                        <Link href="https://app.linkist.ai/micro/" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
                                 src="/product-hunt-label-2.png"
                                 alt="Join Linkist"
@@ -240,7 +240,7 @@ export default function WhyTimelineSection() {
                         </h2>
 
                         {/* Desktop CTA */}
-                        <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
+                        <Link href="https://app.linkist.ai/micro/" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
                                 src="/product-hunt-label-2.png"
                                 alt="Join Linkist"

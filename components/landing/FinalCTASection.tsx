@@ -45,7 +45,7 @@ export default function FinalCTASection() {
                     transition={{ delay: 0.4 }}
                 >
                     <Link
-                        href="/choose-plan"
+                        href="https://app.linkist.ai/micro/"
                         className="inline-block transition-transform hover:scale-105 active:scale-95"
                     >
                         <Image
@@ -53,7 +53,7 @@ export default function FinalCTASection() {
                             alt="Sign Up Today!"
                             width={276}
                             height={62}
-                            className="w-auto h-[40px] object-contain"
+                            className="w-auto h-[48px] object-contain"
                         />
                     </Link>
                 </motion.div>
