@@ -43,6 +43,7 @@ export interface PlanCustomizationOption {
   id: string;
   plan_id: string;
   option_id: string;
+  material_key: string | null;  // For colours: which material this applies to
   is_enabled: boolean;
   price_override: number | null;
   created_at: string;
@@ -63,6 +64,7 @@ export interface SubscriptionPlan {
 export interface UpdatePlanOptionData {
   is_enabled?: boolean;
   price_override?: number | null;
+  material_key?: string | null;
 }
 
 // Structured options for the configure page
@@ -341,14 +343,121 @@ export const SupabaseCardCustomizationStore = {
 
   /**
    * Get structured options for a specific plan type (for configure page)
+   * Now returns material-specific colour options
    */
   async getStructuredOptionsForPlan(planType: string): Promise<StructuredCustomizationOptions> {
-    const options = await this.getOptionsForPlanType(planType);
+    const supabase = getAdminClient();
 
-    const materials = options.filter(o => o.category === 'material');
-    const textures = options.filter(o => o.category === 'texture');
-    const colours = options.filter(o => o.category === 'colour');
-    const patterns = options.filter(o => o.category === 'pattern');
+    // Get the plan ID for this type
+    const { data: plan, error: planError } = await supabase
+      .from('subscription_plans')
+      .select('id')
+      .eq('type', planType)
+      .single();
+
+    if (planError || !plan) {
+      console.error('Error fetching plan:', planError);
+      // Fall back to all enabled options
+      return this.getStructuredOptions(true);
+    }
+
+    // Get enabled materials only (material_key is NULL for materials)
+    const { data: globalOptions, error: optError } = await supabase
+      .from('plan_customization_options')
+      .select(`
+        option:card_customization_options(*)
+      `)
+      .eq('plan_id', plan.id)
+      .eq('is_enabled', true)
+      .is('material_key', null);
+
+    if (optError) {
+      console.error('Error fetching global options:', optError);
+      return this.getStructuredOptions(true);
+    }
+
+    // Extract the option objects
+    const enabledGlobalOptions: CardCustomizationOption[] = [];
+    for (const item of globalOptions || []) {
+      const option = item.option;
+      if (option && typeof option === 'object' && !Array.isArray(option)) {
+        enabledGlobalOptions.push(option as CardCustomizationOption);
+      } else if (Array.isArray(option) && option.length > 0) {
+        enabledGlobalOptions.push(option[0] as CardCustomizationOption);
+      }
+    }
+
+    const materials = enabledGlobalOptions.filter(o => o.category === 'material');
+
+    // Get all textures (we'll filter by material later, like colours)
+    const { data: allTexturesData } = await supabase
+      .from('card_customization_options')
+      .select('*')
+      .eq('category', 'texture')
+      .eq('is_enabled', true);
+
+    const allTextures = (allTexturesData || []) as CardCustomizationOption[];
+
+    // Get all colours (we'll filter by material later)
+    const { data: allColoursData } = await supabase
+      .from('card_customization_options')
+      .select('*')
+      .eq('category', 'colour')
+      .eq('is_enabled', true);
+
+    const allColours = (allColoursData || []) as CardCustomizationOption[];
+
+    // Get all patterns (we'll filter by material later)
+    const { data: allPatternsData } = await supabase
+      .from('card_customization_options')
+      .select('*')
+      .eq('category', 'pattern')
+      .eq('is_enabled', true);
+
+    const allPatterns = (allPatternsData || []) as CardCustomizationOption[];
+
+    // Get material-specific enabled status (for colours, textures, and patterns)
+    const { data: materialSpecificStatus, error: statusError } = await supabase
+      .from('plan_customization_options')
+      .select('option_id, material_key, is_enabled')
+      .eq('plan_id', plan.id)
+      .not('material_key', 'is', null);
+
+    if (statusError) {
+      console.error('Error fetching material-specific status:', statusError);
+    }
+
+    // Build status maps: material_key -> [enabled option_ids]
+    // Separate maps for colours, textures, and patterns
+    const colourStatusMap = new Map<string, Set<string>>();
+    const textureStatusMap = new Map<string, Set<string>>();
+    const patternStatusMap = new Map<string, Set<string>>();
+
+    // Get colour, texture, and pattern IDs for categorization
+    const colourIds = new Set(allColours.map(c => c.id));
+    const textureIds = new Set(allTextures.map(t => t.id));
+    const patternIds = new Set(allPatterns.map(p => p.id));
+
+    (materialSpecificStatus || []).forEach(item => {
+      if (item.is_enabled && item.material_key) {
+        if (colourIds.has(item.option_id)) {
+          if (!colourStatusMap.has(item.material_key)) {
+            colourStatusMap.set(item.material_key, new Set());
+          }
+          colourStatusMap.get(item.material_key)!.add(item.option_id);
+        } else if (textureIds.has(item.option_id)) {
+          if (!textureStatusMap.has(item.material_key)) {
+            textureStatusMap.set(item.material_key, new Set());
+          }
+          textureStatusMap.get(item.material_key)!.add(item.option_id);
+        } else if (patternIds.has(item.option_id)) {
+          if (!patternStatusMap.has(item.material_key)) {
+            patternStatusMap.set(item.material_key, new Set());
+          }
+          patternStatusMap.get(item.material_key)!.add(item.option_id);
+        }
+      }
+    });
 
     // Build material prices map
     const materialPrices: Record<string, number> = {};
@@ -358,21 +467,38 @@ export const SupabaseCardCustomizationStore = {
       }
     });
 
-    // Build texture options map (material -> textures)
+    // Build texture options map (material -> enabled textures for that material)
     const textureOptions: Record<string, string[]> = {};
     materials.forEach(m => {
-      textureOptions[m.option_key] = textures
-        .filter(t => t.applicable_materials?.includes(m.option_key))
+      const enabledTextureIds = textureStatusMap.get(m.option_key) || new Set();
+      textureOptions[m.option_key] = allTextures
+        .filter(t => enabledTextureIds.has(t.id))
         .map(t => t.option_key);
     });
 
-    // Build colour options map (material -> colours)
+    // Build colour options map (material -> enabled colours for that material)
     const colourOptions: Record<string, string[]> = {};
     materials.forEach(m => {
-      colourOptions[m.option_key] = colours
-        .filter(c => c.applicable_materials?.includes(m.option_key))
+      const enabledColourIds = colourStatusMap.get(m.option_key) || new Set();
+      colourOptions[m.option_key] = allColours
+        .filter(c => enabledColourIds.has(c.id))
         .map(c => c.option_key);
     });
+
+    // Get the textures that are enabled for at least one material
+    const enabledTextureIds = new Set<string>();
+    textureStatusMap.forEach(ids => ids.forEach(id => enabledTextureIds.add(id)));
+    const textures = allTextures.filter(t => enabledTextureIds.has(t.id));
+
+    // Get the colours that are enabled for at least one material
+    const enabledColourIds = new Set<string>();
+    colourStatusMap.forEach(ids => ids.forEach(id => enabledColourIds.add(id)));
+    const colours = allColours.filter(c => enabledColourIds.has(c.id));
+
+    // Get the patterns that are enabled for at least one material
+    const enabledPatternIds = new Set<string>();
+    patternStatusMap.forEach(ids => ids.forEach(id => enabledPatternIds.add(id)));
+    const patterns = allPatterns.filter(p => enabledPatternIds.has(p.id));
 
     return {
       materials,
@@ -412,31 +538,82 @@ export const SupabaseCardCustomizationStore = {
 
   /**
    * Toggle enabled state for a plan-option mapping
+   * For colours, materialKey specifies which material to toggle for
    */
-  async togglePlanOption(planId: string, optionId: string): Promise<PlanCustomizationOption> {
+  async togglePlanOption(planId: string, optionId: string, materialKey?: string | null): Promise<PlanCustomizationOption> {
     const supabase = getAdminClient();
 
-    // First get the current state
-    const { data: current, error: fetchError } = await supabase
+    // Build query based on whether we have a material key
+    let query = supabase
       .from('plan_customization_options')
       .select('is_enabled')
       .eq('plan_id', planId)
-      .eq('option_id', optionId)
-      .single();
+      .eq('option_id', optionId);
+
+    if (materialKey) {
+      query = query.eq('material_key', materialKey);
+    } else {
+      query = query.is('material_key', null);
+    }
+
+    const { data: current, error: fetchError } = await query.single();
 
     if (fetchError) {
+      // If not found, create it with is_enabled = true
+      if (fetchError.code === 'PGRST116') {
+        const { data: newRecord, error: insertError } = await supabase
+          .from('plan_customization_options')
+          .insert({
+            plan_id: planId,
+            option_id: optionId,
+            material_key: materialKey || null,
+            is_enabled: true
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating plan option:', insertError);
+          throw new Error(`Failed to create plan option: ${insertError.message}`);
+        }
+        return newRecord as PlanCustomizationOption;
+      }
+
       console.error('Error fetching plan option:', fetchError);
       throw new Error(`Failed to fetch plan option: ${fetchError.message}`);
     }
 
     // Toggle the state
-    return this.updatePlanOption(planId, optionId, { is_enabled: !current.is_enabled });
+    let updateQuery = supabase
+      .from('plan_customization_options')
+      .update({
+        is_enabled: !current.is_enabled,
+        updated_at: new Date().toISOString()
+      })
+      .eq('plan_id', planId)
+      .eq('option_id', optionId);
+
+    if (materialKey) {
+      updateQuery = updateQuery.eq('material_key', materialKey);
+    } else {
+      updateQuery = updateQuery.is('material_key', null);
+    }
+
+    const { data, error } = await updateQuery.select().single();
+
+    if (error) {
+      console.error('Error updating plan option:', error);
+      throw new Error(`Failed to update plan option: ${error.message}`);
+    }
+
+    return data as PlanCustomizationOption;
   },
 
   /**
    * Get all options with plan-specific enabled status for admin view
+   * For colours, returns material-specific status based on selectedMaterial
    */
-  async getAllOptionsWithPlanStatus(planId: string): Promise<(CardCustomizationOption & { plan_enabled: boolean })[]> {
+  async getAllOptionsWithPlanStatus(planId: string, selectedMaterial?: string): Promise<(CardCustomizationOption & { plan_enabled: boolean })[]> {
     const supabase = getAdminClient();
 
     // Get all options
@@ -445,7 +622,7 @@ export const SupabaseCardCustomizationStore = {
     // Get plan-specific settings
     const { data: planOptions, error } = await supabase
       .from('plan_customization_options')
-      .select('option_id, is_enabled')
+      .select('option_id, material_key, is_enabled')
       .eq('plan_id', planId);
 
     if (error) {
@@ -453,16 +630,38 @@ export const SupabaseCardCustomizationStore = {
       throw new Error(`Failed to fetch plan options: ${error.message}`);
     }
 
-    // Create a map of option_id -> is_enabled
+    // Create maps for option_id -> is_enabled
+    // For non-colours: option_id -> is_enabled (material_key is null)
+    // For colours: option_id + material_key -> is_enabled
     const planOptionMap = new Map<string, boolean>();
+    const colourMaterialMap = new Map<string, boolean>(); // key: `${option_id}_${material_key}`
+
     planOptions?.forEach(po => {
-      planOptionMap.set(po.option_id, po.is_enabled);
+      if (po.material_key) {
+        // Colour with material-specific setting
+        colourMaterialMap.set(`${po.option_id}_${po.material_key}`, po.is_enabled);
+      } else {
+        // Non-colour option (material, texture, pattern)
+        planOptionMap.set(po.option_id, po.is_enabled);
+      }
     });
 
     // Merge the data
-    return allOptions.map(option => ({
-      ...option,
-      plan_enabled: planOptionMap.get(option.id) ?? false
-    }));
+    return allOptions.map(option => {
+      let plan_enabled = false;
+
+      if ((option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
+        // For colours, textures, and patterns, check material-specific enabled status
+        plan_enabled = colourMaterialMap.get(`${option.id}_${selectedMaterial}`) ?? false;
+      } else {
+        // For materials only, use the global plan setting
+        plan_enabled = planOptionMap.get(option.id) ?? false;
+      }
+
+      return {
+        ...option,
+        plan_enabled
+      };
+    });
   }
 };

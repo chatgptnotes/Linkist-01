@@ -3,7 +3,7 @@ import { SupabaseCardCustomizationStore } from '@/lib/supabase-card-customizatio
 import { getCurrentUser } from '@/lib/auth-middleware';
 
 // GET - Fetch all card customization options (admin view)
-// Optional: ?plan_id=xxx to get plan-specific options
+// Optional: ?plan_id=xxx&material=pvc to get plan-specific options with material context for colours
 export async function GET(request: NextRequest) {
   try {
     // Verify admin access
@@ -17,10 +17,11 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const planId = searchParams.get('plan_id');
+    const selectedMaterial = searchParams.get('material') || undefined;
 
     // If plan_id is provided, return plan-specific options
     if (planId) {
-      const options = await SupabaseCardCustomizationStore.getAllOptionsWithPlanStatus(planId);
+      const options = await SupabaseCardCustomizationStore.getAllOptionsWithPlanStatus(planId, selectedMaterial);
 
       // Group by category for easier frontend consumption
       const grouped = {
@@ -34,6 +35,7 @@ export async function GET(request: NextRequest) {
         options,
         grouped,
         planId,
+        selectedMaterial,
         success: true
       });
     }
@@ -81,7 +83,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, action, plan_id, ...updateData } = body;
+    const { id, action, plan_id, material_key, ...updateData } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -102,8 +104,9 @@ export async function PUT(request: NextRequest) {
     let updatedOption;
 
     // Handle plan-specific toggle
+    // For colours, material_key specifies which material to toggle for
     if (plan_id && action === 'togglePlan') {
-      updatedOption = await SupabaseCardCustomizationStore.togglePlanOption(plan_id, id);
+      updatedOption = await SupabaseCardCustomizationStore.togglePlanOption(plan_id, id, material_key);
       return NextResponse.json({
         planOption: updatedOption,
         success: true,

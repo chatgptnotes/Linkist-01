@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
@@ -23,7 +21,7 @@ interface CardCustomizationOption {
   is_enabled: boolean;
   is_founders_only: boolean;
   display_order: number;
-  plan_enabled?: boolean; // For plan-specific view
+  plan_enabled?: boolean;
 }
 
 interface GroupedOptions {
@@ -51,12 +49,6 @@ export default function CardCustomizationTab() {
     patterns: []
   });
   const [loading, setLoading] = useState(true);
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    materials: true,
-    textures: true,
-    colours: true,
-    patterns: true
-  });
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [tempPrice, setTempPrice] = useState<number>(0);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -65,24 +57,43 @@ export default function CardCustomizationTab() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
+  // Material selection state
+  const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+
+  // Expanded sections
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    textures: true,
+    colours: true,
+    patterns: true
+  });
+
   useEffect(() => {
     fetchOptions();
   }, []);
 
-  // Refetch options when selected plan changes
+  // Refetch options when selected plan or material changes
   useEffect(() => {
     if (plans.length > 0) {
       fetchOptions();
     }
-  }, [selectedPlanId]);
+  }, [selectedPlanId, selectedMaterial]);
+
+  // Auto-select first enabled material when data loads
+  useEffect(() => {
+    if (grouped.materials.length > 0 && !selectedMaterial) {
+      const firstEnabled = grouped.materials.find(m => isOptionEnabled(m));
+      setSelectedMaterial(firstEnabled?.option_key || grouped.materials[0].option_key);
+    }
+  }, [grouped.materials]);
 
   const fetchOptions = async () => {
     setLoading(true);
     try {
-      // Build URL with optional plan_id parameter
-      const url = selectedPlanId
-        ? `/api/admin/card-customization?plan_id=${selectedPlanId}`
-        : '/api/admin/card-customization';
+      let url = '/api/admin/card-customization';
+      const params = new URLSearchParams();
+      if (selectedPlanId) params.append('plan_id', selectedPlanId);
+      if (selectedMaterial) params.append('material', selectedMaterial);
+      if (params.toString()) url += `?${params.toString()}`;
 
       const response = await fetch(url);
       if (response.ok) {
@@ -90,10 +101,8 @@ export default function CardCustomizationTab() {
         setOptions(data.options || []);
         setGrouped(data.grouped || { materials: [], textures: [], colours: [], patterns: [] });
 
-        // Set plans from initial load (when no plan is selected)
         if (data.plans && data.plans.length > 0 && plans.length === 0) {
           setPlans(data.plans);
-          // Auto-select first plan (physical-digital)
           setSelectedPlanId(data.plans[0].id);
         }
       } else {
@@ -115,10 +124,17 @@ export default function CardCustomizationTab() {
   const handleToggleEnabled = async (option: CardCustomizationOption) => {
     setUpdating(option.id);
     try {
-      // Use plan-specific toggle when a plan is selected
-      const body = selectedPlanId
-        ? { id: option.id, action: 'togglePlan', plan_id: selectedPlanId }
-        : { id: option.id, action: 'toggle' };
+      let body: Record<string, unknown>;
+
+      if (selectedPlanId) {
+        body = { id: option.id, action: 'togglePlan', plan_id: selectedPlanId };
+        // For colours, textures, and patterns, include the material_key to toggle for specific material only
+        if ((option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
+          body.material_key = selectedMaterial;
+        }
+      } else {
+        body = { id: option.id, action: 'toggle' };
+      }
 
       const response = await fetch('/api/admin/card-customization', {
         method: 'PUT',
@@ -127,7 +143,6 @@ export default function CardCustomizationTab() {
       });
 
       if (response.ok) {
-        // Refresh the data
         await fetchOptions();
       } else {
         const error = await response.json();
@@ -173,299 +188,58 @@ export default function CardCustomizationTab() {
     setTempPrice(0);
   };
 
-  // Helper: Get the enabled status for an option (plan-specific or global)
   const isOptionEnabled = (option: CardCustomizationOption): boolean => {
-    // When a plan is selected, use plan_enabled
     if (selectedPlanId && option.plan_enabled !== undefined) {
       return option.plan_enabled;
     }
-    // Default to global is_enabled
     return option.is_enabled;
   };
 
-  // Get selected plan name for display
   const getSelectedPlanName = (): string => {
     if (!selectedPlanId) return '';
     const plan = plans.find(p => p.id === selectedPlanId);
-    return plan?.name || '';
+    return plan?.type === 'physical-digital' ? 'Personal Plan' : 'Founders Club';
   };
 
-  const renderMaterialsTable = () => (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Material</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {grouped.materials.map((option) => {
-          const enabled = isOptionEnabled(option);
-          return (
-            <tr key={option.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center mr-3">
-                    <span className="text-xs font-bold text-gray-600">{option.label.charAt(0)}</span>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">{option.label}</span>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <span className="text-sm text-gray-500">{option.description || '-'}</span>
-              </td>
-              <td className="px-6 py-4">
-                {editingPrice === option.id ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-gray-500">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={tempPrice}
-                      onChange={(e) => setTempPrice(parseFloat(e.target.value) || 0)}
-                      className="w-20 border border-gray-300 rounded px-2 py-1 text-sm"
-                      autoFocus
-                    />
-                    <button
-                      onClick={() => handleSavePrice(option)}
-                      disabled={updating === option.id}
-                      className="p-1 text-green-600 hover:text-green-800"
-                    >
-                      <SaveIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={handleCancelEditPrice}
-                      className="p-1 text-gray-600 hover:text-gray-800"
-                    >
-                      <CloseIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-gray-900">${option.price?.toFixed(2) || '0.00'}</span>
-                    <button
-                      onClick={() => handleStartEditPrice(option)}
-                      className="p-1 text-gray-400 hover:text-gray-600"
-                    >
-                      <EditIcon className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-              </td>
-              <td className="px-6 py-4 text-center">
-                <button
-                  onClick={() => handleToggleEnabled(option)}
-                  disabled={updating === option.id}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    enabled ? 'bg-green-500' : 'bg-gray-300'
-                  } ${updating === option.id ? 'opacity-50' : ''}`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      enabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+  // Get ALL textures - admin can enable any texture for any material
+  const getAllTextures = () => {
+    return grouped.textures;
+  };
 
-  const renderTexturesTable = () => (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Texture</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Applies To</th>
-          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {grouped.textures.map((option) => {
-          const enabled = isOptionEnabled(option);
-          return (
-            <tr key={option.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-              <td className="px-6 py-4">
-                <span className="text-sm font-medium text-gray-900">{option.label}</span>
-              </td>
-              <td className="px-6 py-4">
-                <span className="text-sm text-gray-500">{option.description || '-'}</span>
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex flex-wrap gap-1">
-                  {option.applicable_materials?.map((mat) => (
-                    <span
-                      key={mat}
-                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
-                    >
-                      {mat.toUpperCase()}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="px-6 py-4 text-center">
-                <button
-                  onClick={() => handleToggleEnabled(option)}
-                  disabled={updating === option.id}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    enabled ? 'bg-green-500' : 'bg-gray-300'
-                  } ${updating === option.id ? 'opacity-50' : ''}`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      enabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+  // Get ALL colours - admin can enable any colour for any material
+  const getAllColours = () => {
+    return grouped.colours;
+  };
 
-  const renderColoursTable = () => (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Colour</th>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Applies To</th>
-          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Founders Only</th>
-          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {grouped.colours.map((option) => {
-          const enabled = isOptionEnabled(option);
-          return (
-            <tr key={option.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-              <td className="px-6 py-4">
-                <div className="flex items-center">
-                  <div
-                    className="h-8 w-8 rounded-lg mr-3 border border-gray-200"
-                    style={{ backgroundColor: option.hex_color || '#ccc' }}
-                  />
-                  <span className="text-sm font-medium text-gray-900">{option.label}</span>
-                </div>
-              </td>
-              <td className="px-6 py-4">
-                <div className="flex flex-wrap gap-1">
-                  {option.applicable_materials?.map((mat) => (
-                    <span
-                      key={mat}
-                      className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800"
-                    >
-                      {mat.toUpperCase()}
-                    </span>
-                  ))}
-                </div>
-              </td>
-              <td className="px-6 py-4 text-center">
-                {option.is_founders_only ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                    <StarIcon className="h-3 w-3 mr-1" />
-                    Founders
-                  </span>
-                ) : (
-                  <span className="text-gray-400">-</span>
-                )}
-              </td>
-              <td className="px-6 py-4 text-center">
-                <button
-                  onClick={() => handleToggleEnabled(option)}
-                  disabled={updating === option.id}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    enabled ? 'bg-green-500' : 'bg-gray-300'
-                  } ${updating === option.id ? 'opacity-50' : ''}`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      enabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+  // Get ALL patterns - admin can enable any pattern for any material
+  const getAllPatterns = () => {
+    return grouped.patterns;
+  };
 
-  const renderPatternsTable = () => (
-    <table className="min-w-full divide-y divide-gray-200">
-      <thead className="bg-gray-50">
-        <tr>
-          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
-          <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
-        </tr>
-      </thead>
-      <tbody className="bg-white divide-y divide-gray-200">
-        {grouped.patterns.map((option) => {
-          const enabled = isOptionEnabled(option);
-          return (
-            <tr key={option.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-              <td className="px-6 py-4">
-                <span className="text-sm font-medium text-gray-900">{option.label}</span>
-              </td>
-              <td className="px-6 py-4 text-center">
-                <button
-                  onClick={() => handleToggleEnabled(option)}
-                  disabled={updating === option.id}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                    enabled ? 'bg-green-500' : 'bg-gray-300'
-                  } ${updating === option.id ? 'opacity-50' : ''}`}
-                >
-                  <span
-                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                      enabled ? 'translate-x-6' : 'translate-x-1'
-                    }`}
-                  />
-                </button>
-              </td>
-            </tr>
-          );
-        })}
-      </tbody>
-    </table>
-  );
+  // Get selected material object
+  const getSelectedMaterialOption = () => {
+    return grouped.materials.find(m => m.option_key === selectedMaterial);
+  };
 
-  const renderSection = (title: string, key: string, renderTable: () => React.ReactNode, itemCount: number) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+  // Render toggle button
+  const renderToggle = (option: CardCustomizationOption) => {
+    const enabled = isOptionEnabled(option);
+    return (
       <button
-        onClick={() => toggleSection(key)}
-        className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+        onClick={() => handleToggleEnabled(option)}
+        disabled={updating === option.id}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors border-2 ${
+          enabled ? 'bg-green-500 border-green-600' : 'bg-gray-200 border-gray-300'
+        } ${updating === option.id ? 'opacity-50' : ''}`}
       >
-        <div className="flex items-center">
-          <h3 className="text-lg font-medium text-gray-900">{title}</h3>
-          <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-            {itemCount} items
-          </span>
-        </div>
-        {expandedSections[key] ? (
-          <ExpandLessIcon className="h-5 w-5 text-gray-400" />
-        ) : (
-          <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
-        )}
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-md border ${
+            enabled ? 'translate-x-6 bg-green-600 border-green-700' : 'translate-x-1 bg-gray-500 border-gray-600'
+          }`}
+        />
       </button>
-      {expandedSections[key] && (
-        <div className="border-t border-gray-200">
-          {itemCount > 0 ? renderTable() : (
-            <div className="px-6 py-8 text-center text-gray-500">
-              No {title.toLowerCase()} found
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -476,74 +250,334 @@ export default function CardCustomizationTab() {
     );
   }
 
+  const selectedMaterialOption = getSelectedMaterialOption();
+  const allTextures = getAllTextures();
+  const allColours = getAllColours();
+  const allPatterns = getAllPatterns();
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Header with Plan Selector */}
-      <div className="mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <p className="text-gray-500">
-            Configure which card customization options are available for each subscription plan.
-          </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <p className="text-gray-500">
+          Configure which card customization options are available for each subscription plan.
+        </p>
 
-          {/* Plan Selector Dropdown */}
-          {plans.length > 0 && (
-            <div className="flex items-center gap-3">
-              <label htmlFor="plan-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
-                Configure options for:
-              </label>
-              <select
-                id="plan-select"
-                value={selectedPlanId || ''}
-                onChange={(e) => setSelectedPlanId(e.target.value || null)}
-                className="block w-48 px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 bg-white"
-              >
-                {plans.map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.type === 'physical-digital' ? 'Personal Plan' : 'Founders Club'}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
-        </div>
-
-        {/* Plan Info Banner */}
-        {selectedPlanId && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
-              <span className="font-semibold">Configuring: {getSelectedPlanName()}</span>
-              {' '}&mdash;{' '}
-              Toggle options on/off to control what subscribers to this plan can select when customizing their card.
-            </p>
+        {plans.length > 0 && (
+          <div className="flex items-center gap-3">
+            <label htmlFor="plan-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
+              Configure options for:
+            </label>
+            <select
+              id="plan-select"
+              value={selectedPlanId || ''}
+              onChange={(e) => setSelectedPlanId(e.target.value || null)}
+              className="block w-48 px-3 py-2 text-sm border border-gray-300 rounded-lg shadow-sm focus:ring-red-500 focus:border-red-500 bg-white"
+            >
+              {plans.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {plan.type === 'physical-digital' ? 'Personal Plan' : 'Founders Club'}
+                </option>
+              ))}
+            </select>
           </div>
         )}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{grouped.materials.filter(m => isOptionEnabled(m)).length}/{grouped.materials.length}</div>
-          <div className="text-sm text-gray-500">Materials Enabled</div>
+      {/* Plan Info Banner */}
+      {selectedPlanId && (
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <span className="font-semibold">Configuring: {getSelectedPlanName()}</span>
+            {' '}&mdash;{' '}
+            Select a material, then toggle which textures, colours, and patterns are available for that material.
+          </p>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{grouped.textures.filter(t => isOptionEnabled(t)).length}/{grouped.textures.length}</div>
-          <div className="text-sm text-gray-500">Textures Enabled</div>
+      )}
+
+      {/* Material Selection Tabs */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+        <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
+          <h3 className="text-lg font-semibold text-gray-900">Select Base Material</h3>
         </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{grouped.colours.filter(c => isOptionEnabled(c)).length}/{grouped.colours.length}</div>
-          <div className="text-sm text-gray-500">Colours Enabled</div>
-        </div>
-        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-          <div className="text-2xl font-bold text-gray-900">{grouped.patterns.filter(p => isOptionEnabled(p)).length}/{grouped.patterns.length}</div>
-          <div className="text-sm text-gray-500">Patterns Enabled</div>
+        <div className="p-4">
+          <div className="flex flex-wrap gap-3">
+            {grouped.materials.map((material) => {
+              const enabled = isOptionEnabled(material);
+              const isSelected = selectedMaterial === material.option_key;
+
+              return (
+                <div key={material.id} className="flex flex-col items-center">
+                  <button
+                    onClick={() => setSelectedMaterial(material.option_key)}
+                    className={`relative px-6 py-4 rounded-xl border-2 transition-all min-w-[140px] ${
+                      isSelected
+                        ? 'border-red-500 bg-red-50 shadow-lg'
+                        : 'border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm'
+                    } ${!enabled ? 'opacity-50' : ''}`}
+                  >
+                    <div className="text-center">
+                      <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center mx-auto mb-2">
+                        <span className="text-sm font-bold text-gray-600">{material.label.charAt(0)}</span>
+                      </div>
+                      <h4 className={`font-semibold ${isSelected ? 'text-red-600' : 'text-gray-900'}`}>
+                        {material.label}
+                      </h4>
+                      <p className="text-xs text-gray-500 mt-1">{material.description}</p>
+                      <div className="mt-2 text-sm font-bold text-gray-900">${material.price?.toFixed(2)}</div>
+                    </div>
+                    {isSelected && (
+                      <div className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 rounded-full flex items-center justify-center">
+                        <svg className="h-4 w-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Material Enable Toggle */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <span className="text-xs text-gray-500">
+                      {enabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                    {renderToggle(material)}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 
-      {/* Sections */}
-      {renderSection('Materials', 'materials', renderMaterialsTable, grouped.materials.length)}
-      {renderSection('Textures', 'textures', renderTexturesTable, grouped.textures.length)}
-      {renderSection('Colours', 'colours', renderColoursTable, grouped.colours.length)}
-      {renderSection('Patterns', 'patterns', renderPatternsTable, grouped.patterns.length)}
+      {/* Options for Selected Material */}
+      {selectedMaterial && selectedMaterialOption && (
+        <div className="space-y-4">
+          {/* Header showing selected material */}
+          <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg px-6 py-4">
+            <h3 className="text-lg font-semibold">
+              Options for {selectedMaterialOption.label} Material
+            </h3>
+            <p className="text-sm text-gray-300 mt-1">
+              Configure which textures, colours, and patterns are available when users select {selectedMaterialOption.label}
+            </p>
+          </div>
+
+          {/* Textures Section */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button
+              onClick={() => toggleSection('textures')}
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+            >
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium text-gray-900">Textures</h3>
+                <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  {allTextures.filter(t => isOptionEnabled(t)).length}/{allTextures.length} enabled
+                </span>
+              </div>
+              {expandedSections.textures ? (
+                <ExpandLessIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+
+            {expandedSections.textures && (
+              <div className="border-t border-gray-200">
+                {allTextures.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Texture</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled for {selectedMaterialOption.label}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {allTextures.map((texture) => {
+                        const enabled = isOptionEnabled(texture);
+                        return (
+                          <tr key={texture.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-medium text-gray-900">{texture.label}</span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="text-sm text-gray-500">{texture.description || '-'}</span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderToggle(texture)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-6 py-8 text-center text-gray-500">
+                    No textures found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Colours Section - Shows ALL colours */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button
+              onClick={() => toggleSection('colours')}
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+            >
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium text-gray-900">Colours</h3>
+                <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  {allColours.filter(c => isOptionEnabled(c)).length}/{allColours.length} enabled
+                </span>
+              </div>
+              {expandedSections.colours ? (
+                <ExpandLessIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+
+            {expandedSections.colours && (
+              <div className="border-t border-gray-200">
+                {allColours.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Colour</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Founders Only</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                          Enabled for {selectedMaterialOption?.label || 'Material'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {allColours.map((colour) => {
+                        const enabled = isOptionEnabled(colour);
+                        return (
+                          <tr key={colour.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center">
+                                <div
+                                  className="h-8 w-8 rounded-lg mr-3 border-2 border-gray-400 shadow-sm"
+                                  style={{ backgroundColor: colour.hex_color || '#ccc' }}
+                                />
+                                <span className="text-sm font-medium text-gray-900">{colour.label}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {colour.is_founders_only ? (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                  <StarIcon className="h-3 w-3 mr-1" />
+                                  Founders
+                                </span>
+                              ) : (
+                                <span className="text-gray-400">-</span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderToggle(colour)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-6 py-8 text-center text-gray-500">
+                    No colours found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Patterns Section - Shows ALL patterns */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+            <button
+              onClick={() => toggleSection('patterns')}
+              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+            >
+              <div className="flex items-center">
+                <h3 className="text-lg font-medium text-gray-900">Patterns</h3>
+                <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                  {allPatterns.filter(p => isOptionEnabled(p)).length}/{allPatterns.length} enabled
+                </span>
+              </div>
+              {expandedSections.patterns ? (
+                <ExpandLessIcon className="h-5 w-5 text-gray-400" />
+              ) : (
+                <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
+              )}
+            </button>
+
+            {expandedSections.patterns && (
+              <div className="border-t border-gray-200">
+                {allPatterns.length > 0 ? (
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+                          Enabled for {selectedMaterialOption?.label || 'Material'}
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {allPatterns.map((pattern) => {
+                        const enabled = isOptionEnabled(pattern);
+                        return (
+                          <tr key={pattern.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
+                            <td className="px-6 py-4">
+                              <span className="text-sm font-medium text-gray-900">{pattern.label}</span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderToggle(pattern)}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                ) : (
+                  <div className="px-6 py-8 text-center text-gray-500">
+                    No patterns found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Summary Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div className="text-2xl font-bold text-gray-900">
+            {grouped.materials.filter(m => isOptionEnabled(m)).length}/{grouped.materials.length}
+          </div>
+          <div className="text-sm text-gray-500">Materials Enabled</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div className="text-2xl font-bold text-gray-900">
+            {grouped.textures.filter(t => isOptionEnabled(t)).length}/{grouped.textures.length}
+          </div>
+          <div className="text-sm text-gray-500">Textures Enabled</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div className="text-2xl font-bold text-gray-900">
+            {grouped.colours.filter(c => isOptionEnabled(c)).length}/{grouped.colours.length}
+          </div>
+          <div className="text-sm text-gray-500">Colours Enabled</div>
+        </div>
+        <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+          <div className="text-2xl font-bold text-gray-900">
+            {grouped.patterns.filter(p => isOptionEnabled(p)).length}/{grouped.patterns.length}
+          </div>
+          <div className="text-sm text-gray-500">Patterns Enabled</div>
+        </div>
+      </div>
     </div>
   );
 }

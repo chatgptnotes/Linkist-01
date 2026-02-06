@@ -80,14 +80,12 @@ export default function ConfigureNewPage() {
   } | null>(null);
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [userPlanType, setUserPlanType] = useState<string | null>(null);
+  const [planTypeChecked, setPlanTypeChecked] = useState(false);
 
   // Fetch customization options from API based on user's plan type
-  const fetchCustomizationOptions = async (planType: string | null) => {
+  const fetchCustomizationOptions = async (planType: string) => {
     try {
-      // Build URL with plan_type parameter if available
-      const url = planType
-        ? `/api/card-customization?plan_type=${planType}`
-        : '/api/card-customization';
+      const url = `/api/card-customization?plan_type=${planType}`;
 
       const response = await fetch(url);
       if (response.ok) {
@@ -104,18 +102,12 @@ export default function ConfigureNewPage() {
     }
   };
 
-  // Initial fetch without plan type (will be refetched when user status is known)
+  // Fetch options only AFTER plan type is determined (no initial fetch)
   useEffect(() => {
-    fetchCustomizationOptions(null);
-  }, []);
-
-  // Refetch options when user plan type is determined
-  useEffect(() => {
-    if (userPlanType) {
-      setOptionsLoading(true);
+    if (planTypeChecked && userPlanType) {
       fetchCustomizationOptions(userPlanType);
     }
-  }, [userPlanType]);
+  }, [planTypeChecked, userPlanType]);
 
   // Clear any existing corrupted data on component mount
   useEffect(() => {
@@ -203,9 +195,10 @@ export default function ConfigureNewPage() {
           console.log('Configure: Founding member status:', foundingMemberStatus);
 
           // Set user plan type based on founding member status
-          // This will trigger a refetch of customization options
+          // This will trigger a fetch of customization options
           const planType = foundingMemberStatus ? 'founders-club' : 'physical-digital';
           setUserPlanType(planType);
+          setPlanTypeChecked(true);
           console.log('Configure: User plan type:', planType);
 
           // Pre-select Metal + Matte + Black for founding members
@@ -224,11 +217,13 @@ export default function ConfigureNewPage() {
         } else {
           // Not logged in or error - default to personal plan
           setUserPlanType('physical-digital');
+          setPlanTypeChecked(true);
         }
       } catch (error) {
         console.log('Configure: Could not check founding member status');
         // Default to personal plan on error
         setUserPlanType('physical-digital');
+        setPlanTypeChecked(true);
       }
     };
 
@@ -505,6 +500,19 @@ export default function ConfigureNewPage() {
 
     router.push('/nfc/checkout');
   };
+
+  // Show loading state while options are being fetched
+  if (optionsLoading || !customizationOptions) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+        <Navbar />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] pt-24">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
+          <p className="text-gray-500 text-lg">Loading card customization options...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">

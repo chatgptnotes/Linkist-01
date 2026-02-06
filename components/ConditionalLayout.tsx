@@ -308,6 +308,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                           !pathname.includes('/', 1) && // Single level route (no additional slashes)
                           !knownRoutes.some(route => pathname.startsWith(route));
 
+  // Full-bleed profile pages render children only (page has its own layout)
+  if (pathname.startsWith('/profiles/preview') || pathname.startsWith('/p/')) {
+    return <>{children}</>;
+  }
+
   // For username routes, render children only (page has its own header)
   if (isUsernameRoute) {
     return <>{children}</>;
