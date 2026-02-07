@@ -52,6 +52,7 @@ export default function PublicProfilePage() {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showContactForm, setShowContactForm] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -114,7 +115,8 @@ export default function PublicProfilePage() {
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('Profile link copied to clipboard!');
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
     }
   };
 
@@ -333,6 +335,13 @@ END:VCARD`;
           </div>
         </BottomSheetCard>
       </div>
+
+      {/* Toast notification */}
+      {showToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-white/15 backdrop-blur-md text-white text-sm font-medium shadow-lg animate-fade-in">
+          Link copied to clipboard
+        </div>
+      )}
     </div>
   );
 }

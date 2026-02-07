@@ -50,12 +50,9 @@ export const neuStyles = {
   sheet: {
     borderTopLeftRadius: '24px',
     borderTopRightRadius: '24px',
-    boxShadow: '0 -8px 30px rgba(0,0,0,0.2)',
-    background: 'linear-gradient(to bottom, rgba(60, 5, 18, 0.35) 0%, rgba(40, 5, 15, 0.45) 20%, rgba(20, 5, 10, 0.7) 45%, rgba(5, 2, 5, 0.92) 65%, rgba(0, 0, 0, 0.97) 100%)',
-    backdropFilter: 'blur(40px) saturate(1.5)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.5)',
-    border: '1px solid rgba(255, 255, 255, 0.08)',
-    borderBottom: 'none',
+    background: 'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.05) 8%, rgba(0, 0, 0, 0.15) 18%, rgba(0, 0, 0, 0.35) 35%, rgba(0, 0, 0, 0.6) 55%, rgba(0, 0, 0, 0.85) 75%, rgba(0, 0, 0, 0.95) 100%)',
+    backdropFilter: 'blur(20px) saturate(1.2)',
+    WebkitBackdropFilter: 'blur(20px) saturate(1.2)',
   } as CSSProperties,
 
   skillTag: {

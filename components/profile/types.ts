@@ -181,7 +181,7 @@ export function normalizeMainProfile(data: MainProfileData, username?: string): 
     firstName: data.firstName,
     lastName: data.lastName,
     fullName: `${data.salutation ? data.salutation + ' ' : ''}${data.firstName} ${data.lastName}`,
-    username: username ? `@${username}.Linkist.ai` : undefined,
+    username: username ? `linkist.ai/${username}` : undefined,
     jobTitle: data.showJobTitle ? data.jobTitle : undefined,
     companyName: data.showCompanyName ? data.companyName : undefined,
     companyLogo: data.companyLogo,

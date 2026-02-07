@@ -105,6 +105,7 @@ export default function ProfilePreviewPage() {
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
   const [customUrl, setCustomUrl] = useState<string>('');
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
     // Set custom URL based on username from URL params
@@ -254,9 +255,8 @@ export default function ProfilePreviewPage() {
 
     const success = await copyToClipboard(profileUrl);
     if (success) {
-      alert('Profile link copied to clipboard!');
-    } else {
-      alert('Failed to copy link. Please copy manually: ' + profileUrl);
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 2500);
     }
   };
 
@@ -363,8 +363,8 @@ export default function ProfilePreviewPage() {
   const normalized = normalizeMainProfile(profileData, username);
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gray-100 md:flex md:items-center md:justify-center">
-      <div className="relative w-full md:max-w-[430px] md:h-[932px] md:rounded-3xl md:overflow-hidden md:shadow-2xl">
+    <div className="min-h-screen relative overflow-hidden bg-black md:flex md:items-center md:justify-center">
+      <div className="relative w-full md:w-[70%] md:min-h-screen md:rounded-3xl md:overflow-hidden">
         {/* Full-screen profile photo background */}
         <ProfileBackground
           profilePhoto={normalized.profilePhoto}
@@ -451,6 +451,13 @@ export default function ProfilePreviewPage() {
           )}
         </BottomSheetCard>
       </div>
+
+      {/* Toast notification */}
+      {showToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-xl bg-white/15 backdrop-blur-md text-white text-sm font-medium shadow-lg animate-fade-in">
+          Link copied to clipboard
+        </div>
+      )}
     </div>
   );
 }

@@ -406,7 +406,7 @@ export default function ProfilePreviewPage() {
       if (navigator.share) {
         await navigator.share({
           title: `${profileData?.firstName} ${profileData?.lastName}'s Profile`,
-          text: `Check out my professional profile!`,
+          text: `Check out my digital profile! ${customUrl}`,
           url: customUrl
         });
         setShared(true);
@@ -600,7 +600,7 @@ export default function ProfilePreviewPage() {
           <div className="flex items-start justify-between gap-3">
             <ProfileHeader data={normalized} />
             <ActionButtons
-              onShare={() => setShowShareSection(!showShareSection)}
+              onShare={handleShare}
               onSaveContact={handleSaveToContacts}
               extraActions={[
                 { label: 'Save shortcut', icon: BookmarkAdd, onClick: handleAddToHomeScreen },

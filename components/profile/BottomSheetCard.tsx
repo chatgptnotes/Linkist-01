@@ -90,13 +90,13 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
     <>
       {/* Background overlay */}
       <motion.div
-        className="fixed inset-0 bg-black pointer-events-none z-10"
+        className="fixed inset-0 bg-black pointer-events-none z-10 md:absolute"
         style={{ opacity: overlayOpacity }}
       />
 
       {/* Draggable sheet - glassmorphism */}
       <motion.div
-        className="fixed left-0 right-0 z-20"
+        className="fixed left-0 right-0 z-20 md:absolute"
         style={{
           y,
           height: windowHeight * 1.2,
