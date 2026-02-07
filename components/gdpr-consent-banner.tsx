@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import CloseIcon from '@mui/icons-material/Close';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -18,6 +19,7 @@ interface ConsentPreferences {
 }
 
 export default function GDPRConsentBanner() {
+  const pathname = usePathname();
   const [showBanner, setShowBanner] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [preferences, setPreferences] = useState<ConsentPreferences>({
@@ -29,12 +31,18 @@ export default function GDPRConsentBanner() {
   const [loadingAction, setLoadingAction] = useState<'accept' | 'reject' | 'selected' | null>(null);
 
   useEffect(() => {
+    // Don't show banner on the homepage/landing page
+    if (pathname === '/') {
+      setShowBanner(false);
+      return;
+    }
+    
     // Check if consent has already been given
     const consent = localStorage.getItem('gdpr-consent');
     if (!consent) {
       setShowBanner(true);
     }
-  }, []);
+  }, [pathname]);
 
   const handleAcceptAll = async () => {
     const fullConsent = {

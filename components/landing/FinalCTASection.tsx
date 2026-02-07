@@ -4,7 +4,7 @@ import Image from 'next/image';
 
 export default function FinalCTASection() {
     return (
-        <section className="relative pt-12 pb-12 overflow-hidden bg-[#050505]">
+        <section className="relative pt-16 pb-16 md:pt-20 md:pb-20 overflow-hidden bg-[#050505]">
 
             {/* Red ellipse arc at top */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">
@@ -45,10 +45,16 @@ export default function FinalCTASection() {
                     transition={{ delay: 0.4 }}
                 >
                     <Link
-                        href="/choose-plan"
-                        className="inline-flex items-center justify-center w-[172px] h-[40px] py-[12px] px-[20px] gap-[12px] rounded-[80px] bg-[#E02424] text-white font-medium transition-transform hover:scale-105 active:scale-95"
+                        href="https://app.linkist.ai/micro/"
+                        className="inline-block transition-transform hover:scale-105 active:scale-95"
                     >
-                        Sign Up Today!
+                        <Image
+                            src="/product-hunt-label-2.png"
+                            alt="Sign Up Today!"
+                            width={276}
+                            height={62}
+                            className="w-auto h-[48px] object-contain"
+                        />
                     </Link>
                 </motion.div>
 

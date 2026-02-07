@@ -18,24 +18,24 @@ const AlertTriangle = WarningIcon;
 
 export default function TermsOfServicePage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#050505]">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="mb-8">
           <Link
             href="/"
-            className="inline-flex items-center text-red-500 hover:text-red-600 mb-6"
+            className="inline-flex items-center text-red-400 hover:text-red-300 mb-6"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Link>
 
           <div className="flex items-center space-x-3 mb-4">
-            <FileText className="w-8 h-8 text-red-500" />
-            <h1 className="text-3xl font-bold text-gray-900">Terms of Service</h1>
+            <FileText className="w-8 h-8 text-red-400" />
+            <h1 className="text-3xl font-bold text-[#F5F7FA]">Terms of Service</h1>
           </div>
           
-          <p className="text-gray-600">
+          <p className="text-gray-300">
             Last updated: {new Date().toLocaleDateString('en-US', { 
               year: 'numeric', 
               month: 'long', 
@@ -45,12 +45,12 @@ export default function TermsOfServicePage() {
         </div>
 
         {/* Content */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 space-y-8">
+        <div className="bg-[#0A0A0A] rounded-xl shadow-sm border border-gray-800 p-8 space-y-8">
           
           {/* Introduction */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Agreement to Terms</h2>
-            <div className="space-y-4 text-gray-700">
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Agreement to Terms</h2>
+            <div className="space-y-4 text-gray-300">
               <p>
                 Welcome to Linkist ("we," "our," or "us"). These Terms of Service ("Terms") govern your 
                 use of our website, products, and services (collectively, the "Service").
@@ -64,8 +64,8 @@ export default function TermsOfServicePage() {
 
           {/* Service Description */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Our Service</h2>
-            <div className="space-y-4 text-gray-700">
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Our Service</h2>
+            <div className="space-y-4 text-gray-300">
               <p>
                 Linkist provides NFC (Near Field Communication) business cards and related services, including:
               </p>
@@ -81,13 +81,13 @@ export default function TermsOfServicePage() {
           {/* Account Terms */}
           <section>
             <div className="flex items-center space-x-2 mb-4">
-              <Scale className="w-6 h-6 text-red-600" />
-              <h2 className="text-2xl font-semibold text-gray-900">Account Terms</h2>
+              <Scale className="w-6 h-6 text-red-400" />
+              <h2 className="text-2xl font-semibold text-[#F5F7FA]">Account Terms</h2>
             </div>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Account Creation</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Account Creation</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>You must provide accurate and complete information</li>
                   <li>You are responsible for maintaining account security</li>
@@ -97,7 +97,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Account Responsibilities</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Account Responsibilities</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Keep your login credentials secure and confidential</li>
                   <li>Notify us immediately of any unauthorized access</li>
@@ -111,13 +111,13 @@ export default function TermsOfServicePage() {
           {/* Orders and Payment */}
           <section>
             <div className="flex items-center space-x-2 mb-4">
-              <CreditCard className="w-6 h-6 text-green-600" />
-              <h2 className="text-2xl font-semibold text-gray-900">Orders and Payment</h2>
+              <CreditCard className="w-6 h-6 text-green-400" />
+              <h2 className="text-2xl font-semibold text-[#F5F7FA]">Orders and Payment</h2>
             </div>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Order Processing</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Order Processing</h3>
                 <p>
                   When you place an order, you make an offer to purchase products at the stated price. 
                   We reserve the right to accept or decline any order for any reason.
@@ -125,7 +125,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Pricing and Payment</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Pricing and Payment</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>All prices are in USD and include applicable taxes</li>
                   <li>Payment is due at the time of order placement</li>
@@ -135,7 +135,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Order Modifications</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Order Modifications</h3>
                 <p>
                   Orders may be modified or canceled within 24 hours of placement. 
                   Once production begins, changes may not be possible.
@@ -147,13 +147,13 @@ export default function TermsOfServicePage() {
           {/* Shipping and Delivery */}
           <section>
             <div className="flex items-center space-x-2 mb-4">
-              <Truck className="w-6 h-6 text-purple-600" />
-              <h2 className="text-2xl font-semibold text-gray-900">Shipping and Delivery</h2>
+              <Truck className="w-6 h-6 text-purple-400" />
+              <h2 className="text-2xl font-semibold text-[#F5F7FA]">Shipping and Delivery</h2>
             </div>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Shipping Policy</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Shipping Policy</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Processing time: 3-5 business days</li>
                   <li>Shipping time: 5-7 business days (standard)</li>
@@ -163,7 +163,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Shipping Address</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Shipping Address</h3>
                 <p>
                   You are responsible for providing accurate shipping information. 
                   We are not liable for delays or non-delivery due to incorrect addresses.
@@ -171,7 +171,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Risk of Loss</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Risk of Loss</h3>
                 <p>
                   Risk of loss and title passes to you upon delivery to the shipping carrier.
                 </p>
@@ -181,11 +181,11 @@ export default function TermsOfServicePage() {
 
           {/* Product Quality and Returns */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Product Quality and Returns</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Product Quality and Returns</h2>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Quality Guarantee</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Quality Guarantee</h3>
                 <p>
                   We guarantee our products to be free from defects in materials and workmanship. 
                   If you receive a defective product, contact us within 30 days for a replacement.
@@ -193,7 +193,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Custom Products</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Custom Products</h3>
                 <p>
                   As our products are custom-made to your specifications, returns are only accepted 
                   for defective items or errors in production.
@@ -201,7 +201,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Return Process</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Return Process</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Contact customer service within 30 days</li>
                   <li>Provide order number and description of issue</li>
@@ -214,11 +214,11 @@ export default function TermsOfServicePage() {
 
           {/* Intellectual Property */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Intellectual Property Rights</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Intellectual Property Rights</h2>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Your Content</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Your Content</h3>
                 <p>
                   You retain ownership of any intellectual property you provide (logos, text, images). 
                   By submitting content, you grant us a license to use it for order fulfillment and service provision.
@@ -226,7 +226,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Our Content</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Our Content</h3>
                 <p>
                   The Service and its content, features, and functionality are owned by Linkist and are 
                   protected by copyright, trademark, and other intellectual property laws.
@@ -234,7 +234,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Restrictions</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Restrictions</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
                   <li>Do not use our Service for illegal or unauthorized purposes</li>
                   <li>Do not reproduce, modify, or distribute our content</li>
@@ -247,13 +247,13 @@ export default function TermsOfServicePage() {
           {/* Prohibited Uses */}
           <section>
             <div className="flex items-center space-x-2 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-600" />
-              <h2 className="text-2xl font-semibold text-gray-900">Prohibited Uses</h2>
+              <AlertTriangle className="w-6 h-6 text-red-400" />
+              <h2 className="text-2xl font-semibold text-[#F5F7FA]">Prohibited Uses</h2>
             </div>
             
-            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-              <p className="text-red-800 mb-3 font-medium">You may not use our Service:</p>
-              <ul className="list-disc list-inside space-y-1 text-red-700 ml-4">
+            <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-6">
+              <p className="text-red-200/80 mb-3 font-medium">You may not use our Service:</p>
+              <ul className="list-disc list-inside space-y-1 text-red-200/70 ml-4">
                 <li>For any unlawful purpose or to solicit unlawful acts</li>
                 <li>To violate any international, federal, provincial, or state laws</li>
                 <li>To infringe upon or violate intellectual property rights</li>
@@ -268,9 +268,9 @@ export default function TermsOfServicePage() {
 
           {/* Disclaimers */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Disclaimers</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Disclaimers</h2>
             
-            <div className="space-y-4 text-gray-700">
+            <div className="space-y-4 text-gray-300">
               <p>
                 Our Service is provided on an "as is" and "as available" basis. We make no warranties, 
                 expressed or implied, and hereby disclaim all other warranties including implied warranties 
@@ -278,7 +278,7 @@ export default function TermsOfServicePage() {
               </p>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Technology Limitations</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Technology Limitations</h3>
                 <p>
                   NFC technology requires compatible devices and may not work with all smartphones or systems. 
                   We cannot guarantee universal compatibility.
@@ -286,7 +286,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Third-Party Services</h3>
+                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Third-Party Services</h3>
                 <p>
                   Our Service may integrate with third-party services. We are not responsible for the 
                   availability, accuracy, or reliability of such services.
@@ -297,16 +297,16 @@ export default function TermsOfServicePage() {
 
           {/* Limitation of Liability */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Limitation of Liability</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Limitation of Liability</h2>
             
-            <div className="bg-gray-100 border border-gray-200 rounded-lg p-6">
-              <p className="text-gray-800">
+            <div className="bg-[#151515] border border-gray-800 rounded-lg p-6">
+              <p className="text-gray-300">
                 In no event shall Linkist, its directors, employees, partners, agents, suppliers, or affiliates 
                 be liable for any indirect, incidental, special, consequential, or punitive damages, including 
                 loss of profits, data, use, or goodwill, arising out of your access to or use of the Service.
               </p>
               
-              <p className="text-gray-800 mt-4">
+              <p className="text-gray-300 mt-4">
                 Our total liability to you for all claims arising from the use of our Service shall not exceed 
                 the amount you paid for the products in question.
               </p>
@@ -315,9 +315,9 @@ export default function TermsOfServicePage() {
 
           {/* Indemnification */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Indemnification</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Indemnification</h2>
             
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               You agree to defend, indemnify, and hold harmless Linkist from any loss, damage, liability, 
               claim, or demand arising out of your use of the Service, violation of these Terms, or 
               infringement of any intellectual property rights.
@@ -326,9 +326,9 @@ export default function TermsOfServicePage() {
 
           {/* Termination */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Termination</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Termination</h2>
             
-            <div className="space-y-3 text-gray-700">
+            <div className="space-y-3 text-gray-300">
               <p>
                 We may terminate or suspend your account immediately, without prior notice, for any reason, 
                 including breach of these Terms.
@@ -343,9 +343,9 @@ export default function TermsOfServicePage() {
 
           {/* Governing Law */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Governing Law</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Governing Law</h2>
             
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               These Terms are governed by and construed in accordance with the laws of [Your State/Country], 
               without regard to its conflict of law provisions. Our failure to enforce any right or provision 
               will not be deemed a waiver of such right or provision.
@@ -354,9 +354,9 @@ export default function TermsOfServicePage() {
 
           {/* Changes to Terms */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Changes to Terms</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Changes to Terms</h2>
             
-            <p className="text-gray-700">
+            <p className="text-gray-300">
               We reserve the right to modify these Terms at any time. We will notify users of significant 
               changes via email or website notice. Your continued use of the Service after changes take effect 
               constitutes acceptance of the new Terms.
@@ -365,11 +365,11 @@ export default function TermsOfServicePage() {
 
           {/* Contact Information */}
           <section>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Information</h2>
+            <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Contact Information</h2>
             
-            <div className="bg-red-50 rounded-lg p-6">
-              <h3 className="font-medium text-red-900 mb-3">Questions About These Terms?</h3>
-              <div className="space-y-2 text-red-800">
+            <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-6">
+              <h3 className="font-medium text-red-300 mb-3">Questions About These Terms?</h3>
+              <div className="space-y-2 text-red-200/80">
                 <p><strong>Email:</strong> legal@linkist.ai</p>
                 <p><strong>Customer Support:</strong> support@linkist.ai</p>
                 <p><strong>Mailing Address:</strong></p>
@@ -387,14 +387,14 @@ export default function TermsOfServicePage() {
         <div className="mt-8 flex flex-col sm:flex-row gap-4">
           <Link
             href="/privacy"
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
+            className="inline-flex items-center justify-center px-6 py-3 border border-gray-700 text-base font-medium rounded-lg text-white bg-[#0A0A0A] hover:bg-[#151515] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             View Privacy Policy
           </Link>
           
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-red-700 hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-600"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
           >
             Contact Support
           </Link>

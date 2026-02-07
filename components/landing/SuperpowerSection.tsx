@@ -78,7 +78,7 @@ const featureCardsData = [
 
 export default function SuperpowerSection() {
     return (
-        <section className="relative pt-12 pb-12 bg-[#050505] overflow-hidden">
+        <section className="relative pt-16 pb-16 md:pt-20 md:pb-20 bg-[#050505] overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
 
                 {/* Badge */}
@@ -139,12 +139,12 @@ export default function SuperpowerSection() {
                     viewport={{ once: true }}
                     className="mt-[42px] flex justify-center"
                 >
-                    <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+                    <Link href="https://app.linkist.ai/micro/" className="transition-transform hover:scale-105 active:scale-95">
                         <Image
-                            src="/joinbutton.png"
+                            src="/product-hunt-label-2.png"
                             alt="Join Linkist"
-                            width={200}
-                            height={52}
+                            width={276}
+                            height={62}
                             className="w-auto h-[48px] object-contain"
                         />
                     </Link>

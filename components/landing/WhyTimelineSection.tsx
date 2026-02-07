@@ -1,3 +1,5 @@
+"use client";
+
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -41,10 +43,10 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                 )}
             </div>
 
-            {/* Right side - Icon and text, aligned with number circle */}
-            <div className="flex-1">
-                {/* Icon - aligned horizontally with number circle */}
-                <div className="flex items-center h-[80px] mb-0">
+            {/* Right side - Icon and text, aligned horizontally */}
+            <div className="flex-1 flex items-start gap-3">
+                {/* Icon - aligned with text top */}
+                <div className="flex items-start justify-center flex-shrink-0 pt-[6px]">
                     <Image
                         src={icon}
                         alt={iconAlt}
@@ -53,14 +55,14 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                         className="object-contain"
                     />
                 </div>
-                {/* Text */}
+                {/* Text - appears to the right of icon */}
                 <p
-                    className="text-white -mt-4"
+                    className="text-white flex-1"
                     style={{
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: titleFontWeight,
-                        fontSize: '20px',
-                        lineHeight: '32px',
+                        fontSize: '16px',
+                        lineHeight: '24px',
                         letterSpacing: '0%',
                     }}
                 >
@@ -68,7 +70,7 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                     {description && (
                         <span
                             style={{
-                                fontWeight: descriptionFontWeight || 600,
+                                fontWeight: descriptionFontWeight || 400,
                             }}
                         >
                             {' '}{description}
@@ -92,7 +94,7 @@ export default function WhyTimelineSection() {
             title: 'Day 1: You Meet',
             description: undefined,
             titleFontWeight: 400,
-            height: 140,
+            height: 100,
         },
         {
             number: '02',
@@ -105,7 +107,7 @@ export default function WhyTimelineSection() {
             description: 'You forget what made them relevant.',
             titleFontWeight: 400,
             descriptionFontWeight: 400,
-            height: 140,
+            height: 100,
         },
         {
             number: '03',
@@ -118,12 +120,12 @@ export default function WhyTimelineSection() {
             description: 'The lead goes cold after a generic, low-context follow-up.',
             titleFontWeight: 400,
             descriptionFontWeight: 400,
-            height: 140,
+            height: 100,
         },
     ];
 
     return (
-        <section className="relative pt-12 pb-12 lg:pb-48 overflow-hidden">
+        <section className="relative pt-16 pb-16 md:pt-20 md:pb-20 overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
                 {/* Mobile Layout */}
@@ -195,12 +197,12 @@ export default function WhyTimelineSection() {
                         viewport={{ once: true }}
                         className="mt-[42px]"
                     >
-                        <Link href="/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+                        <Link href="https://app.linkist.ai/micro/" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/joinbutton.png"
+                                src="/product-hunt-label-2.png"
                                 alt="Join Linkist"
-                                width={200}
-                                height={52}
+                                width={276}
+                                height={62}
                                 className="w-auto h-[48px] object-contain"
                             />
                         </Link>
@@ -238,12 +240,12 @@ export default function WhyTimelineSection() {
                         </h2>
 
                         {/* Desktop CTA */}
-                        <Link href="/choose-plan" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
+                        <Link href="https://app.linkist.ai/micro/" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/joinbutton.png"
+                                src="/product-hunt-label-2.png"
                                 alt="Join Linkist"
-                                width={220}
-                                height={56}
+                                width={276}
+                                height={62}
                                 className="w-auto h-[52px] object-contain"
                             />
                         </Link>
@@ -254,7 +256,7 @@ export default function WhyTimelineSection() {
                         initial={{ opacity: 0, x: 20 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
-                        className="relative max-w-[450px] translate-x-[15%] translate-y-[40%]"
+                        className="relative max-w-[450px]"
                     >
                         <div className="flex flex-col">
                             {timelineItems.map((item, index) => (
