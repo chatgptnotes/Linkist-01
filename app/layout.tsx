@@ -54,6 +54,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="m-0 p-0">
       <head>
+        <meta name="format-detection" content="telephone=no, date=no, email=no, address=no" />
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
