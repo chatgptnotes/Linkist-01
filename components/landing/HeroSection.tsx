@@ -84,7 +84,7 @@ export default function HeroSection() {
           className="my-8 flex justify-center relative z-20"
         >
           <img
-            src="/Hero-image-2 rev-.png"
+            src="/hero-image-2-rev.png"
             alt="Linkist Hero"
             style={{ width: '90vw', maxWidth: '100%', height: 'auto' }}
             className="object-contain"
