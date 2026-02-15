@@ -61,21 +61,6 @@ export default function HeroSection() {
 
         </div>
 
-        {/* Phone Mockup - in flow */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="my-8 flex justify-center"
-        >
-          <img
-            src="/Scene-3-Recovered.png"
-            alt="Linkist App"
-            className="object-contain"
-            style={{ width: '85vw', maxWidth: '100%', height: 'auto' }}
-          />
-        </motion.div>
-
         {/* Hero Image - Mobile */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
