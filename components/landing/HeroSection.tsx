@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function HeroSection() {
   return (
@@ -53,7 +52,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="absolute -bottom-[30%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
+          className="absolute -bottom-[20%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
           style={{ maxWidth: 'min(140%, 100vw)' }}
         >
           <img
@@ -84,14 +83,7 @@ export default function HeroSection() {
           >
            Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive  with relevant actionable insights.
           </motion.h1>
-        <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[12px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
-          >
-           <br />Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
-          </motion.p>
+
         </div>
 
         {/* Join Linkist Button - positioned at bottom */}
@@ -111,63 +103,71 @@ export default function HeroSection() {
             />
           </a>
           <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
-            Includes 1-Year Pro Access + $50 AI Credits *
+            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </p>
         </motion.div>
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:flex relative z-10 max-w-7xl mx-auto px-4 sm:px-6 text-center pt-16 md:pt-20 flex-col justify-center items-center flex-1">
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 md:mb-8 bg-clip-text text-transparent"
-          style={{
-            backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
-          }}
-        >
-          Your network<br />
-            isn't the problem.<br />
-            Recall is.
-        </motion.h1>
+      <div className="hidden md:flex relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-16 md:pt-20 flex-1">
+        {/* Two-column grid layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
+          {/* Left column - Text content */}
+          <div className="flex flex-col text-left">
+            <motion.h1
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 md:mb-8 bg-clip-text text-transparent"
+              style={{
+                backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
+              }}
+            >
+              Your network<br />
+              isn't the problem.<br />
+              Recall is.
+            </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="text-lg sm:text-xl md:text-2xl text-[#888888] max-w-2xl mx-auto mb-8 md:mb-12 px-2 font-body"
-        >
-         Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
-        </motion.p>
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-lg sm:text-xl md:text-2xl text-[#888888] mb-8 md:mb-12 font-body"
+            >
+              Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
+            </motion.p>
 
-        <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[14px] leading-[16px] font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
-          >
-           Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
-          </motion.p>
-
-        {/* Hero Visual - Dashboard Mockup */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="relative mx-auto w-full max-w-6xl mt-8 md:mt-12 px-0 sm:px-0 flex justify-center"
-        >
-          <div className="relative z-10 flex justify-center w-full">
-            <img
-              src="/new_hero.png"
-              alt="Linkist Dashboard"
-              className="w-full h-auto drop-shadow-2xl mx-auto"
-            />
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="text-[14px] leading-[16px] font-light tracking-normal text-left hero-subtitle-gradient max-w-[400px]"
+            >
+              Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
+            </motion.p>
           </div>
 
-          {/* Background Glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#E02424]/10 blur-[120px] rounded-full -z-10" />
-        </motion.div>
+          {/* Right column - Hero image */}
+          <div className="flex justify-center items-center">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.8 }}
+              className="relative w-full max-w-2xl"
+            >
+              <div className="relative z-10 flex justify-center w-full">
+                <img
+                  src="/Hero-image-2 rev-.png"
+                  alt="Linkist Dashboard"
+                  className="w-full h-auto drop-shadow-2xl"
+                />
+              </div>
+
+              {/* Background Glow */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-[#E02424]/10 blur-[120px] rounded-full -z-10" />
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
