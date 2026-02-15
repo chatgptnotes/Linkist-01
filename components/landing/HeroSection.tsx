@@ -157,7 +157,7 @@ export default function HeroSection() {
             >
               <div className="relative z-10 flex justify-center w-full">
                 <img
-                  src="/Hero-image-2 rev-.png"
+                  src="/hero-image-2-rev.png"
                   alt="Linkist Dashboard"
                   className="w-full h-auto drop-shadow-2xl"
                 />
