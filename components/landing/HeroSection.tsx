@@ -20,31 +20,6 @@ export default function HeroSection() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#E02424]/10 blur-[150px] rounded-full mix-blend-screen" />
       </div>
 
-      {/* Mobile Phone Mockups - positioned relative to full section */}
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.8 }}
-        className="absolute z-20 md:hidden pointer-events-none"
-        style={{
-          width: 'min(98vw, 850px)',
-          maxWidth: '100%',
-          height: 'auto',
-          aspectRatio: '763 / 508',
-          top: '280px',
-          left: '50%',
-          marginLeft: 'calc(-1 * min(98vw, 850px) / 2)',
-          transform: 'rotate(12.16deg)',
-        }}
-      >
-        <img
-          src="/Scene-3-Recovered.png"
-          alt="Linkist App"
-          className="w-full h-full object-contain"
-          style={{ display: 'block' }}
-        />
-      </motion.div>
-
       {/* Mobile Layout */}
       <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
@@ -64,7 +39,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-24 px-4 text-center relative z-20 mb-8">
+        <div className="pt-24 px-4 text-center relative z-20 mb-6">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -85,6 +60,21 @@ export default function HeroSection() {
           </motion.h1>
 
         </div>
+
+        {/* Phone Mockup - in flow */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4, duration: 0.8 }}
+          className="my-8 flex justify-center"
+        >
+          <img
+            src="/Scene-3-Recovered.png"
+            alt="Linkist App"
+            className="object-contain"
+            style={{ width: '85vw', maxWidth: '100%', height: 'auto' }}
+          />
+        </motion.div>
 
         {/* Join Linkist Button - positioned at bottom */}
         <motion.div
