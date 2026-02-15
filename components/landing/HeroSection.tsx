@@ -76,6 +76,21 @@ export default function HeroSection() {
           />
         </motion.div>
 
+        {/* Hero Image - Mobile */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.8 }}
+          className="my-8 flex justify-center relative z-20"
+        >
+          <img
+            src="/Hero-image-2 rev-.png"
+            alt="Linkist Hero"
+            style={{ width: '90vw', maxWidth: '100%', height: 'auto' }}
+            className="object-contain"
+          />
+        </motion.div>
+
         {/* Join Linkist Button - positioned at bottom */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
