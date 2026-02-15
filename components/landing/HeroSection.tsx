@@ -66,7 +66,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
-          className="my-8 flex justify-center relative z-20"
+          className="my-8 flex justify-center"
         >
           <img
             src="/Scene-3-Recovered.png"
