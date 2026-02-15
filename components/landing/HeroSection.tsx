@@ -27,13 +27,13 @@ export default function HeroSection() {
         transition={{ delay: 0.4, duration: 0.8 }}
         className="absolute z-20 md:hidden pointer-events-none"
         style={{
-          width: 'min(90vw, 763px)',
+          width: 'min(95vw, 800px)',
           maxWidth: '100%',
           height: 'auto',
           aspectRatio: '763 / 508',
           top: '360px',
           left: '50%',
-          marginLeft: 'calc(-1 * min(90vw, 763px) / 2)',
+          marginLeft: 'calc(-1 * min(95vw, 800px) / 2)',
           transform: 'rotate(12.16deg)',
         }}
       >
@@ -64,12 +64,12 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-24 px-5 text-center relative z-20 mb-12">
+        <div className="pt-12 px-5 text-center relative z-20 mb-6">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-8 mt-4"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-6 mt-4"
           >
             Your network<br />
             isn't the problem.<br />
@@ -91,7 +91,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="absolute bottom-8 left-0 right-0 z-30 px-5 flex flex-col items-center"
+          className="absolute bottom-4 left-0 right-0 z-30 px-5 flex flex-col items-center"
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
