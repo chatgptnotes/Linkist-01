@@ -56,3 +56,4 @@ check-twilio-config.sh
 
 # Local Netlify folder
 .netlify
+tsconfig.tsbuildinfo
