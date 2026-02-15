@@ -85,7 +85,7 @@ export default function HeroSection() {
         >
           <img
             src="/hero-image-2-rev.png"
-            alt="Linkist Hero"
+            alt="Linkist Dashboard"
             style={{ width: '90vw', maxWidth: '100%', height: 'auto' }}
             className="object-contain"
           />
