@@ -21,7 +21,7 @@ export default function HeroSection() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4">
+      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4 pb-8">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -66,7 +66,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="my-8 flex justify-center relative z-20"
+          className="mb-20 flex justify-center relative z-20"
         >
           <img
             src="/hero-image-2-rev.png"
@@ -76,12 +76,12 @@ export default function HeroSection() {
           />
         </motion.div>
 
-        {/* Join Linkist Button - positioned at bottom */}
+        {/* Join Linkist Button - positioned with proper spacing */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="absolute bottom-4 left-0 right-0 z-30 px-5 flex flex-col items-center"
+          className="relative z-30 px-5 flex flex-col items-center mt-8"
         >
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
@@ -92,7 +92,7 @@ export default function HeroSection() {
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
           </a>
-          <p className="text-[#666666] text-[12px] mt-3 text-center font-body">
+          <p className="text-[#666666] text-[12px] mt-6 text-center font-body">
             Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
           </p>
         </motion.div>
