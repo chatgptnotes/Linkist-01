@@ -27,13 +27,13 @@ export default function HeroSection() {
         transition={{ delay: 0.4, duration: 0.8 }}
         className="absolute z-20 md:hidden pointer-events-none"
         style={{
-          width: 'min(95vw, 800px)',
+          width: 'min(98vw, 850px)',
           maxWidth: '100%',
           height: 'auto',
           aspectRatio: '763 / 508',
-          top: '360px',
+          top: '280px',
           left: '50%',
-          marginLeft: 'calc(-1 * min(95vw, 800px) / 2)',
+          marginLeft: 'calc(-1 * min(98vw, 850px) / 2)',
           transform: 'rotate(12.16deg)',
         }}
       >
@@ -52,7 +52,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="absolute -bottom-[20%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
+          className="absolute -bottom-[10%] left-1/2 -translate-x-1/2 z-10 w-full pointer-events-none"
           style={{ maxWidth: 'min(140%, 100vw)' }}
         >
           <img
@@ -64,7 +64,7 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-12 px-5 text-center relative z-20 mb-6">
+        <div className="pt-24 px-5 text-center relative z-20 mb-8">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
