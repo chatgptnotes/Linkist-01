@@ -41,7 +41,7 @@ export default function RealityCheckSection() {
                             <p className="text-[16px] md:text-[22px] text-[#888] leading-snug max-w-xl mx-auto md:mx-0 font-poppins font-normal">
                                 You don't lose opportunities because you ran out{' '}
                                 <br className="hidden md:inline" />
-                                of paper business cards. You lose them because{' '}
+                                of business cards. You lose them because{' '}
                                 <br className="hidden md:inline" />
                                 you lost the context, the timing, and the&nbsp;moment.
                             </p>
@@ -60,7 +60,7 @@ export default function RealityCheckSection() {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="flex flex-col items-center md:items-start mt-6 md:mt-8"
         >
-          <Link href="https://www.linkist.ai/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+          <Link href="https://linkist.ai/smart-card" className="transition-transform hover:scale-105 active:scale-95">
             <Image
               src="/product-hunt-label-2.png"
               alt="Join Linkist"
