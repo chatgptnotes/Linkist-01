@@ -62,17 +62,17 @@ const featureCardsData = [
     {
         iconSrc: "/icons/Group 1437253611.png",
         title: "Context at your fingertips",
-        description: "Stop wondering \"Who introduced us?\" Linkist captures where you met, what you discussed, and why it mattered so you can re-engage with clarity."
+        description: "Stop wondering \"Who introduced us?\" Linkist helps in capturing where you met, what you discussed, and why it mattered so you can re-engage with clarity."
     },
     {
         iconSrc: "/icons/Group 1437253611 (1).png",
-        title: "Silence the noise",
-        description: "Stop managing a messy contact list. Linkist identifies who matters right now based on fit and relevance, separating the signal from the noise."
+        title: "Prioritise based on relevance ",
+        description: "Linkist identifies who matters right now based on fit and relevance, separating the signal from the noise."
     },
     {
         iconSrc: "/icons/Group 1437253611 (2).png",
-        title: "Momentum that doesn't fade",
-        description: "Smart nudges show who to reconnect with and when, so your follow-ups are timely and deliberate, not random."
+        title: "Intelligent Reminders",
+        description: "Smart nudges show who to reconnect with and when, so your followups are timely and deliberate, not random."
     }
 ];
 
@@ -116,7 +116,7 @@ export default function SuperpowerSection() {
                         letterSpacing: '0%'
                     }}
                 >
-                    Most tools are digital graveyards for phone numbers. Linkist turns your contact list into working relationship intelligence.
+                    Most tools are digital graveyards for phone numbers. Linkist turns your <strong>contact list</strong> into working relationship intelligence.
                 </p>
 
                 {/* 3 Column Grid */}
@@ -139,7 +139,7 @@ export default function SuperpowerSection() {
                     viewport={{ once: true }}
                     className="mt-[42px] flex justify-center"
                 >
-                    <Link href="https://www.linkist.ai/choose-plan" className="transition-transform hover:scale-105 active:scale-95">
+                    <Link href="https://linkist.ai/smart-card" className="transition-transform hover:scale-105 active:scale-95">
                         <Image
                             src="/product-hunt-label-2.png"
                             alt="Join Linkist"
