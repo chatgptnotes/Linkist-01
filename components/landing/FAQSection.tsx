@@ -67,7 +67,7 @@ export default function FAQSection() {
             backgroundClip: 'text',
           }}
         >
-          About Linkist
+          What You Need To Know
         </motion.h2>
 
         {/* FAQ Items */}
