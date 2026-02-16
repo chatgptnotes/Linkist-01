@@ -7,7 +7,7 @@ export default function FinalCTASection() {
         <section className="relative pt-16 pb-16 md:pt-20 md:pb-20 overflow-hidden bg-[#050505]">
 
             {/* Red ellipse arc at top */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full md:hidden">
                 <Image
                     src="/Ellipse 115.png"
                     alt=""
@@ -15,6 +15,12 @@ export default function FinalCTASection() {
                     height={200}
                     className="w-full max-w-[600px] mx-auto object-contain"
                 />
+            </div>
+
+            {/* Desktop Hero-style Glow Effects - replaces the ellipse image on PC */}
+            <div className="absolute top-0 left-0 w-full h-full hidden md:block" aria-hidden="true">
+                <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-[#E02424]/20 blur-[150px] rounded-full mix-blend-screen" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#E02424]/10 blur-[150px] rounded-full mix-blend-screen" />
             </div>
 
             <div className="max-w-7xl mx-auto px-4 relative z-10 text-center pt-16">
