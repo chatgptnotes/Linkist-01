@@ -71,7 +71,7 @@ export default function Footer({ variant = 'minimal' }: FooterProps) {
 
           {/* Brand Column */}
           <div className="space-y-6">
-            <h3 className="text-xl font-bold text-white">Subscribe for Updates</h3>
+            <h3 className="text-xl font-bold text-white">Join Our Linkist Community For Free</h3>
             <p className="text-[#666]">Stay updated with the latest news about Linkist.</p>
 
             <form onSubmit={handleSubscribe} className="space-y-3 max-w-xs">
@@ -176,7 +176,7 @@ export default function Footer({ variant = 'minimal' }: FooterProps) {
 
             {/* Contact Us */}
             <div>
-              <h4 className="text-white font-medium mb-6">Contact Us</h4>
+              <h4 className="text-white font-medium mb-6">Contact Us For Help</h4>
               <ul className="space-y-4 text-[#888]">
                 <li>
                   <a
