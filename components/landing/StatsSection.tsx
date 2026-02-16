@@ -6,7 +6,7 @@ export default function StatsSection() {
     const stats = [
         {
             value: '88%',
-            description: 'paper cards end up in the trash within a week.'
+            description: 'business cards end up in the trash within a week.'
         },
         {
             value: '60%',
@@ -14,7 +14,7 @@ export default function StatsSection() {
         },
         {
             value: '70%',
-            description: 'leads die simply because the follow-up was too slow.'
+            description: 'leads die simply because the followup was too slow.'
         }
     ];
 
