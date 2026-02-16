@@ -5,38 +5,32 @@ export default function InviteOnlySection() {
     const cards = [
         {
             icon: '/icons/name.png',
-            title: 'The Name',
-            description: "Secure the cleanest version of your URL. Once it's taken, it's for life.",
+            title: 'Unique ID',
+            description: "Secure the cleanest version of your ID. Once it's taken, it's for life.",
             iconSize: 28
         },
         {
             icon: '/icons/card.png',
-            title: 'The Card',
-            description: 'Get the Black Premium NFC card, only available to Founding Members during the prelaunch phase.',
+            title: 'Smart Card',
+            description: 'Get the Black Premium NFC card exclusively available to Founding members or any other card of your choice.',
             iconSize: 28
         },
         {
             icon: '/icons/badge.png',
-            title: 'The Badge',
+            title: 'Recognition',
             description: 'Your profile permanently carries the Founding Member status. A visible signal and recognition for early adoption.',
             iconSize: 28
         },
         {
             icon: '/icons/value.png',
-            title: 'The Value',
+            title: 'Pro App with AI',
             description: "You get 1 year of Linkist Pro and $50 in AI credits with no expiry, on terms others won't get at public launch.",
             iconSize: 48
         },
         {
-            icon: '/icons/recognition.png',
-            title: 'The Recognition',
-            description: 'Entry is by personal invite and approval only, limited to a small founding cohort.',
-            iconSize: 28
-        },
-        {
             icon: '/icons/reward.png',
-            title: 'The Rewards',
-            description: 'Expect occasional surprise gifts and early perks directly from the founders.',
+            title: 'Rewards',
+            description: 'Expect surprise gifts and perks from the founders and access to affiliate programs',
             iconSize: 28
         }
     ];
@@ -67,8 +61,7 @@ export default function InviteOnlySection() {
                         backgroundClip: 'text'
                     }}
                 >
-                    This isn't early access.<br />
-                    It's invite-only.
+                    Limited-time invite only offer
                 </motion.h2>
 
                 {/* Grid of Cards */}
