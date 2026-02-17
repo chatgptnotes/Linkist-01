@@ -43,10 +43,10 @@ function TimelineItem({ numberImage, icon, iconAlt, iconWidth, iconHeight, title
                 )}
             </div>
 
-            {/* Right side - Icon and text, aligned horizontally */}
-            <div className="flex-1 flex items-start gap-3">
-                {/* Icon - aligned with text top */}
-                <div className="flex items-start justify-center flex-shrink-0 pt-[6px]">
+            {/* Right side - Icon and text, vertically centered to number */}
+            <div className="flex-1 flex items-center gap-3">
+                {/* Icon - centered with number */}
+                <div className="flex items-center justify-center flex-shrink-0">
                     <Image
                         src={icon}
                         alt={iconAlt}
@@ -98,7 +98,7 @@ export default function WhyTimelineSection() {
         },
         {
             number: '02',
-            numberImage: '/number-02.png',
+            numberImage: '/Layer 11.png',
             icon: '/questionmark.png',
             iconAlt: 'Question mark icon',
             iconWidth: 40,
