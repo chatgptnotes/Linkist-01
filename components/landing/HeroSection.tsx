@@ -83,6 +83,9 @@ export default function HeroSection() {
           transition={{ delay: 0.8, duration: 0.6 }}
           className="relative z-30 px-5 flex flex-col items-center mt-8"
         >
+          <p className="text-[#666666] text-[12px] mb-6 text-center font-body">
+            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
+          </p>
           <a href="#human-limit" className="transition-transform hover:scale-105 active:scale-95">
             <Image
               src="/see-how-it-works.png"
@@ -92,9 +95,6 @@ export default function HeroSection() {
               className="w-auto h-[48px] sm:h-[56px] object-contain"
             />
           </a>
-          <p className="text-[#666666] text-[12px] mt-6 text-center font-body">
-            Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
-          </p>
         </motion.div>
       </div>
 
