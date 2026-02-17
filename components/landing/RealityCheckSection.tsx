@@ -5,7 +5,7 @@ import Image from 'next/image';
 export default function RealityCheckSection() {
     return (
         <section id="human-limit" className="relative pt-16 pb-16 md:pt-20 md:pb-20 overflow-hidden">
-            <div className="max-w-[1306px] mx-auto px-4 sm:px-6 md:px-[100px] relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
                     <div className="space-y-2 md:space-y-5 text-center md:text-left">
@@ -80,12 +80,12 @@ export default function RealityCheckSection() {
                             whileInView={{ opacity: 1, x: 0 }}
                             viewport={{ once: true }}
                             transition={{ duration: 0.8 }}
-                            className="relative md:scale-[2.625] md:origin-right md:translate-x-[80%] md:translate-y-[10%]"
+                            className="relative w-full flex justify-center"
                         >
                             <img
                                 src="/Distraction.png"
                                 alt="Linkist Context"
-                                className="w-full md:w-auto md:h-[600px] lg:h-[700px] relative z-10 object-contain"
+                                className="w-full max-w-[500px] h-auto relative z-10 object-contain"
                             />
                         </motion.div>
                     </div>
