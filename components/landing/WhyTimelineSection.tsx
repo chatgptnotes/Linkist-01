@@ -86,7 +86,7 @@ export default function WhyTimelineSection() {
     const timelineItems = [
         {
             number: '01',
-            numberImage: '/number-1.png',
+            numberImage: '/number-01-R.png',
             icon: '/handshake.png',
             iconAlt: 'Handshake icon',
             iconWidth: 36,
@@ -98,7 +98,7 @@ export default function WhyTimelineSection() {
         },
         {
             number: '02',
-            numberImage: '/Layer 11.png',
+            numberImage: '/number-03.png',
             icon: '/questionmark.png',
             iconAlt: 'Question mark icon',
             iconWidth: 40,
