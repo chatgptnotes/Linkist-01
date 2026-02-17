@@ -35,6 +35,8 @@ export default function SuccessPage() {
     email?: string;
     phoneNumber?: string;
     amount?: number;
+    planName?: string;
+    billingPeriod?: 'monthly' | 'yearly';
   } | null>(null);
 
   useEffect(() => {
@@ -53,6 +55,11 @@ export default function SuccessPage() {
     // Initialize back button prevention
     disableBackButton();
 
+    // Read plan info from localStorage
+    const storedPlanName = localStorage.getItem('selectedPlanName') || '';
+    const storedBillingPeriod = (localStorage.getItem('billingPeriod') || 'monthly') as 'monthly' | 'yearly';
+    const storedPlanAmount = localStorage.getItem('selectedPlanAmount') || '0';
+
     // First check for orderConfirmation from payment page
     const orderConfirmation = localStorage.getItem('orderConfirmation');
     if (orderConfirmation) {
@@ -63,7 +70,9 @@ export default function SuccessPage() {
         ...confirmation,
         cardConfig: confirmation.cardConfig || { fullName: confirmation.customerName },
         shipping: confirmation.shipping || {},
-        pricing: confirmation.pricing || { total: confirmation.amount }
+        pricing: confirmation.pricing || { total: confirmation.amount },
+        planName: confirmation.planName || storedPlanName,
+        billingPeriod: confirmation.billingPeriod || storedBillingPeriod,
       };
       setOrderData(orderData);
       // Store the order data for page refreshes
@@ -120,9 +129,25 @@ export default function SuccessPage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             Congratulations!
           </h1>
-          <p className="text-xl text-gray-700 mb-4">
-            {isDigitalOnly ? 'Your digital profile is ready!' : 'Your card is on the way'}
-          </p>
+          {orderData.planName ? (
+            <>
+              <p className="text-xl text-gray-700 mb-2">
+                You&apos;re now on the <span className="font-semibold">{orderData.planName}</span> plan!
+              </p>
+              {orderData.pricing?.total > 0 && (
+                <p className="text-lg text-gray-600 mb-2">
+                  ${orderData.pricing.total.toFixed(2)}
+                  {(orderData.isDigitalOnly || orderData.isDigitalProduct) && orderData.billingPeriod
+                    ? (orderData.billingPeriod === 'yearly' ? '/year' : '/month')
+                    : ''}
+                </p>
+              )}
+            </>
+          ) : (
+            <p className="text-xl text-gray-700 mb-4">
+              {isDigitalOnly ? 'Your digital profile is ready!' : 'Your card is on the way'}
+            </p>
+          )}
           <p className="text-lg text-gray-600 mb-2">
             {isDigitalOnly
               ? 'Thank you for your order. Your digital profile has been activated.'
@@ -167,7 +192,7 @@ export default function SuccessPage() {
                         {/* Plan Name */}
                         <div className="flex justify-between text-gray-600 mb-2">
                           <span className="font-medium">Plan</span>
-                          <span className="text-amber-600 font-semibold">Founder&apos;s Club</span>
+                          <span className="text-amber-600 font-semibold">{orderData.planName || "Founder\u0027s Circle"}</span>
                         </div>
 
                         {/* Exclusive Founder's Price */}
@@ -200,7 +225,7 @@ export default function SuccessPage() {
                         {/* Plan Name */}
                         <div className="flex justify-between text-gray-600 mb-2">
                           <span className="font-medium">Plan</span>
-                          <span className="text-gray-700 font-semibold">Personnel</span>
+                          <span className="text-gray-700 font-semibold">{orderData.planName || 'Personal'}</span>
                         </div>
 
                         {/* Base Material Price */}
@@ -396,7 +421,7 @@ export default function SuccessPage() {
               </>
             ) : (
               <>
-                Start building Profile
+                Claim Your URL
                 <ArrowRight className="h-5 w-5 ml-2" />
               </>
             )}

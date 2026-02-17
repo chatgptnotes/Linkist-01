@@ -42,7 +42,7 @@ const Group = GroupIcon;
 // Helper function for plan badge styling
 const getPlanBadgeStyle = (plan: string): string => {
   const styles: Record<string, string> = {
-    "Founder's Club": 'bg-amber-100 text-amber-800',
+    "Founder's Circle": 'bg-amber-100 text-amber-800',
     'Personal': 'bg-blue-100 text-blue-800',
     'Starter': 'bg-gray-100 text-gray-800',
   };
@@ -81,7 +81,7 @@ export default function CustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'orders' | 'spent' | 'recent'>('recent');
-  const [filterByPlan, setFilterByPlan] = useState<'all' | 'Starter' | 'Personal' | "Founder's Club">('all');
+  const [filterByPlan, setFilterByPlan] = useState<'all' | 'Starter' | 'Personal' | "Founder's Circle">('all');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
@@ -426,13 +426,13 @@ export default function CustomersPage() {
                 <Filter className="w-5 h-5 text-gray-400" />
                 <select
                   value={filterByPlan}
-                  onChange={(e) => setFilterByPlan(e.target.value as 'all' | 'Starter' | 'Personal' | "Founder's Club")}
+                  onChange={(e) => setFilterByPlan(e.target.value as 'all' | 'Starter' | 'Personal' | "Founder's Circle")}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent"
                 >
                   <option value="all">All Plans</option>
                   <option value="Starter">Starter</option>
                   <option value="Personal">Personal</option>
-                  <option value="Founder's Club">Founder&apos;s Club</option>
+                  <option value="Founder's Circle">Founder&apos;s Club</option>
                 </select>
                 <select
                   value={sortBy}

@@ -81,6 +81,7 @@ export default function ConfigureNewPage() {
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [userPlanType, setUserPlanType] = useState<string | null>(null);
   const [planTypeChecked, setPlanTypeChecked] = useState(false);
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly');
 
   // Fetch customization options from API based on user's plan type
   const fetchCustomizationOptions = async (planType: string) => {
@@ -181,7 +182,7 @@ export default function ConfigureNewPage() {
       }
     };
 
-    // Check founding member status from API
+    // Check founding member status from API and detect plan type
     const checkFoundingMemberStatus = async (country: string) => {
       try {
         const response = await fetch('/api/auth/me', {
@@ -194,12 +195,26 @@ export default function ConfigureNewPage() {
           setIsFoundingMember(foundingMemberStatus);
           console.log('Configure: Founding member status:', foundingMemberStatus);
 
-          // Set user plan type based on founding member status
-          // This will trigger a fetch of customization options
-          const planType = foundingMemberStatus ? 'founders-club' : 'physical-digital';
+          // Read billing period from localStorage (set during product selection)
+          const storedBilling = localStorage.getItem('billingPeriod') as 'monthly' | 'yearly';
+          setBillingPeriod(storedBilling || 'yearly');
+
+          // Detect plan type from localStorage (set during product selection)
+          const selectedProduct = localStorage.getItem('productSelection');
+          const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+
+          let planType: string;
+          if (selectedProduct && validCardPlans.includes(selectedProduct)) {
+            planType = selectedProduct;
+          } else if (foundingMemberStatus) {
+            planType = 'founders-club';
+          } else {
+            planType = 'physical-digital';
+          }
+
           setUserPlanType(planType);
           setPlanTypeChecked(true);
-          console.log('Configure: User plan type:', planType);
+          console.log('Configure: User plan type:', planType, '(from productSelection:', selectedProduct, ')');
 
           // Pre-select Metal + Matte + Black for founding members
           if (foundingMemberStatus) {
@@ -215,14 +230,20 @@ export default function ConfigureNewPage() {
             await fetchFoundersPricing(country);
           }
         } else {
-          // Not logged in or error - default to personal plan
-          setUserPlanType('physical-digital');
+          // Not logged in - detect plan from localStorage or default
+          const selectedProduct = localStorage.getItem('productSelection');
+          const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+          const fallbackPlan = (selectedProduct && validCardPlans.includes(selectedProduct)) ? selectedProduct : 'physical-digital';
+          setUserPlanType(fallbackPlan);
           setPlanTypeChecked(true);
         }
       } catch (error) {
         console.log('Configure: Could not check founding member status');
-        // Default to personal plan on error
-        setUserPlanType('physical-digital');
+        // Default - detect plan from localStorage or use physical-digital
+        const selectedProduct = localStorage.getItem('productSelection');
+        const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+        const fallbackPlan = (selectedProduct && validCardPlans.includes(selectedProduct)) ? selectedProduct : 'physical-digital';
+        setUserPlanType(fallbackPlan);
         setPlanTypeChecked(true);
       }
     };
@@ -280,6 +301,13 @@ export default function ConfigureNewPage() {
   const prices: Record<string, number> = customizationOptions?.materialPrices || fallbackPrices;
   const textureOptions: Record<string, string[]> = customizationOptions?.textureOptions || fallbackTextureOptions;
   const colourOptions: Record<string, string[]> = customizationOptions?.colourOptions || fallbackColourOptions;
+
+  // Price display helper: monthly = yearly / 10
+  const getDisplayPrice = (yearlyPrice: number): number => {
+    if (billingPeriod === 'monthly') return yearlyPrice / 10;
+    return yearlyPrice;
+  };
+  const priceSuffix = billingPeriod === 'monthly' ? '/mo' : '';
 
   // Base materials with descriptions - from API or fallback
   const baseMaterials: Array<{ value: string; label: string; description: string }> = customizationOptions?.materials
@@ -480,6 +508,9 @@ export default function ConfigureNewPage() {
       texture: formData.texture,
       colour: formData.colour,
       pattern: selectedPattern?.name || `Pattern ${formData.pattern}`,
+      // Billing period and plan type (for checkout/payment pricing)
+      billingPeriod: billingPeriod,
+      planType: userPlanType,
       // Founding member exclusive options
       showLinkistLogo: isFoundingMember ? showLinkistLogo : true,
       companyLogoUrl: isFoundingMember ? companyLogoUrl : null,
@@ -599,8 +630,10 @@ export default function ConfigureNewPage() {
                       <div className="text-center">
                         <h3 className={`font-semibold text-sm ${formData.baseMaterial === material.value ? 'text-red-600' : 'text-gray-900'}`}>{material.label}</h3>
                         <p className="text-xs text-gray-500 mt-1 line-clamp-2">{material.description}</p>
-                        {!isFoundingMember && (
-                          <div className="mt-3 text-lg font-bold text-gray-900">${prices[material.value]}</div>
+                        {userPlanType === 'pro' && (
+                          <div className="mt-3 text-lg font-bold text-gray-900">
+                            ${getDisplayPrice(prices[material.value]).toFixed(2)}{priceSuffix}
+                          </div>
                         )}
                       </div>
                     </button>
@@ -732,12 +765,12 @@ export default function ConfigureNewPage() {
               </div>
             </div>
 
-            {/* Founders Club Exclusive Options - Only visible to founding members */}
+            {/* Founders Circle Exclusive Options - Only visible to founding members */}
             {isFoundingMember && (
               <div className="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm border border-amber-200 overflow-hidden">
                 <div className="bg-amber-50 border-b border-amber-200 px-6 py-3">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Crown className="mr-2 w-5 h-5 text-amber-500" /> Founders Club Exclusive
+                    <Crown className="mr-2 w-5 h-5 text-amber-500" /> Founders Circle Exclusive
                   </h2>
                 </div>
                 <div className="p-4 space-y-4">

@@ -87,7 +87,7 @@ const navigationItems = [
     permission: Permission.VIEW_ORDERS,
   },
   {
-    name: 'Founders Club',
+    name: 'Founders Circle',
     href: '/admin/founders',
     icon: Crown,
     permission: Permission.VIEW_USERS,

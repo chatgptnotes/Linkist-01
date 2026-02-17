@@ -301,7 +301,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const knownRoutes = ['/admin', '/api', '/checkout', '/confirm-payment', '/thank-you', '/account',
                        '/profile-dashboard', '/verify-email', '/nfc', '/product-selection', '/choose-plan',
                        '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login',
-                       '/profiles', '/claim-url', '/help', '/contact', '/about', '/pricing', '/features',
+                       '/profiles', '/claim-url', '/help', '/contact', '/about', '/features',
                        '/founding-member', '/templates', '/new-card', '/_next', '/favicon'];
 
   const isUsernameRoute = pathname !== '/' &&

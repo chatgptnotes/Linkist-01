@@ -85,12 +85,47 @@ export default function NFCPaymentPage() {
 
       const data = JSON.parse(storedOrderData);
 
-      // Check if order has orderId (created during checkout)
+      // If no orderId (e.g. Next plan skipping checkout), create the order first
       if (!data.orderId) {
-        console.error('❌ No orderId found in pending order data');
-        setHasOrderError(true);
-        setOrderData(data); // Set data so page can display error properly
-        return;
+        try {
+          const createResponse = await fetch('/api/process-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cardConfig: data.cardConfig,
+              checkoutData: {
+                fullName: data.customerName,
+                email: data.email,
+                phoneNumber: data.phoneNumber,
+                addressLine1: data.shipping?.addressLine1 || 'N/A - Digital Product',
+                addressLine2: data.shipping?.addressLine2 || '',
+                city: data.shipping?.city || 'N/A',
+                state: data.shipping?.stateProvince || 'N/A',
+                country: data.shipping?.country || 'IN',
+                postalCode: data.shipping?.postalCode || 'N/A',
+              },
+              paymentData: null,
+              pricing: data.pricing,
+            }),
+          });
+          const createResult = await createResponse.json();
+          if (createResult.success && createResult.order) {
+            data.orderId = createResult.order.id;
+            data.orderNumber = createResult.order.orderNumber;
+            // Update localStorage with orderId
+            localStorage.setItem('pendingOrder', JSON.stringify(data));
+          } else {
+            console.error('Failed to create order:', createResult.error);
+            setHasOrderError(true);
+            setOrderData(data);
+            return;
+          }
+        } catch (error) {
+          console.error('Error creating order:', error);
+          setHasOrderError(true);
+          setOrderData(data);
+          return;
+        }
       }
 
       setOrderData(data);
@@ -293,6 +328,11 @@ export default function NFCPaymentPage() {
   // SIMPLIFIED PRICING: Calculate flat price (tax absorbed, no subscription for non-founders)
   const getSubtotal = () => {
     if (!orderData) return 0;
+
+    // Subscription plans (Next, etc.) — use stored total directly
+    if (orderData.cardConfig?.isDigitalOnly && orderData.pricing?.total > 0) {
+      return orderData.pricing.total;
+    }
 
     const quantity = orderData?.cardConfig?.quantity || 1;
 
@@ -638,6 +678,16 @@ export default function NFCPaymentPage() {
             <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
               <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Order Summary</h3>
 
+              {/* Subscription Plan Info - Show for digital-only plans */}
+              {orderData?.cardConfig?.baseMaterial === 'digital' && (orderData as any)?.planName && (
+                <div className="mb-4 sm:mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">{(orderData as any).planName} Plan</h4>
+                  <p className="text-xs sm:text-sm text-gray-600">
+                    {(orderData as any).billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'} subscription
+                  </p>
+                </div>
+              )}
+
               {/* Card Preview - Hide for digital products */}
               {orderData?.cardConfig?.baseMaterial !== 'digital' && (
                 <div className="mb-4 sm:mb-6">
@@ -654,7 +704,12 @@ export default function NFCPaymentPage() {
                         const colorName = color.split('-')[0];
                         return colorName.charAt(0).toUpperCase() + colorName.slice(1);
                       })()} •
-                      Plan: <span className={isFoundingMember ? 'text-amber-600 font-medium' : 'text-gray-600'}>{isFoundingMember ? 'Founders Club' : 'Personal'}</span>
+                      Plan: <span className={isFoundingMember ? 'text-amber-600 font-medium' : 'text-gray-600'}>{
+                        isFoundingMember ? 'Founders Circle'
+                        : orderData?.cardConfig?.planType === 'signature' ? 'Signature'
+                        : orderData?.cardConfig?.planType === 'pro' ? 'Pro'
+                        : 'Personal'
+                      }</span>
                     </p>
                   )}
 
@@ -696,53 +751,101 @@ export default function NFCPaymentPage() {
                 </div>
               )}
 
-              {/* SIMPLIFIED PRICING BREAKDOWN */}
+              {/* PRICING BREAKDOWN */}
               <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
-                {isFoundingMember ? (
-                  <>
-                    {/* FOUNDERS CLUB: Exclusive pricing with everything included */}
-                    <div className="flex justify-between">
-                      <span>
-                        Founder&apos;s Club × {orderData?.cardConfig?.quantity || 1}
-                      </span>
-                      <span>${getSubtotal().toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>1 Year Linkist App Subscription</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>GST</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shipping & Customization</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* NON-FOUNDERS: Flat material price with everything included */}
-                    <div className="flex justify-between">
-                      <span>
-                        Base Material Price × {orderData?.cardConfig?.quantity || 1}
-                      </span>
-                      <span>${getSubtotal().toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>GST</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Shipping</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Customization</span>
-                      <span className="text-green-600">Included</span>
-                    </div>
-                  </>
-                )}
+                {(() => {
+                  const billingPeriod = orderData?.cardConfig?.billingPeriod || 'yearly';
+                  const priceSuffix = billingPeriod === 'monthly' ? '/mo' : billingPeriod === 'yearly' ? '/yr' : '';
+                  const planType = orderData?.cardConfig?.planType || '';
+
+                  if (orderData?.cardConfig?.isDigitalOnly && (orderData as any)?.planName) {
+                    return (
+                      <>
+                        {/* SUBSCRIPTION PLAN: Show plan name + billing period */}
+                        <div className="flex justify-between">
+                          <span>{(orderData as any).planName} Plan ({billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'})</span>
+                          <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  if (isFoundingMember) {
+                    return (
+                      <>
+                        {/* FOUNDERS CLUB: Exclusive pricing with everything included */}
+                        <div className="flex justify-between">
+                          <span>
+                            Founder&apos;s Circle × {orderData?.cardConfig?.quantity || 1}
+                          </span>
+                          <span>${getSubtotal().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>1 Year Linkist App Subscription</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>GST</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Shipping & Customization</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  if (planType === 'signature') {
+                    return (
+                      <>
+                        {/* SIGNATURE: Plan subscription price */}
+                        <div className="flex justify-between">
+                          <span>
+                            Signature Plan × {orderData?.cardConfig?.quantity || 1}
+                          </span>
+                          <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>NFC Card + Customization</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>GST</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Shipping</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                      </>
+                    );
+                  }
+
+                  // PRO / DEFAULT
+                  return (
+                    <>
+                      <div className="flex justify-between">
+                        <span>
+                          Base Material Price × {orderData?.cardConfig?.quantity || 1}
+                        </span>
+                        <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>GST</span>
+                        <span className="text-green-600">Included</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Shipping</span>
+                        <span className="text-green-600">Included</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Customization</span>
+                        <span className="text-green-600">Included</span>
+                      </div>
+                    </>
+                  );
+                })()}
 
                 {/* Voucher Section - ONLY for Non-Founders (Founders have exclusive pricing) */}
                 {!isFoundingMember && (
@@ -830,7 +933,7 @@ export default function NFCPaymentPage() {
                 {/* Total */}
                 <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3 flex justify-between font-semibold text-sm sm:text-base">
                   <span>Total</span>
-                  <span>${getFinalAmount().toFixed(2)}</span>
+                  <span>${getFinalAmount().toFixed(2)}{orderData?.cardConfig?.billingPeriod === 'monthly' ? '/mo' : ''}</span>
                 </div>
               </div>
 

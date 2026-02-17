@@ -52,11 +52,17 @@ interface Product {
   updated_at: string;
 }
 
+type PlanType = 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club' | 'starter' | 'next' | 'pro' | 'signature' | 'founders-circle';
+
 interface SubscriptionPlan {
   id: string;
   name: string;
-  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club';
+  type: PlanType;
   price: number;
+  monthly_price: number | null;
+  yearly_price: number | null;
+  yearly_discount_percent: number | null;
+  has_card_customization: boolean;
   gst_percentage: number;
   vat_percentage: number;
   description: string;
@@ -86,8 +92,12 @@ export default function ProductsPage() {
   const [showProductModal, setShowProductModal] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    type: 'physical-digital' as 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club',
+    type: 'physical-digital' as PlanType,
     price: 0,
+    monthly_price: null as number | null,
+    yearly_price: null as number | null,
+    yearly_discount_percent: null as number | null,
+    has_card_customization: false,
     gst_percentage: 18,
     vat_percentage: 5,
     description: '',
@@ -190,7 +200,12 @@ export default function ProductsPage() {
       case 'physical-digital': return 'Physical + Digital';
       case 'digital-with-app': return 'Digital + App';
       case 'digital-only': return 'Digital Only';
-      case 'founders-club': return "Founder's Club";
+      case 'founders-club': return "Founder's Circle";
+      case 'starter': return 'Starter';
+      case 'next': return 'Next';
+      case 'pro': return 'Pro';
+      case 'signature': return 'Signature';
+      case 'founders-circle': return "Founder's Circle";
       default: return type;
     }
   };
@@ -259,6 +274,10 @@ export default function ProductsPage() {
         name: formData.name,
         type: formData.type,
         price: formData.price,
+        monthly_price: formData.monthly_price,
+        yearly_price: formData.yearly_price,
+        yearly_discount_percent: formData.yearly_discount_percent,
+        has_card_customization: formData.has_card_customization,
         gst_percentage: formData.gst_percentage,
         vat_percentage: formData.vat_percentage,
         description: formData.description,
@@ -301,6 +320,10 @@ export default function ProductsPage() {
       name: plan.name,
       type: plan.type,
       price: plan.price,
+      monthly_price: plan.monthly_price ?? null,
+      yearly_price: plan.yearly_price ?? null,
+      yearly_discount_percent: plan.yearly_discount_percent ?? null,
+      has_card_customization: plan.has_card_customization ?? false,
       gst_percentage: plan.gst_percentage || 18,
       vat_percentage: plan.vat_percentage || 5,
       description: plan.description,
@@ -341,6 +364,10 @@ export default function ProductsPage() {
       name: '',
       type: 'physical-digital',
       price: 0,
+      monthly_price: null,
+      yearly_price: null,
+      yearly_discount_percent: null,
+      has_card_customization: false,
       gst_percentage: 18,
       vat_percentage: 5,
       description: '',
@@ -871,10 +898,15 @@ export default function ProductsPage() {
                       className="w-full border border-gray-300 rounded-md px-3 py-2"
                       required
                     >
+                      <option value="starter">Starter</option>
+                      <option value="next">Next</option>
+                      <option value="pro">Pro</option>
+                      <option value="signature">Signature</option>
+                      <option value="founders-circle">Founder&apos;s Circle</option>
                       <option value="physical-digital">Physical NFC Card + Digital</option>
                       <option value="digital-with-app">Digital Profile + App</option>
                       <option value="digital-only">Digital Profile Only</option>
-                      <option value="founders-club">Founder's Club</option>
+                      <option value="founders-club">Founder&apos;s Circle (Legacy)</option>
                     </select>
                   </div>
 
@@ -894,11 +926,67 @@ export default function ProductsPage() {
                     />
                   </div>
 
-                  {/* Founders Club Total Price - Only shown for founders-club type */}
+                  {/* Monthly & Yearly Pricing */}
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Monthly Price (USD)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.monthly_price ?? ''}
+                        onChange={(e) => setFormData({ ...formData, monthly_price: e.target.value ? parseFloat(e.target.value) : null })}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        placeholder="6.90"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Yearly Price/mo (USD)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.yearly_price ?? ''}
+                        onChange={(e) => setFormData({ ...formData, yearly_price: e.target.value ? parseFloat(e.target.value) : null })}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        placeholder="5.50"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Yearly Discount %
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.yearly_discount_percent ?? ''}
+                        onChange={(e) => setFormData({ ...formData, yearly_discount_percent: e.target.value ? parseInt(e.target.value) : null })}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2"
+                        placeholder="20"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Card Customization Toggle */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                    <input
+                      type="checkbox"
+                      id="has_card_customization"
+                      checked={formData.has_card_customization}
+                      onChange={(e) => setFormData({ ...formData, has_card_customization: e.target.checked })}
+                      className="w-4 h-4 text-blue-600 rounded"
+                    />
+                    <label htmlFor="has_card_customization" className="text-sm font-medium text-gray-700">
+                      Plan includes NFC card customization
+                    </label>
+                  </div>
+
+                  {/* Founders Circle Total Price - Only shown for founders-club type */}
                   {formData.type === 'founders-club' && (
                     <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
                       <label className="block text-sm font-medium text-amber-800 mb-2">
-                        Founders Club Total Price (USD) *
+                        Founders Circle Total Price (USD) *
                       </label>
                       <input
                         type="number"
@@ -909,7 +997,7 @@ export default function ProductsPage() {
                         placeholder="100.00"
                       />
                       <p className="text-xs text-amber-700 mt-2">
-                        Set the total price for Founders Club members. The system will automatically calculate:<br />
+                        Set the total price for Founders Circle members. The system will automatically calculate:<br />
                         • India: Base = Total - 18% GST (e.g., $100 → $82 base + $18 GST)<br />
                         • US/UK/UAE: Base = Total - 5% VAT (e.g., $100 → $95 base + $5 VAT)
                       </p>

@@ -128,13 +128,13 @@ export default function EnterCodeModal({ isOpen, onClose, onSuccess }: EnterCode
               <CheckCircleIcon className="w-8 h-8 text-green-600" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Welcome to Founders Club!
+              Welcome to Founders Circle!
             </h2>
             <p className="text-gray-600 mb-4">
-              Your code has been verified. You now have access to exclusive Founders Club benefits.
+              Your code has been verified. You now have access to exclusive Founders Circle benefits.
             </p>
             <div className="animate-pulse text-sm text-gray-500">
-              Unlocking Founders Club...
+              Unlocking Founders Circle...
             </div>
           </div>
         ) : (
@@ -148,7 +148,7 @@ export default function EnterCodeModal({ isOpen, onClose, onSuccess }: EnterCode
                 Enter Your Invite Code
               </h2>
               <p className="text-gray-600 text-sm">
-                Enter the invite code you received via email to unlock Founders Club access.
+                Enter the invite code you received via email to unlock Founders Circle access.
               </p>
             </div>
 

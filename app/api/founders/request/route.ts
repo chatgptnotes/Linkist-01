@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     if (existingUserByEmail) {
       if (existingUserByEmail.is_founding_member) {
         return NextResponse.json(
-          { success: false, error: 'This email is already registered as a Founders Club member.' },
+          { success: false, error: 'This email is already registered as a Founders Circle member.' },
           { status: 400 }
         );
       }
@@ -94,7 +94,7 @@ export async function POST(request: NextRequest) {
 
       if (member) {
         return NextResponse.json(
-          { success: false, error: 'You are already a Founders Club member.' },
+          { success: false, error: 'You are already a Founders Circle member.' },
           { status: 400 }
         );
       }
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     try {
       const emailResult = await sendOrderEmail({
         to: email.toLowerCase().trim(),
-        subject: 'Your Founders Club access request is under review',
+        subject: 'Your Founders Circle access request is under review',
         html: getFoundersRequestConfirmationEmail(firstName.trim(), lastName.trim())
       });
 
@@ -234,7 +234,7 @@ function getFoundersRequestConfirmationEmail(firstName: string, lastName: string
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Founders Club Request Received</title>
+  <title>Founders Circle Request Received</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -249,10 +249,10 @@ function getFoundersRequestConfirmationEmail(firstName: string, lastName: string
           Hi ${firstName} ${lastName},
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          Thank you for your interest in joining the Linkist Founders Club.
+          Thank you for your interest in joining the Linkist Founders Circle.
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          We've successfully received your request, and our team is currently reviewing it. If your request is approved, you'll receive a unique invite code that you can use to unlock Founders Club access and continue your journey with Linkist.
+          We've successfully received your request, and our team is currently reviewing it. If your request is approved, you'll receive a unique invite code that you can use to unlock Founders Circle access and continue your journey with Linkist.
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
           You can expect to hear back from us within 24 hours.

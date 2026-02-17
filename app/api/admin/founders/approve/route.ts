@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
 
       const emailResult = await sendOrderEmail({
         to: foundersRequest.email,
-        subject: "You're approved — unlock your Founders Club access",
+        subject: "You're approved — unlock your Founders Circle access",
         html: getEmailTemplate(fullName, inviteCode, expiresAt)
       });
 
@@ -157,7 +157,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>You're approved — unlock your Founders Club access</title>
+  <title>You're approved — unlock your Founders Circle access</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -172,10 +172,10 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
           Hi ${fullName},
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          Great news — your request to join the Linkist Founders Club has been approved.
+          Great news — your request to join the Linkist Founders Circle has been approved.
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 15px;">
-          Your exclusive Founders Club invite code is:
+          Your exclusive Founders Circle invite code is:
         </p>
 
         <div style="background-color: #fef3c7; border: 2px dashed #f59e0b; border-radius: 12px; padding: 25px; text-align: center; margin: 0 0 30px;">
@@ -187,25 +187,25 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
         </p>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
-          <a href="https://www.linkist.ai/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Club card customisation.
+          <a href="https://www.linkist.ai/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Circle card customisation.
         </p>
 
         <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">How to use your code:</h3>
         <ol style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 10px;">Go to the Linkist plan selection page</li>
-          <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Club card</li>
+          <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Circle card</li>
           <li style="margin-bottom: 10px;">Enter your email and invite code to unlock access</li>
-          <li>Enjoy exclusive Founders Club benefits</li>
+          <li>Enjoy exclusive Founders Circle benefits</li>
         </ol>
 
-        <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">Your Founders Club Benefits:</h3>
+        <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">Your Founders Circle Benefits:</h3>
         <ul style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 8px;">Lifetime subscription to the Linkist Pro App</li>
           <li style="margin-bottom: 8px;">Premium Metal NFC Card</li>
           <li style="margin-bottom: 8px;">"Founding Member" tag on your card</li>
           <li style="margin-bottom: 8px;">No expiry on AI credits</li>
           <li style="margin-bottom: 8px;">Fully customisable card</li>
-          <li>Up to 3 referral invites to the Founders Club</li>
+          <li>Up to 3 referral invites to the Founders Circle</li>
         </ul>
 
         <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 0 0 30px;">
@@ -236,7 +236,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
     <tr>
       <td style="padding: 30px; background-color: #f9fafb; text-align: center;">
         <p style="color: #6b7280; font-size: 12px; margin: 0 0 10px;">
-          This email was sent to you because you requested access to Linkist Founders Club.
+          This email was sent to you because you requested access to Linkist Founders Circle.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 0;">
           © ${new Date().getFullYear()} Linkist. All rights reserved.

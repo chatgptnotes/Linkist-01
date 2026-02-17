@@ -169,7 +169,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
   const pricingRows = isFounder ? `
         <div class="detail-row">
           <span>Plan:</span>
-          <span class="plan-label">Founder's Club</span>
+          <span class="plan-label">Founder's Circle</span>
         </div>
         <div class="detail-row">
           <span>Exclusive Founder's Price × ${quantity}</span>
@@ -586,7 +586,7 @@ export const receiptEmail = (data: OrderData) => {
   const pricingRows = isFounder ? `
         <div class="detail-row">
           <span>Plan:</span>
-          <span class="plan-label">Founder's Club</span>
+          <span class="plan-label">Founder's Circle</span>
         </div>
         <div class="detail-row">
           <span>Exclusive Founder's Price × ${quantity}</span>

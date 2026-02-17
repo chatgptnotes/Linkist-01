@@ -186,7 +186,7 @@ export async function POST(request: NextRequest) {
 
       try {
         order = await SupabaseOrderStore.create({
-          orderNumber: await generateOrderNumber(planType, cardConfig.isFoundingMember || false),
+          orderNumber: await generateOrderNumber(planType, cardConfig.isFoundingMember || false, cardConfig.planType || undefined),
           userId: user.id, // Link order to user
           status: orderStatus,
           customerName: checkoutData.fullName,

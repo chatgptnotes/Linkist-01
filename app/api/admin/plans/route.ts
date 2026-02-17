@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { name, type, price, gst_percentage, vat_percentage, description, features, status, popular, allowed_countries, founders_total_price } = body;
+    const { name, type, price, monthly_price, yearly_price, yearly_discount_percent, has_card_customization, gst_percentage, vat_percentage, description, features, status, popular, allowed_countries, founders_total_price } = body;
 
     // Validation
     if (!name || !type || price === undefined || price === null || !description || !features) {
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!['physical-digital', 'digital-with-app', 'digital-only', 'founders-club'].includes(type)) {
+    if (!['physical-digital', 'digital-with-app', 'digital-only', 'founders-club', 'starter', 'next', 'pro', 'signature', 'founders-circle'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid plan type' },
         { status: 400 }
@@ -79,6 +79,10 @@ export async function POST(request: NextRequest) {
       name,
       type,
       price,
+      monthly_price: monthly_price ?? null,
+      yearly_price: yearly_price ?? null,
+      yearly_discount_percent: yearly_discount_percent ?? null,
+      has_card_customization: has_card_customization ?? false,
       gst_percentage: gst_percentage || 18,
       vat_percentage: vat_percentage || 5,
       description,
@@ -143,7 +147,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Validate type if provided
-    if (updateData.type && !['physical-digital', 'digital-with-app', 'digital-only', 'founders-club'].includes(updateData.type)) {
+    if (updateData.type && !['physical-digital', 'digital-with-app', 'digital-only', 'founders-club', 'starter', 'next', 'pro', 'signature', 'founders-circle'].includes(updateData.type)) {
       return NextResponse.json(
         { error: 'Invalid plan type' },
         { status: 400 }

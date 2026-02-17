@@ -34,7 +34,7 @@ interface GroupedOptions {
 interface SubscriptionPlan {
   id: string;
   name: string;
-  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club';
+  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club' | 'signature' | 'pro' | 'founders-circle' | 'starter' | 'next';
   price: number;
   description: string;
   status: string;
@@ -195,10 +195,24 @@ export default function CardCustomizationTab() {
     return option.is_enabled;
   };
 
+  const getPlanDisplayName = (plan: SubscriptionPlan): string => {
+    switch (plan.type) {
+      case 'physical-digital': return 'Personal Plan';
+      case 'signature': return 'Signature Plan';
+      case 'pro': return 'Pro Plan';
+      case 'founders-club': return 'Founders Club';
+      case 'founders-circle': return 'Founders Circle';
+      case 'starter': return 'Starter Plan';
+      case 'next': return 'Next Plan';
+      default: return plan.name;
+    }
+  };
+
   const getSelectedPlanName = (): string => {
     if (!selectedPlanId) return '';
     const plan = plans.find(p => p.id === selectedPlanId);
-    return plan?.type === 'physical-digital' ? 'Personal Plan' : 'Founders Club';
+    if (!plan) return '';
+    return getPlanDisplayName(plan);
   };
 
   // Get ALL textures - admin can enable any texture for any material
@@ -276,7 +290,7 @@ export default function CardCustomizationTab() {
             >
               {plans.map((plan) => (
                 <option key={plan.id} value={plan.id}>
-                  {plan.type === 'physical-digital' ? 'Personal Plan' : 'Founders Club'}
+                  {getPlanDisplayName(plan)}
                 </option>
               ))}
             </select>

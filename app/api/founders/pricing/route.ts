@@ -4,7 +4,7 @@ import { calculateFoundersPricing } from '@/lib/pricing-utils';
 
 /**
  * GET /api/founders/pricing
- * Returns the Founders Club pricing configuration
+ * Returns the Founders Circle pricing configuration
  * Optionally calculates the breakdown based on user's country
  */
 export async function GET(request: NextRequest) {
@@ -12,14 +12,15 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const country = searchParams.get('country') || 'India';
 
-    // Get all plans and find the founders-club plan
+    // Get all plans and find the founders plan (founders-circle or legacy founders-club)
     const plans = await SupabasePlansStore.getAll();
-    const foundersPlan = plans.find(p => p.type === 'founders-club' && p.status === 'active');
+    const foundersPlan = plans.find(p => p.type === 'founders-circle' && p.status === 'active')
+      || plans.find(p => p.type === 'founders-club' && p.status === 'active');
 
     if (!foundersPlan) {
       return NextResponse.json({
         success: false,
-        error: 'Founders Club plan not found or not active'
+        error: 'Founders Circle plan not found or not active'
       }, { status: 404 });
     }
 
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     if (!totalPrice) {
       return NextResponse.json({
         success: false,
-        error: 'Founders Club total price not configured'
+        error: 'Founders Circle total price not configured'
       }, { status: 404 });
     }
 
