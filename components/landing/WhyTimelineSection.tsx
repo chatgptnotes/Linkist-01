@@ -98,7 +98,7 @@ export default function WhyTimelineSection() {
         },
         {
             number: '02',
-            numberImage: '/number-03.png',
+            numberImage: '/number-02.png',
             icon: '/questionmark.png',
             iconAlt: 'Question mark icon',
             iconWidth: 40,
