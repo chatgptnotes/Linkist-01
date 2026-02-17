@@ -13,11 +13,17 @@ const getAdminClient = () => {
   });
 };
 
+export type PlanType = 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club' | 'starter' | 'next' | 'pro' | 'signature' | 'founders-circle';
+
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club';
+  type: PlanType;
   price: number;
+  monthly_price: number | null;
+  yearly_price: number | null;
+  yearly_discount_percent: number | null;
+  has_card_customization: boolean;
   gst_percentage: number;
   vat_percentage: number;
   description: string;
@@ -26,15 +32,19 @@ export interface SubscriptionPlan {
   popular: boolean;
   allowed_countries: string[];
   display_order: number;
-  founders_total_price: number | null; // Total price for Founders Club (system back-calculates base by region)
+  founders_total_price: number | null;
   created_at: string;
   updated_at: string;
 }
 
 export interface CreatePlanData {
   name: string;
-  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club';
+  type: PlanType;
   price: number;
+  monthly_price?: number | null;
+  yearly_price?: number | null;
+  yearly_discount_percent?: number | null;
+  has_card_customization?: boolean;
   gst_percentage?: number;
   vat_percentage?: number;
   description: string;

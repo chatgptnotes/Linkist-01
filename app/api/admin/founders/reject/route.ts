@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     try {
       const emailResult = await sendOrderEmail({
         to: foundersRequest.email,
-        subject: 'Update on Your Founders Club Request - Linkist',
+        subject: 'Update on Your Founders Circle Request - Linkist',
         html: getRejectionEmailTemplate(foundersRequest.full_name, reason || null)
       });
 
@@ -97,13 +97,13 @@ function getRejectionEmailTemplate(name: string, reason: string | null): string 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Founders Club Request Update</title>
+  <title>Founders Circle Request Update</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
     <tr>
       <td style="padding: 40px 30px; text-align: center; background: linear-gradient(135deg, #374151 0%, #1f2937 100%);">
-        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Founders Club Update</h1>
+        <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Founders Circle Update</h1>
       </td>
     </tr>
     <tr>
@@ -112,7 +112,7 @@ function getRejectionEmailTemplate(name: string, reason: string | null): string 
           Hi ${name},
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          Thank you for your interest in joining the Linkist Founders Club.
+          Thank you for your interest in joining the Linkist Founders Circle.
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
           After careful review, we regret to inform you that we are unable to approve your request at this time.
@@ -125,7 +125,7 @@ function getRejectionEmailTemplate(name: string, reason: string | null): string 
         </div>
         ` : ''}
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          This decision doesn't reflect on your qualifications. The Founders Club has limited spots and we had to make difficult choices.
+          This decision doesn't reflect on your qualifications. The Founders Circle has limited spots and we had to make difficult choices.
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
           You can still enjoy our regular Linkist products and services. We'd love to have you as part of our community!

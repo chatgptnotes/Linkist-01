@@ -498,12 +498,14 @@ export type OrderPlanType = 'digital-only' | 'digital-profile-app' | 'nfc-card-f
 
 // Generate a cryptic order number based on plan type
 // Founders Club: LKFM-FC-{cryptic}
+// Signature: LKFM-SIG-{cryptic}
 // Digital Only: LKFM-DO-{cryptic}
 // Digital Profile + Linkist App: LKFM-DPLA-{cryptic}
 // NFC Digital Card + Digital Profile + Linkist App: LKFM-CDPLA-{cryptic}
 export const generateOrderNumber = async (
   planType: OrderPlanType = 'nfc-card-full',
-  isFoundersClub: boolean = false
+  isFoundersClub: boolean = false,
+  selectedPlanType?: string
 ): Promise<string> => {
   // Generate cryptic number using industry best practices
   // Combine timestamp (6 chars) + random (4 chars) = 10 character cryptic string
@@ -511,12 +513,23 @@ export const generateOrderNumber = async (
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   const cryptic = `${timestamp}${random}`;
 
+  // Plan-specific prefixes (checked first for exact plan matching)
+  if (selectedPlanType === 'signature') {
+    return `LKFM-SIG-${cryptic}`;
+  }
+  if (selectedPlanType === 'pro') {
+    return `LKFM-PRO-${cryptic}`;
+  }
+  if (selectedPlanType === 'next') {
+    return `LKFM-NXT-${cryptic}`;
+  }
+
   // Founders Club gets special prefix
   if (isFoundersClub) {
     return `LKFM-FC-${cryptic}`;
   }
 
-  // Determine prefix based on plan type
+  // Fallback prefix based on generic plan type
   let prefix = 'LKFM-CDPLA'; // Default: NFC Card + Digital Profile + Linkist App
 
   if (planType === 'digital-only') {

@@ -242,7 +242,7 @@ export default function AdminFoundersPage() {
           <div className="flex items-center gap-3">
             <Crown className="w-8 h-8 text-amber-500" />
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Founders Club</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Founders Circle</h1>
               <p className="text-sm text-gray-500">Manage access requests and invite codes</p>
             </div>
           </div>

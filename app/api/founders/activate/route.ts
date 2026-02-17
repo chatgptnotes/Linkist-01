@@ -386,7 +386,7 @@ export async function POST(request: NextRequest) {
     // Create response with user data including profile slug
     const response = NextResponse.json({
       success: true,
-      message: 'Welcome to the Founders Club! Your account has been activated.',
+      message: 'Welcome to the Founders Circle! Your account has been activated.',
       user: {
         id: user.id,
         email: user.email,

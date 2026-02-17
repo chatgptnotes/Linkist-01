@@ -55,7 +55,7 @@ export interface PlanCustomizationOption {
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club';
+  type: 'physical-digital' | 'digital-with-app' | 'digital-only' | 'founders-club' | 'signature' | 'pro' | 'founders-circle' | 'starter' | 'next';
   price: number;
   description: string;
   status: string;
@@ -260,7 +260,7 @@ export const SupabaseCardCustomizationStore = {
     const { data, error } = await supabase
       .from('subscription_plans')
       .select('id, name, type, price, description, status')
-      .in('type', ['physical-digital', 'founders-club'])
+      .in('type', ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle'])
       .order('type', { ascending: true });
 
     if (error) {

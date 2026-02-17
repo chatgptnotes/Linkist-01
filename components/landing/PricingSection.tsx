@@ -22,7 +22,7 @@ type Plan = {
 
 export default function PricingSection() {
   const [foundersPrice, setFoundersPrice] = useState<number | null>(null);
-  const [foundersDescription, setFoundersDescription] = useState<string>("Exclusive Founder's Club membership with premium benefits");
+  const [foundersDescription, setFoundersDescription] = useState<string>("Exclusive Founder's Circle membership with premium benefits");
   const [foundersFeatures, setFoundersFeatures] = useState<Feature[]>([
     { text: 'Lifetime Linkist Pro App subscription', included: true },
     { text: 'Linkist Digital Profile', included: true },
@@ -86,7 +86,7 @@ export default function PricingSection() {
       href: '/choose-plan'
     },
     {
-      name: "Founder's Club",
+      name: "Founder's Circle",
       price: foundersPrice ? `$${foundersPrice}` : '...',
       description: foundersDescription,
       features: foundersFeatures,
@@ -270,6 +270,17 @@ export default function PricingSection() {
               </Link>
             </motion.div>
           ))}
+        </div>
+
+        {/* Compare all plans link */}
+        <div className="mt-12 text-center">
+          <Link
+            href="/product-selection"
+            className="text-[#888] hover:text-white transition-colors underline underline-offset-4 text-sm"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
+          >
+            Compare all plans &rarr;
+          </Link>
         </div>
 
       </div>

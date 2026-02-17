@@ -280,7 +280,7 @@ export async function POST(request: NextRequest) {
     try {
       const emailResult = await sendOrderEmail({
         to: normalizedEmail,
-        subject: `${referrerName} has invited you to join Linkist Founders Club`,
+        subject: `${referrerName} has invited you to join Linkist Founders Circle`,
         html: getReferralEmailTemplate(referrerName, firstName.trim(), inviteCode, expiresAt)
       });
 
@@ -323,7 +323,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${referrerName} has invited you to join Linkist Founders Club</title>
+  <title>${referrerName} has invited you to join Linkist Founders Circle</title>
 </head>
 <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f4;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
@@ -338,7 +338,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
           Hi ${referredFirstName},
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          <strong>${referrerName}</strong> has invited you to join the exclusive <strong>Linkist Founders Club</strong>!
+          <strong>${referrerName}</strong> has invited you to join the exclusive <strong>Linkist Founders Circle</strong>!
         </p>
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 15px;">
           Your exclusive invite code is:
@@ -355,19 +355,19 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
         <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">How to use your code:</h3>
         <ol style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 10px;">Click the button above or go to linkist.ai/product-selection</li>
-          <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Club card</li>
+          <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Circle card</li>
           <li style="margin-bottom: 10px;">Enter this email address and your invite code</li>
-          <li>Enjoy exclusive Founders Club benefits!</li>
+          <li>Enjoy exclusive Founders Circle benefits!</li>
         </ol>
 
-        <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">Your Founders Club Benefits:</h3>
+        <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">Your Founders Circle Benefits:</h3>
         <ul style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 8px;">Lifetime subscription to the Linkist Pro App</li>
           <li style="margin-bottom: 8px;">Premium Metal NFC Card</li>
           <li style="margin-bottom: 8px;">"Founding Member" tag on your card</li>
           <li style="margin-bottom: 8px;">No expiry on AI credits</li>
           <li style="margin-bottom: 8px;">Fully customisable card</li>
-          <li>Up to 3 referral invites to the Founders Club</li>
+          <li>Up to 3 referral invites to the Founders Circle</li>
         </ul>
 
         <div style="background-color: #fef2f2; border-left: 4px solid #ef4444; padding: 15px; margin: 0 0 30px;">
@@ -382,7 +382,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
         </div>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 20px;">
-          We're excited to welcome you to the Founders Club!
+          We're excited to welcome you to the Founders Circle!
         </p>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 5px;">
@@ -399,7 +399,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
     <tr>
       <td style="padding: 30px; background-color: #f9fafb; text-align: center;">
         <p style="color: #6b7280; font-size: 12px; margin: 0 0 10px;">
-          You received this email because ${referrerName} invited you to join Linkist Founders Club.
+          You received this email because ${referrerName} invited you to join Linkist Founders Circle.
         </p>
         <p style="color: #6b7280; font-size: 12px; margin: 0;">
           &copy; ${new Date().getFullYear()} Linkist. All rights reserved.

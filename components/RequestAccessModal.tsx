@@ -154,7 +154,7 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
               Request Submitted!
             </h2>
             <p className="text-gray-600 mb-6">
-              Thank you for your interest in the Founders Club. We'll review your request and get back to you within 24-48 hours with an invite code.
+              Thank you for your interest in the Founders Circle. We'll review your request and get back to you within 24-48 hours with an invite code.
             </p>
             <button
               onClick={handleClose}
@@ -170,13 +170,13 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <h2 className="text-2xl font-bold text-gray-900">
-                  Request Founders Club Access
+                  Request Founders Circle Access
                 </h2>
                 <button
                   type="button"
                   onClick={() => setShowBenefitsPopup(true)}
                   className="text-gray-400 hover:text-gray-600 cursor-pointer"
-                  title="View Founder's Club benefits"
+                  title="View Founder's Circle benefits"
                 >
                   <InfoOutlinedIcon className="w-5 h-5" />
                 </button>
@@ -329,7 +329,7 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
               {/* Note (Optional) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Why do you want to join the Founders Club? <span className="text-gray-400">(Optional)</span>
+                  Why do you want to join the Founders Circle? <span className="text-gray-400">(Optional)</span>
                 </label>
                 <div className="relative">
                   <NoteIcon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />

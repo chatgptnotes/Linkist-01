@@ -10,8 +10,11 @@ export async function GET(request: NextRequest) {
 
     let structuredOptions;
 
-    // If plan_type is provided, return plan-specific options
-    if (planType && (planType === 'physical-digital' || planType === 'founders-club')) {
+    // Valid plan types that support card customization
+    const validPlanTypes = ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle'];
+
+    // If plan_type is provided and valid, return plan-specific options
+    if (planType && validPlanTypes.includes(planType)) {
       structuredOptions = await SupabaseCardCustomizationStore.getStructuredOptionsForPlan(planType);
     } else {
       // Default: return all enabled options (backward compatible)

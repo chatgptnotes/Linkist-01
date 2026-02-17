@@ -240,6 +240,9 @@ export default function CheckoutPage() {
             pattern: config.pattern,
             color: config.colour || config.color,  // Handle both colour and color
             fullName: `${config.cardFirstName} ${config.cardLastName}`.trim(),
+            // Billing period and plan type from configure page
+            billingPeriod: config.billingPeriod || localStorage.getItem('billingPeriod') || 'yearly',
+            planType: config.planType || localStorage.getItem('productSelection') || 'physical-digital',
             // Founders Club data
             isFoundingMember: configIsFoundingMember,
             foundingMemberPlan: foundingMemberPlan,
@@ -505,8 +508,27 @@ export default function CheckoutPage() {
       };
     }
 
-    // SIMPLIFIED PRICING: Non-founders pay flat material price
-    // GST, shipping, customization are ALL INCLUDED - no separate calculation
+    // SIGNATURE PLAN: Use plan subscription price (no material price)
+    if (cardConfig?.planType === 'signature') {
+      const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
+      return {
+        productPlanPrice: selectedPlanAmount,
+        materialPrice: selectedPlanAmount,
+        appSubscriptionPrice: 0,
+        basePrice: selectedPlanAmount,
+        subtotal: selectedPlanAmount * quantity,
+        taxAmount: 0,
+        shippingCost: 0,
+        totalBeforeDiscount: selectedPlanAmount * quantity,
+        discountAmount: 0,
+        total: selectedPlanAmount * quantity,
+        taxRate: 0,
+        taxLabel: 'Included',
+        isFoundersPricing: false
+      };
+    }
+
+    // PRO / DEFAULT: Material price adjusted by billing period
     const pricing = calculatePricing({
       cardConfig: {
         baseMaterial: (cardConfig?.baseMaterial as any) || 'pvc',
@@ -514,21 +536,26 @@ export default function CheckoutPage() {
       },
       country: watchedValues.country || 'US',
       isFoundingMember: userIsFoundingMember,
-      includeAppSubscription: false, // Non-founders don't get subscription
+      includeAppSubscription: false,
     });
 
-    // Return simplified pricing - tax is absorbed, no separate calculation
+    // Adjust material price for monthly billing
+    const billingPeriod = cardConfig?.billingPeriod || 'yearly';
+    const adjustedMaterialPrice = billingPeriod === 'monthly'
+      ? pricing.materialPrice / 10
+      : pricing.materialPrice;
+
     return {
       productPlanPrice: 0,
-      materialPrice: pricing.materialPrice,
-      appSubscriptionPrice: 0, // Non-founders don't pay subscription
-      basePrice: pricing.materialPrice,
-      subtotal: pricing.subtotal,
-      taxAmount: 0, // Tax is ABSORBED into the flat price
+      materialPrice: adjustedMaterialPrice,
+      appSubscriptionPrice: 0,
+      basePrice: adjustedMaterialPrice,
+      subtotal: adjustedMaterialPrice * quantity,
+      taxAmount: 0,
       shippingCost: 0,
-      totalBeforeDiscount: pricing.subtotal, // Just material price
+      totalBeforeDiscount: adjustedMaterialPrice * quantity,
       discountAmount: 0,
-      total: pricing.subtotal, // Just material price (tax absorbed)
+      total: adjustedMaterialPrice * quantity,
       taxRate: 0,
       taxLabel: 'Included',
       isFoundersPricing: false
@@ -724,9 +751,10 @@ export default function CheckoutPage() {
       localStorage.setItem('userContactData', JSON.stringify(userContactData));
       console.log('💾 Checkout: Saved user contact data to localStorage:', userContactData);
 
-      // SIMPLIFIED PRICING MODEL:
-      // - Non-founders: Pay flat material price ($69/$79/$99). GST INCLUDED.
+      // PRICING MODEL:
       // - Founders: Pay flat admin-set price (e.g., $149). Subscription + GST INCLUDED.
+      // - Signature: Pay plan subscription price (no material price).
+      // - Pro/Default: Pay material price adjusted by billing period. GST INCLUDED.
       const hasFoundersPricing = userIsFoundingMember && cardConfig?.foundersTotalPrice;
       let pricingData;
 
@@ -737,11 +765,11 @@ export default function CheckoutPage() {
         pricingData = {
           productPlanPrice: 0,
           materialPrice: founderPrice,
-          appSubscriptionPrice: 0, // Included in founders price
+          appSubscriptionPrice: 0,
           basePrice: founderPrice,
           subtotal: founderPrice * quantity,
           shippingCost: 0,
-          taxAmount: 0, // Tax ABSORBED into flat price
+          taxAmount: 0,
           totalBeforeDiscount: founderPrice * quantity,
           discountAmount: 0,
           total: founderPrice * quantity,
@@ -751,8 +779,29 @@ export default function CheckoutPage() {
           voucherDiscount: 0,
           isFoundersPricing: true
         };
+      } else if (cardConfig?.planType === 'signature') {
+        // SIGNATURE: Use plan subscription price (no material price)
+        const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
+        console.log('✨ Checkout: Using SIGNATURE pricing:', selectedPlanAmount, 'x', quantity);
+        pricingData = {
+          productPlanPrice: selectedPlanAmount,
+          materialPrice: selectedPlanAmount,
+          appSubscriptionPrice: 0,
+          basePrice: selectedPlanAmount,
+          subtotal: selectedPlanAmount * quantity,
+          shippingCost: 0,
+          taxAmount: 0,
+          totalBeforeDiscount: selectedPlanAmount * quantity,
+          discountAmount: 0,
+          total: selectedPlanAmount * quantity,
+          taxRate: 0,
+          taxLabel: 'Included',
+          voucherCode: null,
+          voucherDiscount: 0,
+          isFoundersPricing: false
+        };
       } else {
-        // NON-FOUNDERS: Flat material price with GST absorbed
+        // PRO / DEFAULT: Material price adjusted by billing period
         const pricing = calculatePricing({
           cardConfig: {
             baseMaterial: (cardConfig?.baseMaterial as any) || 'pvc',
@@ -760,20 +809,26 @@ export default function CheckoutPage() {
           },
           country: formData.country || 'US',
           isFoundingMember: userIsFoundingMember,
-          includeAppSubscription: false, // Non-founders don't get subscription
+          includeAppSubscription: false,
         });
-        console.log('💰 Checkout: Using STANDARD pricing:', pricing.materialPrice, 'x', quantity);
+
+        const billingPeriod = cardConfig?.billingPeriod || 'yearly';
+        const adjustedMaterialPrice = billingPeriod === 'monthly'
+          ? pricing.materialPrice / 10
+          : pricing.materialPrice;
+
+        console.log('💰 Checkout: Using STANDARD pricing:', adjustedMaterialPrice, 'x', quantity, '(billing:', billingPeriod, ')');
         pricingData = {
           productPlanPrice: 0,
-          materialPrice: pricing.materialPrice,
-          appSubscriptionPrice: 0, // Non-founders don't pay subscription
-          basePrice: pricing.materialPrice,
-          subtotal: pricing.subtotal,
+          materialPrice: adjustedMaterialPrice,
+          appSubscriptionPrice: 0,
+          basePrice: adjustedMaterialPrice,
+          subtotal: adjustedMaterialPrice * quantity,
           shippingCost: 0,
-          taxAmount: 0, // Tax ABSORBED into flat price
-          totalBeforeDiscount: pricing.subtotal,
+          taxAmount: 0,
+          totalBeforeDiscount: adjustedMaterialPrice * quantity,
           discountAmount: 0,
-          total: pricing.subtotal, // Flat price (tax absorbed)
+          total: adjustedMaterialPrice * quantity,
           taxRate: 0,
           taxLabel: 'Included',
           voucherCode: null,

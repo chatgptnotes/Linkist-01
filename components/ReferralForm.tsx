@@ -108,7 +108,7 @@ export default function ReferralForm({ isOpen, onClose, onSuccess, remainingRefe
               Referral Sent!
             </h2>
             <p className="text-gray-600 mb-6">
-              We&apos;ve sent an invite to <strong>{referredEmail}</strong>. They&apos;ll receive an email with their exclusive Founders Club code.
+              We&apos;ve sent an invite to <strong>{referredEmail}</strong>. They&apos;ll receive an email with their exclusive Founders Circle code.
             </p>
             <p className="text-sm text-gray-500 mb-6">
               The invite code will expire in 72 hours.
@@ -134,7 +134,7 @@ export default function ReferralForm({ isOpen, onClose, onSuccess, remainingRefe
                 </h2>
               </div>
               <p className="text-gray-600 text-sm">
-                Invite someone to join the Founders Club. They&apos;ll receive the same membership plan as you.
+                Invite someone to join the Founders Circle. They&apos;ll receive the same membership plan as you.
               </p>
               <div className="mt-3 inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-sm font-medium">
                 {remainingReferrals} referral{remainingReferrals !== 1 ? 's' : ''} remaining
