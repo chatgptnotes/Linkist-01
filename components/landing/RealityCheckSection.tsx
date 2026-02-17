@@ -26,7 +26,7 @@ export default function RealityCheckSection() {
                         </motion.div>
                     </div>
 
-                    {/* Content Column - Second on desktop (right) */}
+                    {/* Content Column - First on mobile, second on desktop (right) */}
                     <div className="space-y-2 md:space-y-5 text-center md:text-left">
                         {/* Badge */}
                         <motion.div
