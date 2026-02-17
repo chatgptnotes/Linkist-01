@@ -83,7 +83,7 @@ export default function RealityCheckSection() {
                             className="relative md:scale-[2.625] md:origin-right md:translate-x-[80%] md:translate-y-[10%]"
                         >
                             <img
-                                src="/features_receipt.png"
+                                src="/Distraction.png"
                                 alt="Linkist Context"
                                 className="w-full md:w-auto md:h-[600px] lg:h-[700px] relative z-10 object-contain"
                             />
