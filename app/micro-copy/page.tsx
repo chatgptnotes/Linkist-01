@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';
 import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
 import SignUpSection from './SignUpSection';
@@ -8,6 +9,10 @@ import FoundingMembersSection from './FoundingMembersSection';
 import ReserveProfileSection from './ReserveProfileSection';
 
 export default function MicroCopyPage() {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black text-white font-[Inter,sans-serif]">
       {/* Global Styles */}

@@ -31,8 +31,8 @@ export default function GDPRConsentBanner() {
   const [loadingAction, setLoadingAction] = useState<'accept' | 'reject' | 'selected' | null>(null);
 
   useEffect(() => {
-    // Don't show banner on the homepage/landing page
-    if (pathname === '/') {
+    // Don't show banner on the homepage/landing page or micro-copy page
+    if (pathname === '/' || pathname.startsWith('/micro-copy')) {
       setShowBanner(false);
       return;
     }
