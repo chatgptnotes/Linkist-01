@@ -85,9 +85,10 @@ export async function GET(
     return new Response(vCard, {
       status: 200,
       headers: {
-        'Content-Type': 'text/vcard; charset=utf-8',
+        'Content-Type': 'text/vcard',
         'Content-Disposition': `inline; filename="${fileName}"`,
         'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Access-Control-Allow-Origin': '*',
       },
     });
   } catch (error) {

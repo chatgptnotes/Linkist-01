@@ -468,22 +468,12 @@ export default function ProfilePreviewPage() {
     }
   };
 
-  // Fetch vCard and open it directly so the OS contacts handler picks it up
-  const handleSaveToContacts = async () => {
+  // Navigate to vCard endpoint — iOS shows contact preview, Android downloads the file
+  const handleSaveToContacts = () => {
     if (!profileData || !customUrl) return;
     const slug = customUrl.split('/').pop() || '';
     if (!slug) return;
-    try {
-      const response = await fetch(`/api/vcard/${slug}`);
-      const vcfText = await response.text();
-      const blob = new Blob([vcfText], { type: 'text/vcard;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      window.location.href = url;
-      setTimeout(() => URL.revokeObjectURL(url), 10000);
-    } catch (error) {
-      console.error('Failed to open contact:', error);
-      window.open(`/api/vcard/${slug}`, '_self');
-    }
+    window.location.href = `/api/vcard/${slug}`;
   };
 
   if (loading) {
