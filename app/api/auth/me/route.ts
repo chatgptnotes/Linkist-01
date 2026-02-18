@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-middleware';
 import { RBAC } from '@/lib/rbac';
+import { SupabaseOrderStore } from '@/lib/supabase-order-store';
 
 export async function GET(request: NextRequest) {
   try {
@@ -19,6 +20,20 @@ export async function GET(request: NextRequest) {
     const permissions = RBAC.getUserPermissions(user);
     const canAccessAdmin = RBAC.canAccessAdmin(user);
 
+    // Check if user actually has a Founder's Club/Circle order
+    let hasFoundersOrder = false;
+    if (user.is_founding_member) {
+      try {
+        const orders = await SupabaseOrderStore.getByEmail(user.email);
+        hasFoundersOrder = orders.some(order => {
+          const planType = (order.cardConfig as any)?.planType;
+          return planType === 'founders-club' || planType === 'founders-circle';
+        });
+      } catch {
+        // Non-fatal - default to false
+      }
+    }
+
     return NextResponse.json({
       isAuthenticated: true,
       user: {
@@ -32,6 +47,7 @@ export async function GET(request: NextRequest) {
         role: user.role,
         created_at: user.created_at,
         is_founding_member: user.is_founding_member || false,
+        has_founders_order: hasFoundersOrder,
         founding_member_since: user.founding_member_since || null,
         founding_member_plan: user.founding_member_plan || null
       },

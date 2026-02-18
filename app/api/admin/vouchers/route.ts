@@ -159,6 +159,21 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Voucher ID is required' }, { status: 400 });
     }
 
+    // First, delete any voucher_usage records referencing this voucher
+    // (in case ON DELETE CASCADE is not set up in the database)
+    const { error: usageError } = await supabase
+      .from('voucher_usage')
+      .delete()
+      .eq('voucher_id', id);
+
+    if (usageError) {
+      console.error('Error deleting voucher usage records:', usageError);
+      return NextResponse.json({
+        error: `Failed to delete voucher usage records: ${usageError.message}`
+      }, { status: 500 });
+    }
+
+    // Now delete the voucher itself
     const { error } = await supabase
       .from('vouchers')
       .delete()
@@ -166,7 +181,9 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       console.error('Error deleting voucher:', error);
-      return NextResponse.json({ error: 'Failed to delete voucher' }, { status: 500 });
+      return NextResponse.json({
+        error: `Failed to delete voucher: ${error.message}`
+      }, { status: 500 });
     }
 
     return NextResponse.json({

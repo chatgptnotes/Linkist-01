@@ -122,7 +122,7 @@ export default function VouchersPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this voucher?')) return;
+    if (!confirm('Are you sure you want to delete this voucher? This will also remove all usage records.')) return;
 
     try {
       const response = await fetch(`/api/admin/vouchers`, {
@@ -135,7 +135,8 @@ export default function VouchersPage() {
         alert('Voucher deleted successfully!');
         fetchVouchers();
       } else {
-        alert('Failed to delete voucher');
+        const errorData = await response.json();
+        alert(errorData.error || 'Failed to delete voucher');
       }
     } catch (error) {
       console.error('Error deleting voucher:', error);

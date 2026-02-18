@@ -219,37 +219,61 @@ export default function SuccessPage() {
                       </>
                     );
                   } else {
-                    // PERSONNEL (Non-founders): Flat material price with GST included
+                    const planType = orderData.cardConfig?.planType || '';
+                    const isPlanBased = planType === 'pro' || planType === 'signature';
+                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'signature' ? 'Signature' : (orderData.planName || 'Personal');
+
+                    if (isPlanBased) {
+                      return (
+                        <>
+                          <div className="flex justify-between text-gray-600 mb-2">
+                            <span className="font-medium">Plan</span>
+                            <span className="text-gray-700 font-semibold">{planLabel}</span>
+                          </div>
+                          <div className="flex justify-between text-gray-600">
+                            <span>Price</span>
+                            <span>${(materialPrice * quantity).toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between text-gray-600">
+                            <span>NFC Card</span>
+                            <span className="text-green-600">Included</span>
+                          </div>
+                          <div className="flex justify-between text-gray-600">
+                            <span>GST</span>
+                            <span className="text-green-600">Included</span>
+                          </div>
+                          <div className="flex justify-between text-gray-600">
+                            <span>Shipping</span>
+                            <span className="text-green-600">Included</span>
+                          </div>
+                          {orderData.voucherCode && orderData.voucherAmount && orderData.voucherAmount > 0 && (
+                            <div className="flex justify-between text-green-600 font-medium">
+                              <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>
+                              <span>-${(orderData.voucherAmount || 0).toFixed(2)}</span>
+                            </div>
+                          )}
+                        </>
+                      );
+                    }
+
                     return (
                       <>
-                        {/* Plan Name */}
                         <div className="flex justify-between text-gray-600 mb-2">
                           <span className="font-medium">Plan</span>
-                          <span className="text-gray-700 font-semibold">{orderData.planName || 'Personal'}</span>
+                          <span className="text-gray-700 font-semibold">{planLabel}</span>
                         </div>
-
-                        {/* Base Material Price */}
                         <div className="flex justify-between text-gray-600">
                           <span>Base Material Price × {quantity}</span>
                           <span>${(materialPrice * quantity).toFixed(2)}</span>
                         </div>
-
                         <div className="flex justify-between text-gray-600">
                           <span>GST</span>
                           <span className="text-green-600">Included</span>
                         </div>
-
                         <div className="flex justify-between text-gray-600">
                           <span>Shipping</span>
                           <span className="text-green-600">Included</span>
                         </div>
-
-                        <div className="flex justify-between text-gray-600">
-                          <span>Customization</span>
-                          <span className="text-green-600">Included</span>
-                        </div>
-
-                        {/* Voucher Discount - Only for non-founders */}
                         {orderData.voucherCode && orderData.voucherAmount && orderData.voucherAmount > 0 && (
                           <div className="flex justify-between text-green-600 font-medium">
                             <span>Voucher Discount ({orderData.voucherCode} - {orderData.voucherDiscount}%)</span>

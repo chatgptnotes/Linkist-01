@@ -63,6 +63,12 @@ export async function GET(request: NextRequest) {
       joinDate: profile?.created_at || orders[0]?.createdAt || new Date().toISOString()
     }
 
+    // Check if user actually has a Founder's Club/Circle order
+    const hasFoundersOrder = orders.some((order: any) =>
+      order.cardConfig?.planType === 'founders-club' ||
+      order.cardConfig?.planType === 'founders-circle'
+    );
+
     const userData = {
       id: profile?.id || email, // Use profile ID or email as fallback
       email,
@@ -74,6 +80,7 @@ export async function GET(request: NextRequest) {
       role: profile?.role || 'user',
       created_at: profile?.created_at || new Date().toISOString(),
       is_founding_member: userRecord?.is_founding_member || false,
+      has_founders_order: hasFoundersOrder,
       founding_member_since: userRecord?.founding_member_since || null,
       founding_member_plan: userRecord?.founding_member_plan || null
     }

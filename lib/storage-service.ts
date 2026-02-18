@@ -184,7 +184,8 @@ export class SupabaseStorageService {
         .from(STORAGE_CONFIG.bucket)
         .upload(filePath, file, {
           cacheControl: '3600', // Cache for 1 hour
-          upsert: false // Don't overwrite existing files
+          upsert: false, // Don't overwrite existing files
+          contentType: fileMetadata.type // Serve with correct Content-Type so browsers display inline
         })
 
       if (uploadError) {

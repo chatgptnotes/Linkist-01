@@ -53,8 +53,22 @@ export async function GET(
         .maybeSingle();
 
       if (userData) {
-        isFoundingMember = userData.is_founding_member || false;
         foundingMemberPlan = userData.founding_member_plan || null;
+
+        // Only mark as founding member if they have an actual founders-club order
+        if (userData.is_founding_member) {
+          const { data: orders } = await supabase
+            .from('orders')
+            .select('card_config')
+            .eq('user_id', profile.user_id)
+            .not('card_config', 'is', null);
+
+          const hasFoundersOrder = (orders || []).some((order: any) => {
+            const planType = order.card_config?.planType;
+            return planType === 'founders-club' || planType === 'founders-circle';
+          });
+          isFoundingMember = hasFoundersOrder;
+        }
       }
     }
 

@@ -156,7 +156,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/profiles/builder');
 
     return (
-      <>
+      <div className="min-h-screen flex flex-col">
         <header className="bg-white border-b border-gray-200 fixed top-0 left-0 right-0 z-50 h-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
             <Link href="/">
@@ -285,11 +285,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             )}
           </div>
         </header>
-        <main className="pt-16 flex-grow min-h-0">
+        <main className="pt-16 flex-grow">
           {children}
         </main>
         {showFooter && <Footer />}
-      </>
+      </div>
     );
   }
 
@@ -320,12 +320,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For normal routes, render with navbar and footer (except landing/home page)
   return (
-    <>
+    <div className="min-h-screen flex flex-col">
       {!isLandingPage && <Navbar />}
-      <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow min-h-0`}>
+      <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow`}>
         {children}
       </main>
       {!isLandingPage && <Footer />}
-    </>
+    </div>
   );
 }

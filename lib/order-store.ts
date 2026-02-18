@@ -293,4 +293,8 @@ export const formatOrderForEmail = (order: Order) => ({
   trackingUrl: order.trackingUrl,
   // Pass founding member status for email template pricing display
   isFoundingMember: (order.cardConfig as any)?.isFoundingMember || false,
+  // Pass voucher data for email template
+  voucherCode: (order as any).voucherCode || (order as any).voucher_code,
+  voucherDiscount: (order as any).voucherDiscount || (order as any).voucher_discount,
+  voucherAmount: (order as any).voucherAmount || (order as any).voucher_amount,
 });

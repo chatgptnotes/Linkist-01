@@ -128,6 +128,7 @@ export interface OrderData {
     logo?: string;
     quantity?: number;
     fullName?: string;
+    planType?: string;
   };
   shipping: {
     fullName: string;
@@ -166,7 +167,22 @@ export const orderConfirmationEmail = (data: OrderData) => {
     `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
 
   // Build pricing rows based on plan type
-  const pricingRows = isFounder ? `
+  const planType = data.cardConfig?.planType || '';
+  const planLabels: Record<string, string> = {
+    'pro': 'Pro',
+    'signature': 'Signature',
+    'next': 'Next',
+    'starter': 'Starter',
+    'founders-circle': "Founder's Circle",
+    'founders-club': "Founder's Circle",
+  };
+  const planLabel = planLabels[planType] || 'Personal';
+  const isPlanBased = ['pro', 'signature', 'next'].includes(planType);
+
+  let pricingRows = '';
+
+  if (isFounder) {
+    pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
           <span class="plan-label">Founder's Circle</span>
@@ -187,10 +203,41 @@ export const orderConfirmationEmail = (data: OrderData) => {
           <span>Shipping & Customization:</span>
           <span class="included-label">Included</span>
         </div>
-  ` : `
+    `;
+  } else if (isPlanBased) {
+    pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
-          <span style="color: #374151; font-weight: 600;">Personnel</span>
+          <span style="color: #374151; font-weight: 600;">${planLabel}</span>
+        </div>
+        <div class="detail-row">
+          <span>Price</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>NFC Card:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping:</span>
+          <span class="included-label">Included</span>
+        </div>
+        ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
+        <div class="detail-row">
+          <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
+          <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
+        </div>
+        ` : ''}
+    `;
+  } else {
+    pricingRows = `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">${planLabel}</span>
         </div>
         <div class="detail-row">
           <span>Base Material Price × ${quantity}</span>
@@ -204,17 +251,14 @@ export const orderConfirmationEmail = (data: OrderData) => {
           <span>Shipping:</span>
           <span class="included-label">Included</span>
         </div>
-        <div class="detail-row">
-          <span>Customization:</span>
-          <span class="included-label">Included</span>
-        </div>
         ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
         <div class="detail-row">
           <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
           <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
         </div>
         ` : ''}
-  `;
+    `;
+  }
 
   return `
 <!DOCTYPE html>
@@ -583,7 +627,22 @@ export const receiptEmail = (data: OrderData) => {
     `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
 
   // Build pricing rows based on plan type (same as orderConfirmationEmail)
-  const pricingRows = isFounder ? `
+  const planType = data.cardConfig?.planType || '';
+  const planLabels: Record<string, string> = {
+    'pro': 'Pro',
+    'signature': 'Signature',
+    'next': 'Next',
+    'starter': 'Starter',
+    'founders-circle': "Founder's Circle",
+    'founders-club': "Founder's Circle",
+  };
+  const planLabel = planLabels[planType] || 'Personal';
+  const isPlanBased = ['pro', 'signature', 'next'].includes(planType);
+
+  let pricingRows = '';
+
+  if (isFounder) {
+    pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
           <span class="plan-label">Founder's Circle</span>
@@ -604,10 +663,41 @@ export const receiptEmail = (data: OrderData) => {
           <span>Shipping & Customization:</span>
           <span class="included-label">Included</span>
         </div>
-  ` : `
+    `;
+  } else if (isPlanBased) {
+    pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
-          <span style="color: #374151; font-weight: 600;">Personnel</span>
+          <span style="color: #374151; font-weight: 600;">${planLabel}</span>
+        </div>
+        <div class="detail-row">
+          <span>Price</span>
+          <span>$${(materialPrice * quantity).toFixed(2)}</span>
+        </div>
+        <div class="detail-row">
+          <span>NFC Card:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>GST:</span>
+          <span class="included-label">Included</span>
+        </div>
+        <div class="detail-row">
+          <span>Shipping:</span>
+          <span class="included-label">Included</span>
+        </div>
+        ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
+        <div class="detail-row">
+          <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
+          <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
+        </div>
+        ` : ''}
+    `;
+  } else {
+    pricingRows = `
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">${planLabel}</span>
         </div>
         <div class="detail-row">
           <span>Base Material Price × ${quantity}</span>
@@ -621,17 +711,14 @@ export const receiptEmail = (data: OrderData) => {
           <span>Shipping:</span>
           <span class="included-label">Included</span>
         </div>
-        <div class="detail-row">
-          <span>Customization:</span>
-          <span class="included-label">Included</span>
-        </div>
         ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
         <div class="detail-row">
           <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
           <span class="voucher-label">-$${data.voucherAmount.toFixed(2)}</span>
         </div>
         ` : ''}
-  `;
+    `;
+  }
 
   return `
 <!DOCTYPE html>

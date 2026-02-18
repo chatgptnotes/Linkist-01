@@ -69,9 +69,9 @@ Team Size: ${formData.teamSize}`;
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex flex-col">
       {/* Main Content */}
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12">
+      <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12 flex-grow">
         <div className="text-center mb-6 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-4">
             Who is this for?
@@ -252,18 +252,6 @@ Team Size: ${formData.teamSize}`;
           </div>
         </div>
       )}
-
-      <div className="hidden md:block">
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-      </div>
 
       <Footer />
     </div>
