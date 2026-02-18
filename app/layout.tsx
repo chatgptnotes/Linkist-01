@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Inter, Poppins, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import GDPRConsentBanner from '@/components/gdpr-consent-banner';
 import { ToastProvider } from '@/components/ToastProvider';
@@ -17,6 +17,12 @@ const poppins = Poppins({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   variable: "--font-poppins"
+});
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-playfair"
 });
 
 export const metadata: Metadata = {
@@ -93,7 +99,7 @@ export default function RootLayout({
           `
         }} />
       </head>
-      <body className={`${inter.variable} ${poppins.variable} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
+      <body className={`${inter.variable} ${poppins.variable} ${playfair.variable} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
         <AdminInitializer />
         <Toaster position="top-center" richColors />
         <PWAProvider>
