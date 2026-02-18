@@ -7,6 +7,7 @@ import SignUpSection from './SignUpSection';
 import PricingSection from './PricingSection';
 import FoundingMembersSection from './FoundingMembersSection';
 import ReserveProfileSection from './ReserveProfileSection';
+import Footer from '@/components/Footer';
 
 export default function MicroCopyPage() {
   useEffect(() => {
@@ -197,6 +198,7 @@ export default function MicroCopyPage() {
       <PricingSection />
       <FoundingMembersSection />
       <ReserveProfileSection />
+      <Footer variant="full" />
     </div>
   );
 }

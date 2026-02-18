@@ -42,7 +42,7 @@ export default function ReserveProfileSection() {
 
         {/* Main Glass Card */}
         <div 
-          className="w-full max-w-2xl rounded-3xl p-8 md:p-12"
+          className="w-full max-w-2xl lg:max-w-lg rounded-3xl p-8 md:p-12 lg:p-8"
           style={{
             background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
@@ -63,7 +63,7 @@ export default function ReserveProfileSection() {
 
           {/* Inner Glass Box with Logo */}
           <div 
-            className="rounded-2xl p-8 md:p-12 mb-8"
+            className="rounded-2xl p-8 md:p-12 lg:p-6 mb-8"
             style={{
               background: 'linear-gradient(to bottom, rgba(255, 58, 41, 0.1) 0%, rgba(255, 58, 41, 0.05) 100%)',
               border: '1px solid rgba(255, 58, 41, 0.2)'
@@ -73,33 +73,35 @@ export default function ReserveProfileSection() {
             <img
               src="/Linkist-Brand-Mark-SVG.svg"
               alt="Linkist Logo"
-              className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6"
+              className="w-24 h-24 md:w-32 md:h-32 lg:w-20 lg:h-20 mx-auto mb-6 lg:mb-3"
               style={{
                 filter: 'drop-shadow(0 0 20px rgba(255, 58, 41, 0.5))'
               }}
             />
-            <p className="text-white text-xl md:text-2xl font-semibold mb-2">
+            <p className="text-white text-xl md:text-2xl lg:text-lg font-semibold mb-2">
               Get your Linkist NFC card
             </p>
-            <p className="text-[#A3A3A3] text-sm md:text-base">
+            <p className="text-[#A3A3A3] text-sm md:text-base lg:text-sm">
               (includes early access to the linkist app)
             </p>
           </div>
 
           {/* Reserve Button */}
-          <a
-            href="https://www.linkist.ai/choose-plan"
-            className="block w-full bg-[#FF3A29] hover:bg-[#ff4d3a] text-white font-bold text-lg md:text-xl py-4 md:py-5 px-8 rounded-xl transition-all duration-300"
-            style={{
-              boxShadow: isHovering 
-                ? '0 0 30px rgba(255, 58, 41, 0.6), 0 0 60px rgba(255, 58, 41, 0.4)' 
-                : '0 0 20px rgba(255, 58, 41, 0.5)'
-            }}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-          >
-            Reserve
-          </a>
+          <div className="lg:flex lg:justify-center">
+            <a
+              href="https://www.linkist.ai/choose-plan"
+              className="block w-full lg:w-auto lg:inline-block bg-[#FF3A29] hover:bg-[#ff4d3a] text-white font-bold text-lg md:text-xl lg:text-base py-4 md:py-5 lg:py-3 px-8 lg:px-12 rounded-xl lg:rounded-full transition-all duration-300"
+              style={{
+                boxShadow: isHovering 
+                  ? '0 0 30px rgba(255, 58, 41, 0.6), 0 0 60px rgba(255, 58, 41, 0.4)' 
+                  : '0 0 20px rgba(255, 58, 41, 0.5)'
+              }}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+            >
+              Reserve
+            </a>
+          </div>
         </div>
       </div>
     </section>
