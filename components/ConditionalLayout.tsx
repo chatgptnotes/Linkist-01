@@ -310,7 +310,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                           !knownRoutes.some(route => pathname.startsWith(route));
 
   // Full-bleed pages render children only (page has its own layout)
-  if (pathname.startsWith('/profiles/preview') || pathname.startsWith('/p/') || pathname.startsWith('/micro-copy')) {
+  if (pathname.startsWith('/profiles/preview') || pathname.startsWith('/p/')) {
     return <>{children}</>;
   }
 
