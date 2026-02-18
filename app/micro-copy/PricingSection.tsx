@@ -2,69 +2,79 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-interface PricingPlan {
+interface PricingCard {
   name: string;
+  subtitle: string;
   monthlyPrice: number;
   yearlyPrice: number;
   features: string[];
 }
 
-const PRICING_PLANS: PricingPlan[] = [
+const PRICING_CARDS: PricingCard[] = [
   {
     name: 'Starter',
+    subtitle: 'Best for getting started with a digital identity',
     monthlyPrice: 0,
     yearlyPrice: 0,
     features: [
-      'Basic NFC Card',
-      'Simple Profile',
-      'Limited Features'
+      'Linkist Digital Profile',
+      'Claim a personalised Linkist ID (yours for life)',
+      'Share your profile instantly via link or QR'
     ]
   },
   {
-    name: 'Next Student Edition',
+    name: 'Next (Student Edition)',
+    subtitle: 'Best for students and early professionals',
     monthlyPrice: 6.9,
     yearlyPrice: 69,
     features: [
-      'Student Discount',
-      'Full Profile Access',
-      'AI Features',
-      'Priority Support'
+      'Everything in Starter',
+      'Access to Linkist Pro App features',
+      '1-year Linkist Pro App subscription (worth $59)',
+      'AI credits worth $50 (1-year validity)'
     ]
   },
   {
     name: 'Pro',
+    subtitle: 'Best for professionals who network in the real world',
     monthlyPrice: 9.9,
     yearlyPrice: 99,
     features: [
-      'Premium NFC Card',
-      'Full AI Features'
+      'Linkist Digital Profile',
+      'Claim a personalised Linkist ID (yours for life)',
+      'Share your profile instantly via link or QR',
+      '1-year Linkist Pro App subscription (worth $59)',
+      'AI credits worth $50 (1-year validity)'
     ]
   },
   {
     name: 'Signature',
+    subtitle: 'Best for personal branding',
     monthlyPrice: 12.9,
     yearlyPrice: 129,
     features: [
-      'Signature Card Design',
-      'Advanced Analytics'
+      'Everything in Pro',
+      'Smart card customisation (name, design, finish)'
     ]
   },
   {
     name: "Founder's Circle",
+    subtitle: 'Invite-only, lifetime premium access',
     monthlyPrice: 14.9,
     yearlyPrice: 149,
     features: [
-      'Exclusive Access',
-      'Early Features',
-      'Direct Support',
-      'Community Benefits'
+      'Everything in Signature',
+      'AI credits worth $50 (available post app launch)',
+      'Up to 3 Founding Member referral invites',
+      'Access to Linkist partner privileges'
     ]
   }
 ];
 
 export default function PricingSection() {
-  const [period, setPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [period, setPeriod] = useState<'monthly' | 'yearly'>('yearly');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [isHovering, setIsHovering] = useState(false);
   const [mouseX, setMouseX] = useState(0);
   const animationFrameRef = useRef<number>();
@@ -72,28 +82,35 @@ export default function PricingSection() {
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
 
-  const centerCard = useCallback((index: number) => {
+  const centerCard = useCallback((cardElement: HTMLElement) => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    const cards = container.querySelectorAll('.pricing-card-new');
-    const card = cards[index] as HTMLElement;
-    if (card) {
-      const containerRect = container.getBoundingClientRect();
-      const cardRect = card.getBoundingClientRect();
-      const scrollOffset = card.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
-      container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
-    }
+    
+    const containerRect = container.getBoundingClientRect();
+    const cardRect = cardElement.getBoundingClientRect();
+    const scrollOffset = cardElement.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+    container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
   }, []);
 
+  // Initial scroll to Pro card (index 2)
   useEffect(() => {
-    // Initial scroll to Pro card (index 2) after a short delay
     const timeout = setTimeout(() => {
-      centerCard(2);
+      const container = scrollContainerRef.current;
+      if (!container) return;
+      const cards = container.querySelectorAll('.pricing-card-new');
+      const proCard = cards[2] as HTMLElement;
+      if (proCard) {
+        const containerRect = container.getBoundingClientRect();
+        const cardRect = proCard.getBoundingClientRect();
+        const scrollOffset = proCard.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+        container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+      }
     }, 100);
 
     return () => clearTimeout(timeout);
-  }, [centerCard]);
+  }, []);
 
+  // Mouse hover and drag handlers
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -112,11 +129,11 @@ export default function PricingSection() {
       setMouseX(0);
     };
 
-    // Manual drag functionality
     const handleMouseDown = (e: MouseEvent) => {
       isDraggingRef.current = true;
       startXRef.current = e.pageX - container.offsetLeft;
       scrollLeftRef.current = container.scrollLeft;
+      container.style.cursor = 'grabbing';
       container.style.scrollSnapType = 'none';
     };
 
@@ -130,6 +147,7 @@ export default function PricingSection() {
 
     const handleMouseUp = () => {
       isDraggingRef.current = false;
+      container.style.cursor = 'grab';
       container.style.scrollSnapType = 'x mandatory';
     };
 
@@ -150,6 +168,7 @@ export default function PricingSection() {
     };
   }, [isHovering]);
 
+  // Animation loop for 3D transforms
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -157,10 +176,10 @@ export default function PricingSection() {
     const animate = () => {
       const cards = container.querySelectorAll('.pricing-card-new');
       const containerRect = container.getBoundingClientRect();
-      const centerX = containerRect.left + containerRect.width / 2;
+      const containerCenter = containerRect.left + containerRect.width / 2;
 
-      // Auto-scroll based on mouse position
-      if (isHovering && !isDraggingRef.current) {
+      // Auto-scroll based on mouse position (desktop only)
+      if (isHovering && !isDraggingRef.current && window.innerWidth >= 1024) {
         const deadZone = 0.2;
         const relativePos = mouseX / (containerRect.width / 2);
         
@@ -174,28 +193,28 @@ export default function PricingSection() {
 
       cards.forEach((card) => {
         const cardRect = card.getBoundingClientRect();
-        const cardCenterX = cardRect.left + cardRect.width / 2;
-        const distance = cardCenterX - centerX;
-        const absDistance = Math.abs(distance);
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const dist = cardCenter - containerCenter;
+        const absDist = Math.abs(dist);
 
-        // Scale: 0.85 to 1.05
-        const scale = 1.05 - Math.min(absDistance / 300, 0.2);
+        // Scale: max(0.85, 1.05 - (absDist/500) * 0.25)
+        const scale = Math.max(0.85, 1.05 - (absDist / 500) * 0.25);
         
-        // Opacity: 0.5 to 1
-        const opacity = 1 - Math.min(absDistance / 400, 0.5);
+        // Opacity: max(0.5, 1 - (absDist/500))
+        const opacity = Math.max(0.5, 1 - (absDist / 500));
 
-        // X offset for 3D effect
-        const xOffset = -distance * 0.2;
+        // X offset for stacking: -dist * 0.20
+        const xOffset = -dist * 0.20;
 
-        // Z-index
-        const zIndex = 100 - Math.floor(absDistance / 5);
+        // Z-index: 100 - round(absDist/5)
+        const zIndex = 100 - Math.round(absDist / 5);
 
-        (card as HTMLElement).style.transform = `scale(${scale}) translateX(${xOffset}px)`;
+        (card as HTMLElement).style.transform = `translateX(${xOffset}px) scale(${scale})`;
         (card as HTMLElement).style.opacity = `${opacity}`;
         (card as HTMLElement).style.zIndex = `${zIndex}`;
 
-        // Active class
-        if (absDistance < 100) {
+        // Active class if absDist < 100
+        if (absDist < 100) {
           card.classList.add('active');
         } else {
           card.classList.remove('active');
@@ -215,33 +234,41 @@ export default function PricingSection() {
   }, [isHovering, mouseX]);
 
   return (
-    <section id="pricing" className="bg-black">
-      <div className="w-full lg:w-[75vw] mx-auto px-6 py-16 md:py-24">
+    <section id="pricing" className="bg-black py-16 md:py-24">
+      <div className="w-full lg:w-[70vw] mx-auto px-6">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-12 md:mb-16">
-          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-8">
-            Choose Your Plan
+        <div className="flex flex-col items-center text-center mb-12">
+          <p className="text-[#ff0000] text-sm font-medium uppercase tracking-wider mb-3">
+            Pricing Plan
+          </p>
+          <h2 className="text-[32px] md:text-[56px] font-bold text-white mb-4">
+            Linkist Pricing Plans
           </h2>
+          <p className="text-gray-400 text-base md:text-lg">
+            Select the plan that best suits your needs.
+          </p>
+        </div>
 
-          {/* Period Toggle */}
-          <div className="flex items-center gap-3 bg-[#111111] rounded-full p-2">
+        {/* Period Toggle */}
+        <div className="flex justify-center mb-12">
+          <div className="inline-flex bg-[#1A1A1A] p-1 rounded-full border border-white/10">
             <button
               onClick={() => setPeriod('monthly')}
-              className={`px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'monthly'
-                  ? 'bg-[#ff0000] text-white shadow-[0_0_20px_rgba(255,0,0,0.5)]'
-                  : 'text-[#A3A3A3] hover:text-white'
+                  ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
+                  : 'text-gray-400 bg-transparent'
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setPeriod('yearly')}
-              className={`px-6 py-2 rounded-full text-sm md:text-base font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'yearly'
-                  ? 'bg-[#ff0000] text-white shadow-[0_0_20px_rgba(255,0,0,0.5)]'
-                  : 'text-[#A3A3A3] hover:text-white'
+                  ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
+                  : 'text-gray-400 bg-transparent'
               }`}
             >
               Yearly
@@ -252,62 +279,87 @@ export default function PricingSection() {
         {/* Pricing Carousel */}
         <div
           ref={scrollContainerRef}
-          className="pricing-scroll-container"
+          className="pricing-scroll-container flex overflow-x-auto items-center gap-0 cursor-grab"
           style={{
-            perspective: '1200px',
-            display: 'flex',
-            gap: '2rem',
-            overflowX: 'auto',
             scrollSnapType: 'x mandatory',
-            padding: '3rem 2rem',
-            cursor: 'grab'
+            padding: '50px calc(50% - 140px) 70px calc(50% - 140px)',
+            msOverflowStyle: 'none',
+            scrollbarWidth: 'none'
           }}
         >
-          {PRICING_PLANS.map((plan, index) => (
+          {PRICING_CARDS.map((card, index) => (
             <div
               key={index}
-              className="pricing-card-new"
+              ref={el => { cardRefs.current[index] = el; }}
+              className="pricing-card-new relative flex flex-col bg-[#0D0D0D] border border-white/10 rounded-[32px] overflow-hidden"
               style={{
-                flex: '0 0 320px',
+                flex: '0 0 280px',
+                width: '280px',
+                height: '520px',
+                padding: '24px',
+                opacity: 0.5,
                 scrollSnapAlign: 'center',
-                transition: 'transform 0.3s ease, opacity 0.3s ease'
+                transition: 'border-color 0.4s ease'
+              }}
+              onClick={(e) => {
+                e.currentTarget.classList.contains('active') || centerCard(e.currentTarget);
               }}
             >
-              <div className="card-header-bg bg-gradient-to-b from-[#1a1a1a] to-[#111111] rounded-t-2xl p-6 border-b border-white/10">
-                <h3 className="text-2xl font-bold text-white mb-2">{plan.name}</h3>
-                <div className="text-4xl font-bold text-white">
-                  ${period === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}
-                  <span className="text-lg text-[#A3A3A3] font-normal">
-                    /{period === 'monthly' ? 'mo' : 'yr'}
+              {/* Card Header Gradient Overlay */}
+              <div 
+                className="card-header-bg absolute top-0 left-0 w-full h-[180px] pointer-events-none opacity-0 transition-opacity duration-400"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0) 100%)'
+                }}
+              />
+
+              {/* Card Content */}
+              <div className="card-content relative z-10 flex flex-col h-full">
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {card.name}
+                </h3>
+                <p className="text-gray-400 text-xs mb-4 h-10 leading-snug">
+                  {card.subtitle}
+                </p>
+                
+                {/* Price */}
+                <div className="mb-6">
+                  <span className="text-5xl font-medium text-white tracking-tight price-amount">
+                    ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
+                  </span>
+                  <span className="text-gray-400 text-sm price-period">
+                    /{period === 'monthly' ? 'month' : 'year'}
                   </span>
                 </div>
-              </div>
-              
-              <div className="card-content bg-[#111111] rounded-b-2xl p-6">
-                <ul className="space-y-3 mb-6">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start gap-3 text-[#A3A3A3]">
-                      <svg
-                        className="w-5 h-5 text-[#FF3A29] flex-shrink-0 mt-0.5"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                
+
+                {/* Features */}
+                <div className="flex-grow">
+                  <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-3">
+                    FEATURES
+                  </h4>
+                  <ul className="space-y-3 mb-6">
+                    {card.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start gap-3">
+                        <svg
+                          className="flex-shrink-0 w-[18px] h-[18px] text-white mt-0.5"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                        >
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <span className="text-gray-300 text-sm">
+                          {feature}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* Button */}
                 <a
-                  href="https://linkist.ai"
-                  className="card-btn block w-full bg-[#FF3A29] hover:bg-[#ff4d3a] text-white font-medium py-3 px-6 rounded-lg text-center transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,58,41,0.5)]"
+                  href="https://www.linkist.ai/choose-plan"
+                  className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300"
+                  style={{ marginTop: 'auto' }}
                 >
                   Get Started
                 </a>
@@ -316,6 +368,41 @@ export default function PricingSection() {
           ))}
         </div>
       </div>
+
+      {/* Inline Styles for Active Card State */}
+      <style jsx>{`
+        @media (min-width: 768px) {
+          .pricing-card-new {
+            flex: 0 0 320px !important;
+            width: 320px !important;
+            height: 540px !important;
+            padding: 32px !important;
+          }
+          .pricing-scroll-container {
+            padding: 50px calc(50% - 160px) 70px calc(50% - 160px) !important;
+          }
+        }
+
+        .pricing-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+
+        .pricing-card-new.active {
+          opacity: 1 !important;
+          border-color: rgba(255, 0, 0, 0.5) !important;
+          box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9);
+        }
+
+        .pricing-card-new.active .card-header-bg {
+          opacity: 1 !important;
+        }
+
+        .pricing-card-new.active .card-btn {
+          background: #ff0000 !important;
+          border-color: #ff0000 !important;
+          box-shadow: 0 4px 20px rgba(255, 0, 0, 0.3);
+        }
+      `}</style>
     </section>
   );
 }
