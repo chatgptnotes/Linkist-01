@@ -1,186 +1,345 @@
 'use client';
 
+import { useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function MicroCopyPage() {
+  const sceneRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const isHoveringRef = useRef(false);
+  const currentSeparationRef = useRef(0);
+  const lastSeparationRef = useRef(-1);
+  const closedHeightRef = useRef(380);
+  const openHeightRef = useRef(850);
+  const animationFrameRef = useRef<number>();
+
+  const resizeScene = useCallback(() => {
+    const scene = sceneRef.current;
+    const wrapper = wrapperRef.current;
+    if (!scene || !wrapper) return;
+
+    const parentWidth = wrapper.clientWidth;
+    const sceneWidth = 600;
+    const scale = Math.min(parentWidth / sceneWidth, 1);
+
+    scene.style.transform = `translateX(-50%) scale(${scale}) rotateZ(0deg)`;
+    closedHeightRef.current = 380 * scale;
+    openHeightRef.current = 850 * scale;
+  }, []);
+
+  const getScrollProgress = useCallback(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper) return 0;
+
+    const rect = wrapper.getBoundingClientRect();
+    const windowHeight = window.innerHeight;
+    const elementCenter = rect.top + rect.height / 2;
+    const viewportCenter = windowHeight / 2;
+    const distance = viewportCenter - elementCenter;
+    const range = windowHeight / 1.1;
+
+    let progress = 1 - Math.abs(distance) / (range / 2);
+    return Math.max(0, Math.min(1, progress));
+  }, []);
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    const wrapper = wrapperRef.current;
+    if (!scene || !wrapper) return;
+
+    // Initial resize
+    resizeScene();
+    const resizeTimeout = setTimeout(resizeScene, 100);
+
+    // Resize listener
+    window.addEventListener('resize', resizeScene);
+
+    // Hover listeners
+    const handleMouseEnter = () => { isHoveringRef.current = true; };
+    const handleMouseLeave = () => { isHoveringRef.current = false; };
+    scene.addEventListener('mouseenter', handleMouseEnter);
+    scene.addEventListener('mouseleave', handleMouseLeave);
+
+    // Mouse move for glare
+    const handleMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth < 1024) return;
+      const rect = scene.getBoundingClientRect();
+      const scaleMatch = scene.style.transform.match(/scale\(([^)]+)\)/);
+      const scale = scaleMatch ? parseFloat(scaleMatch[1]) : 1;
+
+      const relX = (e.clientX - rect.left) / scale;
+      const relY = (e.clientY - (rect.top + (rect.height * scale - (350 + 50) * scale))) / scale;
+
+      const layers = scene.querySelectorAll('.cs-layer');
+      layers.forEach((layer) => {
+        (layer as HTMLElement).style.setProperty('--mouse-x', `${relX}px`);
+        (layer as HTMLElement).style.setProperty('--mouse-y', `${relY}px`);
+      });
+    };
+    document.addEventListener('mousemove', handleMouseMove);
+
+    // Animation loop
+    const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
+    const lerpFactor = 0.12;
+
+    const animate = () => {
+      let targetSeparation = 0;
+
+      if (window.innerWidth >= 1024) {
+        targetSeparation = isHoveringRef.current ? 1 : 0;
+      } else {
+        targetSeparation = getScrollProgress();
+      }
+
+      currentSeparationRef.current = lerp(currentSeparationRef.current, targetSeparation, lerpFactor);
+
+      if (Math.abs(currentSeparationRef.current - lastSeparationRef.current) > 0.001) {
+        const sep = currentSeparationRef.current;
+
+        if (sep > 0.01) scene.classList.add('expand-active');
+        else scene.classList.remove('expand-active');
+
+        if (wrapper) {
+          const currentHeight = lerp(closedHeightRef.current, openHeightRef.current, sep);
+          wrapper.style.height = `${currentHeight}px`;
+        }
+
+        const layer1 = scene.querySelector('.layer-1') as HTMLElement;
+        const layer2 = scene.querySelector('.layer-2') as HTMLElement;
+        const layer3 = scene.querySelector('.layer-3') as HTMLElement;
+        const layer4 = scene.querySelector('.layer-4') as HTMLElement;
+
+        if (layer1) layer1.style.transform = `translate3d(0, ${-440 * sep}px, 0)`;
+        if (layer2) layer2.style.transform = `translate3d(0, ${-300 * sep}px, 0)`;
+        if (layer3) layer3.style.transform = `translate3d(0, ${-150 * sep}px, 0)`;
+        if (layer4) layer4.style.transform = `translate3d(0, 0, 0)`;
+
+        lastSeparationRef.current = sep;
+      }
+
+      animationFrameRef.current = requestAnimationFrame(animate);
+    };
+    animate();
+
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener('resize', resizeScene);
+      scene.removeEventListener('mouseenter', handleMouseEnter);
+      scene.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mousemove', handleMouseMove);
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+    };
+  }, [resizeScene, getScrollProgress]);
+
   return (
-    <div className="min-h-screen bg-[#1a1a1a] text-white">
+    <div className="min-h-screen bg-black text-white font-[Inter,sans-serif]">
+      {/* ===== SCOPED STYLES ===== */}
+      <style jsx global>{`
+        .text-gradient-subtitle {
+          background: linear-gradient(180deg, #A3A3A3 0%, #525252 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          padding-bottom: 0.4em;
+          display: inline-block;
+        }
 
-      {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
-        {/* Background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#2a0a0a] via-[#1a1a1a] to-[#1a1a1a]" />
+        #card-stack-container {
+          position: absolute;
+          bottom: 0;
+          left: 50%;
+          transform-origin: bottom center;
+          width: 600px;
+          height: 900px;
+          cursor: pointer;
+          will-change: transform;
+          transform-style: preserve-3d;
+          -webkit-transform-style: preserve-3d;
+          transform: translate3d(0, 0, 0);
+        }
 
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-20 py-20">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            {/* Left - Text Content */}
-            <div className="space-y-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Start with the{' '}
-                <span className="block">best</span>
-                <span className="block">smart card now.</span>
-                <span className="block text-gray-500">Grow into</span>
-                <span className="block text-gray-500">relationship</span>
-                <span className="block text-gray-500">intelligence.</span>
+        #stack-wrapper {
+          will-change: height;
+          perspective: 1500px;
+          -webkit-perspective: 1500px;
+          transform: translateZ(0);
+        }
+
+        .cs-layer {
+          position: absolute;
+          left: 0;
+          right: 0;
+          bottom: 50px;
+          height: 350px;
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          will-change: transform;
+          transform: translate3d(0, 0, 0);
+          -webkit-transform: translate3d(0, 0, 0);
+          backface-visibility: hidden;
+          -webkit-backface-visibility: hidden;
+        }
+
+        @media (min-width: 1024px) {
+          .cs-layer {
+            filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.2));
+          }
+          .cs-layer::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(
+              400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+              rgba(255, 255, 255, 0.2),
+              transparent 50%
+            );
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            -webkit-mask-image: var(--bg-image);
+            mask-image: var(--bg-image);
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            -webkit-mask-position: center;
+            mask-position: center;
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+          }
+          #card-stack-container.expand-active .cs-layer::after {
+            opacity: 1;
+          }
+        }
+
+        .layer-4 {
+          --bg-image: url('/04.png');
+          background-image: var(--bg-image);
+          z-index: 1;
+        }
+        .layer-3 {
+          --bg-image: url('/03.png');
+          background-image: var(--bg-image);
+          z-index: 2;
+        }
+        .layer-2 {
+          --bg-image: url('/02.png');
+          background-image: var(--bg-image);
+          z-index: 3;
+        }
+        .layer-1 {
+          --bg-image: url('/01.png');
+          background-image: var(--bg-image);
+          z-index: 4;
+        }
+
+        .closed-view {
+          --bg-image: url('/Closed.png');
+          background-image: var(--bg-image);
+          z-index: 10;
+          opacity: 1 !important;
+          transition: opacity 0.15s linear;
+          transform: translate3d(0, 0, 0);
+          -webkit-transform: translate3d(0, 0, 0);
+        }
+
+        @media (min-width: 1024px) {
+          .closed-view {
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.25));
+          }
+        }
+
+        #card-stack-container.expand-active .closed-view {
+          opacity: 0 !important;
+          pointer-events: none;
+        }
+      `}</style>
+
+      {/* ===== HERO SECTION ===== */}
+      <section className="lg:min-h-[75vh] flex items-center justify-center relative overflow-visible">
+        {/* Background Overlay/Gradient */}
+        <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
+          {/* Mobile Image */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/Homepage (Mobile Version).png"
+            className="w-full h-[600px] object-cover object-top opacity-100 lg:hidden"
+            alt="Background Glow"
+          />
+          {/* Desktop CSS Gradient */}
+          <div
+            className="hidden lg:block w-full h-full absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(ellipse 90% 70% at 50% -10%, rgba(255, 58, 41, 0.45) 0%, rgba(0, 0, 0, 0) 80%)',
+            }}
+          />
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pt-12 pb-0 md:py-24">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+            {/* LEFT COLUMN */}
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8">
+              <h1 className="text-[45px] md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15]">
+                <br />
+                <span className="text-white block">
+                  Start with the best <br className="hidden md:block" />
+                  smart card now.
+                </span>
+                <span className="text-gradient-subtitle block mt-1 pb-2">
+                  Grow into relationship intelligence.
+                </span>
               </h1>
-
-              <p className="text-gray-400 text-lg max-w-lg">
-                The Linkist Smart Card is your entry into the Linkist PRM
-                ecosystem. Start with a unique personal URL, smart profile
-                and NFC business card today. Grow into personal
-                relationship intelligence over time.
+              <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
+                The Linkist Smart Card is your entry into the Linkist PRM ecosystem. Start
+                with a unique personal URL, smart profile and NFC business card today. Grow
+                into personal relationship intelligence over time.
               </p>
-
-              <div className="flex items-center gap-6">
+              <div className="flex flex-col items-center lg:items-start gap-6 w-full">
                 <Link
-                  href="#know-more"
-                  className="text-red-500 hover:text-red-400 font-medium transition-colors"
+                  href="#pricing"
+                  className="text-[#FF3A29] text-sm md:text-base font-medium underline underline-offset-4 hover:text-white transition-colors"
                 >
                   Know More
                 </Link>
-                <button
-                  className="inline-flex items-center gap-3 bg-[#2a2a2a] hover:bg-[#333] border border-gray-700 rounded-full px-6 py-3 font-medium transition-colors cursor-default"
+                <Link
+                  href="https://www.linkist.ai/choose-plan"
+                  className="inline-block transition-transform hover:-translate-y-1 hover:opacity-90"
                 >
-                  <Image
-                    src="/linkist-logo.png"
-                    alt="Linkist"
-                    width={24}
-                    height={24}
-                    className="rounded"
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/product-hunt-v-label-1.png"
+                    alt="Join Now"
+                    className="h-12 md:h-14 w-auto object-contain"
                   />
-                  Join Now
-                </button>
+                </Link>
               </div>
             </div>
 
-            {/* Right - Card Image */}
-            <div className="flex justify-center md:justify-end">
-              <div className="relative w-[400px] h-[300px] md:w-[500px] md:h-[350px]">
-                {/* Placeholder for smart card image */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-[350px] h-[220px] md:w-[420px] md:h-[260px] bg-gradient-to-br from-[#3a3a3a] via-[#2a2a2a] to-[#1a1a1a] rounded-2xl shadow-2xl transform rotate-[-10deg] border border-gray-700/50 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-12 h-12 mx-auto mb-2 rounded-lg bg-red-600/20 flex items-center justify-center">
-                        <Image
-                          src="/linkist-logo.png"
-                          alt="Linkist"
-                          width={32}
-                          height={32}
-                          className="rounded"
-                        />
-                      </div>
-                      <p className="text-gray-500 text-sm">Smart Card</p>
-                    </div>
-                  </div>
-                </div>
+            {/* RIGHT COLUMN: Card Stack */}
+            <div
+              id="stack-wrapper"
+              ref={wrapperRef}
+              className="w-full lg:max-w-md lg:mx-auto mt-8 lg:mt-0 relative"
+              style={{ overflow: 'visible' }}
+            >
+              <div id="card-stack-container" ref={sceneRef}>
+                <div className="cs-layer layer-4" />
+                <div className="cs-layer layer-3" />
+                <div className="cs-layer layer-2" />
+                <div className="cs-layer layer-1" />
+                <div className="cs-layer closed-view" />
               </div>
+              {/* Bottom fade */}
+              <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none z-20" />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section 2 - Features (placeholder) */}
-      <section id="know-more" className="py-20 px-6 md:px-12 lg:px-20">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-            Why Linkist?
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: 'Smart NFC Card',
-                description: 'Share your profile with a single tap. Works with all modern smartphones.',
-              },
-              {
-                title: 'Personal URL',
-                description: 'Get your unique linkist.ai/yourname URL to share anywhere, anytime.',
-              },
-              {
-                title: 'Relationship Intelligence',
-                description: 'Track connections, follow-ups, and grow your professional network.',
-              },
-            ].map((feature, i) => (
-              <div
-                key={i}
-                className="bg-[#222] border border-gray-800 rounded-2xl p-8 hover:border-red-500/30 transition-colors"
-              >
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-400">{feature.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3 - How It Works (placeholder) */}
-      <section className="py-20 px-6 md:px-12 lg:px-20 bg-[#111]">
-        <div className="max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { step: '01', title: 'Get Your Card', description: 'Order your personalized Linkist Smart Card.' },
-              { step: '02', title: 'Set Up Profile', description: 'Create your digital profile with all your links and info.' },
-              { step: '03', title: 'Tap & Share', description: 'Tap your card on any phone to instantly share your profile.' },
-            ].map((item, i) => (
-              <div key={i} className="text-center">
-                <div className="text-5xl font-bold text-red-500/20 mb-4">{item.step}</div>
-                <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
-                <p className="text-gray-400">{item.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Section 4 - CTA (placeholder) */}
-      <section className="py-20 px-6 md:px-12 lg:px-20">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to get started?
-          </h2>
-          <p className="text-gray-400 text-lg mb-10">
-            Join the Linkist community and transform how you network.
-          </p>
-          <button
-            className="inline-flex items-center gap-3 bg-red-600 hover:bg-red-700 rounded-full px-8 py-4 font-semibold text-lg transition-colors cursor-default"
-          >
-            <Image
-              src="/linkist-logo.png"
-              alt="Linkist"
-              width={24}
-              height={24}
-              className="rounded"
-            />
-            Join Now
-          </button>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-gray-800 py-8 px-6 md:px-12 lg:px-20">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Image
-              src="/linkist-logo.png"
-              alt="Linkist"
-              width={24}
-              height={24}
-              className="rounded"
-            />
-            <span className="font-semibold">Linkist</span>
-          </div>
-          <p className="text-gray-500 text-sm">
-            &copy; {new Date().getFullYear()} Linkist. All rights reserved.
-          </p>
-          <div className="flex gap-6 text-gray-400 text-sm">
-            <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-            <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-          </div>
-        </div>
-      </footer>
+      {/* ===== PLACEHOLDER FOR REMAINING SECTIONS ===== */}
+      {/* Paste your next HTML sections and I'll convert them too */}
     </div>
   );
 }
