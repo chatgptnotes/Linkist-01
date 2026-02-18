@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 
+// --- Types & Data ---
+
 interface PricingCard {
   name: string;
   subtitle: string;
@@ -71,194 +73,275 @@ const PRICING_CARDS: PricingCard[] = [
   }
 ];
 
+// --- Components ---
+
 export default function PricingSection() {
   const [period, setPeriod] = useState<'monthly' | 'yearly'>('yearly');
+  
+  // Refs for DOM manipulation (performance optimization)
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const [isHovering, setIsHovering] = useState(false);
-  const [mouseX, setMouseX] = useState(0);
-  const animationFrameRef = useRef<number>();
+  const requestRef = useRef<number>();
+  
+  // Interaction State Refs (avoiding state re-renders for loop)
+  const isHoveringRef = useRef(false);
   const isDraggingRef = useRef(false);
   const startXRef = useRef(0);
   const scrollLeftRef = useRef(0);
+  const mouseRelXRef = useRef(0); // Mouse position relative to container center
 
-  const centerCard = useCallback((cardElement: HTMLElement) => {
+  // --- Scroll & Center Logic ---
+
+  const centerCard = useCallback((index: number, behavior: ScrollBehavior = 'smooth') => {
+    const container = scrollContainerRef.current;
+    const card = cardRefs.current[index];
+    if (!container || !card) return;
+
+    isHoveringRef.current = false; // Pause auto-scroll when clicking
+    
+    // Calculate precise center based on container and card dimensions
+    const containerWidth = container.offsetWidth;
+    const cardLeft = card.offsetLeft;
+    const cardWidth = card.offsetWidth;
+    
+    // The CSS padding handles the offset visually, but we need the scroll position
+    const centerPos = cardLeft - (containerWidth / 2) + (cardWidth / 2);
+    
+    container.scrollTo({
+      left: centerPos,
+      behavior: behavior
+    });
+  }, []);
+
+  // --- Animation Loop (3D Transforms) ---
+
+  const animate = useCallback(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
-    
+
+    // 1. Handle Auto-Scroll (Desktop Hover)
+    if (isHoveringRef.current && !isDraggingRef.current && window.innerWidth >= 1024) {
+        const rect = container.getBoundingClientRect();
+        const center = rect.width / 2;
+        // dist -1 to 1 based on mouse position relative to center
+        const dist = mouseRelXRef.current / center; 
+        
+        // Dead zone in middle 20%
+        if (Math.abs(dist) > 0.2) {
+             const speed = Math.sign(dist) * Math.pow(Math.abs(dist), 2) * 10;
+             container.scrollLeft += speed;
+        }
+    }
+
+    // 2. 3D Transforms Logic
     const containerRect = container.getBoundingClientRect();
-    const cardRect = cardElement.getBoundingClientRect();
-    const scrollOffset = cardElement.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
-    container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
+    const containerCenter = containerRect.left + containerRect.width / 2;
+
+    PRICING_CARDS.forEach((_, index) => {
+      const card = cardRefs.current[index];
+      if (!card) return;
+
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const dist = cardCenter - containerCenter;
+      const absDist = Math.abs(dist);
+
+      // --- Math from Source Code ---
+      
+      // Scale: max(0.85, 1.05 - (absDist/500) * 0.25)
+      // Scales down as it moves away from center
+      const scale = Math.max(0.85, 1.05 - (absDist / 500) * 0.25);
+
+      // Opacity: max(0.5, 1 - (absDist/500))
+      // Fades out as it moves away
+      const opacity = Math.max(0.5, 1 - (absDist / 500));
+
+      // X Offset: -dist * 0.20
+      // Creates the visual "stacking" effect
+      const xOffset = -dist * 0.20;
+
+      // Z-Index
+      const zIndex = 100 - Math.round(absDist / 5);
+
+      // Apply styles directly
+      card.style.transform = `translateX(${xOffset}px) scale(${scale})`;
+      card.style.opacity = `${opacity}`;
+      card.style.zIndex = `${zIndex}`;
+
+      // Active Class styling logic (manual class manipulation for perf)
+      const headerBg = card.querySelector('.card-header-bg') as HTMLElement;
+      const btn = card.querySelector('.card-btn') as HTMLElement;
+
+      if (absDist < 100) {
+        // Active State
+        card.style.borderColor = 'rgba(255, 0, 0, 0.5)';
+        card.style.boxShadow = '0 30px 60px -10px rgba(0, 0, 0, 0.9)';
+        if (headerBg) headerBg.style.opacity = '1';
+        if (btn) {
+            btn.style.background = '#ff0000';
+            btn.style.borderColor = '#ff0000';
+            btn.style.boxShadow = '0 4px 20px rgba(255, 0, 0, 0.3)';
+        }
+      } else {
+        // Inactive State
+        card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        card.style.boxShadow = 'none';
+        if (headerBg) headerBg.style.opacity = '0';
+        if (btn) {
+            btn.style.background = 'transparent';
+            btn.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+            btn.style.boxShadow = 'none';
+        }
+      }
+    });
+
+    requestRef.current = requestAnimationFrame(animate);
   }, []);
 
-  // Initial scroll to Pro card (index 2)
+  // --- Event Listeners & Lifecycle ---
+
   useEffect(() => {
-    const timeout = setTimeout(() => {
-      const container = scrollContainerRef.current;
-      if (!container) return;
-      const cards = container.querySelectorAll('.pricing-card-new');
-      const proCard = cards[2] as HTMLElement;
-      if (proCard) {
-        const containerRect = container.getBoundingClientRect();
-        const cardRect = proCard.getBoundingClientRect();
-        const scrollOffset = proCard.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
-        container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
-      }
+    // Start Animation Loop
+    requestRef.current = requestAnimationFrame(animate);
+
+    // Initial Scroll to Pro Card (Index 2)
+    // We use 'auto' (instant) behavior so it appears centered by default on load
+    const timer = setTimeout(() => {
+        centerCard(2, 'auto');
     }, 100);
 
-    return () => clearTimeout(timeout);
-  }, []);
+    return () => {
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
+      clearTimeout(timer);
+    };
+  }, [animate, centerCard]);
 
-  // Mouse hover and drag handlers
+  // Mouse/Touch Event Handlers
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!isHovering || isDraggingRef.current) return;
-      
-      const rect = container.getBoundingClientRect();
-      const relX = e.clientX - rect.left - rect.width / 2;
-      setMouseX(relX);
+        if (window.innerWidth >= 1024) {
+            isHoveringRef.current = true;
+            const rect = container.getBoundingClientRect();
+            // Store relative X from center for the auto-scroll logic
+            mouseRelXRef.current = e.clientX - (rect.left + rect.width / 2);
+        }
     };
 
-    const handleMouseEnter = () => setIsHovering(true);
     const handleMouseLeave = () => {
-      setIsHovering(false);
-      setMouseX(0);
+        isHoveringRef.current = false;
+        mouseRelXRef.current = 0;
+        isDraggingRef.current = false;
+        container.style.cursor = 'grab';
+        container.style.scrollSnapType = 'x mandatory';
     };
 
     const handleMouseDown = (e: MouseEvent) => {
-      isDraggingRef.current = true;
-      startXRef.current = e.pageX - container.offsetLeft;
-      scrollLeftRef.current = container.scrollLeft;
-      container.style.cursor = 'grabbing';
-      container.style.scrollSnapType = 'none';
-    };
-
-    const handleMouseMoveGlobal = (e: MouseEvent) => {
-      if (!isDraggingRef.current) return;
-      e.preventDefault();
-      const x = e.pageX - container.offsetLeft;
-      const walk = (x - startXRef.current) * 2;
-      container.scrollLeft = scrollLeftRef.current - walk;
+        isDraggingRef.current = true;
+        startXRef.current = e.pageX - container.offsetLeft;
+        scrollLeftRef.current = container.scrollLeft;
+        container.style.cursor = 'grabbing';
+        container.style.scrollSnapType = 'none';
     };
 
     const handleMouseUp = () => {
-      isDraggingRef.current = false;
-      container.style.cursor = 'grab';
-      container.style.scrollSnapType = 'x mandatory';
+        isDraggingRef.current = false;
+        container.style.cursor = 'grab';
+        container.style.scrollSnapType = 'x mandatory';
     };
 
-    container.addEventListener('mouseenter', handleMouseEnter);
-    container.addEventListener('mouseleave', handleMouseLeave);
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+        if (!isDraggingRef.current) return;
+        e.preventDefault();
+        const x = e.pageX - container.offsetLeft;
+        const walk = (x - startXRef.current) * 1.5; // Drag speed multiplier
+        container.scrollLeft = scrollLeftRef.current - walk;
+    };
+
     container.addEventListener('mousemove', handleMouseMove);
+    container.addEventListener('mouseleave', handleMouseLeave);
     container.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('mousemove', handleMouseMoveGlobal);
-    document.addEventListener('mouseup', handleMouseUp);
+    container.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousemove', handleGlobalMouseMove);
 
     return () => {
-      container.removeEventListener('mouseenter', handleMouseEnter);
-      container.removeEventListener('mouseleave', handleMouseLeave);
-      container.removeEventListener('mousemove', handleMouseMove);
-      container.removeEventListener('mousedown', handleMouseDown);
-      document.removeEventListener('mousemove', handleMouseMoveGlobal);
-      document.removeEventListener('mouseup', handleMouseUp);
+        container.removeEventListener('mousemove', handleMouseMove);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+        container.removeEventListener('mousedown', handleMouseDown);
+        container.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
     };
-  }, [isHovering]);
+  }, []);
 
-  // Animation loop for 3D transforms
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const animate = () => {
-      const cards = container.querySelectorAll('.pricing-card-new');
-      const containerRect = container.getBoundingClientRect();
-      const containerCenter = containerRect.left + containerRect.width / 2;
-
-      // Auto-scroll based on mouse position (desktop only)
-      if (isHovering && !isDraggingRef.current && window.innerWidth >= 1024) {
-        const deadZone = 0.2;
-        const relativePos = mouseX / (containerRect.width / 2);
-        
-        if (Math.abs(relativePos) > deadZone) {
-          const direction = Math.sign(relativePos);
-          const intensity = Math.pow(Math.abs(relativePos), 2);
-          const scrollSpeed = direction * intensity * 10;
-          container.scrollLeft += scrollSpeed;
-        }
-      }
-
-      cards.forEach((card) => {
-        const cardRect = card.getBoundingClientRect();
-        const cardCenter = cardRect.left + cardRect.width / 2;
-        const dist = cardCenter - containerCenter;
-        const absDist = Math.abs(dist);
-
-        // Scale: max(0.85, 1.05 - (absDist/500) * 0.25)
-        const scale = Math.max(0.85, 1.05 - (absDist / 500) * 0.25);
-        
-        // Opacity: max(0.5, 1 - (absDist/500))
-        const opacity = Math.max(0.5, 1 - (absDist / 500));
-
-        // X offset for stacking: -dist * 0.20
-        const xOffset = -dist * 0.20;
-
-        // Z-index: 100 - round(absDist/5)
-        const zIndex = 100 - Math.round(absDist / 5);
-
-        (card as HTMLElement).style.transform = `translateX(${xOffset}px) scale(${scale})`;
-        (card as HTMLElement).style.opacity = `${opacity}`;
-        (card as HTMLElement).style.zIndex = `${zIndex}`;
-
-        // Active class if absDist < 100
-        if (absDist < 100) {
-          card.classList.add('active');
-        } else {
-          card.classList.remove('active');
-        }
-      });
-
-      animationFrameRef.current = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [isHovering, mouseX]);
 
   return (
-    <section id="pricing" className="bg-black py-16 md:py-24">
-      <div className="w-full lg:w-[70vw] mx-auto px-6">
+    <section className="w-full bg-black py-16 text-white overflow-hidden font-sans">
+      {/* Import Font manually and define responsive classes to replace inline media queries */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Default (Mobile) Pricing Card & Container Styles */
+        .pricing-scroll-container {
+            padding: 50px calc(50% - 140px) 70px calc(50% - 140px);
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .pricing-card-responsive {
+            width: 280px;
+            height: 520px;
+            padding: 24px;
+        }
+
+        /* Desktop Overrides (min-width: 1024px matches Tailwind lg) */
+        @media (min-width: 1024px) {
+            .pricing-scroll-container {
+                padding: 50px calc(50% - 160px) 70px calc(50% - 160px);
+            }
+            .pricing-card-responsive {
+                width: 320px;
+                height: 540px;
+                padding: 32px;
+            }
+        }
+      `}} />
+      
+      <div className="max-w-[1400px] mx-auto">
         
         {/* Header */}
-        <div className="flex flex-col items-center text-center mb-12">
-          <p className="text-[#ff0000] text-sm font-medium uppercase tracking-wider mb-3">
-            Pricing Plan
-          </p>
-          <h2 className="text-[32px] md:text-[56px] font-bold text-white mb-4">
+        <div className="text-center max-w-3xl mx-auto mb-10 px-4 relative z-20">
+          <div className="mb-6 flex justify-center">
+            <span className="text-[#ff0000] text-sm md:text-base font-medium">
+              Pricing Plan
+            </span>
+          </div>
+          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
             Linkist Pricing Plans
           </h2>
-          <p className="text-gray-400 text-base md:text-lg">
+          <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
             Select the plan that best suits your needs.
           </p>
         </div>
 
-        {/* Period Toggle */}
-        <div className="flex justify-center mb-12">
-          <div className="inline-flex bg-[#1A1A1A] p-1 rounded-full border border-white/10">
+        {/* Toggle Switch */}
+        <div className="flex justify-center mb-10">
+          <div className="inline-flex items-center bg-[#1A1A1A] p-1 rounded-full border border-white/10 relative z-20">
             <button
               onClick={() => setPeriod('monthly')}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'monthly'
                   ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
-                  : 'text-gray-400 bg-transparent'
+                  : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >
               Monthly
@@ -268,7 +351,7 @@ export default function PricingSection() {
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'yearly'
                   ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
-                  : 'text-gray-400 bg-transparent'
+                  : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >
               Yearly
@@ -276,133 +359,84 @@ export default function PricingSection() {
           </div>
         </div>
 
-        {/* Pricing Carousel */}
-        <div
-          ref={scrollContainerRef}
-          className="pricing-scroll-container flex overflow-x-auto items-center gap-0 cursor-grab"
-          style={{
-            scrollSnapType: 'x mandatory',
-            padding: '50px calc(50% - 140px) 70px calc(50% - 140px)',
-            msOverflowStyle: 'none',
-            scrollbarWidth: 'none'
-          }}
-        >
-          {PRICING_CARDS.map((card, index) => (
-            <div
-              key={index}
-              ref={el => { cardRefs.current[index] = el; }}
-              className="pricing-card-new relative flex flex-col bg-[#0D0D0D] border border-white/10 rounded-[32px] overflow-hidden"
-              style={{
-                flex: '0 0 280px',
-                width: '280px',
-                height: '520px',
-                padding: '24px',
-                opacity: 0.5,
-                scrollSnapAlign: 'center',
-                transition: 'border-color 0.4s ease'
-              }}
-              onClick={(e) => {
-                e.currentTarget.classList.contains('active') || centerCard(e.currentTarget);
-              }}
-            >
-              {/* Card Header Gradient Overlay */}
-              <div 
-                className="card-header-bg absolute top-0 left-0 w-full h-[180px] pointer-events-none opacity-0 transition-opacity duration-400"
+        {/* Scroll Container */}
+        <div className="w-full relative perspective-[1200px]">
+          <div
+            ref={scrollContainerRef}
+            className="pricing-scroll-container flex overflow-x-auto items-center gap-0 cursor-grab no-scrollbar"
+          >
+            {PRICING_CARDS.map((card, index) => (
+              <div
+                key={index}
+                ref={(el) => { cardRefs.current[index] = el; }}
+                onClick={() => centerCard(index)}
+                className="pricing-card-responsive relative flex flex-col flex-shrink-0 bg-[#0D0D0D] border border-white/10 rounded-[32px] overflow-hidden snap-center transition-all duration-300 will-change-transform"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0) 100%)'
+                  opacity: 0.5,
+                  transformOrigin: 'center center',
                 }}
-              />
+              >
+                {/* Card Header Gradient Overlay */}
+                <div
+                  className="card-header-bg absolute top-0 left-0 w-full h-[180px] pointer-events-none transition-opacity duration-400 opacity-0 z-0"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0) 100%)'
+                  }}
+                />
 
-              {/* Card Content */}
-              <div className="card-content relative z-10 flex flex-col h-full">
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  {card.name}
-                </h3>
-                <p className="text-gray-400 text-xs mb-4 h-10 leading-snug">
-                  {card.subtitle}
-                </p>
-                
-                {/* Price */}
-                <div className="mb-6">
-                  <span className="text-5xl font-medium text-white tracking-tight price-amount">
-                    ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
-                  </span>
-                  <span className="text-gray-400 text-sm price-period">
-                    /{period === 'monthly' ? 'month' : 'year'}
-                  </span>
+                {/* Card Content */}
+                <div className="relative z-10 flex flex-col h-full">
+                  <h3 className="text-xl font-semibold text-white mb-2 font-poppins">
+                    {card.name}
+                  </h3>
+                  <p className="text-gray-400 text-xs mb-4 h-10 leading-snug">
+                    {card.subtitle}
+                  </p>
+
+                  <div className="mb-6">
+                    <span className="text-5xl font-medium text-white tracking-tight">
+                      ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
+                    </span>
+                    <span className="text-gray-400 text-sm ml-1">
+                      /{period === 'monthly' ? 'month' : 'year'}
+                    </span>
+                  </div>
+
+                  <div className="flex-grow">
+                    <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-3">
+                      FEATURES
+                    </h4>
+                    <ul className="space-y-3 mb-6">
+                      {card.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          {/* Material Symbol Replica SVG */}
+                          <svg 
+                            className="w-[18px] h-[18px] text-white flex-shrink-0" 
+                            viewBox="0 0 24 24" 
+                            fill="currentColor"
+                          >
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                          </svg>
+                          <span className="text-gray-300 text-sm">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <a
+                    href="https://linkist.ai"
+                    className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 mt-auto block no-underline"
+                  >
+                    Get Started
+                  </a>
                 </div>
-
-                {/* Features */}
-                <div className="flex-grow">
-                  <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-3">
-                    FEATURES
-                  </h4>
-                  <ul className="space-y-3 mb-6">
-                    {card.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start gap-3">
-                        <svg
-                          className="flex-shrink-0 w-[18px] h-[18px] text-white mt-0.5"
-                          viewBox="0 0 24 24"
-                          fill="currentColor"
-                        >
-                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                        </svg>
-                        <span className="text-gray-300 text-sm">
-                          {feature}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Button */}
-                <a
-                  href="https://www.linkist.ai/choose-plan"
-                  className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300"
-                  style={{ marginTop: 'auto' }}
-                >
-                  Get Started
-                </a>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-
-      {/* Inline Styles for Active Card State */}
-      <style jsx>{`
-        @media (min-width: 768px) {
-          .pricing-card-new {
-            flex: 0 0 320px !important;
-            width: 320px !important;
-            height: 540px !important;
-            padding: 32px !important;
-          }
-          .pricing-scroll-container {
-            padding: 50px calc(50% - 160px) 70px calc(50% - 160px) !important;
-          }
-        }
-
-        .pricing-scroll-container::-webkit-scrollbar {
-          display: none;
-        }
-
-        .pricing-card-new.active {
-          opacity: 1 !important;
-          border-color: rgba(255, 0, 0, 0.5) !important;
-          box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.9);
-        }
-
-        .pricing-card-new.active .card-header-bg {
-          opacity: 1 !important;
-        }
-
-        .pricing-card-new.active .card-btn {
-          background: #ff0000 !important;
-          border-color: #ff0000 !important;
-          box-shadow: 0 4px 20px rgba(255, 0, 0, 0.3);
-        }
-      `}</style>
     </section>
   );
 }
