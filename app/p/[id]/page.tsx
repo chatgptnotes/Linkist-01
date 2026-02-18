@@ -123,46 +123,26 @@ export default function PublicProfilePage() {
   const handleDownloadVCard = async () => {
     if (!profile) return;
 
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-FN:${profile.fullName}
-ORG:${profile.company}
-TITLE:${profile.title}
-TEL:${profile.phone}
-EMAIL:${profile.email}
-URL:${profile.website}
-ADR;TYPE=WORK:;;${profile.location};;;;
-NOTE:${profile.bio?.replace(/\n/g, '\\n') || ''}
-END:VCARD`;
+    const vcard = `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${profile.fullName}\r\nORG:${profile.company}\r\nTITLE:${profile.title}\r\nTEL:${profile.phone}\r\nEMAIL:${profile.email}\r\nURL:${profile.website}\r\nADR;TYPE=WORK:;;${profile.location};;;;\r\nNOTE:${profile.bio?.replace(/\n/g, '\\n') || ''}\r\nEND:VCARD`;
 
-    const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
+    const blob = new Blob([vcard], { type: 'text/vcard' });
     const fileName = `${profile.fullName.replace(' ', '_')}.vcf`;
 
-    if (navigator.share && navigator.canShare) {
-      try {
-        const file = new File([blob], fileName, { type: 'text/vcard;charset=utf-8' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `${profile.fullName} Contact`,
-            text: `Save ${profile.fullName} to your contacts`
-          });
-          return;
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') return;
-        console.log('Web Share API not available or failed, falling back to download');
+    try {
+      const file = new File([blob], fileName, { type: 'text/vcard' });
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file] });
+        return;
       }
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === 'AbortError') return;
+      console.error('Share failed, falling back:', error);
     }
 
-    try {
-      const url = URL.createObjectURL(blob);
-      window.location.href = url;
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-    } catch (error) {
-      console.error('Failed to open contact:', error);
-      alert('Unable to save contact. Please try again or use a different browser.');
-    }
+    // Fallback: blob URL navigation
+    const url = URL.createObjectURL(blob);
+    window.location.href = url;
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
   };
 
   if (loading) {

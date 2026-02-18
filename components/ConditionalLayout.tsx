@@ -302,14 +302,15 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        '/profile-dashboard', '/verify-email', '/nfc', '/product-selection', '/choose-plan',
                        '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login',
                        '/profiles', '/claim-url', '/help', '/contact', '/about', '/features',
-                       '/founding-member', '/templates', '/new-card', '/_next', '/favicon'];
+                       '/founding-member', '/templates', '/new-card', '/_next', '/favicon',
+                       '/micro-copy'];
 
   const isUsernameRoute = pathname !== '/' &&
                           !pathname.includes('/', 1) && // Single level route (no additional slashes)
                           !knownRoutes.some(route => pathname.startsWith(route));
 
-  // Full-bleed profile pages render children only (page has its own layout)
-  if (pathname.startsWith('/profiles/preview') || pathname.startsWith('/p/')) {
+  // Full-bleed pages render children only (page has its own layout)
+  if (pathname.startsWith('/profiles/preview') || pathname.startsWith('/p/') || pathname.startsWith('/micro-copy')) {
     return <>{children}</>;
   }
 
