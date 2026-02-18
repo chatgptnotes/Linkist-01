@@ -370,7 +370,7 @@ export default function PricingSection() {
                 key={index}
                 ref={(el) => { cardRefs.current[index] = el; }}
                 onClick={() => centerCard(index)}
-                className="pricing-card-responsive relative flex flex-col flex-shrink-0 bg-[#0D0D0D] border border-white/10 rounded-[32px] overflow-hidden snap-center transition-all duration-300 will-change-transform"
+                className="pricing-card-responsive relative flex flex-col flex-shrink-0 bg-[#0D0D0D] border border-white/10 rounded-[32px] overflow-hidden snap-center transition-colors duration-200 will-change-transform"
                 style={{
                   opacity: 0.5,
                   transformOrigin: 'center center',
