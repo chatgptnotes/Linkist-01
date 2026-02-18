@@ -60,6 +60,11 @@ export default function CardCustomizationTab() {
   // Material selection state
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
 
+  // Pending toggle changes (local state, not yet saved)
+  // Key format: "optionId" for materials, "optionId__materialKey" for textures/colours/patterns
+  const [pendingToggles, setPendingToggles] = useState<Record<string, boolean>>({});
+  const [saving, setSaving] = useState(false);
+
   // Expanded sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     textures: true,
@@ -71,12 +76,20 @@ export default function CardCustomizationTab() {
     fetchOptions();
   }, []);
 
-  // Refetch options when selected plan or material changes
+  // Clear pending toggles and refetch when plan changes
+  useEffect(() => {
+    setPendingToggles({});
+    if (plans.length > 0) {
+      fetchOptions();
+    }
+  }, [selectedPlanId]);
+
+  // Refetch options when material changes (keep pending toggles for other materials)
   useEffect(() => {
     if (plans.length > 0) {
       fetchOptions();
     }
-  }, [selectedPlanId, selectedMaterial]);
+  }, [selectedMaterial]);
 
   // Auto-select first enabled material when data loads
   useEffect(() => {
@@ -121,38 +134,81 @@ export default function CardCustomizationTab() {
     }));
   };
 
-  const handleToggleEnabled = async (option: CardCustomizationOption) => {
-    setUpdating(option.id);
-    try {
-      let body: Record<string, unknown>;
+  // Get toggle key for an option (used to track pending changes)
+  const getToggleKey = (option: CardCustomizationOption): string => {
+    if (selectedPlanId && (option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
+      return `${option.id}__${selectedMaterial}`;
+    }
+    return option.id;
+  };
 
-      if (selectedPlanId) {
-        body = { id: option.id, action: 'togglePlan', plan_id: selectedPlanId };
-        // For colours, textures, and patterns, include the material_key to toggle for specific material only
-        if ((option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
-          body.material_key = selectedMaterial;
-        }
+  // Get the server (original) enabled state for an option
+  const getServerEnabled = (option: CardCustomizationOption): boolean => {
+    if (selectedPlanId && option.plan_enabled !== undefined) {
+      return option.plan_enabled;
+    }
+    return option.is_enabled;
+  };
+
+  const handleToggleEnabled = (option: CardCustomizationOption) => {
+    const key = getToggleKey(option);
+    const currentDisplayed = isOptionEnabled(option);
+    const newValue = !currentDisplayed;
+    const serverValue = getServerEnabled(option);
+
+    setPendingToggles(prev => {
+      const next = { ...prev };
+      if (newValue === serverValue) {
+        // Back to original state, remove from pending
+        delete next[key];
       } else {
-        body = { id: option.id, action: 'toggle' };
+        next[key] = newValue;
       }
+      return next;
+    });
+  };
+
+  const handleSaveAll = async () => {
+    const keys = Object.keys(pendingToggles);
+    if (keys.length === 0) return;
+
+    setSaving(true);
+    try {
+      const toggles = keys.map(key => {
+        const parts = key.split('__');
+        return {
+          option_id: parts[0],
+          material_key: parts[1] || null,
+          is_enabled: pendingToggles[key]
+        };
+      });
 
       const response = await fetch('/api/admin/card-customization', {
-        method: 'PUT',
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify({
+          action: 'batchToggle',
+          plan_id: selectedPlanId,
+          toggles
+        })
       });
 
       if (response.ok) {
+        setPendingToggles({});
         await fetchOptions();
       } else {
         const error = await response.json();
-        alert(error.error || 'Failed to update option');
+        alert(error.error || 'Failed to save changes');
       }
     } catch (error) {
-      console.error('Error toggling option:', error);
-      alert('Failed to update option');
+      console.error('Error saving changes:', error);
+      alert('Failed to save changes');
     }
-    setUpdating(null);
+    setSaving(false);
+  };
+
+  const handleDiscardChanges = () => {
+    setPendingToggles({});
   };
 
   const handleStartEditPrice = (option: CardCustomizationOption) => {
@@ -189,6 +245,10 @@ export default function CardCustomizationTab() {
   };
 
   const isOptionEnabled = (option: CardCustomizationOption): boolean => {
+    const key = getToggleKey(option);
+    if (key in pendingToggles) {
+      return pendingToggles[key];
+    }
     if (selectedPlanId && option.plan_enabled !== undefined) {
       return option.plan_enabled;
     }
@@ -235,16 +295,24 @@ export default function CardCustomizationTab() {
     return grouped.materials.find(m => m.option_key === selectedMaterial);
   };
 
+  const hasUnsavedChanges = Object.keys(pendingToggles).length > 0;
+
+  // Check if a specific option has a pending (unsaved) change
+  const hasPendingChange = (option: CardCustomizationOption): boolean => {
+    const key = getToggleKey(option);
+    return key in pendingToggles;
+  };
+
   // Render toggle button
   const renderToggle = (option: CardCustomizationOption) => {
     const enabled = isOptionEnabled(option);
+    const isPending = hasPendingChange(option);
     return (
       <button
         onClick={() => handleToggleEnabled(option)}
-        disabled={updating === option.id}
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors border-2 ${
           enabled ? 'bg-green-500 border-green-600' : 'bg-gray-200 border-gray-300'
-        } ${updating === option.id ? 'opacity-50' : ''}`}
+        } ${isPending ? 'ring-2 ring-amber-400 ring-offset-1' : ''}`}
       >
         <span
           className={`inline-block h-4 w-4 transform rounded-full transition-transform shadow-md border ${
@@ -592,6 +660,34 @@ export default function CardCustomizationTab() {
           <div className="text-sm text-gray-500">Patterns Enabled</div>
         </div>
       </div>
+
+      {/* Sticky Save Bar */}
+      {hasUnsavedChanges && (
+        <div className="sticky bottom-0 z-10 bg-white border-t-2 border-amber-400 shadow-[0_-4px_12px_rgba(0,0,0,0.1)] rounded-lg px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="h-2.5 w-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="text-sm text-gray-700">
+              <span className="font-semibold text-amber-600">{Object.keys(pendingToggles).length}</span> unsaved change{Object.keys(pendingToggles).length !== 1 ? 's' : ''}
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDiscardChanges}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              Discard
+            </button>
+            <button
+              onClick={handleSaveAll}
+              disabled={saving}
+              className="px-5 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              <SaveIcon className="h-4 w-4" />
+              {saving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

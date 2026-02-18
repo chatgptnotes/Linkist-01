@@ -812,65 +812,59 @@ function ProfileBuilderContent() {
     event.target.value = '';
   };
 
-  // Handle certification file upload
-  const handleCertificationUpload = async (file: File) => {
+  // Add a new certification entry
+  const handleAddCertification = () => {
+    const newCertification = {
+      id: `cert-${Date.now()}`,
+      name: '',
+      title: '',
+      url: '',
+      size: 0,
+      type: '',
+      showPublicly: true
+    };
+    setProfileData({
+      ...profileData,
+      certifications: [...profileData.certifications, newCertification]
+    });
+  };
+
+  // Handle certification file upload for a specific cert entry
+  const handleCertificationFileUpload = async (certId: string, file: File) => {
     const MAX_SIZE = 5 * 1024 * 1024; // 5MB
     const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
 
-    // Validate file type
     if (!validTypes.includes(file.type)) {
       toast.error('Please upload a valid file (PDF, PNG, JPG)');
       return;
     }
-
-    // Validate file size
     if (file.size > MAX_SIZE) {
       toast.error('File size must be under 5MB');
       return;
     }
 
     try {
-      toast.loading('Uploading certification...', { id: 'cert-upload' });
-
-      // Upload to Supabase Storage
+      toast.loading('Uploading file...', { id: 'cert-upload' });
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'certifications');
-      formData.append('isPublic', 'true'); // Enable public access for third-party viewing
+      formData.append('isPublic', 'true');
 
-      const response = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
+      const response = await fetch('/api/upload', { method: 'POST', body: formData });
       const result = await response.json();
 
-      if (!result.success) {
-        throw new Error(result.error || 'Upload failed');
-      }
+      if (!result.success) throw new Error(result.error || 'Upload failed');
 
-      // Create certification object with real Supabase URL
-      const newCertification = {
-        id: result.data.id,
-        name: file.name,
-        title: '', // User must enter title
-        url: result.data.publicUrl, // Real Supabase public URL (not blob URL)
-        size: file.size,
-        type: file.type,
-        showPublicly: true // Default to visible
-      };
-
-      // Add to certifications array
       setProfileData({
         ...profileData,
-        certifications: [...profileData.certifications, newCertification]
+        certifications: profileData.certifications.map(cert =>
+          cert.id === certId ? { ...cert, url: result.data.publicUrl, name: file.name, size: file.size, type: file.type } : cert
+        )
       });
-
-      toast.success('Certification uploaded successfully', { id: 'cert-upload' });
-
+      toast.success('File uploaded successfully', { id: 'cert-upload' });
     } catch (error) {
-      console.error('Error uploading certification:', error);
-      toast.error('Failed to upload certification', { id: 'cert-upload' });
+      console.error('Error uploading certification file:', error);
+      toast.error('Failed to upload file', { id: 'cert-upload' });
     }
   };
 
@@ -1866,7 +1860,7 @@ function ProfileBuilderContent() {
     { id: 'professional' as const, icon: Briefcase, label: 'Professional Information', description: 'Build your professional presence and showcase your expertise' },
     { id: 'service' as const, icon: Service, label: 'Service', description: 'Showcase your services, products, and pricing information' },
     { id: 'social' as const, icon: Share, label: 'Social & Digital Presence', description: 'Connect your social media accounts and showcase your digital footprint' },
-    { id: 'media-photo' as const, icon: Camera, label: 'Profile Photo & Banner', description: 'Upload and customize your profile visuals for a professional appearance' }
+    { id: 'media-photo' as const, icon: Camera, label: 'Profile Photo', description: 'Upload and customize your profile photo for a professional appearance' }
   ];
 
   return (
@@ -2991,80 +2985,6 @@ function ProfileBuilderContent() {
                                 />
                               </div>
 
-                              {/* Service Pricing & Currency */}
-                              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                                {/* Currency Dropdown */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Currency *
-                                  </label>
-                                  <select
-                                    value={service.currency || defaultCurrency}
-                                    onChange={(e) => {
-                                      const updatedServices = profileData.services.map(s =>
-                                        s.id === service.id ? { ...s, currency: e.target.value } : s
-                                      );
-                                      setProfileData({ ...profileData, services: updatedServices });
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-                                  >
-                                    {CURRENCIES.map(curr => (
-                                      <option key={curr.code} value={curr.code}>
-                                        {curr.symbol} {curr.code} - {curr.name}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-
-                                {/* Pricing Input */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Pricing *
-                                  </label>
-                                  <input
-                                    type="text"
-                                    value={service.pricing}
-                                    onChange={(e) => {
-                                      // Only allow numbers, decimals, dashes for ranges
-                                      const value = e.target.value;
-                                      const allowedPattern = /^[0-9.\-\s]*$/;
-                                      if (allowedPattern.test(value) || value === '') {
-                                        const updatedServices = profileData.services.map(s =>
-                                          s.id === service.id ? { ...s, pricing: value } : s
-                                        );
-                                        setProfileData({ ...profileData, services: updatedServices });
-                                      }
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
-                                    placeholder="e.g., 100, 50-100"
-                                  />
-                                </div>
-
-                                {/* Pricing Unit Dropdown */}
-                                <div>
-                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Per
-                                  </label>
-                                  <select
-                                    value={service.pricingUnit || ''}
-                                    onChange={(e) => {
-                                      const updatedServices = profileData.services.map(s =>
-                                        s.id === service.id ? { ...s, pricingUnit: e.target.value } : s
-                                      );
-                                      setProfileData({ ...profileData, services: updatedServices });
-                                    }}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
-                                  >
-                                    <option value="">Fixed Price</option>
-                                    <option value="/hour">Per Hour</option>
-                                    <option value="/day">Per Day</option>
-                                    <option value="/week">Per Week</option>
-                                    <option value="/month">Per Month</option>
-                                    <option value="/project">Per Project</option>
-                                    <option value="/session">Per Session</option>
-                                  </select>
-                                </div>
-                              </div>
 
                               {/* Show Publicly Toggle */}
                               <div className="flex items-end">
@@ -3484,107 +3404,31 @@ function ProfileBuilderContent() {
                     </div>
                   </div>
 
-                  {/* Certifications & Attachments */}
+                  {/* Certifications */}
                   <div className="mt-8">
-                    <div className="mb-4">
-                      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Certifications & Attachments</h3>
-                      <p className="text-sm text-gray-600 mt-1">Upload certificates, awards, or other documents to validate your skills.</p>
-                    </div>
-
-                    {/* File Upload Area */}
-                    <div
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-red-400 transition-colors cursor-pointer"
-                      onDragOver={(e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.add('border-red-500', 'bg-red-50');
-                      }}
-                      onDragLeave={(e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.remove('border-red-500', 'bg-red-50');
-                      }}
-                      onDrop={async (e) => {
-                        e.preventDefault();
-                        e.currentTarget.classList.remove('border-red-500', 'bg-red-50');
-                        const files = Array.from(e.dataTransfer.files);
-                        const validFiles = files.filter(file => {
-                          const validTypes = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
-                          const maxSize = 5 * 1024 * 1024; // 5MB
-                          return validTypes.includes(file.type) && file.size <= maxSize;
-                        });
-
-                        if (validFiles.length > 0) {
-                          for (const file of validFiles) {
-                            await handleCertificationUpload(file);
-                          }
-                        } else {
-                          toast.error('Please upload valid files (PDF, PNG, JPG) under 5MB');
-                        }
-                      }}
-                      onClick={() => document.getElementById('certification-upload')?.click()}
-                    >
-                      <input
-                        id="certification-upload"
-                        type="file"
-                        accept=".pdf,.png,.jpg,.jpeg"
-                        multiple
-                        className="hidden"
-                        onChange={async (e) => {
-                          const files = Array.from(e.target.files || []);
-                          for (const file of files) {
-                            await handleCertificationUpload(file);
-                          }
-                          e.target.value = ''; // Reset input
-                        }}
-                      />
-                      <div className="flex flex-col items-center">
-                        <Upload className="h-12 w-12 text-gray-400 mb-3" />
-                        <p className="text-sm font-medium text-gray-700 mb-1">
-                          Drag & drop files here or click to browse
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          Supports: PDF, PNG, JPG (Max 5MB)
-                        </p>
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <h3 className="text-base sm:text-lg font-semibold text-gray-900">Certifications</h3>
+                        <p className="text-sm text-gray-600 mt-1">Add your certificates, awards, or credentials.</p>
                       </div>
+                      <button
+                        onClick={handleAddCertification}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm"
+                      >
+                        <span className="text-lg leading-none">+</span> Add Certification
+                      </button>
                     </div>
 
-                    {/* Uploaded Certifications List */}
-                    {profileData.certifications && profileData.certifications.length > 0 && (
-                      <div className="mt-4 space-y-3">
-                        {profileData.certifications.map((cert) => (
+                    {/* Certifications List */}
+                    {profileData.certifications && profileData.certifications.length > 0 ? (
+                      <div className="space-y-3">
+                        {profileData.certifications.map((cert, index) => (
                           <div
                             key={cert.id}
                             className="p-4 bg-gray-50 rounded-lg border border-gray-200"
                           >
-                            <div className="flex items-start gap-3 mb-3">
-                              {/* File Icon */}
-                              <div className="flex-shrink-0 mt-1">
-                                {cert.type === 'application/pdf' ? (
-                                  <svg className="h-8 w-8 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                                    <path d="M14 2v6h6"/>
-                                    <path d="M12 18v-6"/>
-                                    <path d="M9 15h6"/>
-                                  </svg>
-                                ) : (
-                                  <svg className="h-8 w-8 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                                    <path d="M14 2v6h6"/>
-                                    <path d="M12 12a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"/>
-                                    <path d="M21 15l-5-5-6 6-3-3-3 3"/>
-                                  </svg>
-                                )}
-                              </div>
-
-                              {/* File Info */}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 truncate mb-1">
-                                  {cert.name}
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                  {(cert.size / 1024 / 1024).toFixed(2)} MB
-                                </p>
-                              </div>
-
+                            <div className="flex items-start justify-between mb-3">
+                              <span className="text-sm font-medium text-gray-500">Certification {index + 1}</span>
                               {/* Delete Button */}
                               <button
                                 onClick={() => {
@@ -3600,10 +3444,10 @@ function ProfileBuilderContent() {
                               </button>
                             </div>
 
-                            {/* Title Input - REQUIRED */}
+                            {/* Certificate Name - REQUIRED */}
                             <div className="mb-3">
                               <label className="block text-sm font-medium text-gray-700 mb-1">
-                                Title <span className="text-red-500">*</span>
+                                Certificate Name <span className="text-red-500">*</span>
                               </label>
                               <input
                                 type="text"
@@ -3615,7 +3459,75 @@ function ProfileBuilderContent() {
                                 } rounded-md focus:outline-none focus:ring-2 text-sm`}
                               />
                               {!cert.title && (
-                                <p className="text-xs text-red-600 mt-1">Title is required</p>
+                                <p className="text-xs text-red-600 mt-1">Certificate name is required</p>
+                              )}
+                            </div>
+
+                            {/* File Attachment - OPTIONAL */}
+                            <div className="mb-3">
+                              <label className="block text-sm font-medium text-gray-700 mb-1">
+                                Upload Document <span className="text-gray-400 font-normal">(optional)</span>
+                              </label>
+                              {cert.url ? (
+                                <div className="flex items-center gap-3 p-3 bg-white rounded-md border border-gray-300">
+                                  <div className="flex-shrink-0">
+                                    {cert.type === 'application/pdf' ? (
+                                      <svg className="h-6 w-6 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                                        <path d="M14 2v6h6"/>
+                                      </svg>
+                                    ) : (
+                                      <svg className="h-6 w-6 text-blue-500" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                                        <path d="M14 2v6h6"/>
+                                      </svg>
+                                    )}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-gray-900 truncate">{cert.name}</p>
+                                    <p className="text-xs text-gray-500">{(cert.size / 1024 / 1024).toFixed(2)} MB</p>
+                                  </div>
+                                  <button
+                                    onClick={() => {
+                                      setProfileData({
+                                        ...profileData,
+                                        certifications: profileData.certifications.map(c =>
+                                          c.id === cert.id ? { ...c, url: '', name: '', size: 0, type: '' } : c
+                                        )
+                                      });
+                                    }}
+                                    className="text-red-600 hover:text-red-800 transition-colors text-xs font-medium"
+                                  >
+                                    Remove
+                                  </button>
+                                </div>
+                              ) : (
+                                <div
+                                  className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center hover:border-red-400 transition-colors cursor-pointer"
+                                  onDragOver={(e) => { e.preventDefault(); e.currentTarget.classList.add('border-red-500', 'bg-red-50'); }}
+                                  onDragLeave={(e) => { e.preventDefault(); e.currentTarget.classList.remove('border-red-500', 'bg-red-50'); }}
+                                  onDrop={async (e) => {
+                                    e.preventDefault();
+                                    e.currentTarget.classList.remove('border-red-500', 'bg-red-50');
+                                    const file = e.dataTransfer.files[0];
+                                    if (file) await handleCertificationFileUpload(cert.id, file);
+                                  }}
+                                  onClick={() => document.getElementById(`cert-upload-${cert.id}`)?.click()}
+                                >
+                                  <input
+                                    id={`cert-upload-${cert.id}`}
+                                    type="file"
+                                    accept=".pdf,.png,.jpg,.jpeg"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) await handleCertificationFileUpload(cert.id, file);
+                                      e.target.value = '';
+                                    }}
+                                  />
+                                  <Upload className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+                                  <p className="text-xs text-gray-500">Drop file or click to upload (PDF, PNG, JPG - Max 5MB)</p>
+                                </div>
                               )}
                             </div>
 
@@ -3634,6 +3546,10 @@ function ProfileBuilderContent() {
                             </div>
                           </div>
                         ))}
+                      </div>
+                    ) : (
+                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                        <p className="text-sm text-gray-500">No certifications added yet. Click &quot;Add Certification&quot; to get started.</p>
                       </div>
                     )}
                   </div>
@@ -3657,7 +3573,7 @@ function ProfileBuilderContent() {
               </div>
             )}
 
-            {/* Profile Photo & Banner Section */}
+            {/* Profile Photo Section */}
             {activeSection === 'media-photo' && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
                 <div className="p-6 space-y-8">
@@ -3794,132 +3710,6 @@ function ProfileBuilderContent() {
                     </div>
                   </div>
 
-                  {/* Banner Image */}
-                  <div>
-                    <div className="mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Banner Image</h3>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-6">
-                      <div>
-                        <div className="flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-6">
-                          <div className="text-center w-full">
-                            {/* Banner Preview */}
-                            <div className="bg-gray-200 rounded-lg overflow-hidden" style={{ aspectRatio: '16/9' }}>
-                              {profileData.backgroundImage ? (
-                                <img src={profileData.backgroundImage} alt="Banner" className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="flex items-center justify-center h-full text-gray-400">
-                                  <span className="text-sm">No banner image</span>
-                                </div>
-                              )}
-                            </div>
-                            <input
-                              type="file"
-                              id="background-image-upload"
-                              accept="image/png,image/jpeg,image/jpg"
-                              className="hidden"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (file) {
-                                  try {
-                                    setIsUploadingBannerImage(true);
-                                    setBannerImageUploadProgress(0);
-
-                                    // Compress with upscaling for small images (never throws errors)
-                                    const base64String = await compressImageToBase64WithUpscale(file, (progress) => {
-                                      setBannerImageUploadProgress(progress);
-                                    });
-
-                                    if (base64String) {
-                                      setProfileData(prev => ({
-                                        ...prev,
-                                        backgroundImage: base64String
-                                      }));
-                                      toast.success('Banner image uploaded successfully!');
-                                    } else {
-                                      console.warn('Banner image processing returned empty, but continuing');
-                                    }
-                                  } catch (error) {
-                                    // Graceful error handling - never show error to user
-                                    console.error('Banner image upload error:', error);
-                                    // Silently continue - the function should have handled this
-                                  } finally {
-                                    setIsUploadingBannerImage(false);
-                                    setBannerImageUploadProgress(0);
-                                  }
-                                }
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const input = document.getElementById('background-image-upload') as HTMLInputElement;
-                                if (input) {
-                                  input.click();
-                                }
-                              }}
-                              disabled={isUploadingBannerImage}
-                              className="mt-4 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 flex items-center gap-2 mx-auto disabled:opacity-50 disabled:cursor-not-allowed"
-                              style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
-                            >
-                              <Upload className="w-4 h-4" />
-                              {isUploadingBannerImage ? `Uploading... ${bannerImageUploadProgress}%` : (profileData.backgroundImage ? 'Change Banner' : 'Upload Banner')}
-                            </button>
-                            {isUploadingBannerImage && (
-                              <div className="mt-2 w-full">
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                  <div
-                                    className="bg-red-600 h-2 rounded-full transition-all duration-300"
-                                    style={{ width: `${bannerImageUploadProgress}%` }}
-                                  />
-                                </div>
-                              </div>
-                            )}
-                            <p className="text-xs text-gray-500 mt-2">JPG or PNG up to 15MB</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                          <h4 className="font-semibold text-gray-900 text-sm mb-3">Banner Guidelines</h4>
-                          <ul className="space-y-2 text-sm text-gray-700">
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span>Use professional relevant imagery</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span>Avoid busy patterns that distract from text</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span>Recommended size: 1920x1080 pixels</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <CheckCircle className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                              <span>Ensure good contrast with text overlay</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        {/* Banner Visibility Toggle */}
-                        <div className="flex items-center gap-2 mt-4">
-                          <label className="flex items-center cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={profileData.showBackgroundImage}
-                              onChange={(e) => handleToggleAutoSave('showBackgroundImage', e.target.checked)}
-                              className="sr-only peer"
-                            />
-                            <div className="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-                          </label>
-                          <span className="text-sm text-gray-700">Show banner publicly</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Submit Button - Fixed Bottom */}

@@ -92,11 +92,11 @@ export default function ProductSelectionPage() {
 
   // Plans state
   const [plans, setPlans] = useState<PlanData[]>(FALLBACK_PLANS);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly');
   const [plansLoading, setPlansLoading] = useState(true);
   const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [selectedPlanId, setSelectedPlanId] = useState<string>('pro');
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
 
   // User state
   const [userCountry, setUserCountry] = useState<string>('India');
@@ -175,9 +175,17 @@ export default function ProductSelectionPage() {
     setShowCodeModal(false);
     localStorage.setItem('foundersInviteCode', data.code);
     localStorage.setItem('foundersClubValidated', 'true');
-    localStorage.setItem('productSelection', 'founders-club');
+    localStorage.setItem('productSelection', 'founders-circle');
     localStorage.setItem('isFoundingMember', 'true');
     localStorage.setItem('foundingMemberPlan', 'lifetime');
+    localStorage.setItem('billingPeriod', billingPeriod);
+    // Store Founders Circle plan pricing so checkout has the correct amount
+    const foundersPlan = plans.find(p => p.type === 'founders-circle');
+    if (foundersPlan) {
+      const planAmount = billingPeriod === 'yearly' ? (foundersPlan.yearly_price || 0) : (foundersPlan.monthly_price || 0);
+      localStorage.setItem('selectedPlanName', foundersPlan.name);
+      localStorage.setItem('selectedPlanAmount', String(planAmount));
+    }
     showToast('Welcome to the Founders Circle! Redirecting...', 'success');
     setTimeout(() => {
       router.push('/nfc/configure?founders=true');
@@ -475,14 +483,16 @@ export default function ProductSelectionPage() {
               >
                 <button
                   onClick={handleGetStarted}
-                  disabled={loading}
+                  disabled={loading || !selectedPlanId}
                   className="bg-red-600 text-white px-12 py-4 rounded-full text-base font-semibold hover:bg-red-700 transition-all shadow-lg hover:shadow-xl cursor-pointer disabled:opacity-50"
                   style={{ fontFamily: 'Poppins, sans-serif' }}
                 >
                   {loading ? 'Processing...' : (
-                    plans.find(p => p.id === selectedPlanId)?.type === 'starter'
-                      ? 'Get Started Free'
-                      : `Get Started with ${plans.find(p => p.id === selectedPlanId)?.name || 'Pro'}`
+                    !selectedPlanId
+                      ? 'Get Started'
+                      : plans.find(p => p.id === selectedPlanId)?.type === 'starter'
+                        ? 'Get Started Free'
+                        : `Get Started with ${plans.find(p => p.id === selectedPlanId)?.name}`
                   )}
                 </button>
               </motion.div>
@@ -501,14 +511,16 @@ export default function ProductSelectionPage() {
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 px-4 py-3">
           <button
             onClick={handleGetStarted}
-            disabled={loading}
+            disabled={loading || !selectedPlanId}
             className="w-full bg-red-600 text-white py-4 rounded-full text-base font-semibold hover:bg-red-700 transition-all shadow-lg cursor-pointer disabled:opacity-50"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
             {loading ? 'Processing...' : (
-              plans.find(p => p.id === selectedPlanId)?.type === 'starter'
-                ? 'Get Started Free'
-                : `Get Started with ${plans.find(p => p.id === selectedPlanId)?.name || 'Pro'}`
+              !selectedPlanId
+                ? 'Get Started'
+                : plans.find(p => p.id === selectedPlanId)?.type === 'starter'
+                  ? 'Get Started Free'
+                  : `Get Started with ${plans.find(p => p.id === selectedPlanId)?.name}`
             )}
           </button>
         </div>

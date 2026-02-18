@@ -84,13 +84,28 @@ export async function GET(request: NextRequest) {
 
     console.log('✅ Loaded services for all profiles')
 
+    // Only mark as founding member if they have an actual founders-club/circle order
+    let isFoundingMember = false
+    if (userData?.is_founding_member) {
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('card_config')
+        .eq('user_id', userId)
+        .not('card_config', 'is', null)
+
+      isFoundingMember = (orders || []).some((order: any) => {
+        const planType = order.card_config?.planType
+        return planType === 'founders-club' || planType === 'founders-circle'
+      })
+    }
+
     return NextResponse.json({
       success: true,
       profiles: profilesWithServices,
       userCountry: userData?.country || null,
       userCountryCode: userData?.country_code || null,
-      isFoundingMember: userData?.is_founding_member || false,
-      foundingMemberPlan: userData?.founding_member_plan || null
+      isFoundingMember,
+      foundingMemberPlan: isFoundingMember ? (userData?.founding_member_plan || null) : null
     })
   } catch (error) {
     console.error('Error fetching profiles:', error)

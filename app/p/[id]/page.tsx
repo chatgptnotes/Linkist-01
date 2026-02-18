@@ -157,17 +157,10 @@ END:VCARD`;
 
     try {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = fileName;
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) a.target = '_blank';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
     } catch (error) {
-      console.error('Failed to download contact:', error);
+      console.error('Failed to open contact:', error);
       alert('Unable to save contact. Please try again or use a different browser.');
     }
   };

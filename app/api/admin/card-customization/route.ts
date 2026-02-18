@@ -165,8 +165,26 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { updates } = body;
+    const { action, plan_id, toggles, updates } = body;
 
+    // Batch toggle plan options (Save All)
+    if (action === 'batchToggle' && plan_id && Array.isArray(toggles)) {
+      if (toggles.length === 0) {
+        return NextResponse.json(
+          { error: 'No toggles to update' },
+          { status: 400 }
+        );
+      }
+
+      const updated = await SupabaseCardCustomizationStore.batchSetPlanOptions(plan_id, toggles);
+      return NextResponse.json({
+        updated,
+        success: true,
+        message: `${updated} options updated successfully`
+      });
+    }
+
+    // Legacy: batch update (reorder etc.)
     if (!Array.isArray(updates) || updates.length === 0) {
       return NextResponse.json(
         { error: 'Updates array is required' },
@@ -174,7 +192,6 @@ export async function PATCH(request: NextRequest) {
       );
     }
 
-    // Process each update
     const results = [];
     for (const update of updates) {
       const { id, ...data } = update;

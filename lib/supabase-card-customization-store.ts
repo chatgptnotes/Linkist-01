@@ -610,6 +610,71 @@ export const SupabaseCardCustomizationStore = {
   },
 
   /**
+   * Batch set plan option states (for Save All functionality)
+   * Sets multiple plan options to specific enabled/disabled states in one go
+   */
+  async batchSetPlanOptions(planId: string, toggles: Array<{ option_id: string; material_key: string | null; is_enabled: boolean }>): Promise<number> {
+    const supabase = getAdminClient();
+    let updated = 0;
+
+    for (const toggle of toggles) {
+      // Try to find existing record
+      let query = supabase
+        .from('plan_customization_options')
+        .select('id, is_enabled')
+        .eq('plan_id', planId)
+        .eq('option_id', toggle.option_id);
+
+      if (toggle.material_key) {
+        query = query.eq('material_key', toggle.material_key);
+      } else {
+        query = query.is('material_key', null);
+      }
+
+      const { data: existing, error: fetchError } = await query.maybeSingle();
+
+      if (fetchError) {
+        console.error('Error checking plan option:', fetchError);
+        continue;
+      }
+
+      if (existing) {
+        // Update existing record
+        let updateQuery = supabase
+          .from('plan_customization_options')
+          .update({
+            is_enabled: toggle.is_enabled,
+            updated_at: new Date().toISOString()
+          })
+          .eq('plan_id', planId)
+          .eq('option_id', toggle.option_id);
+
+        if (toggle.material_key) {
+          updateQuery = updateQuery.eq('material_key', toggle.material_key);
+        } else {
+          updateQuery = updateQuery.is('material_key', null);
+        }
+
+        const { error } = await updateQuery;
+        if (!error) updated++;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from('plan_customization_options')
+          .insert({
+            plan_id: planId,
+            option_id: toggle.option_id,
+            material_key: toggle.material_key,
+            is_enabled: toggle.is_enabled
+          });
+        if (!error) updated++;
+      }
+    }
+
+    return updated;
+  },
+
+  /**
    * Get all options with plan-specific enabled status for admin view
    * For colours, returns material-specific status based on selectedMaterial
    */

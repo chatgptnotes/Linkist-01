@@ -342,7 +342,7 @@ export default function NFCPaymentPage() {
       return (founderPrice || 0) * quantity;
     }
 
-    // NON-FOUNDERS: Just material price (GST absorbed, no subscription)
+    // PRO / SIGNATURE / DEFAULT: Use pricing from checkout (plan amount or material price)
     const materialPrice = orderData.pricing?.materialPrice;
     return (materialPrice || 0) * quantity;
   };
@@ -754,7 +754,7 @@ export default function NFCPaymentPage() {
               {/* PRICING BREAKDOWN */}
               <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                 {(() => {
-                  const billingPeriod = orderData?.cardConfig?.billingPeriod || 'yearly';
+                  const billingPeriod = (orderData as any)?.billingPeriod || orderData?.cardConfig?.billingPeriod || 'yearly';
                   const priceSuffix = billingPeriod === 'monthly' ? '/mo' : billingPeriod === 'yearly' ? '/yr' : '';
                   const planType = orderData?.cardConfig?.planType || '';
 
@@ -764,7 +764,15 @@ export default function NFCPaymentPage() {
                         {/* SUBSCRIPTION PLAN: Show plan name + billing period */}
                         <div className="flex justify-between">
                           <span>{(orderData as any).planName} Plan ({billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'})</span>
-                          <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                          <span>${getSubtotal().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Digital Card</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>GST</span>
+                          <span className="text-green-600">Included</span>
                         </div>
                       </>
                     );
@@ -796,18 +804,19 @@ export default function NFCPaymentPage() {
                     );
                   }
 
-                  if (planType === 'signature') {
+                  if (planType === 'pro' || planType === 'signature') {
+                    const planLabel = planType === 'pro' ? 'Pro' : 'Signature';
                     return (
                       <>
-                        {/* SIGNATURE: Plan subscription price */}
+                        {/* PRO / SIGNATURE: Plan subscription price */}
                         <div className="flex justify-between">
                           <span>
-                            Signature Plan × {orderData?.cardConfig?.quantity || 1}
+                            {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}
                           </span>
                           <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>NFC Card + Customization</span>
+                          <span>NFC Card</span>
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
@@ -822,7 +831,7 @@ export default function NFCPaymentPage() {
                     );
                   }
 
-                  // PRO / DEFAULT
+                  // DEFAULT
                   return (
                     <>
                       <div className="flex justify-between">

@@ -119,6 +119,13 @@ export default function AccountPage() {
   const [copied, setCopied] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+
+  // Check if user actually has a Founder's Club/Circle order (not just the registration flag)
+  const hasFoundersClubOrder = orders.some(order =>
+    order.cardConfig?.planType === 'founders-club' ||
+    order.cardConfig?.planType === 'founders-circle'
+  );
+  const isActualFounder = user?.is_founding_member && (hasFoundersClubOrder || (user as any)?.has_founders_order);
   const [showQrCode, setShowQrCode] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [referralStats, setReferralStats] = useState<{
@@ -435,10 +442,10 @@ export default function AccountPage() {
 
   // Load referral stats when user is loaded and is a founding member
   useEffect(() => {
-    if (user?.is_founding_member) {
+    if (isActualFounder) {
       loadReferralStats();
     }
-  }, [user?.is_founding_member]);
+  }, [isActualFounder]);
 
   // Helper functions to check section completion based on user data
   const isBasicInfoComplete = () => {
@@ -605,7 +612,7 @@ export default function AccountPage() {
             {/* Right side: Badge + Edit button */}
             <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
               {/* Founding Member Badge */}
-              {user?.is_founding_member && (
+              {isActualFounder && (
                 <div className="inline-flex items-center bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-md">
                   <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
@@ -907,7 +914,7 @@ export default function AccountPage() {
         </div>
 
         {/* Referral Section - Only for Founding Members */}
-        {user?.is_founding_member && (
+        {isActualFounder && (
           <div className="bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl shadow-sm p-4 sm:p-6 mt-6 sm:mt-8 border border-amber-200">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">

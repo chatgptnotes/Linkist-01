@@ -162,24 +162,31 @@ export default function ConfigureNewPage() {
       // Step 2: Check founding member status and fetch pricing with detected country
       await checkFoundingMemberStatus(detectedCountry);
 
-      // Step 3: Pre-fill card names from userProfile
-      const userProfile = localStorage.getItem('userProfile');
-      if (userProfile) {
-        try {
-          const profile = JSON.parse(userProfile);
-          setFormData(prev => ({
-            ...prev,
-            cardFirstName: (profile.firstName || '').toUpperCase(),
-            cardLastName: (profile.lastName || '').toUpperCase()
-          }));
-          console.log('Configure: Pre-filled card name from profile:', {
-            cardFirstName: profile.firstName,
-            cardLastName: profile.lastName
-          });
-        } catch (error) {
-          console.error('Error parsing user profile:', error);
+      // Step 3: Pre-fill card names from userProfile (only if not already set from API)
+      setFormData(prev => {
+        if (prev.cardFirstName || prev.cardLastName) {
+          console.log('Configure: Card names already set from API, skipping localStorage fallback');
+          return prev;
         }
-      }
+        const userProfile = localStorage.getItem('userProfile');
+        if (userProfile) {
+          try {
+            const profile = JSON.parse(userProfile);
+            console.log('Configure: Pre-filled card name from localStorage profile:', {
+              firstName: profile.firstName,
+              lastName: profile.lastName
+            });
+            return {
+              ...prev,
+              cardFirstName: (profile.firstName || '').toUpperCase(),
+              cardLastName: (profile.lastName || '').toUpperCase()
+            };
+          } catch (error) {
+            console.error('Error parsing user profile:', error);
+          }
+        }
+        return prev;
+      });
     };
 
     // Check founding member status from API and detect plan type
@@ -194,6 +201,19 @@ export default function ConfigureNewPage() {
           const foundingMemberStatus = data.user?.is_founding_member || false;
           setIsFoundingMember(foundingMemberStatus);
           console.log('Configure: Founding member status:', foundingMemberStatus);
+
+          // Pre-fill card names from authenticated user data (DB is source of truth)
+          if (data.user?.first_name || data.user?.last_name) {
+            setFormData(prev => ({
+              ...prev,
+              cardFirstName: (data.user.first_name || '').toUpperCase(),
+              cardLastName: (data.user.last_name || '').toUpperCase()
+            }));
+            console.log('Configure: Pre-filled card name from API:', {
+              first_name: data.user.first_name,
+              last_name: data.user.last_name
+            });
+          }
 
           // Read billing period from localStorage (set during product selection)
           const storedBilling = localStorage.getItem('billingPeriod') as 'monthly' | 'yearly';
@@ -485,7 +505,8 @@ export default function ConfigureNewPage() {
   };
 
   const handleContinue = () => {
-    if (!formData.cardFirstName.trim() || !formData.cardLastName.trim()) {
+    // Name is not required for Pro plan
+    if (userPlanType !== 'pro' && (!formData.cardFirstName.trim() || !formData.cardLastName.trim())) {
       alert('Please enter both first and last name for the card');
       return;
     }
@@ -554,7 +575,8 @@ export default function ConfigureNewPage() {
           {/* Configuration Section - Left Side */}
           <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
 
-            {/* Step 1: Personalize Name - Compact Modern Card */}
+            {/* Step 1: Personalize Name - Compact Modern Card (hidden for Pro plan) */}
+            {userPlanType !== 'pro' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
                 <h2 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -607,6 +629,7 @@ export default function ConfigureNewPage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Step 2: Base Material - Modern Grid */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -630,11 +653,6 @@ export default function ConfigureNewPage() {
                       <div className="text-center">
                         <h3 className={`font-semibold text-sm ${formData.baseMaterial === material.value ? 'text-red-600' : 'text-gray-900'}`}>{material.label}</h3>
                         <p className="text-xs text-gray-500 mt-1 line-clamp-2">{material.description}</p>
-                        {userPlanType === 'pro' && (
-                          <div className="mt-3 text-lg font-bold text-gray-900">
-                            ${getDisplayPrice(prices[material.value]).toFixed(2)}{priceSuffix}
-                          </div>
-                        )}
                       </div>
                     </button>
                   ))}
@@ -824,7 +842,7 @@ export default function ConfigureNewPage() {
                 {/* Warning about incomplete selections - always visible */}
                 {(() => {
                   const missingItems = [];
-                  if (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim()) {
+                  if (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) {
                     missingItems.push('Card Name');
                   }
                   if (!formData.baseMaterial) {
@@ -854,9 +872,9 @@ export default function ConfigureNewPage() {
 
                 <button
                   onClick={handleContinue}
-                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || !formData.cardFirstName?.trim() || !formData.cardLastName?.trim() || isLoading}
+                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) || isLoading}
                   className={`w-full px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && formData.cardFirstName?.trim() && formData.cardLastName?.trim())
+                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && (userPlanType === 'pro' || (formData.cardFirstName?.trim() && formData.cardLastName?.trim())))
                       ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
@@ -904,7 +922,8 @@ export default function ConfigureNewPage() {
                         />
                       </div>
 
-                      {/* User Initials or Name */}
+                      {/* User Initials or Name (hidden for Pro plan) */}
+                      {userPlanType !== 'pro' && (
                       <div className="absolute bottom-6 left-6">
                         {(() => {
                           const firstName = formData.cardFirstName?.trim() || '';
@@ -926,6 +945,7 @@ export default function ConfigureNewPage() {
                           }
                         })()}
                       </div>
+                      )}
                     </div>
                     <div className="text-center text-sm text-gray-600">Front</div>
                   </div>

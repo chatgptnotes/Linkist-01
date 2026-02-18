@@ -129,7 +129,8 @@ async function handlePaymentSuccess(paymentIntent: any) {
         whatsapp: paymentIntent.metadata?.whatsapp === 'true',
         quantity: parseInt(paymentIntent.metadata?.quantity || '1'),
         baseMaterial: baseMaterial,
-        isDigitalOnly: isDigitalOnly
+        isDigitalOnly: isDigitalOnly,
+        planType: paymentIntent.metadata?.planType || '',
       },
       shipping: {
         fullName: paymentIntent.metadata?.shippingName || paymentIntent.metadata?.customerName || 'Customer',

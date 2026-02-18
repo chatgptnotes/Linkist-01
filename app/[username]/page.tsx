@@ -260,65 +260,19 @@ export default function ProfilePreviewPage() {
     }
   };
 
-  // Generate and download vCard for saving to contacts
+  // Fetch vCard and open it directly so the OS contacts handler picks it up
   const handleSaveToContacts = async () => {
-    if (!profileData) return;
-
-    const fullName = profileData.salutation
-      ? `${profileData.salutation} ${profileData.firstName} ${profileData.lastName}`
-      : `${profileData.firstName} ${profileData.lastName}`;
-    const vCard = [
-      'BEGIN:VCARD',
-      'VERSION:3.0',
-      `FN:${fullName}`,
-      `N:${profileData.lastName};${profileData.firstName};;${profileData.salutation || ''};`,
-      profileData.jobTitle && profileData.showJobTitle ? `TITLE:${profileData.jobTitle}` : '',
-      profileData.companyName && profileData.showCompanyName ? `ORG:${profileData.companyName}` : '',
-      profileData.primaryEmail && profileData.showEmailPublicly ? `EMAIL;TYPE=INTERNET:${profileData.primaryEmail}` : '',
-      profileData.secondaryEmail && profileData.showSecondaryEmailPublicly ? `EMAIL;TYPE=INTERNET:${profileData.secondaryEmail}` : '',
-      profileData.mobileNumber && profileData.showMobilePublicly ? `TEL;TYPE=CELL:${profileData.mobileNumber}` : '',
-      profileData.whatsappNumber && profileData.showWhatsappPublicly ? `TEL;TYPE=WHATSAPP:${profileData.whatsappNumber}` : '',
-      profileData.companyWebsite && profileData.showCompanyWebsite ? `URL:${profileData.companyWebsite}` : '',
-      profileData.companyAddress && profileData.showCompanyAddress ? `ADR;TYPE=WORK:;;${profileData.companyAddress};;;;` : '',
-      customUrl ? `URL:${customUrl}` : '',
-      profileData.professionalSummary ? `NOTE:${profileData.professionalSummary.replace(/\n/g, '\\n')}` : '',
-      'END:VCARD'
-    ].filter(line => line).join('\n');
-
-    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' });
-    const fileName = `${profileData.firstName}-${profileData.lastName}.vcf`;
-
-    if (navigator.share && navigator.canShare) {
-      try {
-        const file = new File([blob], fileName, { type: 'text/vcard;charset=utf-8' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: `${profileData.firstName} ${profileData.lastName} Contact`,
-            text: `Save ${profileData.firstName} ${profileData.lastName} to your contacts`
-          });
-          return;
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') return;
-        console.log('Web Share API not available or failed, falling back to download');
-      }
-    }
-
+    if (!profileData || !username) return;
     try {
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-      if (isIOS) link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      const response = await fetch(`/api/vcard/${username}`);
+      const vcfText = await response.text();
+      const blob = new Blob([vcfText], { type: 'text/vcard;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      window.location.href = url;
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
     } catch (error) {
-      console.error('Failed to download contact:', error);
-      alert('Unable to save contact. Please try again or use a different browser.');
+      console.error('Failed to open contact:', error);
+      window.open(`/api/vcard/${username}`, '_self');
     }
   };
 
@@ -392,27 +346,51 @@ export default function ProfilePreviewPage() {
             <div className="mb-6">
               <h3 className="text-lg font-semibold text-white mb-4">Certifications</h3>
               <div className="space-y-2">
-                {normalized.certifications.map((cert) => (
-                  <a
-                    key={cert.id}
-                    href={cert.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block px-4 py-3 rounded-lg transition-colors border border-white/12 hover:border-white/25"
-                    style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
-                        <path d="M14 2v6h6"/>
-                      </svg>
-                      <span className="text-sm text-white/80 font-medium flex-1">{cert.title}</span>
-                      <svg className="w-4 h-4 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                      </svg>
+                {normalized.certifications.map((cert) => {
+                  if (cert.url) {
+                    const isPdf = cert.type === 'application/pdf' || cert.url.toLowerCase().endsWith('.pdf');
+                    const viewUrl = isPdf
+                      ? `https://docs.google.com/gview?url=${encodeURIComponent(cert.url)}&embedded=true`
+                      : cert.url;
+
+                    return (
+                      <button
+                        key={cert.id}
+                        onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                        className="block w-full text-left px-4 py-3 rounded-lg transition-colors border border-white/12 hover:border-white/25 cursor-pointer"
+                        style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                            <path d="M14 2v6h6"/>
+                          </svg>
+                          <span className="text-sm text-white/80 font-medium flex-1">{cert.title}</span>
+                          <svg className="w-4 h-4 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </div>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <div
+                      key={cert.id}
+                      className="block px-4 py-3 rounded-lg border border-white/12"
+                      style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5 text-red-500 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                          <path d="M14 2v6h6"/>
+                        </svg>
+                        <span className="text-sm text-white/80 font-medium flex-1">{cert.title}</span>
+                      </div>
                     </div>
-                  </a>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

@@ -199,6 +199,44 @@ export default function CheckoutPage() {
               console.log('✅ Checkout: Populated phone from DB:', data.user.phone_number);
             }
           }
+
+          // Fetch saved shipping address for returning users (auto-fill)
+          try {
+            const addrResponse = await fetch('/api/user/shipping-address', {
+              credentials: 'include',
+              cache: 'no-store'
+            });
+            if (addrResponse.ok) {
+              const addrData = await addrResponse.json();
+              // Helper to check if value is a real address (not a placeholder)
+              const isReal = (val: string | undefined) => {
+                if (!val) return false;
+                const lower = val.toLowerCase().trim();
+                return lower && lower !== 'n/a' && !lower.includes('digital product') && lower !== 'none' && lower !== '-';
+              };
+
+              if (addrData.address) {
+                const addr = addrData.address;
+                console.log('✅ Checkout: Found saved shipping address, auto-filling:', addr);
+                if (isReal(addr.addressLine1)) setValue('addressLine1', addr.addressLine1);
+                if (isReal(addr.addressLine2)) setValue('addressLine2', addr.addressLine2);
+                if (isReal(addr.city)) setValue('city', addr.city);
+                if (isReal(addr.state)) setValue('stateProvince', addr.state);
+                if (isReal(addr.postalCode)) setValue('postalCode', addr.postalCode);
+                if (isReal(addr.country)) setValue('country', addr.country);
+              } else {
+                console.log('ℹ️ Checkout: No saved shipping address found for user');
+              }
+
+              // Auto-fill phone from previous order if not already set from DB
+              if (!data.user?.phone_number && isReal(addrData.fallbackPhone)) {
+                setValue('phone', addrData.fallbackPhone);
+                console.log('✅ Checkout: Populated phone from previous order:', addrData.fallbackPhone);
+              }
+            }
+          } catch (addrError) {
+            console.log('⚠️ Checkout: Could not fetch saved shipping address');
+          }
         }
       } catch (error) {
         console.log('⚠️ Checkout: Could not check founding member status early');
@@ -508,8 +546,8 @@ export default function CheckoutPage() {
       };
     }
 
-    // SIGNATURE PLAN: Use plan subscription price (no material price)
-    if (cardConfig?.planType === 'signature') {
+    // PRO / SIGNATURE / FOUNDERS CIRCLE PLAN: Use plan subscription price (no material price)
+    if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
       const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
       return {
         productPlanPrice: selectedPlanAmount,
@@ -570,16 +608,24 @@ export default function CheckoutPage() {
 
     setApplyingVoucher(true);
     try {
-      // Calculate order amount using unified pricing utility
+      // Calculate order amount for voucher validation
       const country = watchedValues.country || 'US';
-      const orderAmount = getOrderAmountForVoucher({
-        cardConfig: {
-          baseMaterial: (cardConfig?.baseMaterial as any) || 'pvc',
-          quantity: quantity,
-        },
-        country: country,
-        isFoundingMember: userIsFoundingMember,
-      });
+      let orderAmount: number;
+
+      // For Pro/Signature/Founders plans, use the fixed plan amount
+      if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
+        const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
+        orderAmount = selectedPlanAmount * quantity;
+      } else {
+        orderAmount = getOrderAmountForVoucher({
+          cardConfig: {
+            baseMaterial: (cardConfig?.baseMaterial as any) || 'pvc',
+            quantity: quantity,
+          },
+          country: country,
+          isFoundingMember: userIsFoundingMember,
+        });
+      }
 
       const response = await fetch('/api/vouchers/validate', {
         method: 'POST',
@@ -779,10 +825,10 @@ export default function CheckoutPage() {
           voucherDiscount: 0,
           isFoundersPricing: true
         };
-      } else if (cardConfig?.planType === 'signature') {
-        // SIGNATURE: Use plan subscription price (no material price)
+      } else if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
+        // PRO / SIGNATURE / FOUNDERS CIRCLE: Use plan subscription price (no material price)
         const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
-        console.log('✨ Checkout: Using SIGNATURE pricing:', selectedPlanAmount, 'x', quantity);
+        console.log('✨ Checkout: Using PLAN pricing:', cardConfig?.planType, selectedPlanAmount, 'x', quantity);
         pricingData = {
           productPlanPrice: selectedPlanAmount,
           materialPrice: selectedPlanAmount,
@@ -801,7 +847,7 @@ export default function CheckoutPage() {
           isFoundersPricing: false
         };
       } else {
-        // PRO / DEFAULT: Material price adjusted by billing period
+        // DEFAULT: Material price adjusted by billing period
         const pricing = calculatePricing({
           cardConfig: {
             baseMaterial: (cardConfig?.baseMaterial as any) || 'pvc',
