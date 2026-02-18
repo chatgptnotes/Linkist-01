@@ -10,7 +10,17 @@ import ReserveProfileSection from './ReserveProfileSection';
 
 export default function MicroCopyPage() {
   useEffect(() => {
+    // Force scroll to top, overriding any hash anchoring
     window.scrollTo(0, 0);
+    // Also clear any hash from the URL without triggering navigation
+    if (window.location.hash) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+    // Delayed scroll to ensure it fires after child component mount effects
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+    }, 150);
+    return () => clearTimeout(timer);
   }, []);
 
   return (

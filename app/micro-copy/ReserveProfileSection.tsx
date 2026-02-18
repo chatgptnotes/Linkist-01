@@ -19,11 +19,6 @@ export default function ReserveProfileSection() {
 
       <div className="w-full lg:w-[75vw] max-w-4xl mx-auto px-6 py-16 md:py-24 flex flex-col items-center text-center relative z-10">
         
-        {/* Headline */}
-        <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
-          The founding member offer
-        </h2>
-
         {/* Quote */}
         <p 
           className="text-white text-2xl md:text-3xl mb-8"
@@ -42,9 +37,7 @@ export default function ReserveProfileSection() {
 
         {/* Description */}
         <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-2xl mb-16">
-          Join the select few who are shaping the future of professional networking. 
-          As a founding member, you&apos;ll get exclusive access to features and benefits 
-          that will never be available again.
+          Limited spots available for the initial release. Secure your position in the network before the public launch.
         </p>
 
         {/* Main Glass Card */}
@@ -65,7 +58,7 @@ export default function ReserveProfileSection() {
             Join the Linkist community
           </h3>
           <p className="text-[#A3A3A3] text-base md:text-lg mb-8">
-            Be among the first to experience the future of networking
+            Early members don&apos;t just get a card, they help shape how Linkist evolves and get access to Linkist and partner community events.
           </p>
 
           {/* Inner Glass Box with Logo */}

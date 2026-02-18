@@ -75,11 +75,13 @@ export default function PricingSection() {
   const centerCard = useCallback((index: number) => {
     const container = scrollContainerRef.current;
     if (!container) return;
-
     const cards = container.querySelectorAll('.pricing-card-new');
     const card = cards[index] as HTMLElement;
     if (card) {
-      card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = card.getBoundingClientRect();
+      const scrollOffset = card.offsetLeft - container.offsetLeft - (containerRect.width / 2) + (cardRect.width / 2);
+      container.scrollTo({ left: scrollOffset, behavior: 'smooth' });
     }
   }, []);
 

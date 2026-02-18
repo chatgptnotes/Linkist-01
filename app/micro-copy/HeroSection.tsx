@@ -135,13 +135,12 @@ export default function HeroSection() {
     <section className="lg:min-h-[75vh] flex items-center justify-center relative overflow-visible">
       {/* Background Overlay/Gradient */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-        {/* Mobile Image */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/Homepage (Mobile Version).png"
-          className="w-full h-[600px] object-cover object-top opacity-100 lg:hidden"
-          alt="Background Glow"
-          style={{ imageOrientation: 'none' }}
+        {/* Mobile Gradient Background */}
+        <div
+          className="w-full h-[600px] lg:hidden absolute inset-0"
+          style={{
+            background: 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(255, 58, 41, 0.45) 0%, rgba(0, 0, 0, 0) 70%)',
+          }}
         />
         {/* Desktop CSS Gradient */}
         <div
@@ -177,6 +176,7 @@ export default function HeroSection() {
               <Link
                 href="#pricing"
                 className="text-[#FF3A29] text-sm md:text-base font-medium underline underline-offset-4 hover:text-white transition-colors"
+                style={{ color: '#FF3A29' }}
               >
                 Know More
               </Link>
