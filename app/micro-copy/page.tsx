@@ -5,6 +5,7 @@ import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
 import SignUpSection from './SignUpSection';
 import PricingSection from './PricingSection';
+import CompareFeaturesSection from './CompareFeaturesSection';
 import FoundingMembersSection from './FoundingMembersSection';
 import ReserveProfileSection from './ReserveProfileSection';
 import Footer from '@/components/Footer';
@@ -161,6 +162,7 @@ export default function MicroCopyPage() {
       <FeaturesSection />
       <SignUpSection />
       <PricingSection />
+      <CompareFeaturesSection />
       <FoundingMembersSection />
       <ReserveProfileSection />
       <Footer variant="full" />

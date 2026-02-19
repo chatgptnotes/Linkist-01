@@ -50,16 +50,6 @@ const PRICING_CARDS: PricingCard[] = [
     ]
   },
   {
-    name: 'Signature',
-    subtitle: 'Best for personal branding',
-    monthlyPrice: 12.9,
-    yearlyPrice: 129,
-    features: [
-      'Everything in Pro',
-      'Smart card customisation (name, design, finish)'
-    ]
-  },
-  {
     name: "Founder's Circle",
     subtitle: 'Invite-only, lifetime premium access',
     monthlyPrice: 14.9,
