@@ -154,41 +154,6 @@ export default function MicroCopyPage() {
         .pricing-scroll-container::-webkit-scrollbar {
           display: none;
         }
-
-        .pricing-card-new {
-          background: #111111;
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 1rem;
-          overflow: hidden;
-          transition: all 0.3s ease;
-        }
-
-        .pricing-card-new.active {
-          border-color: rgba(255, 58, 41, 0.4);
-        }
-
-        .card-header-bg {
-          background: linear-gradient(to bottom, #1a1a1a 0%, #111111 100%);
-        }
-
-        .card-content {
-          background: #111111;
-        }
-
-        .card-btn {
-          background: #FF3A29;
-          color: white;
-          font-weight: 500;
-          padding: 0.75rem 1.5rem;
-          border-radius: 0.5rem;
-          text-align: center;
-          transition: all 0.3s ease;
-        }
-
-        .card-btn:hover {
-          background: #ff4d3a;
-          box-shadow: 0 0 20px rgba(255, 58, 41, 0.5);
-        }
       `}</style>
 
       {/* Sections */}

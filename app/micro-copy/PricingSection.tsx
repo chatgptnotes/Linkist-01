@@ -174,6 +174,7 @@ export default function PricingSection() {
 
       if (absDist < 100) {
         // Active State
+        card.classList.add('active');
         card.style.borderColor = 'rgba(255, 0, 0, 0.5)';
         card.style.boxShadow = '0 30px 60px -10px rgba(0, 0, 0, 0.9)';
         if (headerBg) headerBg.style.opacity = '1';
@@ -184,6 +185,7 @@ export default function PricingSection() {
         }
       } else {
         // Inactive State
+        card.classList.remove('active');
         card.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         card.style.boxShadow = 'none';
         if (headerBg) headerBg.style.opacity = '0';
@@ -277,7 +279,7 @@ export default function PricingSection() {
 
 
   return (
-    <section className="w-full bg-black py-16 text-white overflow-hidden font-sans">
+    <section id="pricing" className="w-full bg-black py-16 text-white overflow-hidden font-sans">
       {/* Import Font manually and define responsive classes to replace inline media queries */}
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -303,8 +305,8 @@ export default function PricingSection() {
             padding: 24px;
         }
 
-        /* Desktop Overrides (min-width: 1024px matches Tailwind lg) */
-        @media (min-width: 1024px) {
+        /* Tablet/Desktop Overrides */
+        @media (min-width: 768px) {
             .pricing-scroll-container {
                 padding: 50px calc(50% - 160px) 70px calc(50% - 160px);
             }
@@ -313,6 +315,25 @@ export default function PricingSection() {
                 height: 540px;
                 padding: 32px;
             }
+        }
+
+        /* Check icon styles */
+        .check-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.4);
+            font-size: 10px;
+            color: rgba(255,255,255,0.6);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .pricing-card-responsive.active .check-icon {
+            border-color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.9);
         }
       `}} />
       
@@ -409,14 +430,7 @@ export default function PricingSection() {
                     <ul className="space-y-3 mb-6">
                       {card.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-3">
-                          {/* Material Symbol Replica SVG */}
-                          <svg 
-                            className="w-[18px] h-[18px] text-white flex-shrink-0" 
-                            viewBox="0 0 24 24" 
-                            fill="currentColor"
-                          >
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
-                          </svg>
+                          <span className="check-icon">✓</span>
                           <span className="text-gray-300 text-sm">
                             {feature}
                           </span>
@@ -426,7 +440,7 @@ export default function PricingSection() {
                   </div>
 
                   <a
-                    href="https://linkist.ai"
+                    href="https://www.linkist.ai/choose-plan"
                     className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 mt-auto block no-underline"
                   >
                     Get Started
