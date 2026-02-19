@@ -49,7 +49,7 @@ export default function CompareFeatures() {
   const displayFeatures = showAll ? COMPARE_FEATURES : COMPARE_FEATURES.slice(0, 5);
 
   return (
-    <section className="w-full bg-black py-16 md:py-24 text-white overflow-hidden font-sans">
+    <section className="w-full bg-black py-12 md:py-20 text-white overflow-hidden font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         
@@ -58,12 +58,12 @@ export default function CompareFeatures() {
         }
       `}} />
       
-      <div className="w-full max-w-[1000px] mx-auto px-4">
+      <div className="w-full lg:w-[75vw] mx-auto px-6">
         
         {/* Header styling */}
-        <div className="text-center max-w-3xl mx-auto mb-10 md:mb-16 px-4 relative z-20">
+        <div className="text-center max-w-3xl mx-auto mb-6 md:mb-10 px-4 relative z-20">
           <div className="mb-6 flex justify-center">
-            <span className="text-[#ff0000] text-sm md:text-base font-medium uppercase tracking-wider font-poppins">
+            <span className="text-[#FF3A29] text-sm md:text-base font-medium uppercase tracking-wider font-poppins">
               Compare Features
             </span>
           </div>
@@ -76,11 +76,11 @@ export default function CompareFeatures() {
           <table className="w-full text-left border-collapse min-w-[800px] font-poppins">
             <thead>
               <tr>
-                <th className="sticky left-0 z-20 bg-[#0A0A0A] p-6 text-sm font-semibold text-gray-400 border-b border-r border-white/10 w-[30%] shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                <th className="sticky left-0 z-20 bg-[#0A0A0A] py-3 px-4 text-xs md:text-sm font-semibold text-gray-400 border-b border-r border-white/10 w-[30%] shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
                   Features
                 </th>
                 {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan) => (
-                  <th key={plan} className="p-6 text-center text-sm font-semibold text-white border-b border-white/10 w-[14%]">
+                  <th key={plan} className="py-3 px-4 text-center text-xs md:text-sm font-semibold text-white border-b border-white/10 w-[14%]">
                     {plan}
                   </th>
                 ))}
@@ -89,14 +89,14 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] p-4 text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors ${row.isHeader ? 'font-semibold text-white pt-8' : 'text-gray-300'}`}>
+                  <td className={`sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] py-2 px-4 text-xs md:text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.next, row.pro, row.signature, row.founder].map((val, i) => (
-                    <td key={i} className={`p-4 text-center border-b border-white/10 ${row.isHeader ? 'pt-8' : ''}`}>
+                    <td key={i} className={`py-2 px-4 text-center border-b border-white/10 ${row.isHeader ? 'pt-5' : ''}`}>
                       {val ? (
                         <div className="flex justify-center items-center">
-                          <svg className="w-[18px] h-[18px] text-[#ff0000]" viewBox="0 0 24 24" fill="currentColor">
+                          <svg className="w-[14px] h-[14px] text-[#FF3A29]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                           </svg>
                         </div>
@@ -113,32 +113,32 @@ export default function CompareFeatures() {
                 onClick={() => setShowAll(!showAll)}
                 className="group hover:bg-[#111] transition-colors cursor-pointer"
               >
-                <td className="sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] p-4 text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors">
-                  <div className="flex items-center gap-2 text-[#ff0000] font-semibold">
+                <td className="sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] py-2 px-4 text-xs md:text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors">
+                  <div className="flex items-center gap-2 text-[#FF3A29] font-semibold">
                     {showAll ? 'View Less' : 'View All Features'}
                     <svg className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
                 </td>
-                <td colSpan={5} className="p-4 border-b border-white/10 bg-[#0A0A0A] group-hover:bg-[#111] transition-colors"></td>
+                <td colSpan={5} className="py-2 px-4 border-b border-white/10 bg-[#0A0A0A] group-hover:bg-[#111] transition-colors"></td>
               </tr>
 
               {/* Action Buttons Row */}
               <tr>
-                <td className="sticky left-0 z-10 bg-[#0A0A0A] p-4 border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)]"></td>
+                <td className="sticky left-0 z-10 bg-[#0A0A0A] py-3 px-4 border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)]"></td>
                 {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan, i) => (
-                  <td key={plan} className="p-4 pt-8 pb-8">
+                  <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
                       href="https://linkist.ai/choose-plan"
-                      className={`flex items-center justify-center gap-2 w-full max-w-[160px] mx-auto py-2.5 px-4 rounded-lg font-semibold text-sm transition-all duration-300 no-underline ${
+                      className={`flex items-center justify-center gap-2 w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-300 no-underline ${
                         i === 2
-                          ? 'bg-[#ff0000] text-white shadow-[0_4px_14px_rgba(255,0,0,0.3)] hover:bg-[#cc0000]'
-                          : 'bg-[#ff0000]/15 text-[#ff0000] hover:bg-[#ff0000] hover:text-white'
+                          ? 'bg-[#FF3A29] text-white shadow-[0_4px_14px_rgba(255,58,41,0.3)] hover:bg-[#e8321f]'
+                          : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
                     >
                       Get Started
-                      <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 12h16M13 5l7 7-7 7" />
                       </svg>
                     </a>
