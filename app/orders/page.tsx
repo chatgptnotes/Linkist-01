@@ -9,6 +9,7 @@ import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const Package = Inventory2Icon;
 const Truck = LocalShippingIcon;
@@ -158,15 +159,16 @@ export default function OrdersPage() {
             <div className="flex items-center gap-3">
               <Link
                 href="/profile-dashboard"
-                className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium text-sm"
+                className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                title="Back to Dashboard"
               >
-                Back to Dashboard
+                <ArrowBackIcon fontSize="small" />
               </Link>
               <Link
                 href="/product-selection"
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium text-sm"
               >
-                Order New Card
+                Order
               </Link>
             </div>
           </div>

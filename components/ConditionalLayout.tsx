@@ -307,7 +307,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login',
                        '/profiles', '/claim-url', '/help', '/contact', '/about', '/features',
                        '/founding-member', '/templates', '/new-card', '/_next', '/favicon',
-                       '/micro-copy'];
+                       '/digital-business-card'];
 
   const isUsernameRoute = pathname !== '/' &&
                           !pathname.includes('/', 1) && // Single level route (no additional slashes)
