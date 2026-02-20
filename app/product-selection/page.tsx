@@ -118,9 +118,14 @@ export default function ProductSelectionPage() {
           const data = await response.json();
           if (data.user) {
             setIsLoggedIn(true);
-            const foundersValidated = localStorage.getItem('foundersClubValidated');
-            if (foundersValidated === 'true') {
+            // Check founding member status ONLY from API (database is the source of truth)
+            if (data.user.is_founding_member) {
               setFoundersClubUnlocked(true);
+            } else {
+              setFoundersClubUnlocked(false);
+              // Clean up stale localStorage flags from previous sessions
+              localStorage.removeItem('foundersClubValidated');
+              localStorage.removeItem('isFoundingMember');
             }
           } else {
             setFoundersClubUnlocked(false);
@@ -174,11 +179,9 @@ export default function ProductSelectionPage() {
   const handleFoundersCodeSuccess = (data: { code: string; email: string }) => {
     setShowCodeModal(false);
     localStorage.setItem('foundersInviteCode', data.code);
-    localStorage.setItem('foundersClubValidated', 'true');
     localStorage.setItem('productSelection', 'founders-circle');
-    localStorage.setItem('isFoundingMember', 'true');
-    localStorage.setItem('foundingMemberPlan', 'lifetime');
     localStorage.setItem('billingPeriod', billingPeriod);
+    // NOTE: Do NOT store isFoundingMember in localStorage - always verify from API
     // Store Founders Circle plan pricing so checkout has the correct amount
     const foundersPlan = plans.find(p => p.type === 'founders-circle');
     if (foundersPlan) {
@@ -314,9 +317,12 @@ export default function ProductSelectionPage() {
       // Signature plan - premium card customization (not a founding member)
       setTimeout(() => { router.push('/nfc/configure'); }, 500);
     } else if (productId === 'founders-circle') {
-      // Founders Circle - exclusive access
-      localStorage.setItem('isFoundingMember', 'true');
-      localStorage.setItem('foundingMemberPlan', 'lifetime');
+      // Founders Circle - only allow if user is verified founding member
+      if (!foundersClubUnlocked) {
+        showToast('Please enter a valid invite code to access the Founders Circle.', 'error');
+        setLoading(false);
+        return;
+      }
       setTimeout(() => { router.push('/nfc/configure?founders=true'); }, 500);
     } else {
       setTimeout(() => { router.push('/nfc/configure'); }, 500);
@@ -424,6 +430,7 @@ export default function ProductSelectionPage() {
                   getPriceLabel={getPriceLabel}
                   isPremium={isPremium(plan)}
                   isSelected={selectedPlanId === plan.id}
+                  foundersUnlocked={foundersClubUnlocked}
                   onCardClick={() => handleCardClick(plan.id)}
                   onRequestAccess={() => setShowRequestModal(true)}
                   onEnterCode={() => setShowCodeModal(true)}
@@ -443,6 +450,7 @@ export default function ProductSelectionPage() {
                   getPriceLabel={getPriceLabel}
                   isPremium={isPremium(plan)}
                   isSelected={selectedPlanId === plan.id}
+                  foundersUnlocked={foundersClubUnlocked}
                   onCardClick={() => handleCardClick(plan.id)}
                   onRequestAccess={() => setShowRequestModal(true)}
                   onEnterCode={() => setShowCodeModal(true)}
@@ -463,6 +471,7 @@ export default function ProductSelectionPage() {
                   isPremium={isPremium(plan)}
                   isSelected={selectedPlanId === plan.id}
                   expanded={expandedPlan === plan.id}
+                  foundersUnlocked={foundersClubUnlocked}
                   onToggle={() => toggleExpand(plan.id)}
                   onCardClick={() => handleCardClick(plan.id)}
                   onRequestAccess={() => setShowRequestModal(true)}
@@ -474,7 +483,7 @@ export default function ProductSelectionPage() {
             </div>
 
             {/* Desktop/Tablet Get Started Button (inline) */}
-            {selectedPlanId !== 'founders-circle' && (
+            {(selectedPlanId !== 'founders-circle' || foundersClubUnlocked) && (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -499,7 +508,7 @@ export default function ProductSelectionPage() {
             )}
 
             {/* Spacer for mobile fixed button */}
-            {selectedPlanId !== 'founders-circle' && (
+            {(selectedPlanId !== 'founders-circle' || foundersClubUnlocked) && (
               <div className="h-24 md:hidden" />
             )}
           </>
@@ -507,7 +516,7 @@ export default function ProductSelectionPage() {
       </section>
 
       {/* Mobile Fixed Bottom Get Started Button */}
-      {selectedPlanId !== 'founders-circle' && !plansLoading && (
+      {(selectedPlanId !== 'founders-circle' || foundersClubUnlocked) && !plansLoading && (
         <div className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white border-t border-gray-200 px-4 py-3">
           <button
             onClick={handleGetStarted}
@@ -586,13 +595,14 @@ export default function ProductSelectionPage() {
 
 // Desktop Plan Card
 function DesktopPlanCard({
-  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
+  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, foundersUnlocked, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
 }: {
   plan: PlanData;
   getDisplayPrice: (plan: PlanData) => string;
   getPriceLabel: (plan: PlanData) => string;
   isPremium: boolean;
   isSelected: boolean;
+  foundersUnlocked: boolean;
   onCardClick: () => void;
   onRequestAccess: () => void;
   onEnterCode: () => void;
@@ -601,7 +611,8 @@ function DesktopPlanCard({
 }) {
   const isFoundersCircle = plan.type === 'founders-circle';
 
-  if (isFoundersCircle) {
+  // Founders Circle card: locked state (not a founding member)
+  if (isFoundersCircle && !foundersUnlocked) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -659,6 +670,86 @@ function DesktopPlanCard({
           <p className="text-xs text-gray-400 mt-3">
             Already have an invite code?
           </p>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Founders Circle card: unlocked state (user is a founding member - selectable like other plans)
+  if (isFoundersCircle && foundersUnlocked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay }}
+        onClick={onCardClick}
+        className={`relative rounded-2xl p-6 flex flex-col h-full cursor-pointer transition-all duration-300 bg-white border-2 border-gray-800 text-gray-900 ${
+          isSelected ? 'ring-2 ring-red-500 scale-[1.02] shadow-lg' : 'hover:shadow-md'
+        }`}
+      >
+        {isSelected && (
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+            <span className="bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+              Selected
+            </span>
+          </div>
+        )}
+
+        {/* Info button */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onShowBenefits(); }}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 cursor-pointer"
+        >
+          <InfoOutlinedIcon style={{ fontSize: 24 }} />
+        </button>
+
+        {/* Founding Member badge */}
+        <div className="flex items-center gap-2 mb-1">
+          <span className="inline-block bg-amber-500 text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+            Founding Member
+          </span>
+        </div>
+
+        <h3
+          className="text-lg font-semibold text-gray-900 mb-1"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
+        >
+          {plan.name}
+        </h3>
+
+        <div className="mb-3">
+          <span className="text-3xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            {getDisplayPrice(plan)}
+          </span>
+          <span className="text-sm ml-1 text-gray-500">
+            {getPriceLabel(plan)}
+          </span>
+        </div>
+
+        <p
+          className="text-sm text-gray-500 mb-5"
+          style={{ fontFamily: 'Poppins, sans-serif' }}
+        >
+          {plan.description}
+        </p>
+
+        <div className="w-full h-px mb-5 bg-gray-200" />
+
+        <div className="space-y-3 flex-grow">
+          {plan.features.map((feature, fIdx) => (
+            <div key={fIdx} className="flex items-start gap-2">
+              <CheckCircleOutlineIcon
+                className="text-amber-500"
+                style={{ fontSize: 18 }}
+              />
+              <span
+                className="text-sm text-gray-600"
+                style={{ fontFamily: 'Poppins, sans-serif' }}
+              >
+                {feature}
+              </span>
+            </div>
+          ))}
         </div>
       </motion.div>
     );
@@ -731,7 +822,7 @@ function DesktopPlanCard({
 
 // Mobile Plan Card (Collapsible)
 function MobilePlanCard({
-  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, expanded, onToggle, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
+  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, expanded, foundersUnlocked, onToggle, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
 }: {
   plan: PlanData;
   getDisplayPrice: (plan: PlanData) => string;
@@ -739,6 +830,7 @@ function MobilePlanCard({
   isPremium: boolean;
   isSelected: boolean;
   expanded: boolean;
+  foundersUnlocked: boolean;
   onToggle: () => void;
   onCardClick: () => void;
   onRequestAccess: () => void;
@@ -748,7 +840,8 @@ function MobilePlanCard({
 }) {
   const isFoundersCircle = plan.type === 'founders-circle';
 
-  if (isFoundersCircle) {
+  // Founders Circle: locked state (not a founding member)
+  if (isFoundersCircle && !foundersUnlocked) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -804,6 +897,104 @@ function MobilePlanCard({
             Already have an invite code?
           </p>
         </div>
+      </motion.div>
+    );
+  }
+
+  // Founders Circle: unlocked state (user is a founding member - selectable like other plans)
+  if (isFoundersCircle && foundersUnlocked) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay }}
+        onClick={onCardClick}
+        className={`rounded-2xl overflow-hidden cursor-pointer transition-all duration-300 bg-white border-2 border-gray-800 text-gray-900 ${
+          isSelected ? 'ring-2 ring-red-500 shadow-lg' : ''
+        }`}
+      >
+        {/* Header */}
+        <div className="p-5 pb-3">
+          <div className="flex items-start justify-between mb-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3
+                className="text-xl font-semibold text-gray-900"
+                style={{ fontFamily: 'Poppins, sans-serif' }}
+              >
+                {plan.name}
+              </h3>
+              <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
+                Founding Member
+              </span>
+              {isSelected && (
+                <span className="bg-red-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+                  Selected
+                </span>
+              )}
+            </div>
+            <div className="text-right flex-shrink-0 ml-4">
+              <span className="text-xl font-bold" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                {getDisplayPrice(plan)}
+              </span>
+              <span className="text-xs ml-1 text-gray-500">
+                {getPriceLabel(plan)}
+              </span>
+            </div>
+          </div>
+          <p
+            className="text-sm text-gray-500"
+            style={{ fontFamily: 'Poppins, sans-serif' }}
+          >
+            {plan.description}
+          </p>
+        </div>
+
+        {/* Expand/Collapse Chevron */}
+        <button
+          onClick={(e) => { e.stopPropagation(); onToggle(); }}
+          className="w-full flex justify-center py-2 transition-colors hover:bg-gray-100"
+        >
+          <motion.div
+            animate={{ rotate: expanded ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <ExpandMoreIcon className="text-gray-500" />
+          </motion.div>
+        </button>
+
+        {/* Expandable Content */}
+        <AnimatePresence>
+          {expanded && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="overflow-hidden"
+            >
+              <div className="px-5 pb-5">
+                <div className="w-full h-px mb-4 bg-gray-200" />
+
+                <div className="space-y-3">
+                  {plan.features.map((feature, fIdx) => (
+                    <div key={fIdx} className="flex items-start gap-2">
+                      <CheckCircleOutlineIcon
+                        className="text-amber-500"
+                        style={{ fontSize: 18 }}
+                      />
+                      <span
+                        className="text-sm text-gray-600"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                      >
+                        {feature}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     );
   }

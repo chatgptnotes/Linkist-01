@@ -71,12 +71,11 @@ ON CONFLICT (category, option_key) DO NOTHING;
 -- Insert default colours with material mappings
 INSERT INTO card_customization_options (category, option_key, label, hex_color, gradient_class, applicable_materials, is_founders_only, display_order, is_enabled) VALUES
 ('colour', 'white', 'White', '#FFFFFF', 'from-white to-gray-100', ARRAY['pvc'], false, 1, true),
-('colour', 'black-pvc', 'Black', '#1A1A1A', 'from-gray-900 to-black', ARRAY['pvc'], true, 2, true),
+('colour', 'black', 'Black', '#1A1A1A', 'from-gray-900 to-black', ARRAY['pvc', 'metal'], true, 2, true),
 ('colour', 'cherry', 'Cherry', '#8E3A2D', 'from-red-950 to-red-900', ARRAY['wood'], false, 3, true),
 ('colour', 'birch', 'Birch', '#E5C79F', 'from-amber-100 to-amber-200', ARRAY['wood'], false, 4, true),
-('colour', 'black-metal', 'Black', '#1A1A1A', 'from-gray-800 to-gray-900', ARRAY['metal'], true, 5, true),
-('colour', 'silver', 'Silver', '#C0C0C0', 'from-gray-300 to-gray-400', ARRAY['metal'], false, 6, true),
-('colour', 'rose-gold', 'Rose Gold', '#B76E79', 'from-rose-300 to-rose-400', ARRAY['metal'], false, 7, true)
+('colour', 'silver', 'Silver', '#C0C0C0', 'from-gray-300 to-gray-400', ARRAY['metal'], false, 5, true),
+('colour', 'rose-gold', 'Rose Gold', '#B76E79', 'from-rose-300 to-rose-400', ARRAY['metal'], false, 6, true)
 ON CONFLICT (category, option_key) DO NOTHING;
 
 -- Insert default patterns

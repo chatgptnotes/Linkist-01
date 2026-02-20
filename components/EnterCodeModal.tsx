@@ -51,9 +51,7 @@ export default function EnterCodeModal({ isOpen, onClose, onSuccess }: EnterCode
         // Store validated code and user data in localStorage
         localStorage.setItem('foundersClubCode', formattedCode);
         localStorage.setItem('foundersClubEmail', email.trim().toLowerCase());
-        localStorage.setItem('foundersClubValidated', 'true');
-        localStorage.setItem('isFoundingMember', 'true');
-        localStorage.setItem('foundingMemberPlan', 'lifetime');
+        // NOTE: Founding member status is verified via API (/api/auth/me), not localStorage
 
         // Store user profile if returned
         if (data.user) {
@@ -62,9 +60,8 @@ export default function EnterCodeModal({ isOpen, onClose, onSuccess }: EnterCode
             email: data.user.email,
             firstName: data.user.first_name,
             lastName: data.user.last_name,
-            mobile: data.user.phone_number, // Use 'mobile' to match checkout page expectations
-            phone: data.user.phone_number,  // Keep 'phone' for backwards compatibility
-            isFoundingMember: true
+            mobile: data.user.phone_number,
+            phone: data.user.phone_number,
           }));
         }
 

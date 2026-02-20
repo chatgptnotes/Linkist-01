@@ -201,11 +201,11 @@ export default function GDPRConsentBanner() {
                 </div>
                 <button
                   onClick={() => setPreferences(prev => ({ ...prev, analytics: !prev.analytics }))}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    preferences.analytics ? 'bg-red-600' : 'bg-gray-300'
+                  className={`relative w-12 h-6 rounded-full transition-colors border ${
+                    preferences.analytics ? 'bg-red-600 border-red-600' : 'bg-gray-400 border-gray-500'
                   }`}
                 >
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ease-in-out pointer-events-none ${
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ease-in-out pointer-events-none shadow-sm ${
                     preferences.analytics ? 'left-7' : 'left-1'
                   }`}></div>
                 </button>
@@ -220,11 +220,11 @@ export default function GDPRConsentBanner() {
                 </div>
                 <button
                   onClick={() => setPreferences(prev => ({ ...prev, marketing: !prev.marketing }))}
-                  className={`relative w-12 h-6 rounded-full transition-colors ${
-                    preferences.marketing ? 'bg-red-600' : 'bg-gray-300'
+                  className={`relative w-12 h-6 rounded-full transition-colors border ${
+                    preferences.marketing ? 'bg-red-600 border-red-600' : 'bg-gray-400 border-gray-500'
                   }`}
                 >
-                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ease-in-out pointer-events-none ${
+                  <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all duration-200 ease-in-out pointer-events-none shadow-sm ${
                     preferences.marketing ? 'left-7' : 'left-1'
                   }`}></div>
                 </button>

@@ -146,9 +146,7 @@ export default function FoundingMemberPage() {
   const handleJoin = async () => {
     setLoading(true);
 
-    // Store founding member selection
-    localStorage.setItem('foundingMemberPlan', selectedPlan);
-    localStorage.setItem('isFoundingMember', 'true');
+    // NOTE: Founding member status is verified via API, not localStorage
 
     showToast('Welcome to the Founding Member program!', 'success');
 
