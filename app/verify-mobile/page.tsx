@@ -377,10 +377,9 @@ function VerifyMobileContent() {
             // Physical card or Pro plan - go to configure
             router.push('/nfc/configure');
           } else if (productSelection === 'founders-club' || productSelection === 'signature' || productSelection === 'founders-circle') {
-            // Founders club, Signature, or Founders Circle - go to configure with founders flag
-            localStorage.setItem('isFoundingMember', 'true');
-            localStorage.setItem('foundingMemberPlan', 'lifetime');
-            router.push('/nfc/configure?founders=true');
+            // Founders club, Signature, or Founders Circle - go to configure
+            // NOTE: Founding member status verified via API on configure page
+            router.push('/nfc/configure');
           } else {
             // Default fallback - go to configure
             router.push('/nfc/configure');

@@ -315,28 +315,51 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Handle Founders Club member status update
+    // Handle Founders Club member status update - VERIFY server-side before updating
     if (cardConfig.isFoundingMember && user && order) {
       try {
-        // Update user's founding member status
-        await SupabaseUserStore.updateFoundingMemberStatus(user.id, cardConfig.foundingMemberPlan || 'lifetime');
+        // SECURITY: Verify the user is actually a founding member in the database
+        // Do NOT trust the frontend flag blindly
+        const dbUser = await SupabaseUserStore.findByEmail(user.email);
+        const isVerifiedFounder = dbUser?.is_founding_member === true;
 
-        // Mark the invite code as used
-        if (cardConfig.foundersInviteCode) {
+        if (isVerifiedFounder) {
+          // User is already a verified founding member - update plan if needed
+          await SupabaseUserStore.updateFoundingMemberStatus(user.id, cardConfig.foundingMemberPlan || 'lifetime');
+        } else if (cardConfig.foundersInviteCode) {
+          // User claims to be a new founding member - validate the invite code first
           const supabase = createClient();
-          await supabase
+          const { data: inviteCode } = await supabase
             .from('founders_invite_codes')
-            .update({ used_at: new Date().toISOString() })
-            .eq('code', cardConfig.foundersInviteCode);
+            .select('*')
+            .eq('code', cardConfig.foundersInviteCode)
+            .single();
+
+          // Only update status if invite code is valid, unused, and not expired
+          if (inviteCode && !inviteCode.used_at && new Date(inviteCode.expires_at) > new Date()) {
+            await SupabaseUserStore.updateFoundingMemberStatus(user.id, cardConfig.foundingMemberPlan || 'lifetime');
+
+            // Mark the invite code as used
+            await supabase
+              .from('founders_invite_codes')
+              .update({ used_at: new Date().toISOString() })
+              .eq('code', cardConfig.foundersInviteCode);
+          } else {
+            console.warn('Process-order: Invalid or expired founders invite code provided:', cardConfig.foundersInviteCode);
+          }
+        } else {
+          console.warn('Process-order: User claimed founding member status without valid code or DB verification');
         }
       } catch (founderError) {
         // Continue even if this fails - order is already created
+        console.error('Process-order: Founders status update error:', founderError);
       }
     }
 
-    // Only send emails if order is confirmed (has payment)
+    // Send emails if order is confirmed (has payment) OR is a paid digital-only order (status 'delivered')
     let finalOrder = order;
-    if (orderStatus === 'confirmed') {
+    const shouldSendEmails = orderStatus === 'confirmed' || (orderStatus === 'delivered' && paymentData);
+    if (shouldSendEmails) {
       const emailData = formatOrderForEmail(order);
       const emailResults = await emailService.sendOrderLifecycleEmails(emailData);
 

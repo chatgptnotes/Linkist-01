@@ -83,14 +83,10 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 // Color mapping for card preview
 const allColours: Array<{ value: string; label: string; hex: string; gradient: string }> = [
-  // PVC colors
   { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
-  { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
-  // Wood colors
+  { value: 'black', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-900 to-black' },
   { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
   { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
-  // Metal colors
-  { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
   { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
   { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
 ];
@@ -262,13 +258,12 @@ export default function CheckoutPage() {
 
         // Validate that we have required fields (card names)
         if (config.cardFirstName && config.cardLastName) {
-          // Check for Founders Club data from localStorage
-          const isFoundingMember = localStorage.getItem('isFoundingMember') === 'true';
-          const foundingMemberPlan = localStorage.getItem('foundingMemberPlan') || 'lifetime';
+          // Founders Club data - use ONLY what the configure page saved (which is already verified)
+          // NOTE: Do NOT read isFoundingMember from localStorage - always verify from API
           const foundersInviteCode = localStorage.getItem('foundersInviteCode') || '';
 
-          // Use founders data from config (saved by configure page) OR from localStorage
-          const configIsFoundingMember = config.isFoundingMember || isFoundingMember;
+          // Use founders data from config (saved by configure page, which verifies via API)
+          const configIsFoundingMember = config.isFoundingMember || false;
 
           const processedConfig = {
             cardFirstName: config.cardFirstName,
@@ -283,7 +278,7 @@ export default function CheckoutPage() {
             planType: config.planType || localStorage.getItem('productSelection') || 'physical-digital',
             // Founders Club data
             isFoundingMember: configIsFoundingMember,
-            foundingMemberPlan: foundingMemberPlan,
+            foundingMemberPlan: config.foundingMemberPlan || 'lifetime',
             foundersInviteCode: foundersInviteCode,
             // Logo settings from configure page (Founders Club exclusive)
             showLinkistLogo: config.showLinkistLogo,
@@ -294,7 +289,7 @@ export default function CheckoutPage() {
           };
 
           console.log('Checkout: Processed card config for preview:', processedConfig);
-          if (isFoundingMember) {
+          if (configIsFoundingMember) {
             console.log('🏆 Checkout: Founders Club member detected, invite code:', foundersInviteCode);
           }
           setCardConfig(processedConfig);
@@ -673,7 +668,7 @@ export default function CheckoutPage() {
 
   const getTextColor = () => {
     // Return white text for dark backgrounds, black for light backgrounds
-    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (cardConfig?.color && darkBackgrounds.includes(cardConfig.color)) {
       return 'text-white';
     }

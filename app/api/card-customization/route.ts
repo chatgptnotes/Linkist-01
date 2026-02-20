@@ -57,10 +57,9 @@ function getFallbackOptions() {
 
   const colours = [
     { id: 'fallback-white', category: 'colour', option_key: 'white', label: 'White', hex_color: '#FFFFFF', gradient_class: 'from-white to-gray-100', applicable_materials: ['pvc'], is_founders_only: false, is_enabled: true, display_order: 1 },
-    { id: 'fallback-black-pvc', category: 'colour', option_key: 'black-pvc', label: 'Black', hex_color: '#1A1A1A', gradient_class: 'from-gray-900 to-black', applicable_materials: ['pvc'], is_founders_only: true, is_enabled: true, display_order: 2 },
+    { id: 'fallback-black', category: 'colour', option_key: 'black', label: 'Black', hex_color: '#1A1A1A', gradient_class: 'from-gray-900 to-black', applicable_materials: ['pvc', 'metal'], is_founders_only: true, is_enabled: true, display_order: 2 },
     { id: 'fallback-cherry', category: 'colour', option_key: 'cherry', label: 'Cherry', hex_color: '#8E3A2D', gradient_class: 'from-red-950 to-red-900', applicable_materials: ['wood'], is_founders_only: false, is_enabled: true, display_order: 3 },
     { id: 'fallback-birch', category: 'colour', option_key: 'birch', label: 'Birch', hex_color: '#E5C79F', gradient_class: 'from-amber-100 to-amber-200', applicable_materials: ['wood'], is_founders_only: false, is_enabled: true, display_order: 4 },
-    { id: 'fallback-black-metal', category: 'colour', option_key: 'black-metal', label: 'Black', hex_color: '#1A1A1A', gradient_class: 'from-gray-800 to-gray-900', applicable_materials: ['metal'], is_founders_only: true, is_enabled: true, display_order: 5 },
     { id: 'fallback-silver', category: 'colour', option_key: 'silver', label: 'Silver', hex_color: '#C0C0C0', gradient_class: 'from-gray-300 to-gray-400', applicable_materials: ['metal'], is_founders_only: false, is_enabled: true, display_order: 6 },
     { id: 'fallback-rose-gold', category: 'colour', option_key: 'rose-gold', label: 'Rose Gold', hex_color: '#B76E79', gradient_class: 'from-rose-300 to-rose-400', applicable_materials: ['metal'], is_founders_only: false, is_enabled: true, display_order: 7 }
   ];
@@ -78,9 +77,9 @@ function getFallbackOptions() {
     metal: ['matte', 'brushed']
   };
   const colourOptions: Record<string, string[]> = {
-    pvc: ['white', 'black-pvc'],
+    pvc: ['white', 'black'],
     wood: ['cherry', 'birch'],
-    metal: ['black-metal', 'silver', 'rose-gold']
+    metal: ['black', 'silver', 'rose-gold']
   };
 
   return {

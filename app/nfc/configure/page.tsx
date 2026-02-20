@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import PersonIcon from '@mui/icons-material/Person';
 import PaletteIcon from '@mui/icons-material/Palette';
 import BrushIcon from '@mui/icons-material/Brush';
@@ -14,15 +13,7 @@ import Navbar from '@/components/Navbar';
 import { calculateFoundersPricing, FoundersPricingBreakdown } from '@/lib/pricing-utils';
 import { detectCountryFromIP } from '@/lib/country-utils';
 
-// Lazy load CompanyLogoUpload for performance
-const CompanyLogoUpload = dynamic(() => import('@/components/CompanyLogoUpload'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-24 bg-gray-50 rounded-lg flex items-center justify-center">
-      <span className="text-sm text-gray-400">Loading...</span>
-    </div>
-  )
-});
+import CompanyLogoUpload from '@/components/CompanyLogoUpload';
 
 // Icon aliases
 const Person = PersonIcon;
@@ -35,7 +26,7 @@ const Crown = StarsIcon;
 // Define types for our configuration
 type BaseMaterial = 'pvc' | 'wood' | 'metal';
 type TextureOption = 'matte' | 'glossy' | 'brushed' | 'none';
-type ColourOption = 'white' | 'black-pvc' | 'black-metal' | 'cherry' | 'birch' | 'silver' | 'rose-gold';
+type ColourOption = 'white' | 'black' | 'cherry' | 'birch' | 'silver' | 'rose-gold';
 
 interface StepData {
   cardFirstName: string;
@@ -232,19 +223,28 @@ export default function ConfigureNewPage() {
             planType = 'physical-digital';
           }
 
+          // SECURITY: If plan type is founders-circle/founders-club but API says user is NOT a founding member,
+          // downgrade to 'signature' to prevent unauthorized access to founders-exclusive features
+          if ((planType === 'founders-circle' || planType === 'founders-club') && !foundingMemberStatus) {
+            console.warn('Configure: User tried to access founders plan but is NOT a founding member. Downgrading to signature.');
+            planType = 'signature';
+            localStorage.setItem('productSelection', 'signature');
+          }
+
           setUserPlanType(planType);
           setPlanTypeChecked(true);
           console.log('Configure: User plan type:', planType, '(from productSelection:', selectedProduct, ')');
 
-          // Pre-select Metal + Matte + Black for founding members
-          if (foundingMemberStatus) {
+          // Pre-select Metal + Matte + Black ONLY when the selected plan is Founder's Circle AND verified
+          const isFoundersPlan = planType === 'founders-circle' || planType === 'founders-club';
+          if (isFoundersPlan) {
             setFormData(prev => ({
               ...prev,
               baseMaterial: 'metal',
               texture: 'matte',
-              colour: 'black-metal'
+              colour: 'black'
             }));
-            console.log('Configure: Pre-selected Metal card for founding member');
+            console.log('Configure: Pre-selected Metal card for Founders Circle plan');
 
             // Fetch founders pricing with the detected country
             await fetchFoundersPricing(country);
@@ -312,15 +312,18 @@ export default function ConfigureNewPage() {
   };
 
   const fallbackColourOptions: Record<BaseMaterial, ColourOption[]> = {
-    pvc: ['white', 'black-pvc'],
+    pvc: ['white', 'black'],
     wood: ['cherry', 'birch'],
-    metal: ['black-metal', 'silver', 'rose-gold']
+    metal: ['black', 'silver', 'rose-gold']
   };
 
   // Use API options if available, otherwise use fallbacks
   const prices: Record<string, number> = customizationOptions?.materialPrices || fallbackPrices;
   const textureOptions: Record<string, string[]> = customizationOptions?.textureOptions || fallbackTextureOptions;
   const colourOptions: Record<string, string[]> = customizationOptions?.colourOptions || fallbackColourOptions;
+
+  // Founders Circle plan check: exclusive features only when plan is founders-circle/founders-club
+  const isFoundersCirclePlan = userPlanType === 'founders-circle' || userPlanType === 'founders-club';
 
   // Price display helper: monthly = yearly / 10
   const getDisplayPrice = (yearlyPrice: number): number => {
@@ -366,14 +369,10 @@ export default function ConfigureNewPage() {
         isFoundersOnly: c.is_founders_only
       }))
     : [
-        // PVC colors
         { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
-        { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black', isFoundersOnly: true },
-        // Wood colors
+        { value: 'black', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-900 to-black', isFoundersOnly: true },
         { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
         { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
-        // Metal colors
-        { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900', isFoundersOnly: true },
         { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
         { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
       ];
@@ -405,9 +404,9 @@ export default function ConfigureNewPage() {
     const isValidForMaterial = availableColours ? availableColours.includes(colour) : false;
     if (!isValidForMaterial) return false;
 
-    // Check if this color is founders-only
+    // Check if this color is founders-only (only available when Founder's Circle plan is selected)
     const colourOption = allColours.find(c => c.value === colour);
-    if (colourOption?.isFoundersOnly && !isFoundingMember) {
+    if (colourOption?.isFoundersOnly && !isFoundersCirclePlan) {
       return false;
     }
 
@@ -497,7 +496,7 @@ export default function ConfigureNewPage() {
 
   const getTextColor = () => {
     // Return white text for dark backgrounds, black for light backgrounds
-    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (formData.colour && darkBackgrounds.includes(formData.colour)) {
       return 'text-white';
     }
@@ -532,13 +531,13 @@ export default function ConfigureNewPage() {
       // Billing period and plan type (for checkout/payment pricing)
       billingPeriod: billingPeriod,
       planType: userPlanType,
-      // Founding member exclusive options
-      showLinkistLogo: isFoundingMember ? showLinkistLogo : true,
-      companyLogoUrl: isFoundingMember ? companyLogoUrl : null,
-      isFoundingMember: isFoundingMember,
+      // Founding member exclusive options (only for Founder's Circle plan)
+      showLinkistLogo: isFoundersCirclePlan ? showLinkistLogo : true,
+      companyLogoUrl: isFoundersCirclePlan ? companyLogoUrl : null,
+      isFoundingMember: isFoundersCirclePlan,
       // Founders pricing (for checkout/payment)
-      foundersTotalPrice: isFoundingMember ? foundersTotalPrice : null,
-      foundersPricing: isFoundingMember ? foundersPricing : null
+      foundersTotalPrice: isFoundersCirclePlan ? foundersTotalPrice : null,
+      foundersPricing: isFoundersCirclePlan ? foundersPricing : null
     };
 
     console.log('Configure: Saving card data to localStorage:', configData);
@@ -705,32 +704,27 @@ export default function ConfigureNewPage() {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-700 mb-2">Colour</h3>
                   <div className="flex flex-wrap gap-3">
-                    {allColours.map((colour) => {
-                      const isAvailable = isColourAvailable(colour.value);
+                    {allColours
+                      .filter((colour) => isColourAvailable(colour.value))
+                      .map((colour) => {
                       const isSelected = formData.colour === colour.value;
 
                       return (
                         <button
                           key={colour.value}
                           onClick={() => handleColourChange(colour.value)}
-                          disabled={!isAvailable}
-                          className={`relative group ${!isAvailable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
+                          className="relative group cursor-pointer"
                         >
                           <div
                             className={`w-14 h-14 rounded-xl border-4 transition-all ${
-                              isSelected && isAvailable
+                              isSelected
                                 ? 'border-red-500 scale-110 shadow-lg ring-4 ring-red-200'
-                                : !isAvailable
-                                  ? 'border-gray-200 opacity-50'
-                                  : 'border-gray-300 hover:scale-105'
+                                : 'border-gray-300 hover:scale-105'
                             }`}
-                            style={{
-                              backgroundColor: colour.hex,
-                              opacity: !isAvailable ? 0.5 : 1
-                            }}
+                            style={{ backgroundColor: colour.hex }}
                           />
                           <span className={`text-xs mt-1 block text-center font-medium ${
-                            !isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-700'
+                            isSelected ? 'text-red-600' : 'text-gray-700'
                           }`}>
                             {colour.label}
                           </span>
@@ -783,8 +777,8 @@ export default function ConfigureNewPage() {
               </div>
             </div>
 
-            {/* Founders Circle Exclusive Options - Only visible to founding members */}
-            {isFoundingMember && (
+            {/* Founders Circle Exclusive Options - Only visible when Founder's Circle plan is selected */}
+            {isFoundersCirclePlan && (
               <div className="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm border border-amber-200 overflow-hidden">
                 <div className="bg-amber-50 border-b border-amber-200 px-6 py-3">
                   <h2 className="text-lg font-semibold text-gray-900 flex items-center">
@@ -953,10 +947,10 @@ export default function ConfigureNewPage() {
                   {/* Back Card */}
                   <div>
                     <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      {/* Logo Section - Conditionally render based on founding member settings */}
+                      {/* Logo Section - Conditionally render based on selected plan */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {isFoundingMember ? (
-                          // Founding Member: Show company logo, Linkist logo (if enabled), or nothing
+                        {isFoundersCirclePlan ? (
+                          // Founder's Circle plan: Show company logo, Linkist logo (if enabled), or nothing + FOUNDING MEMBER tag
                           <>
                             {companyLogoUrl ? (
                               <img
@@ -974,7 +968,7 @@ export default function ConfigureNewPage() {
                             <div className={`${getTextColor()} text-sm font-medium tracking-wider`}>FOUNDING MEMBER</div>
                           </>
                         ) : (
-                          // Regular user: Always show Linkist logo
+                          // Other plans: Always show Linkist logo, no FOUNDING MEMBER tag
                           <img
                             src="/logo_linkist.png"
                             alt="Linkist"

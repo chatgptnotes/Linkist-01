@@ -51,10 +51,43 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
     setError('');
   };
 
-  // Auto-detect country based on IP when modal opens
+  // Auto-fill from logged-in user profile and detect country when modal opens
   useEffect(() => {
     if (!isOpen) return;
 
+    // Auto-fill from user profile in localStorage
+    try {
+      const userProfile = localStorage.getItem('userProfile');
+      if (userProfile) {
+        const profile = JSON.parse(userProfile);
+        const phone = profile.mobile || profile.phoneNumber || profile.phone || '';
+        // Strip country code prefix from phone if present
+        let cleanPhone = phone;
+        let detectedCode = '';
+        for (const country of SUPPORTED_COUNTRIES) {
+          if (phone.startsWith(country.phoneCode)) {
+            cleanPhone = phone.slice(country.phoneCode.length).trim();
+            detectedCode = country.phoneCode;
+            break;
+          }
+        }
+
+        setFormData(prev => ({
+          ...prev,
+          firstName: profile.firstName || profile.first_name || prev.firstName,
+          lastName: profile.lastName || profile.last_name || prev.lastName,
+          email: profile.email || prev.email,
+          companyName: profile.company || profile.companyName || prev.companyName,
+          phone: cleanPhone || prev.phone,
+          ...(detectedCode ? { countryCode: detectedCode } : {}),
+          profession: profile.title || profile.profession || profile.designation || prev.profession,
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    }
+
+    // Auto-detect country based on IP
     const detectCountry = async () => {
       try {
         setDetectingCountry(true);
@@ -67,7 +100,8 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
           if (matchedCountry) {
             setFormData(prev => ({
               ...prev,
-              countryCode: matchedCountry.phoneCode
+              // Only set country code if not already set from user profile phone
+              countryCode: prev.countryCode !== '+91' || !prev.phone ? matchedCountry.phoneCode : prev.countryCode
             }));
           }
         }

@@ -23,14 +23,10 @@ const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY 
 
 // Color mapping for card preview
 const allColours: Array<{ value: string; label: string; hex: string; gradient: string }> = [
-  // PVC colors
   { value: 'white', label: 'White', hex: '#FFFFFF', gradient: 'from-white to-gray-100' },
-  { value: 'black-pvc', label: 'Black', hex: '#000000', gradient: 'from-gray-900 to-black' },
-  // Wood colors
+  { value: 'black', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-900 to-black' },
   { value: 'cherry', label: 'Cherry', hex: '#8E3A2D', gradient: 'from-red-950 to-red-900' },
   { value: 'birch', label: 'Birch', hex: '#E5C79F', gradient: 'from-amber-100 to-amber-200' },
-  // Metal colors
-  { value: 'black-metal', label: 'Black', hex: '#1A1A1A', gradient: 'from-gray-800 to-gray-900' },
   { value: 'silver', label: 'Silver', hex: '#C0C0C0', gradient: 'from-gray-300 to-gray-400' },
   { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
 ];
@@ -136,30 +132,20 @@ export default function NFCPaymentPage() {
         setOriginalTotal(data.pricing.total);
       }
 
-      // STEP 1: Determine founding member status FIRST
+      // STEP 1: Determine founding member status ALWAYS from API (database is source of truth)
       let foundingMemberStatus = false;
 
-      if (typeof data.isFoundingMember === 'boolean') {
-        // Use status from order data
-        foundingMemberStatus = data.isFoundingMember;
-
-      } else {
-        // Fallback: Check from API
-
-        try {
-          const response = await fetch('/api/auth/me', {
-            credentials: 'include',
-            cache: 'no-store'
-          });
-          if (response.ok) {
-            const userData = await response.json();
-            foundingMemberStatus = userData.user?.is_founding_member || false;
-
-          }
-        } catch (error) {
-
-          foundingMemberStatus = false;
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include',
+          cache: 'no-store'
+        });
+        if (response.ok) {
+          const userData = await response.json();
+          foundingMemberStatus = userData.user?.is_founding_member || false;
         }
+      } catch (error) {
+        foundingMemberStatus = false;
       }
 
       // Set the founding member state
@@ -318,7 +304,7 @@ export default function NFCPaymentPage() {
 
   const getTextColor = () => {
     // Return white text for dark backgrounds, black for light backgrounds
-    const darkBackgrounds = ['black-pvc', 'black-metal', 'cherry', 'rose-gold'];
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (orderData?.cardConfig?.color && darkBackgrounds.includes(orderData.cardConfig.color)) {
       return 'text-white';
     }
@@ -700,14 +686,14 @@ export default function NFCPaymentPage() {
                       Material: {orderData.cardConfig.baseMaterial.charAt(0).toUpperCase() + orderData.cardConfig.baseMaterial.slice(1)} •
                       Color: {(() => {
                         const color = orderData.cardConfig.color || 'Black';
-                        // Remove material suffix (e.g., "black-pvc" -> "black")
-                        const colorName = color.split('-')[0];
-                        return colorName.charAt(0).toUpperCase() + colorName.slice(1);
+                        const colorName = color.charAt(0).toUpperCase() + color.slice(1);
+                        return colorName;
                       })()} •
                       Plan: <span className={isFoundingMember ? 'text-amber-600 font-medium' : 'text-gray-600'}>{
                         isFoundingMember ? 'Founders Circle'
                         : orderData?.cardConfig?.planType === 'signature' ? 'Signature'
                         : orderData?.cardConfig?.planType === 'pro' ? 'Pro'
+                        : orderData?.cardConfig?.planType === 'next' ? 'Next'
                         : 'Personal'
                       }</span>
                     </p>
@@ -804,8 +790,8 @@ export default function NFCPaymentPage() {
                     );
                   }
 
-                  if (planType === 'pro' || planType === 'signature') {
-                    const planLabel = planType === 'pro' ? 'Pro' : 'Signature';
+                  if (planType === 'pro' || planType === 'signature' || planType === 'next') {
+                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'next' ? 'Next' : 'Signature';
                     return (
                       <>
                         {/* PRO / SIGNATURE: Plan subscription price */}

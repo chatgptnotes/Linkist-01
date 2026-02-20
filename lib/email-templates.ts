@@ -181,11 +181,14 @@ export const orderConfirmationEmail = (data: OrderData) => {
 
   let pricingRows = '';
 
+  // Use actual plan label for founders too (don't hardcode "Founder's Circle" if they picked a specific plan)
+  const founderPlanDisplay = (isPlanBased || planType) ? planLabel : "Founder's Circle";
+
   if (isFounder) {
     pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
-          <span class="plan-label">Founder's Circle</span>
+          <span class="plan-label">${founderPlanDisplay}</span>
         </div>
         <div class="detail-row">
           <span>Exclusive Founder's Price × ${quantity}</span>
@@ -205,6 +208,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
         </div>
     `;
   } else if (isPlanBased) {
+    const isDigitalOnlyPlan = ['next', 'starter'].includes(planType);
     pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
@@ -214,18 +218,22 @@ export const orderConfirmationEmail = (data: OrderData) => {
           <span>Price</span>
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
+        ${!isDigitalOnlyPlan ? `
         <div class="detail-row">
           <span>NFC Card:</span>
           <span class="included-label">Included</span>
         </div>
+        ` : ''}
         <div class="detail-row">
           <span>GST:</span>
           <span class="included-label">Included</span>
         </div>
+        ${!isDigitalOnlyPlan ? `
         <div class="detail-row">
           <span>Shipping:</span>
           <span class="included-label">Included</span>
         </div>
+        ` : ''}
         ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
         <div class="detail-row">
           <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>
@@ -641,11 +649,14 @@ export const receiptEmail = (data: OrderData) => {
 
   let pricingRows = '';
 
+  // Use actual plan label for founders too (don't hardcode "Founder's Circle" if they picked a specific plan)
+  const founderPlanDisplay = (isPlanBased || planType) ? planLabel : "Founder's Circle";
+
   if (isFounder) {
     pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
-          <span class="plan-label">Founder's Circle</span>
+          <span class="plan-label">${founderPlanDisplay}</span>
         </div>
         <div class="detail-row">
           <span>Exclusive Founder's Price × ${quantity}</span>
@@ -665,6 +676,7 @@ export const receiptEmail = (data: OrderData) => {
         </div>
     `;
   } else if (isPlanBased) {
+    const isDigitalOnlyPlan = ['next', 'starter'].includes(planType);
     pricingRows = `
         <div class="detail-row">
           <span>Plan:</span>
@@ -674,18 +686,22 @@ export const receiptEmail = (data: OrderData) => {
           <span>Price</span>
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
+        ${!isDigitalOnlyPlan ? `
         <div class="detail-row">
           <span>NFC Card:</span>
           <span class="included-label">Included</span>
         </div>
+        ` : ''}
         <div class="detail-row">
           <span>GST:</span>
           <span class="included-label">Included</span>
         </div>
+        ${!isDigitalOnlyPlan ? `
         <div class="detail-row">
           <span>Shipping:</span>
           <span class="included-label">Included</span>
         </div>
+        ` : ''}
         ${data.voucherCode && data.voucherAmount && data.voucherAmount > 0 ? `
         <div class="detail-row">
           <span class="voucher-label">Voucher Discount (${data.voucherCode} - ${data.voucherDiscount}%)</span>

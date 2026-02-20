@@ -107,8 +107,12 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   const handleLogout = async () => {
     try {
-      // Clear all localStorage data
+      // Clear localStorage data but preserve GDPR consent
+      const gdprConsent = localStorage.getItem('gdpr-consent');
       localStorage.clear();
+      if (gdprConsent) {
+        localStorage.setItem('gdpr-consent', gdprConsent);
+      }
 
       // Call logout API
       await fetch('/api/auth/logout', { method: 'POST' });
