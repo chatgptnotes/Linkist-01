@@ -51,7 +51,7 @@ export default function FinalCTASection() {
                     transition={{ delay: 0.4 }}
                 >
                     <Link
-                        href="https://www.linkist.ai/choose-plan"
+                        href="https://linkist.ai/digital-business-card"
                         className="inline-block transition-transform hover:scale-105 active:scale-95"
                     >
                         <Image
