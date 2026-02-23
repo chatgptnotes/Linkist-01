@@ -139,7 +139,7 @@ export default function SuperpowerSection() {
                     viewport={{ once: true }}
                     className="mt-[42px] flex justify-center"
                 >
-                    <Link href="https://linkist.ai/smart-card" className="transition-transform hover:scale-105 active:scale-95">
+                    <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
                         <Image
                             src="/product-hunt-label-2.png"
                             alt="Join Linkist"
