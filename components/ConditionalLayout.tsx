@@ -289,7 +289,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             )}
           </div>
         </header>
-        <main className="pt-16 flex-grow">
+        <main className="pt-16 flex-grow bg-white">
           {children}
         </main>
         {showFooter && <Footer />}
@@ -327,7 +327,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   return (
     <div className="min-h-screen flex flex-col">
       {!isLandingPage && <Navbar />}
-      <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow`}>
+      <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow bg-white`}>
         {children}
       </main>
       {!isLandingPage && <Footer />}
