@@ -341,4 +341,4 @@ async function handlePaymentFailure(paymentIntent: any) {
 
 // Disable body parsing for webhooks
 export const runtime = 'nodejs';
-export const preferredRegion = 'auto';
+export const preferredRegion = 'iad1';
