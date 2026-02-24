@@ -6,31 +6,31 @@ export default function InviteOnlySection() {
         {
             icon: '/icons/name.png',
             title: 'Unique ID',
-            description: "Secure the cleanest version of your ID. Once it's taken, it's for life.",
+            description: "Get a memorable linkist.ai URL that's yours forever.",
             iconSize: 28
         },
         {
             icon: '/icons/card.png',
             title: 'Smart Card',
-            description: 'Get the Black Premium NFC card exclusively available to Founding members or any other card of your choice.',
+            description: 'Premium NFC card with instant tap-to-share technology.',
             iconSize: 28
         },
         {
             icon: '/icons/badge.png',
             title: 'Recognition',
-            description: 'Your profile permanently carries the Founding Member status. A visible signal and recognition for early adoption.',
+            description: 'Special badge showing you are a founding member.',
             iconSize: 28
         },
         {
             icon: '/icons/value.png',
             title: 'Pro App with AI',
-            description: "You get 1 year of Linkist Pro and $50 in AI credits with no expiry, on terms others won't get at public launch.",
+            description: "Early access to AI-powered relationship intelligence.",
             iconSize: 48
         },
         {
             icon: '/icons/reward.png',
             title: 'Rewards',
-            description: 'Expect surprise gifts and perks from the founders and access to affiliate programs',
+            description: 'Exclusive perks and lifetime benefits for early supporters.',
             iconSize: 28
         }
     ];
