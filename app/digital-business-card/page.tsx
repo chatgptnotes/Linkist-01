@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import MarketingHeader from '@/components/MarketingHeader';
 import HeroSection from './HeroSection';
 import FeaturesSection from './FeaturesSection';
 import SignUpSection from './SignUpSection';
@@ -8,24 +8,12 @@ import PricingSection from './PricingSection';
 import CompareFeaturesSection from './CompareFeaturesSection';
 import FoundingMembersSection from './FoundingMembersSection';
 import ReserveProfileSection from './ReserveProfileSection';
+import FooterSection from './FooterSection';
 
 export default function MicroCopyPage() {
-  useEffect(() => {
-    // Force scroll to top, overriding any hash anchoring
-    window.scrollTo(0, 0);
-    // Also clear any hash from the URL without triggering navigation
-    if (window.location.hash) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-    // Delayed scroll to ensure it fires after child component mount effects
-    const timer = setTimeout(() => {
-      window.scrollTo(0, 0);
-    }, 150);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-black text-white font-[Inter,sans-serif]">
+    <div className="min-h-screen bg-black text-white font-[Inter,sans-serif] pt-16">
+      <MarketingHeader />
       {/* Global Styles */}
       <style jsx global>{`
         .text-gradient-subtitle {
@@ -160,10 +148,11 @@ export default function MicroCopyPage() {
       <HeroSection />
       <FeaturesSection />
       <SignUpSection />
-      <PricingSection />
+      <div id="pricing"><PricingSection /></div>
       <CompareFeaturesSection />
-      <FoundingMembersSection />
-      <ReserveProfileSection />
+      <div id="founding-member"><FoundingMembersSection /></div>
+      <div id="faq"><ReserveProfileSection /></div>
+      <FooterSection />
     </div>
   );
 }

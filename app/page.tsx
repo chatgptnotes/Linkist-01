@@ -1,22 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
+import MarketingHeader from '@/components/MarketingHeader';
 import HeroSection from '@/components/landing/HeroSection';
 import RealityCheckSection from '@/components/landing/RealityCheckSection';
 import WhyTimelineSection from '@/components/landing/WhyTimelineSection';
 import SuperpowerSection from '@/components/landing/SuperpowerSection';
 import StatsSection from '@/components/landing/StatsSection';
 import InviteOnlySection from '@/components/landing/InviteOnlySection';
-
 import FAQSection from '@/components/landing/FAQSection';
 import FinalCTASection from '@/components/landing/FinalCTASection';
+import FooterSection from '@/components/landing/FooterSection';
 
 export default function HomePage() {
   return (
-    <div className="bg-[#050505] text-[#F5F7FA] min-h-screen font-sans">
-      <Navbar /> {/* Reusing existing Navbar for now, might need update */}
+    <div className="bg-[#050505] text-[#F5F7FA] min-h-screen font-sans pt-16">
+      <MarketingHeader />
 
       <main>
         <HeroSection />
@@ -44,7 +43,7 @@ export default function HomePage() {
         <FinalCTASection />
       </main>
 
-      <Footer variant="full" />
+      <FooterSection />
     </div>
   );
 }
