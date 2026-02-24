@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import MarketingHeader from '@/components/MarketingHeader';
 import HeroSection from '@/components/landing/HeroSection';
 import RealityCheckSection from '@/components/landing/RealityCheckSection';
@@ -10,7 +9,7 @@ import StatsSection from '@/components/landing/StatsSection';
 import InviteOnlySection from '@/components/landing/InviteOnlySection';
 import FAQSection from '@/components/landing/FAQSection';
 import FinalCTASection from '@/components/landing/FinalCTASection';
-import FooterSection from '@/components/landing/FooterSection';
+import Footer from '@/components/Footer';
 
 export default function HomePage() {
   return (
@@ -43,7 +42,7 @@ export default function HomePage() {
         <FinalCTASection />
       </main>
 
-      <FooterSection />
+      <Footer variant="full" />
     </div>
   );
 }

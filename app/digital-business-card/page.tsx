@@ -8,7 +8,7 @@ import PricingSection from './PricingSection';
 import CompareFeaturesSection from './CompareFeaturesSection';
 import FoundingMembersSection from './FoundingMembersSection';
 import ReserveProfileSection from './ReserveProfileSection';
-import FooterSection from './FooterSection';
+import Footer from '@/components/Footer';
 
 export default function MicroCopyPage() {
   return (
@@ -152,7 +152,7 @@ export default function MicroCopyPage() {
       <CompareFeaturesSection />
       <div id="founding-member"><FoundingMembersSection /></div>
       <div id="faq"><ReserveProfileSection /></div>
-      <FooterSection />
+      <Footer variant="full" />
     </div>
   );
 }
