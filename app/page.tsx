@@ -14,7 +14,7 @@ import FooterSection from '@/components/landing/FooterSection';
 
 export default function HomePage() {
   return (
-    <div className="bg-[#050505] text-[#F5F7FA] min-h-screen font-sans pt-16">
+    <div className="bg-[#050505] text-[#F5F7FA] min-h-screen font-sans">
       <MarketingHeader />
 
       <main>

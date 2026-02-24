@@ -339,9 +339,10 @@ export default function PricingSection() {
               onClick={() => setPeriod('monthly')}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 period === 'monthly'
-                  ? 'bg-[#FF3A29] text-white'
-                  : 'text-gray-400 hover:text-white bg-transparent'
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
+              style={period === 'monthly' ? { backgroundColor: '#FF3A29' } : { backgroundColor: 'transparent' }}
             >
               Monthly
             </button>
@@ -349,9 +350,10 @@ export default function PricingSection() {
               onClick={() => setPeriod('yearly')}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 period === 'yearly'
-                  ? 'bg-[#FF3A29] text-white'
-                  : 'text-gray-400 hover:text-white bg-transparent'
+                  ? 'text-white'
+                  : 'text-gray-400 hover:text-white'
               }`}
+              style={period === 'yearly' ? { backgroundColor: '#FF3A29' } : { backgroundColor: 'transparent' }}
             >
               Yearly
             </button>
