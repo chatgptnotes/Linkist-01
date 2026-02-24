@@ -56,8 +56,8 @@ export default function RealityCheckSection() {
                         </motion.h2>
 
                         <div className="space-y-1 md:space-y-4 pt-0 md:pt-2">
-                            <p className="text-[18px] md:text-[29px] text-[#888] font-poppins font-normal">Let's be honest about "networking."</p>
-                            <p className="text-[16px] md:text-[22px] text-[#888] leading-snug max-w-xl mx-auto md:mx-0 font-poppins font-normal">
+                            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed">Let's be honest about "networking."</p>
+                            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0">
                                 You don't lose opportunities because you ran out{' '}
                                 <br className="hidden md:inline" />
                                 of business cards. You lose them because{' '}
