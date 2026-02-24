@@ -28,12 +28,20 @@ export default function FeaturesSection() {
                 className="text-[#FF3A29] text-sm md:text-base font-medium hover:text-white transition-colors"
                 style={{ color: '#FF3A29' }}
               >
-                The Entry Point
+                THE ENTRY POINT
               </Link>
             </div>
 
             {/* Headline */}
-            <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
+            <h2
+              className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-left"
+              style={{
+                backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
               What do you get today?
             </h2>
 
