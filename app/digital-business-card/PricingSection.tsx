@@ -327,7 +327,7 @@ export default function PricingSection() {
           <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
             Linkist Pricing Plans
           </h2>
-          <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
+          <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto text-center">
             Select the plan that best suits your needs.
           </p>
         </div>
@@ -337,9 +337,9 @@ export default function PricingSection() {
           <div className="inline-flex items-center bg-[#1A1A1A] p-1 rounded-full border border-white/10 relative z-20">
             <button
               onClick={() => setPeriod('monthly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 period === 'monthly'
-                  ? 'bg-[#FF3A29] text-white shadow-[0_4px_10px_rgba(255,58,41,0.4)]'
+                  ? 'bg-[#FF3A29] text-white'
                   : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >
@@ -347,9 +347,9 @@ export default function PricingSection() {
             </button>
             <button
               onClick={() => setPeriod('yearly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
+              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 period === 'yearly'
-                  ? 'bg-[#FF3A29] text-white shadow-[0_4px_10px_rgba(255,58,41,0.4)]'
+                  ? 'bg-[#FF3A29] text-white'
                   : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >
@@ -503,7 +503,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Footnotes */}
-        <div className="text-center mt-6 space-y-1 px-4">
+        <div className="text-center mt-12 space-y-1 px-4">
           <p className="text-gray-500 text-xs md:text-sm">*Card customisation available at an additional cost of $30</p>
           <p className="text-gray-500 text-xs md:text-sm">*Student plan available from $69</p>
         </div>
