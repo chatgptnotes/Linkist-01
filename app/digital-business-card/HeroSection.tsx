@@ -47,20 +47,16 @@ export default function HeroSection() {
     const wrapper = wrapperRef.current;
     if (!scene || !wrapper) return;
 
-    // Initial resize
     resizeScene();
     const resizeTimeout = setTimeout(resizeScene, 100);
 
-    // Resize listener
     window.addEventListener('resize', resizeScene);
 
-    // Hover listeners
     const handleMouseEnter = () => { isHoveringRef.current = true; };
     const handleMouseLeave = () => { isHoveringRef.current = false; };
     scene.addEventListener('mouseenter', handleMouseEnter);
     scene.addEventListener('mouseleave', handleMouseLeave);
 
-    // Mouse move for glare
     const handleMouseMove = (e: MouseEvent) => {
       if (window.innerWidth < 1024) return;
       const rect = scene.getBoundingClientRect();
@@ -78,7 +74,6 @@ export default function HeroSection() {
     };
     document.addEventListener('mousemove', handleMouseMove);
 
-    // Animation loop
     const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor;
     const lerpFactor = 0.12;
 
@@ -133,14 +128,21 @@ export default function HeroSection() {
 
   return (
     <section className="lg:min-h-[75vh] flex items-center justify-center relative overflow-visible">
-      {/* Background Overlay/Gradient */}
+      {/* Background Image */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-        <div
-          className="w-full h-full absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,58,41,0.35) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,58,41,0.15) 0%, transparent 50%)',
-          }}
+        {/* Mobile background */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/new-bg-micro-mobile.jpg"
+          alt=""
+          className="block lg:hidden w-full h-full object-cover"
+        />
+        {/* Desktop background */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/new-bg-micro-pc.jpg"
+          alt=""
+          className="hidden lg:block w-full h-full object-cover"
         />
       </div>
 
@@ -158,10 +160,10 @@ export default function HeroSection() {
                 backgroundClip: 'text',
               }}
             >
-              Start with the best <br className="hidden md:block" />
-              smart card now.
+              Tap the smartest <br className="hidden md:block" />
+              card now.
               <span className="block mt-1 pb-2">
-                Grow into relationship intelligence.
+                and unlock tomorrow!
               </span>
             </h1>
             <p className="text-[16px] md:text-[20px] text-[#A3A3A3] leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
@@ -188,11 +190,6 @@ export default function HeroSection() {
                   className="h-12 md:h-14 w-auto object-contain"
                 />
               </Link>
-            </div>
-            {/* Footnotes - shown below CTA on mobile, same position on desktop */}
-            <div className="flex flex-col gap-1 text-center lg:text-left">
-              <p className="text-[#A3A3A3] text-xs">*Card customisation available at an additional cost of $30</p>
-              <p className="text-[#A3A3A3] text-xs">*Student plan available from $69</p>
             </div>
           </div>
 
