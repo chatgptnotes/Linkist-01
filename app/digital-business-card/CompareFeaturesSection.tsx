@@ -82,11 +82,11 @@ export default function CompareFeatures() {
         {/* Header styling */}
         <div className="text-center max-w-3xl mx-auto mb-6 md:mb-10 px-4 relative z-20">
           <div className="mb-6 flex justify-center">
-            <span className="text-[#FF3A29] text-sm md:text-base font-medium uppercase tracking-wider font-poppins">
+            <span className="text-[#FF3A29] text-sm md:text-base font-medium uppercase tracking-wider">
               Compare Features
             </span>
           </div>
-          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6 font-poppins">
+          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
             See exactly what's included in every plan.
           </h2>
         </div>
