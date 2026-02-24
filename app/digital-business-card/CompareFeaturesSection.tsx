@@ -56,6 +56,25 @@ export default function CompareFeatures() {
         .font-poppins {
             font-family: 'Poppins', sans-serif;
         }
+        .compare-table-sticky {
+          position: sticky;
+          left: 0;
+          background-color: #0A0A0A;
+          z-index: 20;
+          isolation: isolate;
+        }
+        .compare-table-sticky::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          right: -1px;
+          bottom: 0;
+          width: 1px;
+          background: rgba(255,255,255,0.1);
+        }
+        tr:hover .compare-table-sticky {
+          background-color: #111111;
+        }
       `}} />
       
       <div className="w-full lg:w-[75vw] mx-auto px-6">
@@ -76,7 +95,7 @@ export default function CompareFeatures() {
           <table className="w-full text-left border-collapse min-w-[800px] font-poppins">
             <thead>
               <tr>
-                <th className="sticky left-0 z-20 bg-[#0A0A0A] py-3 px-4 text-xs md:text-sm font-semibold text-gray-400 border-b border-r border-white/10 w-[30%] shadow-[4px_0_12px_rgba(0,0,0,0.5)]">
+                <th className="compare-table-sticky py-3 px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[160px] min-w-[160px]">
                   Features
                 </th>
                 {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan) => (
@@ -89,7 +108,7 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] py-2 px-4 text-xs md:text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
+                  <td className={`compare-table-sticky py-2 px-4 text-xs md:text-sm border-b w-[160px] min-w-[160px] ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.next, row.pro, row.signature, row.founder].map((val, i) => (
@@ -113,10 +132,10 @@ export default function CompareFeatures() {
                 onClick={() => setShowAll(!showAll)}
                 className="group hover:bg-[#111] transition-colors cursor-pointer"
               >
-                <td className="sticky left-0 z-10 bg-[#0A0A0A] group-hover:bg-[#111] py-2 px-4 text-xs md:text-sm border-b border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)] transition-colors">
+                <td className="compare-table-sticky py-2 px-4 text-xs md:text-sm border-b">
                   <div className="flex items-center gap-2 text-[#FF3A29] font-semibold">
                     {showAll ? 'View Less' : 'View All Features'}
-                    <svg className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <svg className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -126,7 +145,7 @@ export default function CompareFeatures() {
 
               {/* Action Buttons Row */}
               <tr>
-                <td className="sticky left-0 z-10 bg-[#0A0A0A] py-3 px-4 border-r border-white/10 shadow-[4px_0_12px_rgba(0,0,0,0.5)]"></td>
+                <td className="compare-table-sticky py-3 px-4"></td>
                 {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan, i) => (
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a

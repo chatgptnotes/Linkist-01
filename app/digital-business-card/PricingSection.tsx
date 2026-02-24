@@ -359,7 +359,7 @@ export default function PricingSection() {
         </div>
 
         {/* Scroll Container */}
-        <div className="w-full relative perspective-[1200px]">
+        <div className="w-full relative perspective-[1200px] lg:hidden">
           <div
             ref={scrollContainerRef}
             className="pricing-scroll-container flex overflow-x-auto items-center gap-0 cursor-grab no-scrollbar"
@@ -427,6 +427,85 @@ export default function PricingSection() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Desktop Layout: 3-column grid */}
+        <div className="hidden lg:grid grid-cols-3 gap-6 px-6 xl:px-12 max-w-5xl mx-auto">
+          {PRICING_CARDS.map((card, index) => {
+            const isActive = index === 1; // Pro is default active
+            return (
+              <div
+                key={index}
+                className={`relative flex flex-col bg-[#0D0D0D] border rounded-[32px] overflow-hidden transition-all duration-300 ${
+                  isActive
+                    ? 'border-[rgba(255,0,0,0.5)] shadow-[0_30px_60px_-10px_rgba(0,0,0,0.9)] scale-[1.03]'
+                    : 'border-white/10'
+                }`}
+                style={{ padding: '32px' }}
+              >
+                {/* Active card header gradient */}
+                {isActive && (
+                  <div
+                    className="absolute top-0 left-0 w-full h-[180px] pointer-events-none z-0"
+                    style={{ background: 'linear-gradient(180deg, rgba(255,0,0,0.9) 0%, rgba(255,0,0,0) 100%)' }}
+                  />
+                )}
+
+                <div className="relative z-10 flex flex-col h-full">
+                  <h3 className="text-xl font-semibold text-white mb-2 font-poppins">{card.name}</h3>
+                  <p className="text-gray-400 text-xs mb-4 leading-snug">{card.subtitle}</p>
+
+                  <div className="mb-6">
+                    <span className="text-5xl font-medium text-white tracking-tight">
+                      ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
+                    </span>
+                    <span className="text-gray-400 text-sm ml-1">
+                      /{period === 'monthly' ? 'month' : 'year'}
+                    </span>
+                  </div>
+
+                  <div className="flex-grow">
+                    <h4 className="text-[10px] font-bold text-gray-500 tracking-wider uppercase mb-3">FEATURES</h4>
+                    <ul className="space-y-3 mb-6">
+                      {card.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <span
+                            className="inline-flex items-center justify-center w-[18px] h-[18px] rounded-full flex-shrink-0 mt-[2px] text-[10px]"
+                            style={{
+                              border: isActive ? '1.5px solid rgba(255,255,255,0.8)' : '1.5px solid rgba(255,255,255,0.4)',
+                              color: isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.6)'
+                            }}
+                          >✓</span>
+                          <span className="text-gray-300 text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <a
+                    href="https://www.linkist.ai/choose-plan"
+                    className="w-full py-[14px] px-4 rounded-full border text-white text-center font-medium transition-all duration-300 mt-auto block no-underline"
+                    style={isActive ? {
+                      background: '#FF3A29',
+                      borderColor: '#FF3A29',
+                      boxShadow: '0 4px 20px rgba(255,58,41,0.3)'
+                    } : {
+                      background: 'transparent',
+                      borderColor: 'rgba(255,255,255,0.3)'
+                    }}
+                  >
+                    Get Started
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Pricing Footnotes */}
+        <div className="text-center mt-6 space-y-1 px-4">
+          <p className="text-gray-500 text-xs md:text-sm">*Card customisation available at an additional cost of $30</p>
+          <p className="text-gray-500 text-xs md:text-sm">*Student plan available from $69</p>
         </div>
       </div>
     </section>
