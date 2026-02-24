@@ -12,7 +12,7 @@ import FooterSection from './FooterSection';
 
 export default function MicroCopyPage() {
   return (
-    <div className="min-h-screen bg-black text-white font-[Inter,sans-serif] pt-16">
+    <div className="min-h-screen bg-black text-white font-[Inter,sans-serif]">
       <MarketingHeader />
       {/* Global Styles */}
       <style jsx global>{`

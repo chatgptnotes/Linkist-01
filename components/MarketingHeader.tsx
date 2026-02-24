@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,10 +14,25 @@ const navLinks = [
 
 export default function MarketingHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/10 backdrop-blur-md border-b border-white/10">
-      <div className="w-full lg:w-[90vw] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 border-b border-white/10 transition-all duration-300 ${
+        scrolled
+          ? 'bg-black/95 backdrop-blur-md h-14'
+          : 'bg-black/90 backdrop-blur-sm h-20'
+      }`}
+    >
+      <div className="w-full lg:w-[75vw] mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-4">
 
         {/* Logo */}
         <Link href="/" className="flex-shrink-0">
