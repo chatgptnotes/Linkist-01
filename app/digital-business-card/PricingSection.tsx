@@ -25,18 +25,6 @@ const PRICING_CARDS: PricingCard[] = [
     ]
   },
   {
-    name: 'Next (Student Edition)',
-    subtitle: 'Best for students and early professionals',
-    monthlyPrice: 6.9,
-    yearlyPrice: 69,
-    features: [
-      'Everything in Starter',
-      'Access to Linkist Pro App features',
-      '1-year Linkist Pro App subscription (worth $59)',
-      'AI credits worth $50 (1-year validity)'
-    ]
-  },
-  {
     name: 'Pro',
     subtitle: 'Best for professionals who network in the real world',
     monthlyPrice: 9.9,
@@ -199,7 +187,7 @@ export default function PricingSection() {
     // Initial Scroll to Pro Card (Index 2)
     // We use 'auto' (instant) behavior so it appears centered by default on load
     const timer = setTimeout(() => {
-        centerCard(2, 'auto');
+        centerCard(1, 'auto');
     }, 100);
 
     return () => {
@@ -351,7 +339,7 @@ export default function PricingSection() {
               onClick={() => setPeriod('monthly')}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'monthly'
-                  ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
+                  ? 'bg-[#FF3A29] text-white shadow-[0_4px_10px_rgba(255,58,41,0.4)]'
                   : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >
@@ -361,7 +349,7 @@ export default function PricingSection() {
               onClick={() => setPeriod('yearly')}
               className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${
                 period === 'yearly'
-                  ? 'bg-[#ff0000] text-white shadow-[0_4px_10px_rgba(255,0,0,0.3)]'
+                  ? 'bg-[#FF3A29] text-white shadow-[0_4px_10px_rgba(255,58,41,0.4)]'
                   : 'text-gray-400 hover:text-white bg-transparent'
               }`}
             >

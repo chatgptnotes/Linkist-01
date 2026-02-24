@@ -156,7 +156,7 @@ export default function HeroSection() {
       <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pt-12 pb-0 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
           {/* LEFT COLUMN */}
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 relative z-20">
             <h1 className="text-[45px] md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15]">
               <br />
               <span className="text-white block">
@@ -172,7 +172,7 @@ export default function HeroSection() {
               with a unique personal URL, smart profile and NFC business card today. Grow
               into personal relationship intelligence over time.
             </p>
-            <div className="flex flex-row items-center justify-center lg:justify-start gap-6 w-full">
+            <div className="flex flex-row items-center justify-center lg:justify-start gap-6 w-full relative z-20">
               <Link
                 href="#pricing"
                 className="text-[#FF3A29] text-sm md:text-base font-medium underline underline-offset-4 hover:text-white transition-colors"
