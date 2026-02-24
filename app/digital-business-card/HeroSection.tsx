@@ -127,45 +127,58 @@ export default function HeroSection() {
   }, [resizeScene, getScrollProgress]);
 
   return (
-    <section className="lg:min-h-[75vh] flex items-center justify-center relative overflow-visible">
-      {/* Background Image */}
+    <section className="lg:min-h-screen flex items-center justify-center relative overflow-visible">
+      {/* Background */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-        {/* Mobile background */}
+        {/* Mobile background image */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/new-bg-micro-mobile.jpg"
           alt=""
           className="block lg:hidden w-full h-full object-cover"
         />
-        {/* Desktop background */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/new-bg-micro-pc.jpg"
-          alt=""
-          className="hidden lg:block w-full h-full object-cover"
+        {/* Desktop background gradient (restored) */}
+        <div
+          className="hidden lg:block w-full h-full absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,58,41,0.35) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,58,41,0.15) 0%, transparent 50%)',
+          }}
         />
       </div>
 
       {/* Main Content Grid */}
-      <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pt-12 pb-0 md:py-24">
+      <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pb-0 md:py-24 pt-24 lg:pt-0">
         <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-12 lg:gap-8 items-center">
           {/* LEFT COLUMN */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 relative z-20">
+
+            {/* Mobile H1 */}
             <h1
-              className="font-extrabold text-[44px] leading-[1.05] tracking-tight md:text-[64px] lg:text-[80px]"
+              className="lg:hidden text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] hero-title-gradient"
+            >
+              Tap the smartest<br />
+              card now.<br />
+              <span className="block mt-1">and unlock tomorrow!</span>
+            </h1>
+
+            {/* Desktop H1 */}
+            <h1
+              className="hidden lg:block text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight"
               style={{
-                background: 'linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%)',
+                backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}
             >
-              Tap the smartest <br className="hidden md:block" />
+              Tap the smartest <br />
               card now.
               <span className="block mt-1 pb-2">
                 and unlock tomorrow!
               </span>
             </h1>
+
             <p className="text-[16px] md:text-[20px] text-[#A3A3A3] leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
               The Linkist Smart Card is your entry into the Linkist PRM ecosystem. Start
               with a unique personal URL, smart profile and NFC business card today. Grow
