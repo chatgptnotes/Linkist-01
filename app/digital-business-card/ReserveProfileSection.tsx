@@ -7,13 +7,18 @@ export default function ReserveProfileSection() {
 
   return (
     <section className="bg-black relative overflow-hidden">
-      {/* Top Curved Gradient */}
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[120%] h-[300px] pointer-events-none"
+      {/* Bottom-left gradient */}
+      <div
+        className="absolute bottom-0 left-0 w-[500px] h-[500px] pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(255, 58, 41, 0.3) 0%, rgba(0, 0, 0, 0) 70%)',
-          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
-          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+          background: 'radial-gradient(circle at 0% 100%, rgba(255, 58, 41, 0.3) 0%, transparent 60%)',
+        }}
+      />
+      {/* Bottom-right gradient */}
+      <div
+        className="absolute bottom-0 right-0 w-[500px] h-[500px] pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle at 100% 100%, rgba(255, 58, 41, 0.3) 0%, transparent 60%)',
         }}
       />
 

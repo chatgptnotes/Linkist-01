@@ -135,39 +135,36 @@ export default function HeroSection() {
     <section className="lg:min-h-[75vh] flex items-center justify-center relative overflow-visible">
       {/* Background Overlay/Gradient */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-        {/* Mobile Gradient Background */}
         <div
-          className="w-full h-[600px] lg:hidden absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(255, 58, 41, 0.45) 0%, rgba(0, 0, 0, 0) 70%)',
-          }}
-        />
-        {/* Desktop CSS Gradient */}
-        <div
-          className="hidden lg:block w-full h-full absolute inset-0"
+          className="w-full h-full absolute inset-0"
           style={{
             background:
-              'radial-gradient(ellipse 90% 70% at 50% -10%, rgba(255, 58, 41, 0.45) 0%, rgba(0, 0, 0, 0) 80%)',
+              'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,58,41,0.35) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,58,41,0.15) 0%, transparent 50%)',
           }}
         />
       </div>
 
       {/* Main Content Grid */}
       <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pt-12 pb-0 md:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-12 lg:gap-8 items-center">
           {/* LEFT COLUMN */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 relative z-20">
-            <h1 className="text-[45px] md:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.15]">
-              <br />
-              <span className="text-white block">
-                Start with the best <br className="hidden md:block" />
-                smart card now.
-              </span>
-              <span className="text-gradient-subtitle block mt-1 pb-2">
+            <h1
+              className="font-extrabold text-[44px] leading-[1.05] tracking-tight md:text-[64px] lg:text-[80px]"
+              style={{
+                background: 'linear-gradient(180deg, #FFFFFF 0%, rgba(255,255,255,0.7) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Start with the best <br className="hidden md:block" />
+              smart card now.
+              <span className="block mt-1 pb-2">
                 Grow into relationship intelligence.
               </span>
             </h1>
-            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
+            <p className="text-[16px] md:text-[20px] text-[#A3A3A3] leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
               The Linkist Smart Card is your entry into the Linkist PRM ecosystem. Start
               with a unique personal URL, smart profile and NFC business card today. Grow
               into personal relationship intelligence over time.
@@ -191,6 +188,11 @@ export default function HeroSection() {
                   className="h-12 md:h-14 w-auto object-contain"
                 />
               </Link>
+            </div>
+            {/* Footnotes - shown below CTA on mobile, same position on desktop */}
+            <div className="flex flex-col gap-1 text-center lg:text-left">
+              <p className="text-[#A3A3A3] text-xs">*Card customisation available at an additional cost of $30</p>
+              <p className="text-[#A3A3A3] text-xs">*Student plan available from $69</p>
             </div>
           </div>
 
