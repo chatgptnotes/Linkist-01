@@ -42,17 +42,8 @@ const FeatureCard = ({ iconSrc, title, description, delay = 0 }: FeatureCardProp
             {title}
         </h3>
 
-        {/* Description - Poppins Regular 16px/26px */}
-        <p
-            className="text-[#888] text-center"
-            style={{
-                fontFamily: 'Poppins, sans-serif',
-                fontWeight: 400,
-                fontSize: '16px',
-                lineHeight: '26px',
-                letterSpacing: '0%'
-            }}
-        >
+        {/* Description */}
+        <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed text-center">
             {description}
         </p>
     </motion.div>
@@ -106,16 +97,7 @@ export default function SuperpowerSection() {
                     Stop hoarding contacts. Start building leverage.
                 </motion.h2>
 
-                <p
-                    className="text-[#888] max-w-2xl mx-auto mb-8 text-center"
-                    style={{
-                        fontFamily: 'Poppins, sans-serif',
-                        fontWeight: 400,
-                        fontSize: '16px',
-                        lineHeight: '26px',
-                        letterSpacing: '0%'
-                    }}
-                >
+                <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-2xl mx-auto mb-8 text-center">
                     Most tools are digital graveyards for phone numbers. Linkist turns your <strong>contact list</strong> into working relationship intelligence.
                 </p>
 

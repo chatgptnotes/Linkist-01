@@ -47,7 +47,7 @@ export default function StatsSection() {
                     The "Nice to meet you" is where most leads die.
                 </motion.h2>
 
-                <p className="text-[#888] max-w-2xl mx-auto mb-8 font-body" style={{ fontSize: '16px', lineHeight: '26px' }}>
+                <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-2xl mx-auto mb-8">
                     The stats don’t lie. The moment the handshake ends, the clock starts ticking against you.
                 </p>
 
@@ -74,16 +74,7 @@ export default function StatsSection() {
                             >
                                 {stat.value}
                             </div>
-                            <p
-                                className="text-[#888] text-center"
-                                style={{
-                                    fontFamily: 'Poppins, sans-serif',
-                                    fontWeight: 400,
-                                    fontSize: '20px',
-                                    lineHeight: '32px',
-                                    letterSpacing: '0%'
-                                }}
-                            >
+                            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed text-center">
                                 {stat.description}
                             </p>
                         </motion.div>
