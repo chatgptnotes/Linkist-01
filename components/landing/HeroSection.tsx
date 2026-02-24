@@ -99,7 +99,7 @@ export default function HeroSection() {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden md:flex relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-16 md:pt-20 flex-1">
+      <div className="hidden md:flex relative z-10 max-w-7xl mx-auto px-4 sm:px-6 flex-1">
         {/* Two-column grid layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center w-full">
           {/* Left column - Text content */}

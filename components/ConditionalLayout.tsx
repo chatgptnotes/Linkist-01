@@ -142,6 +142,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // For inner pages, render with simple header (only logo + logout after onboarding)
   if (isInnerPage) {
+    // For marketing pages that manage their own header, render bare children
+    if (pathname === '/' || pathname.startsWith('/digital-business-card')) {
+      return <>{children}</>;
+    }
+
     // Special case: claim-url page has its own logo header, don't add header from layout
     if (pathname.startsWith('/claim-url')) {
       return <>{children}</>;
