@@ -321,10 +321,18 @@ export default function PricingSection() {
         <div className="text-center max-w-3xl mx-auto mb-10 px-4 relative z-20">
           <div className="mb-6 flex justify-center">
             <span className="text-[#ff0000] text-sm md:text-base font-medium">
-              Pricing Plan
+              PRICING PLAN
             </span>
           </div>
-          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
+          <h2
+            className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-center"
+            style={{
+              backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             Linkist Pricing Plans
           </h2>
           <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto text-center">
