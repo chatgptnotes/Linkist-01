@@ -22,7 +22,7 @@ export default function FeaturesSection() {
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left lg:order-2">
 
             {/* Top Badge: Text Link */}
-            <div className="mb-8 md:mb-10">
+            <div className="mb-6">
               <Link
                 href="#pricing"
                 className="text-[#FF3A29] text-sm md:text-base font-medium hover:text-white transition-colors"
@@ -34,7 +34,7 @@ export default function FeaturesSection() {
 
             {/* Headline */}
             <h2
-              className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-left"
+              className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-left mb-6"
               style={{
                 backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
                 WebkitBackgroundClip: 'text',
@@ -46,7 +46,7 @@ export default function FeaturesSection() {
             </h2>
 
             {/* Subtitle */}
-            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
+            <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0 mb-6">
               A simple tap instantly shares your contact details and profile via NFC, QR,
               or link - no app required for the other person.
             </p>

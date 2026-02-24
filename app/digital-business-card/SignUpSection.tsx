@@ -9,7 +9,7 @@ export default function SignUpSection() {
         <div className="flex flex-col items-center text-center max-w-3xl mb-16 md:mb-20">
 
           {/* Top Icon */}
-          <div className="mb-8 relative">
+          <div className="mb-6 relative">
             <div
               className="absolute inset-0 transform scale-150"
               style={{
@@ -39,7 +39,7 @@ export default function SignUpSection() {
           </h2>
 
           {/* Description */}
-          <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0">
+          <p className="text-[#A3A3A3] text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto lg:mx-0 mb-6">
             The Linkist app and PRM eco-system. This is where networking becomes
             intelligent.
           </p>

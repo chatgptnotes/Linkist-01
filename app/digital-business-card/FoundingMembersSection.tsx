@@ -7,13 +7,13 @@ export default function FoundingMembersSection() {
         
         {/* Header */}
         <div className="flex flex-col items-center text-center mb-12 md:mb-16">
-          <div className="mb-4">
+          <div className="mb-6">
             <span className="text-[#FF3A29] text-sm md:text-base font-medium">
               THE FOUNDING MEMBER OFFER
             </span>
           </div>
           <h2
-            className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-center"
+            className="font-inter font-medium text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] tracking-[-0.04em] text-center md:text-center mb-6"
             style={{
               backgroundImage: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
               WebkitBackgroundClip: 'text',
