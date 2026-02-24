@@ -41,7 +41,7 @@ export default function SignUpSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
 
           {/* Item 1: Capture Context */}
-          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center p-6 gap-5 h-full transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
+          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center px-6 py-5 gap-5 transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -58,7 +58,7 @@ export default function SignUpSection() {
           </div>
 
           {/* Item 2: Remember Who */}
-          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center p-6 gap-5 h-full transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
+          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center px-6 py-5 gap-5 transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -75,7 +75,7 @@ export default function SignUpSection() {
           </div>
 
           {/* Item 3: Get Nudges */}
-          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center p-6 gap-5 h-full transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
+          <div className="bg-[#111111] border border-white/10 rounded-3xl flex items-center px-6 py-5 gap-5 transition-all duration-300 hover:border-[rgba(255,58,41,0.4)] hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

@@ -49,7 +49,7 @@ export default function CompareFeatures() {
   const displayFeatures = showAll ? COMPARE_FEATURES : COMPARE_FEATURES.slice(0, 5);
 
   return (
-    <section className="w-full bg-black py-12 md:py-20 text-white overflow-hidden font-sans">
+    <section className="w-full bg-black py-12 md:py-20 text-white font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         

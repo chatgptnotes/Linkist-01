@@ -14,7 +14,7 @@ export default function FeaturesSection() {
             <img
               src="/Micro-site-Scene-1.png"
               alt="Features Illustration"
-              className="w-full h-auto object-contain max-w-md"
+              className="w-full h-auto object-contain max-w-sm"
             />
           </div>
 
@@ -49,7 +49,7 @@ export default function FeaturesSection() {
               <img
                 src="/Micro-site-Scene-1.png"
                 alt="Features Illustration"
-                className="w-full h-auto object-contain max-w-md"
+                className="w-full h-auto object-contain max-w-[260px]"
               />
             </div>
 
@@ -68,10 +68,10 @@ export default function FeaturesSection() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <h3 className="text-white font-medium text-[18px] md:text-[26px] leading-tight">
-                    Works on any phone
+                    Smart NFC Card
                   </h3>
                   <p className="text-[#A3A3A3] text-[12px] md:text-[17px] leading-[1.4] md:leading-[1.6] font-normal">
-                    Universal compatibility.
+                    Tap to share
                   </p>
                 </div>
               </div>
@@ -88,10 +88,10 @@ export default function FeaturesSection() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <h3 className="text-white font-medium text-[18px] md:text-[26px] leading-tight">
-                    Always updatable profile
+                    Unique Linkist ID
                   </h3>
                   <p className="text-[#A3A3A3] text-[12px] md:text-[17px] leading-[1.4] md:leading-[1.6] font-normal">
-                    Update instantly, anywhere.
+                    Your link. Forever.
                   </p>
                 </div>
               </div>
@@ -108,10 +108,10 @@ export default function FeaturesSection() {
                 </div>
                 <div className="flex flex-col justify-center">
                   <h3 className="text-white font-medium text-[18px] md:text-[26px] leading-tight">
-                    Professional and minimal
+                    Digital Profile
                   </h3>
                   <p className="text-[#A3A3A3] text-[12px] md:text-[17px] leading-[1.4] md:leading-[1.6] font-normal">
-                    Clean design that converts.
+                    Your smart identity
                   </p>
                 </div>
               </div>
