@@ -52,7 +52,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/login') ||
                       pathname.startsWith('/profiles/preview') ||
                       pathname.startsWith('/profiles/builder') ||
-                      pathname.startsWith('/claim-url');
+                      pathname.startsWith('/claim-url') ||
+                      pathname.startsWith('/digital-business-card');
 
   useEffect(() => {
     // Check authentication status
