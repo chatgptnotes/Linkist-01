@@ -220,8 +220,6 @@ export default function HeroSection() {
               <div className="cs-layer layer-1" />
               <div className="cs-layer closed-view" />
             </div>
-            {/* Bottom fade */}
-            <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-black to-transparent pointer-events-none z-20" />
           </div>
         </div>
       </div>
