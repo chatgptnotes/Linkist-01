@@ -87,7 +87,7 @@ export default function CompareFeatures() {
             </span>
           </div>
           <h2
-            className="text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] font-medium font-inter tracking-[-0.04em] text-center md:text-left mb-6"
+            className="text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] font-medium font-inter tracking-[-0.04em] text-center md:text-center mb-6"
             style={{
               background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
               WebkitBackgroundClip: 'text',
