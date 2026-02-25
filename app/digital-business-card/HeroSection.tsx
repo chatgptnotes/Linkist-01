@@ -159,7 +159,7 @@ export default function HeroSection() {
             >
               Tap the smartest<br />
               card now.<br />
-              <span className="block mt-1">and unlock tomorrow!</span>
+              <span className="block mt-1">Grow relationship intelligence.</span>
             </h1>
 
             {/* Desktop H1 */}
@@ -175,7 +175,7 @@ export default function HeroSection() {
               Tap the smartest <br />
               card now.
               <span className="block mt-1 pb-2">
-                and unlock tomorrow!
+                Grow relationship intelligence.
               </span>
             </h1>
 
