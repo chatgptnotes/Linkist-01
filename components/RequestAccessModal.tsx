@@ -6,7 +6,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import WorkIcon from '@mui/icons-material/Work';
-import NoteIcon from '@mui/icons-material/Note';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CircularProgress from '@mui/material/CircularProgress';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -35,7 +34,6 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
     countryCode: '+91',
     phone: '',
     profession: '',
-    note: ''
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -157,7 +155,6 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
       countryCode: '+91',
       phone: '',
       profession: '',
-      note: ''
     });
     setSuccess(false);
     setError('');
@@ -356,24 +353,6 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
                     required
                     placeholder="e.g., CEO, Software Engineer, Designer"
                     className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent text-gray-900 placeholder-gray-400"
-                  />
-                </div>
-              </div>
-
-              {/* Note (Optional) */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Why do you want to join the Founders Circle? <span className="text-gray-400">(Optional)</span>
-                </label>
-                <div className="relative">
-                  <NoteIcon className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <textarea
-                    name="note"
-                    value={formData.note}
-                    onChange={handleChange}
-                    rows={3}
-                    placeholder="Tell us a bit about yourself and why you're interested..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent resize-none text-gray-900 placeholder-gray-400"
                   />
                 </div>
               </div>

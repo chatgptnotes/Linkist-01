@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import QRCode from 'qrcode';
+import Cropper from 'react-easy-crop';
+import type { Area } from 'react-easy-crop';
 import Logo from '@/components/Logo';
 import { usePWA } from '@/contexts/PWAContext';
 import {
@@ -27,7 +29,9 @@ import {
   CloudDownload,
   Share as ShareIcon,
   BookmarkAdd,
-  PersonAdd
+  PersonAdd,
+  Close,
+  Crop as CropIcon
 } from '@mui/icons-material';
 import { normalizeMainProfile } from '@/components/profile/types';
 import ProfileBackground from '@/components/profile/ProfileBackground';
@@ -157,6 +161,93 @@ export default function ProfilePreviewPage() {
 
   // Use centralized PWA context
   const { isIOS, isAndroid, isInstallable, triggerInstall } = usePWA();
+
+  // Image crop states
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [cropAspect, setCropAspect] = useState<number>(1);
+  const [isCropInteracting, setIsCropInteracting] = useState(false);
+  const [isSavingCrop, setIsSavingCrop] = useState(false);
+  const cropInteractionTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropInteractionStart = useCallback(() => {
+    if (cropInteractionTimer.current) clearTimeout(cropInteractionTimer.current);
+    setIsCropInteracting(true);
+  }, []);
+
+  const handleCropInteractionEnd = useCallback(() => {
+    cropInteractionTimer.current = setTimeout(() => setIsCropInteracting(false), 600);
+  }, []);
+
+  const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<string> => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve) => {
+      image.onload = () => resolve();
+      image.src = imageSrc;
+    });
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+    ctx.drawImage(image, pixelCrop.x, pixelCrop.y, pixelCrop.width, pixelCrop.height, 0, 0, pixelCrop.width, pixelCrop.height);
+    return canvas.toDataURL('image/jpeg', 0.9);
+  };
+
+  const handleOpenCrop = () => {
+    if (!profileData?.profilePhoto) return;
+    setCropImage(profileData.profilePhoto);
+    setCrop({ x: 0, y: 0 });
+    setZoom(1);
+    setCropAspect(4 / 5);
+    setShowCropModal(true);
+  };
+
+  const handleCropSave = async () => {
+    if (!cropImage || !croppedAreaPixels || !profileData) return;
+    try {
+      setIsSavingCrop(true);
+      const croppedBase64 = await getCroppedImg(cropImage, croppedAreaPixels);
+      if (!croppedBase64) return;
+
+      // Save to server - API requires email, firstName, lastName as mandatory fields
+      const response = await fetch('/api/profiles/save', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: profileData.primaryEmail,
+          firstName: profileData.firstName,
+          lastName: profileData.lastName,
+          profilePhoto: croppedBase64,
+        }),
+      });
+
+      if (response.ok) {
+        setProfileData({ ...profileData, profilePhoto: croppedBase64 });
+      } else {
+        console.error('Failed to save cropped photo:', await response.text());
+      }
+    } catch (error) {
+      console.error('Error saving cropped photo:', error);
+    } finally {
+      setIsSavingCrop(false);
+      setShowCropModal(false);
+      setCropImage(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropAspect(1);
+      setIsCropInteracting(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -511,12 +602,25 @@ export default function ProfilePreviewPage() {
         {/* Floating preview header */}
         <div className="fixed top-0 left-0 right-0 z-30 px-4 py-3 flex justify-between items-center md:absolute md:max-w-[430px] md:mx-auto md:left-0 md:right-0">
           <span className="text-white text-sm font-bold drop-shadow-lg">Profile Preview</span>
-          <button
-            onClick={() => router.push('/profiles/builder')}
-            className="px-3 py-1.5 bg-white/90 backdrop-blur-sm rounded-lg text-sm font-medium text-gray-700"
-          >
-            Edit Profile
-          </button>
+          <div className="flex items-center gap-2">
+            {profileData.profilePhoto && (
+              <button
+                onClick={handleOpenCrop}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-md border border-black/10 text-white shadow-md transition-colors"
+                style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+              >
+                <CropIcon className="w-4 h-4" />
+                Adjust
+              </button>
+            )}
+            <button
+              onClick={() => router.push('/profiles/builder')}
+              className="px-3 py-1.5 rounded-lg text-sm font-medium backdrop-blur-md border border-black/10 text-white shadow-md transition-colors"
+              style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+            >
+              Edit Profile
+            </button>
+          </div>
         </div>
 
         {/* Full-screen profile photo background */}
@@ -941,6 +1045,126 @@ export default function ProfilePreviewPage() {
             >
               Got it
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Image Crop Modal */}
+      {showCropModal && cropImage && (
+        <div className="fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Adjust Photo</h3>
+              <button
+                onClick={() => {
+                  setShowCropModal(false);
+                  setCropImage(null);
+                  setCropAspect(1);
+                  setIsCropInteracting(false);
+                }}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <Close className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Crop Area */}
+            <div
+              className="relative w-full bg-black"
+              style={{ height: '400px' }}
+              onMouseDown={handleCropInteractionStart}
+              onMouseUp={handleCropInteractionEnd}
+              onTouchStart={handleCropInteractionStart}
+              onTouchEnd={handleCropInteractionEnd}
+            >
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={cropAspect}
+                cropShape="rect"
+                showGrid={false}
+                restrictPosition={true}
+                minZoom={1}
+                maxZoom={3}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+                onInteractionStart={handleCropInteractionStart}
+                onInteractionEnd={handleCropInteractionEnd}
+                style={{
+                  cropAreaStyle: {
+                    border: '1px solid rgba(255,255,255,0.4)',
+                    color: 'rgba(0,0,0,0.6)',
+                  },
+                }}
+              />
+
+              {/* 3x3 Grid Overlay - visible only during interaction */}
+              <div
+                className="absolute inset-0 pointer-events-none flex items-center justify-center transition-opacity duration-300"
+                style={{ opacity: isCropInteracting ? 1 : 0 }}
+              >
+                <div
+                  className="relative"
+                  style={{
+                    width: cropAspect >= 1 ? '70%' : `${70 * cropAspect}%`,
+                    aspectRatio: `${cropAspect}`,
+                    maxHeight: '80%',
+                  }}
+                >
+                  <div className="absolute top-0 bottom-0 left-1/3 w-px bg-white/40" />
+                  <div className="absolute top-0 bottom-0 left-2/3 w-px bg-white/40" />
+                  <div className="absolute left-0 right-0 top-1/3 h-px bg-white/40" />
+                  <div className="absolute left-0 right-0 top-2/3 h-px bg-white/40" />
+                </div>
+              </div>
+            </div>
+
+            {/* Aspect Ratio Presets */}
+            <div className="flex items-center justify-center gap-3 px-5 py-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400 mr-1">Ratio:</span>
+              <button
+                onClick={() => { setCropAspect(1); setCrop({ x: 0, y: 0 }); setZoom(1); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  cropAspect === 1 ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                1:1
+              </button>
+              <button
+                onClick={() => { setCropAspect(4 / 5); setCrop({ x: 0, y: 0 }); setZoom(1); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  cropAspect === 4 / 5 ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                4:5
+              </button>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 px-5 py-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowCropModal(false);
+                  setCropImage(null);
+                  setCropAspect(1);
+                  setIsCropInteracting(false);
+                }}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropSave}
+                disabled={isSavingCrop}
+                className="flex-1 px-4 py-2.5 rounded-lg text-white font-medium transition-colors disabled:opacity-60"
+                style={{ backgroundColor: '#dc2626' }}
+              >
+                {isSavingCrop ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
         </div>
       )}

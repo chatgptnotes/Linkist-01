@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef, Suspense } from 'react';
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { getBaseDomain } from '@/lib/get-base-url';
 import { searchSkills } from '@/lib/skills-data';
 import { getPhoneCode } from '@/lib/country-utils';
+import Cropper from 'react-easy-crop';
+import type { Area } from 'react-easy-crop';
 
 const GoogleMapPicker = dynamic(() => import('@/components/GoogleMapPicker'), {
   ssr: false,
@@ -286,6 +288,41 @@ const SUB_DOMAINS = [
 // Flatten all sub-domains for searching
 const ALL_SUB_DOMAINS = SUB_DOMAINS.flatMap(group => group.subDomains);
 
+// Service category options
+const SERVICE_CATEGORIES = [
+  'Consulting',
+  'Design',
+  'Development',
+  'Marketing',
+  'Photography',
+  'Videography',
+  'Writing & Content',
+  'Coaching & Mentoring',
+  'Legal Services',
+  'Financial Advisory',
+  'Project Management',
+  'Data & Analytics',
+  'Cybersecurity',
+  'Cloud & DevOps',
+  'UI/UX Design',
+  'Branding & Identity',
+  'Social Media Management',
+  'SEO & Digital Marketing',
+  'E-commerce',
+  'Event Management',
+  'Training & Workshops',
+  'Research & Strategy',
+  'Healthcare Services',
+  'Real Estate Services',
+  'Architecture & Interior',
+  'Education & Tutoring',
+  'Translation & Localization',
+  'HR & Recruitment',
+  'Supply Chain & Logistics',
+  'Music & Audio Production',
+  'Other',
+];
+
 // Helper function to detect country code from phone number
 // defaultCode parameter allows using the user's country-based code as fallback
 function detectCountryCodeFromNumber(phoneNumber: string, defaultCode: string = '+91'): { countryCode: string; number: string } {
@@ -377,6 +414,29 @@ function ProfileBuilderContent() {
   const [isUploadingProfilePhoto, setIsUploadingProfilePhoto] = useState(false);
   const [isUploadingBannerImage, setIsUploadingBannerImage] = useState(false);
   const [isUploadingCompanyLogo, setIsUploadingCompanyLogo] = useState(false);
+
+  // Image crop states
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [cropImage, setCropImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [cropAspect, setCropAspect] = useState<number>(4 / 5);
+  const [isCropInteracting, setIsCropInteracting] = useState(false);
+  const cropInteractionTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const onCropComplete = useCallback((_croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleCropInteractionStart = useCallback(() => {
+    if (cropInteractionTimer.current) clearTimeout(cropInteractionTimer.current);
+    setIsCropInteracting(true);
+  }, []);
+
+  const handleCropInteractionEnd = useCallback(() => {
+    cropInteractionTimer.current = setTimeout(() => setIsCropInteracting(false), 600);
+  }, []);
 
   // Loading state for profile data fetch
   const [isLoadingProfile, setIsLoadingProfile] = useState(true);
@@ -647,6 +707,68 @@ function ProfileBuilderContent() {
       } catch {
         return ''; // Never throw
       }
+    }
+  };
+
+  // Create cropped image from canvas
+  const getCroppedImg = async (imageSrc: string, pixelCrop: Area): Promise<string> => {
+    const image = new Image();
+    image.crossOrigin = 'anonymous';
+    await new Promise<void>((resolve) => {
+      image.onload = () => resolve();
+      image.src = imageSrc;
+    });
+
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return '';
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+      image,
+      pixelCrop.x,
+      pixelCrop.y,
+      pixelCrop.width,
+      pixelCrop.height,
+      0,
+      0,
+      pixelCrop.width,
+      pixelCrop.height
+    );
+
+    return canvas.toDataURL('image/jpeg', 0.9);
+  };
+
+  const handleCropSave = async () => {
+    if (!cropImage || !croppedAreaPixels) return;
+
+    try {
+      setIsUploadingProfilePhoto(true);
+      setProfilePhotoUploadProgress(50);
+
+      const croppedBase64 = await getCroppedImg(cropImage, croppedAreaPixels);
+
+      if (croppedBase64) {
+        setProfileData(prev => ({
+          ...prev,
+          profilePhoto: croppedBase64
+        }));
+        toast.success('Profile photo cropped and saved!');
+      }
+    } catch (error) {
+      console.error('Error cropping image:', error);
+      toast.error('Failed to crop image. Please try again.');
+    } finally {
+      setIsUploadingProfilePhoto(false);
+      setProfilePhotoUploadProgress(0);
+      setShowCropModal(false);
+      setCropImage(null);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setCropAspect(4 / 5);
+      setIsCropInteracting(false);
     }
   };
 
@@ -2746,7 +2868,7 @@ function ProfileBuilderContent() {
                                     disabled={isAlreadyAdded}
                                     className={`w-full text-left px-3 py-2 transition-colors ${
                                       isAlreadyAdded
-                                        ? 'bg-gray-50 text-gray-400 cursor-not-allowed'
+                                        ? 'bg-red-600 text-white cursor-default'
                                         : isSelected
                                         ? 'bg-red-50 text-red-700'
                                         : 'hover:bg-red-50 hover:text-red-700'
@@ -2757,12 +2879,12 @@ function ProfileBuilderContent() {
                                         <div className="font-medium text-sm">
                                           {suggestion.skill}
                                         </div>
-                                        <div className="text-xs text-gray-500 mt-0.5">
+                                        <div className={`text-xs mt-0.5 ${isAlreadyAdded ? 'text-red-200' : 'text-gray-500'}`}>
                                           {suggestion.category}
                                         </div>
                                       </div>
                                       {isAlreadyAdded && (
-                                        <CheckCircle className="w-4 h-4 text-green-500" />
+                                        <CheckCircle className="w-4 h-4 text-white" />
                                       )}
                                     </div>
                                   </button>
@@ -2969,10 +3091,9 @@ function ProfileBuilderContent() {
                               {/* Service Category */}
                               <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                  Category / Type *
+                                  Service Category <span className="text-gray-400 font-normal">(Optional)</span>
                                 </label>
-                                <input
-                                  type="text"
+                                <select
                                   value={service.category}
                                   onChange={(e) => {
                                     const updatedServices = profileData.services.map(s =>
@@ -2980,9 +3101,13 @@ function ProfileBuilderContent() {
                                     );
                                     setProfileData({ ...profileData, services: updatedServices });
                                   }}
-                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
-                                  placeholder="e.g., Consulting, Development, Design"
-                                />
+                                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none bg-white"
+                                >
+                                  <option value="">Select a category</option>
+                                  {SERVICE_CATEGORIES.map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                  ))}
+                                </select>
                               </div>
 
 
@@ -3609,36 +3734,19 @@ function ProfileBuilderContent() {
                               id="profile-photo-upload"
                               accept="image/png,image/jpeg,image/jpg,image/gif"
                               className="hidden"
-                              onChange={async (e) => {
+                              onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  try {
-                                    setIsUploadingProfilePhoto(true);
-                                    setProfilePhotoUploadProgress(0);
-
-                                    // Compress with upscaling for small images (never throws errors)
-                                    const base64String = await compressImageToBase64WithUpscale(file, (progress) => {
-                                      setProfilePhotoUploadProgress(progress);
-                                    });
-
-                                    if (base64String) {
-                                      setProfileData(prev => ({
-                                        ...prev,
-                                        profilePhoto: base64String
-                                      }));
-                                      toast.success('Profile photo uploaded successfully!');
-                                    } else {
-                                      console.warn('Profile photo processing returned empty, but continuing');
-                                    }
-                                  } catch (error) {
-                                    // Graceful error handling - never show error to user
-                                    console.error('Profile photo upload error:', error);
-                                    // Silently continue - the function should have handled this
-                                  } finally {
-                                    setIsUploadingProfilePhoto(false);
-                                    setProfilePhotoUploadProgress(0);
-                                  }
+                                  const reader = new FileReader();
+                                  reader.onload = () => {
+                                    setCropImage(reader.result as string);
+                                    setShowCropModal(true);
+                                    setCrop({ x: 0, y: 0 });
+                                    setZoom(1);
+                                  };
+                                  reader.readAsDataURL(file);
                                 }
+                                e.target.value = '';
                               }}
                             />
                             <button
@@ -3749,6 +3857,132 @@ function ProfileBuilderContent() {
         onChange={handlePhotoUpload}
         className="hidden"
       />
+
+      {/* Image Crop Modal */}
+      {showCropModal && cropImage && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
+              <h3 className="text-lg font-semibold text-gray-900">Crop Profile Photo</h3>
+              <button
+                onClick={() => {
+                  setShowCropModal(false);
+                  setCropImage(null);
+                  setCropAspect(4 / 5);
+                  setIsCropInteracting(false);
+                }}
+                className="text-gray-400 hover:text-gray-600 p-1"
+              >
+                <X2 className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Crop Area */}
+            <div
+              className="relative w-full bg-black"
+              style={{ height: '400px' }}
+              onMouseDown={handleCropInteractionStart}
+              onMouseUp={handleCropInteractionEnd}
+              onTouchStart={handleCropInteractionStart}
+              onTouchEnd={handleCropInteractionEnd}
+            >
+              <Cropper
+                image={cropImage}
+                crop={crop}
+                zoom={zoom}
+                aspect={cropAspect}
+                cropShape="rect"
+                showGrid={false}
+                restrictPosition={true}
+                minZoom={1}
+                maxZoom={3}
+                onCropChange={setCrop}
+                onZoomChange={setZoom}
+                onCropComplete={onCropComplete}
+                onInteractionStart={handleCropInteractionStart}
+                onInteractionEnd={handleCropInteractionEnd}
+                style={{
+                  cropAreaStyle: {
+                    border: '1px solid rgba(255,255,255,0.4)',
+                    color: 'rgba(0,0,0,0.6)',
+                  },
+                }}
+              />
+
+              {/* 3x3 Grid Overlay - visible only during interaction */}
+              <div
+                className="absolute inset-0 pointer-events-none flex items-center justify-center transition-opacity duration-300"
+                style={{ opacity: isCropInteracting ? 1 : 0 }}
+              >
+                {/* We position relative to the crop area using the same aspect ratio */}
+                <div
+                  className="relative"
+                  style={{
+                    width: cropAspect >= 1 ? '70%' : `${70 * cropAspect}%`,
+                    aspectRatio: `${cropAspect}`,
+                    maxHeight: '80%',
+                  }}
+                >
+                  {/* Vertical lines */}
+                  <div className="absolute top-0 bottom-0 left-1/3 w-px bg-white/40" />
+                  <div className="absolute top-0 bottom-0 left-2/3 w-px bg-white/40" />
+                  {/* Horizontal lines */}
+                  <div className="absolute left-0 right-0 top-1/3 h-px bg-white/40" />
+                  <div className="absolute left-0 right-0 top-2/3 h-px bg-white/40" />
+                </div>
+              </div>
+            </div>
+
+            {/* Aspect Ratio Presets */}
+            <div className="flex items-center justify-center gap-3 px-5 py-3 border-t border-gray-100">
+              <span className="text-xs text-gray-400 mr-1">Ratio:</span>
+              <button
+                onClick={() => { setCropAspect(1); setCrop({ x: 0, y: 0 }); setZoom(1); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  cropAspect === 1
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                1:1
+              </button>
+              <button
+                onClick={() => { setCropAspect(4 / 5); setCrop({ x: 0, y: 0 }); setZoom(1); }}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                  cropAspect === 4 / 5
+                    ? 'bg-gray-900 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                4:5
+              </button>
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-3 px-5 py-4 border-t border-gray-200">
+              <button
+                onClick={() => {
+                  setShowCropModal(false);
+                  setCropImage(null);
+                  setCropAspect(4 / 5);
+                  setIsCropInteracting(false);
+                }}
+                className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleCropSave}
+                className="flex-1 px-4 py-2.5 rounded-lg text-white font-medium transition-colors"
+                style={{ backgroundColor: '#dc2626' }}
+              >
+                Save Photo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast Notification */}
       {toastState && (
