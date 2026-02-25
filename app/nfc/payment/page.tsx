@@ -678,9 +678,11 @@ export default function NFCPaymentPage() {
               {orderData?.cardConfig?.baseMaterial !== 'digital' && (
                 <div className="mb-4 sm:mb-6">
                   <h4 className="text-sm sm:text-base font-medium mb-2 sm:mb-3">Your NFC Card</h4>
-                  <p className="text-xs sm:text-sm text-gray-600 mb-1.5 sm:mb-2">
-                    {orderData?.cardConfig?.fullName || `${orderData?.cardConfig?.cardFirstName} ${orderData?.cardConfig?.cardLastName}` || 'Custom NFC Card'}
-                  </p>
+                  {orderData?.cardConfig?.planType !== 'pro' && (
+                    <p className="text-xs sm:text-sm text-gray-600 mb-1.5 sm:mb-2">
+                      {orderData?.cardConfig?.fullName || `${orderData?.cardConfig?.cardFirstName} ${orderData?.cardConfig?.cardLastName}` || 'Custom NFC Card'}
+                    </p>
+                  )}
                   {orderData?.cardConfig?.baseMaterial && (
                     <p className="text-xs text-gray-500 mb-3 sm:mb-4">
                       Material: {orderData.cardConfig.baseMaterial.charAt(0).toUpperCase() + orderData.cardConfig.baseMaterial.slice(1)} •
@@ -710,28 +712,30 @@ export default function NFCPaymentPage() {
                         style={{ boxShadow: 'none', background: 'transparent' }}
                       />
 
-                      {/* User Name or Initials */}
-                      <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4">
-                        {(() => {
-                          const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
-                          const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
-                          const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                      {/* User Name or Initials - Hidden for Pro plan (no name customization) */}
+                      {orderData?.cardConfig?.planType !== 'pro' && (
+                        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4">
+                          {(() => {
+                            const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
+                            const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
+                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
 
-                          if (isSingleCharOnly) {
-                            return (
-                              <div className={`${getTextColor()} text-lg sm:text-xl font-light`}>
-                                {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                              </div>
-                            );
-                          } else {
-                            return (
-                              <div className={`${getTextColor()} text-xs sm:text-sm font-medium`}>
-                                {firstName} {lastName}
-                              </div>
-                            );
-                          }
-                        })()}
-                      </div>
+                            if (isSingleCharOnly) {
+                              return (
+                                <div className={`${getTextColor()} text-lg sm:text-xl font-light`}>
+                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className={`${getTextColor()} text-xs sm:text-sm font-medium`}>
+                                  {firstName} {lastName}
+                                </div>
+                              );
+                            }
+                          })()}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

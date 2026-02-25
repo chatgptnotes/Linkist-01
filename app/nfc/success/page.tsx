@@ -118,6 +118,119 @@ export default function SuccessPage() {
   // Check if this is a digital-only product (no physical card)
   const isDigitalOnly = orderData.isDigitalOnly || orderData.isDigitalProduct || orderData.cardConfig?.baseMaterial === 'digital';
 
+  // Check if this is the Starter plan
+  const isStarterPlan = orderData.planName?.toLowerCase() === 'starter';
+
+  // Starter Plan Thank You Page
+  if (isStarterPlan) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6">
+          {/* Hero Success Section */}
+          <div className="bg-white rounded-2xl shadow-lg p-10 text-center mb-6">
+            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle className="h-12 w-12 text-white" />
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              You&apos;re In!
+            </h1>
+            <p className="text-xl text-gray-500 font-medium mb-6">
+              Starter Plan Activated
+            </p>
+            <p className="text-gray-600 text-lg">
+              Thank you for choosing Linkist.<br />
+              Your Starter plan is now active and your account has been successfully created.
+            </p>
+          </div>
+
+          {/* Order Details */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-5">Order Details</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center py-3 border-b border-gray-100">
+                <span className="text-gray-500">Order ID</span>
+                <span className="font-semibold text-gray-900 font-mono">#{orderData.orderNumber}</span>
+              </div>
+              <div className="flex justify-between items-center py-3">
+                <span className="text-gray-500">Plan</span>
+                <span className="font-semibold text-gray-900">Starter</span>
+              </div>
+            </div>
+            <div className="mt-5 pt-4 border-t border-gray-100">
+              <p className="text-sm text-gray-500 text-center">
+                Please save this Order ID for your records.
+              </p>
+            </div>
+          </div>
+
+          {/* What's Next */}
+          <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">What&apos;s Next?</h2>
+            <p className="text-gray-600 mb-6">
+              You&apos;re just one step away from going live.
+            </p>
+
+            <div className="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                Claim your personalised Linkist ID
+              </h3>
+              <p className="text-gray-500 text-sm mb-4">
+                This will be your unique public identity &mdash; yours for life.
+              </p>
+              <p className="text-gray-600 text-sm mb-3">Once claimed, you&apos;ll be able to:</p>
+              <ul className="space-y-2.5 text-gray-700 text-sm">
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Build your digital profile</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Share instantly via link or QR</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                  <span>Start growing your professional presence</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* CTA Button */}
+          <button
+            onClick={() => {
+              setIsNavigating(true);
+              router.push('/claim-url');
+            }}
+            disabled={isNavigating}
+            className="w-full py-4 px-6 rounded-xl font-semibold text-lg transition text-center flex items-center justify-center disabled:opacity-80 shadow-lg"
+            style={{ backgroundColor: isNavigating ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
+          >
+            {isNavigating ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
+                Loading...
+              </>
+            ) : (
+              <>
+                Claim Your Linkist ID
+                <ArrowRight className="h-5 w-5 ml-2" />
+              </>
+            )}
+          </button>
+
+          {/* Support */}
+          <div className="text-center mt-10 mb-4">
+            <p className="text-sm text-gray-400">
+              Need help? <Link href="mailto:support@linkist.ai" className="text-gray-500 underline hover:text-gray-700">support@linkist.ai</Link>
+            </p>
+          </div>
+        </div>
+
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6">
