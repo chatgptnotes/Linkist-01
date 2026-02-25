@@ -99,9 +99,9 @@ export default function GDPRConsentBanner() {
         setShowSettings(false);
 
         // Apply consent preferences
-        if (consentPreferences.analytics && typeof window.gtag !== 'undefined') {
+        if (consentPreferences.analytics && typeof (window as any).gtag !== 'undefined') {
           // Enable analytics tracking
-          window.gtag('consent', 'update', {
+          (window as any).gtag('consent', 'update', {
             analytics_storage: 'granted',
           });
         }
