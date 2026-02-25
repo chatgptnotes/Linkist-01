@@ -86,8 +86,16 @@ export default function CompareFeatures() {
               Compare Features
             </span>
           </div>
-          <h2 className="text-[32px] md:text-[56px] font-bold text-white tracking-tight leading-[1.1] mb-6">
-            See exactly what's included in every plan.
+          <h2
+            className="text-[28px] leading-[34px] min-[390px]:text-[32px] min-[390px]:leading-[38px] md:text-[52px] md:leading-[66px] font-medium font-inter tracking-[-0.04em] text-center md:text-left mb-6"
+            style={{
+              background: 'linear-gradient(180deg, #FFFFFF 25.5%, #999999 118.5%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            See exactly what&apos;s included in every plan.
           </h2>
         </div>
 
