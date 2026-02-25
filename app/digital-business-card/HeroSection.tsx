@@ -127,7 +127,7 @@ export default function HeroSection() {
   }, [resizeScene, getScrollProgress]);
 
   return (
-    <section className="min-h-screen flex items-center justify-center relative overflow-visible">
+    <section className="lg:min-h-screen flex items-center justify-center relative overflow-visible">
       {/* Background */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
         {/* Mobile background image */}
@@ -148,7 +148,7 @@ export default function HeroSection() {
       </div>
 
       {/* Main Content Grid */}
-      <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 py-0">
+      <div className="relative z-10 w-full lg:w-[75vw] lg:max-w-none mx-auto px-6 pt-28 pb-8 lg:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-[65%_35%] gap-12 lg:gap-8 items-center">
           {/* LEFT COLUMN */}
           <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-5 relative z-20">
