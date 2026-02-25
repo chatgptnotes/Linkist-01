@@ -31,16 +31,19 @@ export default function GDPRConsentBanner() {
   const [loadingAction, setLoadingAction] = useState<'accept' | 'reject' | 'selected' | null>(null);
 
   useEffect(() => {
-    // Don't show banner on the homepage/landing page or digital-business-card page
-    if (pathname === '/' || pathname.startsWith('/digital-business-card')) {
+    // Only show cookie banner on the homepage
+    // Never show on public profiles, e-commerce pages, microsites, or any sub-pages
+    if (pathname !== '/') {
       setShowBanner(false);
       return;
     }
-    
+
     // Check if consent has already been given
     const consent = localStorage.getItem('gdpr-consent');
     if (!consent) {
       setShowBanner(true);
+    } else {
+      setShowBanner(false);
     }
   }, [pathname]);
 
