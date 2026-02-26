@@ -65,6 +65,7 @@ export interface ProfileInput {
   avatar_url?: string | null
   custom_url?: string | null
   profile_url?: string | null
+  display_settings?: Record<string, any>
   preferences?: {
     // Basic Information
     salutation?: string
@@ -234,8 +235,10 @@ export const SupabaseProfileStore = {
           youtube: input.preferences.youtubeUrl || '',
         }
 
-        // Store display settings in JSONB column
+        // Store display settings in JSONB column (merge with existing to preserve fields like selectedTheme)
         updates.display_settings = {
+          ...(existingProfile.display_settings || {}),
+          ...(input.display_settings || {}),
           showLinkedin: input.preferences.showLinkedin ?? false,
           showInstagram: input.preferences.showInstagram ?? false,
           showFacebook: input.preferences.showFacebook ?? false,
@@ -330,6 +333,7 @@ export const SupabaseProfileStore = {
 
       // Store display settings in JSONB column
       newProfile.display_settings = {
+        ...(input.display_settings || {}),
         showLinkedin: input.preferences.showLinkedin ?? false,
         showInstagram: input.preferences.showInstagram ?? false,
         showFacebook: input.preferences.showFacebook ?? false,

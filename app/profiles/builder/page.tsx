@@ -40,8 +40,12 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import SearchIcon from '@mui/icons-material/Search';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Leaderboard, RoomService, BuildCircle } from '@mui/icons-material';
+import { Leaderboard, RoomService, BuildCircle, Palette } from '@mui/icons-material';
 import Skeleton from '@mui/material/Skeleton';
+import ThemeSelector from '@/components/profile/themes/ThemeSelector';
+import ThemeRenderer from '@/components/profile/themes/ThemeRenderer';
+import type { ThemeId } from '@/components/profile/themes';
+import { normalizeMainProfile } from '@/components/profile/types';
 
 // Icon aliases
 const Person = PersonIcon;
@@ -137,6 +141,9 @@ interface ProfileData {
 
   // Services
   services: Array<{ id: string; title: string; description: string; pricing: string; pricingUnit: string; currency: string; category: string; showPublicly: boolean }>;
+
+  // Theme
+  selectedTheme: string;
 }
 
 // Salutation options
@@ -488,7 +495,7 @@ function ProfileBuilderContent() {
   const searchParams = useSearchParams();
   const profileId = searchParams.get('id');
 
-  const [activeSection, setActiveSection] = useState<'basic' | 'professional' | 'service' | 'social' | 'media-photo' | 'media-gallery'>('basic');
+  const [activeSection, setActiveSection] = useState<'basic' | 'professional' | 'service' | 'social' | 'media-photo' | 'media-gallery' | 'theme'>('basic');
   const [skillInput, setSkillInput] = useState('');
   const [skillSuggestions, setSkillSuggestions] = useState<Array<{ skill: string; category: string }>>([]);
   const [showSkillDropdown, setShowSkillDropdown] = useState(false);
@@ -602,7 +609,8 @@ function ProfileBuilderContent() {
       currency: 'USD',
       category: '',
       showPublicly: true
-    }]
+    }],
+    selectedTheme: 'bottom-sheet',
   });
 
   // File input ref for photo uploads
@@ -1249,7 +1257,8 @@ function ProfileBuilderContent() {
                       currency: 'USD',
                       category: '',
                       showPublicly: true
-                    }]
+                    }],
+                selectedTheme: profileToEdit.display_settings?.selectedTheme || profileToEdit.preferences?.selectedTheme || 'bottom-sheet',
               };
 
               setProfileData(mappedProfile);
@@ -1522,7 +1531,8 @@ function ProfileBuilderContent() {
                   currency: 'USD',
                   category: '',
                   showPublicly: true
-                }]
+                }],
+            selectedTheme: displaySettings.selectedTheme || prefs.selectedTheme || 'bottom-sheet',
           };
 
           console.log('🗺️ Mapped data:', mappedData);
@@ -1783,7 +1793,7 @@ function ProfileBuilderContent() {
     return true;
   };
 
-  const handleContinue = (nextSection: 'professional' | 'service' | 'social' | 'media-photo') => {
+  const handleContinue = (nextSection: 'professional' | 'service' | 'social' | 'media-photo' | 'theme') => {
     if (activeSection === 'basic' && !validateBasicInfo()) {
       return;
     }
@@ -1871,6 +1881,7 @@ function ProfileBuilderContent() {
           videos: profileData.videos,
           certifications: profileData.certifications,
           services: profileData.services,
+          selectedTheme: profileData.selectedTheme,
         }),
       });
 
@@ -2080,7 +2091,8 @@ function ProfileBuilderContent() {
     { id: 'professional' as const, icon: Briefcase, label: 'Professional Information', description: 'Build your professional presence and showcase your expertise' },
     { id: 'service' as const, icon: Service, label: 'Service', description: 'Showcase your services, products, and pricing information' },
     { id: 'social' as const, icon: Share, label: 'Social & Digital Presence', description: 'Connect your social media accounts and showcase your digital footprint' },
-    { id: 'media-photo' as const, icon: Camera, label: 'Profile Photo', description: 'Upload and customize your profile photo for a professional appearance' }
+    { id: 'media-photo' as const, icon: Camera, label: 'Profile Photo', description: 'Upload and customize your profile photo for a professional appearance' },
+    { id: 'theme' as const, icon: Palette, label: 'Theme', description: 'Choose how your profile looks to visitors' }
   ];
 
   return (
@@ -2146,8 +2158,8 @@ function ProfileBuilderContent() {
           </div>
 
           {/* Sidebar Navigation - Mobile (Horizontal Scroll) */}
-          <div className="lg:hidden mb-4">
-            <div className="bg-white rounded-lg border border-gray-200 p-3">
+          <div className="lg:hidden mb-4 sticky top-[52px] z-30">
+            <div className="bg-white rounded-lg border border-gray-200 p-3 shadow-sm">
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">SECTIONS</h3>
               <nav ref={mobileNavRef} className="flex overflow-x-auto gap-2 pb-2 -mx-1 px-1" style={{ scrollbarWidth: 'thin' }}>
                 {sections.map((section) => (
@@ -3918,30 +3930,88 @@ function ProfileBuilderContent() {
 
                 </div>
 
-                {/* Submit Button - Fixed Bottom */}
+                {/* Continue to Theme */}
                 <div className="border-t border-gray-200 bg-gray-50 px-4 sm:px-6 py-3 sm:py-4 rounded-b-lg">
                   <div className="flex items-center justify-center sm:justify-end">
                     <button
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                      onClick={() => handleContinue('theme')}
+                      className="w-full sm:w-auto px-8 py-3 text-white rounded-lg font-medium flex items-center justify-center gap-2 shadow-lg hover:opacity-90"
                       style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                          Submitting...
-                        </>
-                      ) : (
-                        <>
-                          <CheckCircle className="w-4 h-4" />
-                          Submit Profile
-                        </>
-                      )}
+                      Continue to Theme
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </button>
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* ═══ THEME SECTION ═══ */}
+            {activeSection === 'theme' && (
+              <>
+                {/* Theme Selection Card */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+                  <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900">Choose Your Theme</h2>
+                    <p className="text-sm text-gray-600 mt-1">Select how your profile looks to visitors. You can change this anytime.</p>
+                  </div>
+
+                  <div className="px-4 sm:px-6 py-4 sm:py-6">
+                    <ThemeSelector
+                      selectedTheme={profileData.selectedTheme as ThemeId}
+                      onSelect={(themeId) => setProfileData({ ...profileData, selectedTheme: themeId })}
+                    />
+                  </div>
+                </div>
+
+                {/* Live Theme Preview - Desktop only */}
+                <div className="hidden sm:block bg-white rounded-lg shadow-sm border border-gray-200 mt-4">
+                  <div className="px-4 sm:px-6 py-3 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-700">Preview</h3>
+                  </div>
+                  <div className="flex justify-center py-4 bg-gray-100">
+                    <div className="relative w-[280px] h-[560px] rounded-[2rem] border-[6px] border-gray-800 bg-black overflow-hidden shadow-xl">
+                      {/* Phone notch */}
+                      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-5 bg-gray-800 rounded-b-2xl z-50" />
+                      {/* Profile content */}
+                      <div className="w-full h-full overflow-y-auto">
+                        <ThemeRenderer
+                          data={normalizeMainProfile(profileData)}
+                          themeId={profileData.selectedTheme as ThemeId}
+                          onShare={() => {}}
+                          onSaveContact={() => {}}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Submit Button */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 mt-4">
+                  <div className="px-4 sm:px-6 py-3 sm:py-4">
+                    <div className="flex items-center justify-center sm:justify-end">
+                      <button
+                        onClick={handleSubmit}
+                        disabled={isSubmitting}
+                        className="w-full sm:w-auto px-8 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
+                        style={{ backgroundColor: '#dc2626', color: '#ffffff' }}
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            Submit Profile
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
             )}
           </div>
         </div>

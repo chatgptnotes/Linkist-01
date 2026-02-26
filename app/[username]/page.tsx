@@ -4,14 +4,8 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Logo from '@/components/Logo';
 import { normalizeMainProfile } from '@/components/profile/types';
-import ProfileBackground from '@/components/profile/ProfileBackground';
-import BottomSheetCard from '@/components/profile/BottomSheetCard';
-import ActionButtons from '@/components/profile/ActionButtons';
-import ProfileHeader from '@/components/profile/ProfileHeader';
-import SocialIconsRow from '@/components/profile/SocialIconsRow';
-import AboutSection from '@/components/profile/AboutSection';
-import ContactInfoSection from '@/components/profile/ContactInfoSection';
-import SkillsSection from '@/components/profile/SkillsSection';
+import ThemeRenderer from '@/components/profile/themes/ThemeRenderer';
+import type { ThemeId } from '@/components/profile/themes';
 
 // Currency symbols mapping
 const CURRENCIES = [
@@ -95,6 +89,8 @@ interface ProfileData {
   // Founding member status
   isFoundingMember?: boolean;
   foundingMemberPlan?: string | null;
+  // Theme
+  selectedTheme?: string;
 }
 
 export default function ProfilePreviewPage() {
@@ -192,6 +188,8 @@ export default function ProfilePreviewPage() {
             // Founding member status
             isFoundingMember: dbProfile.isFoundingMember || false,
             foundingMemberPlan: dbProfile.foundingMemberPlan || null,
+            // Theme
+            selectedTheme: dbProfile.display_settings?.selectedTheme || 'bottom-sheet',
           };
 
           console.log('✅ Mapped profile data for preview');
@@ -309,27 +307,13 @@ export default function ProfilePreviewPage() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-black md:flex md:items-center md:justify-center">
       <div className="relative w-full md:w-[70%] md:min-h-screen md:rounded-3xl md:overflow-hidden">
-        {/* Full-screen profile photo background */}
-        <ProfileBackground
-          profilePhoto={normalized.profilePhoto}
-          backgroundImage={normalized.backgroundImage}
-          firstName={normalized.firstName}
-          lastName={normalized.lastName}
-        />
-
-        {/* Draggable bottom sheet */}
-        <BottomSheetCard>
-          <div className="flex items-start justify-between gap-3">
-            <ProfileHeader data={normalized} />
-            <ActionButtons
-              onShare={handleShare}
-              onSaveContact={handleSaveToContacts}
-            />
-          </div>
-          <SocialIconsRow links={normalized.socialLinks} />
-          <AboutSection summary={normalized.professionalSummary} />
-          <ContactInfoSection items={normalized.contactItems} />
-          <SkillsSection skills={normalized.skills} />
+        {/* Theme-aware profile rendering */}
+        <ThemeRenderer
+          data={normalized}
+          themeId={(profileData.selectedTheme || 'bottom-sheet') as ThemeId}
+          onShare={handleShare}
+          onSaveContact={handleSaveToContacts}
+        >
 
           {/* Certifications */}
           {normalized.certifications && normalized.certifications.length > 0 && (
@@ -417,7 +401,7 @@ export default function ProfilePreviewPage() {
               </div>
             </div>
           )}
-        </BottomSheetCard>
+        </ThemeRenderer>
       </div>
 
       {/* Toast notification */}

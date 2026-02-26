@@ -34,14 +34,8 @@ import {
   Crop as CropIcon
 } from '@mui/icons-material';
 import { normalizeMainProfile } from '@/components/profile/types';
-import ProfileBackground from '@/components/profile/ProfileBackground';
-import BottomSheetCard from '@/components/profile/BottomSheetCard';
-import ActionButtons from '@/components/profile/ActionButtons';
-import ProfileHeader from '@/components/profile/ProfileHeader';
-import SocialIconsRow from '@/components/profile/SocialIconsRow';
-import AboutSection from '@/components/profile/AboutSection';
-import ContactInfoSection from '@/components/profile/ContactInfoSection';
-import SkillsSection from '@/components/profile/SkillsSection';
+import ThemeRenderer from '@/components/profile/themes/ThemeRenderer';
+import type { ThemeId } from '@/components/profile/themes';
 
 // Currency symbols mapping
 const CURRENCIES = [
@@ -142,6 +136,8 @@ interface ProfileData {
     type: string;
     showPublicly: boolean;
   }>;
+  // Theme
+  selectedTheme?: string;
 }
 
 export default function ProfilePreviewPage() {
@@ -363,6 +359,8 @@ export default function ProfilePreviewPage() {
             services: dbProfile.services || [],
             // Certifications
             certifications: dbProfile.preferences?.certifications || [],
+            // Theme
+            selectedTheme: dbProfile.display_settings?.selectedTheme || 'bottom-sheet',
           };
 
           console.log('✅ Mapped profile data for preview');
@@ -623,30 +621,16 @@ export default function ProfilePreviewPage() {
           </div>
         </div>
 
-        {/* Full-screen profile photo background */}
-        <ProfileBackground
-          profilePhoto={profileData.showProfilePhoto ? profileData.profilePhoto : null}
-          backgroundImage={profileData.showBackgroundImage ? profileData.backgroundImage : null}
-          firstName={profileData.firstName}
-          lastName={profileData.lastName}
-        />
-
-        {/* Draggable bottom sheet */}
-        <BottomSheetCard>
-          <div className="flex items-start justify-between gap-3">
-            <ProfileHeader data={normalized} />
-            <ActionButtons
-              onShare={handleShare}
-              onSaveContact={handleSaveToContacts}
-              extraActions={[
-                { label: 'Save shortcut', icon: BookmarkAdd, onClick: handleAddToHomeScreen },
-              ]}
-            />
-          </div>
-          <SocialIconsRow links={normalized.socialLinks} />
-          <AboutSection summary={normalized.professionalSummary} />
-          <ContactInfoSection items={normalized.contactItems} />
-          <SkillsSection skills={normalized.skills} />
+        {/* Theme-aware profile rendering */}
+        <ThemeRenderer
+          data={normalized}
+          themeId={(profileData.selectedTheme || 'bottom-sheet') as ThemeId}
+          onShare={handleShare}
+          onSaveContact={handleSaveToContacts}
+          extraActions={[
+            { label: 'Save shortcut', icon: BookmarkAdd, onClick: handleAddToHomeScreen },
+          ]}
+        >
 
           {/* Profile URL section */}
           {customUrl && (
@@ -793,7 +777,7 @@ export default function ProfilePreviewPage() {
               Go to Dashboard
             </button>
           </div>
-        </BottomSheetCard>
+        </ThemeRenderer>
 
       </div>
       {/* QR Code Modal */}

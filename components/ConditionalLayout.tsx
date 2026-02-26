@@ -145,6 +145,11 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       return <>{children}</>;
     }
 
+    // Special case: preview page renders full-bleed with its own floating header
+    if (pathname.startsWith('/profiles/preview')) {
+      return <>{children}</>;
+    }
+
     // Only show logout on these pages (after user has completed onboarding)
     const showLogout = pathname.startsWith('/product-selection') ||
                        pathname.startsWith('/nfc/') ||
