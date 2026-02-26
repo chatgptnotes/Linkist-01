@@ -14,6 +14,7 @@ import { calculateFoundersPricing, FoundersPricingBreakdown } from '@/lib/pricin
 import { detectCountryFromIP } from '@/lib/country-utils';
 
 import CompanyLogoUpload from '@/components/CompanyLogoUpload';
+import { CardPatternOverlay, PatternThumbnail } from '@/components/CardPatternOverlay';
 
 // Icon aliases
 const Person = PersonIcon;
@@ -377,17 +378,25 @@ export default function ConfigureNewPage() {
         { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
       ];
 
-  // Admin-configured patterns - from API or fallback
+  // Admin-configured patterns - from API or fallback, always prepend "None"
   const patterns = customizationOptions?.patterns
-    ? customizationOptions.patterns.map((p, index) => ({
-        id: index + 1,
-        name: p.label
-      }))
+    ? [
+        { id: 0, name: 'None', key: 'none' },
+        ...customizationOptions.patterns.map((p, index) => ({
+          id: index + 1,
+          name: p.label,
+          key: p.option_key
+        }))
+      ]
     : [
-        { id: 1, name: 'Geometric' },
-        { id: 2, name: 'Minimalist' },
-        { id: 3, name: 'Abstract' }
+        { id: 0, name: 'None', key: 'none' },
+        { id: 1, name: 'Geometric', key: 'geometric' },
+        { id: 2, name: 'Waves', key: 'waves' },
+        { id: 3, name: 'Crystal', key: 'crystal' }
       ];
+
+  // Look up the selected pattern's key for the card overlay
+  const selectedPatternKey = patterns.find(p => p.id === formData.pattern)?.key || null;
 
   // Check if an option is available based on current base selection
   const isTextureAvailable = (texture: string): boolean => {
@@ -766,8 +775,13 @@ export default function ConfigureNewPage() {
                             : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                         }`}
                       >
-                        <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg mb-2 flex items-center justify-center">
-                          <span className={`text-xs font-medium ${isSelected ? 'text-red-600' : 'text-gray-600'}`}>{pattern.name}</span>
+                        <div className="mb-2">
+                          <PatternThumbnail
+                            patternKey={pattern.key}
+                            isSelected={isSelected}
+                            baseColor={allColours.find(c => c.value === formData.colour)?.hex || '#374151'}
+                            colour={formData.colour || undefined}
+                          />
                         </div>
                         <span className={`text-xs font-medium ${isSelected ? 'text-red-600' : 'text-gray-700'}`}>{pattern.name}</span>
                       </button>
@@ -907,6 +921,9 @@ export default function ConfigureNewPage() {
                   {/* Front Card */}
                   <div>
                     <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      {/* Pattern overlay */}
+                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+
                       {/* AI Icon top right - Plain, no border/shadow */}
                       <div className="absolute top-4 right-4">
                         <img
@@ -947,6 +964,9 @@ export default function ConfigureNewPage() {
                   {/* Back Card */}
                   <div>
                     <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      {/* Pattern overlay */}
+                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+
                       {/* Logo Section - Conditionally render based on selected plan */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         {isFoundersCirclePlan ? (

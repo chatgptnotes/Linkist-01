@@ -156,36 +156,59 @@ const JOB_TITLES = [
   { category: 'General / Corporate', titles: [
     'Chief Executive Officer (CEO)', 'Chief Operating Officer (COO)', 'Chief Financial Officer (CFO)',
     'Chief Technology Officer (CTO)', 'Chief Marketing Officer (CMO)', 'Chief Product Officer (CPO)',
-    'Vice President', 'Director', 'Manager', 'Team Lead', 'Coordinator', 'Analyst', 'Associate', 'Intern'
+    'Chief Data Officer (CDO)', 'Chief Revenue Officer (CRO)', 'Chief Information Security Officer (CISO)',
+    'Vice President', 'Director', 'Manager', 'Team Lead', 'Coordinator', 'Analyst', 'Associate', 'Intern',
+    'Managing Director', 'General Manager', 'Executive Assistant', 'Board Member', 'Founder / Co-Founder'
   ]},
   { category: 'Technical / IT', titles: [
     'Software Engineer', 'Data Scientist', 'Data Engineer', 'Cloud Architect', 'DevOps Engineer',
     'Cybersecurity Analyst', 'Machine Learning Engineer', 'Full Stack Developer', 'QA Engineer',
-    'Systems Administrator', 'Product Manager (Tech)', 'Technical Program Manager'
+    'Systems Administrator', 'Product Manager (Tech)', 'Technical Program Manager',
+    'AI Engineer', 'Site Reliability Engineer (SRE)', 'Solutions Architect', 'Blockchain Developer',
+    'Frontend Developer', 'Backend Developer', 'Mobile Developer', 'Engineering Manager',
+    'Platform Engineer', 'Database Administrator'
   ]},
   { category: 'Creative / Marketing', titles: [
     'Marketing Manager', 'Content Strategist', 'SEO Specialist', 'Social Media Manager',
-    'Graphic Designer', 'UI/UX Designer', 'Brand Manager', 'Copywriter', 'Art Director'
+    'Graphic Designer', 'UI/UX Designer', 'Brand Manager', 'Copywriter', 'Art Director',
+    'Performance Marketing Manager', 'Video Producer', 'Creative Director',
+    'Content Creator', 'Growth Marketing Manager', 'Email Marketing Specialist',
+    'Influencer Marketing Manager', 'Marketing Analyst'
   ]},
   { category: 'Sales / Customer', titles: [
     'Sales Executive', 'Account Manager', 'Business Development Manager', 'Customer Success Manager',
-    'Inside Sales Representative', 'Territory Sales Manager'
+    'Inside Sales Representative', 'Territory Sales Manager',
+    'Revenue Operations Manager', 'Partnership Manager', 'Key Account Director',
+    'Sales Operations Analyst', 'Channel Sales Manager', 'Pre-Sales Consultant',
+    'Customer Experience Manager', 'Relationship Manager'
   ]},
   { category: 'Finance / Legal / HR', titles: [
     'Financial Analyst', 'Accountant', 'Investment Analyst', 'HR Manager',
-    'Talent Acquisition Specialist', 'Legal Counsel', 'Compliance Officer', 'Payroll Specialist'
+    'Talent Acquisition Specialist', 'Legal Counsel', 'Compliance Officer', 'Payroll Specialist',
+    'Risk Manager', 'Diversity & Inclusion Manager', 'Chief People Officer',
+    'Tax Consultant', 'Audit Manager', 'Corporate Lawyer', 'Employee Relations Specialist',
+    'Compensation & Benefits Manager', 'Treasury Analyst'
   ]},
   { category: 'Operations / Logistics', titles: [
     'Operations Manager', 'Supply Chain Analyst', 'Procurement Specialist',
-    'Logistics Coordinator', 'Quality Assurance Manager'
+    'Logistics Coordinator', 'Quality Assurance Manager',
+    'Facilities Manager', 'Warehouse Manager', 'Business Process Analyst',
+    'Inventory Manager', 'Fleet Manager', 'Vendor Manager',
+    'Demand Planning Analyst', 'Import/Export Manager'
   ]},
   { category: 'Healthcare / Science', titles: [
     'Physician', 'Nurse', 'Pharmacist', 'Medical Researcher',
-    'Laboratory Technician', 'Clinical Data Manager'
+    'Laboratory Technician', 'Clinical Data Manager',
+    'Surgeon', 'Dentist', 'Physical Therapist', 'Epidemiologist',
+    'Biomedical Engineer', 'Radiologist', 'Veterinarian',
+    'Clinical Psychologist', 'Occupational Therapist', 'Nutritionist'
   ]},
   { category: 'Education / Nonprofit', titles: [
     'Teacher', 'Professor', 'Instructional Designer', 'Research Associate',
-    'Program Coordinator', 'Fundraising Manager'
+    'Program Coordinator', 'Fundraising Manager',
+    'Academic Advisor', 'Curriculum Developer', 'Dean',
+    'School Administrator', 'Education Consultant', 'Librarian',
+    'Training Manager', 'Grant Writer'
   ]}
 ];
 
@@ -205,7 +228,17 @@ const INDUSTRIES = [
   'Agriculture',
   'Government & Public Sector',
   'Nonprofit & NGOs',
-  'Hospitality & Travel'
+  'Hospitality & Travel',
+  'Automotive',
+  'Aerospace & Defense',
+  'Legal Services',
+  'Pharmaceuticals & Biotech',
+  'Insurance',
+  'Sports & Fitness',
+  'Fashion & Luxury',
+  'Food & Beverage',
+  'Mining & Metals',
+  'Consulting & Professional Services'
 ];
 
 // Currency options
@@ -236,52 +269,107 @@ const CURRENCIES = [
 const SUB_DOMAINS = [
   { industry: 'Information Technology', subDomains: [
     'Software Development', 'Artificial Intelligence / Machine Learning', 'Cloud Computing',
-    'Cybersecurity', 'IT Services', 'Data Analytics', 'SaaS / Product Development'
+    'Cybersecurity', 'IT Services', 'Data Analytics', 'SaaS / Product Development',
+    'Blockchain & Web3', 'Robotics & Automation', 'AR / VR Technology'
   ]},
   { industry: 'Finance & Banking', subDomains: [
     'Investment Banking', 'Retail Banking', 'FinTech', 'Insurance',
-    'Accounting & Audit', 'Asset Management'
+    'Accounting & Audit', 'Asset Management',
+    'Cryptocurrency & Digital Assets', 'Wealth Management', 'Private Equity'
   ]},
   { industry: 'Healthcare & Life Sciences', subDomains: [
     'Hospitals & Clinics', 'Pharmaceuticals', 'Biotechnology', 'Medical Devices',
-    'HealthTech', 'Clinical Research'
+    'HealthTech', 'Clinical Research',
+    'Telemedicine', 'Mental Health', 'Diagnostics & Imaging'
   ]},
   { industry: 'Education', subDomains: [
-    'K-12', 'Higher Education', 'EdTech', 'Vocational Training', 'Corporate Learning'
+    'K-12', 'Higher Education', 'EdTech', 'Vocational Training', 'Corporate Learning',
+    'Online Learning Platforms', 'Special Education', 'Test Preparation'
   ]},
   { industry: 'Manufacturing', subDomains: [
-    'Automotive', 'Electronics', 'Consumer Goods', 'Industrial Equipment', 'Aerospace'
+    'Automotive', 'Electronics', 'Consumer Goods', 'Industrial Equipment', 'Aerospace',
+    '3D Printing / Additive Manufacturing', 'Smart Manufacturing', 'Packaging'
   ]},
   { industry: 'Retail & E-commerce', subDomains: [
     'Online Marketplaces', 'Fashion & Apparel', 'Food & Beverage',
-    'Consumer Electronics', 'Supply Chain'
+    'Consumer Electronics', 'Supply Chain',
+    'Luxury Retail', 'D2C Brands', 'Grocery & Essentials'
   ]},
   { industry: 'Transportation & Logistics', subDomains: [
-    'Shipping & Freight', 'Warehousing', 'Supply Chain Management', 'Mobility / Ride Sharing'
+    'Shipping & Freight', 'Warehousing', 'Supply Chain Management', 'Mobility / Ride Sharing',
+    'Electric Mobility', 'Last-Mile Delivery', 'Aviation Logistics'
   ]},
   { industry: 'Energy & Utilities', subDomains: [
-    'Oil & Gas', 'Renewable Energy', 'Power Generation', 'Waste Management', 'Water Utilities'
+    'Oil & Gas', 'Renewable Energy', 'Power Generation', 'Waste Management', 'Water Utilities',
+    'Solar Energy', 'Energy Storage & Batteries', 'Carbon Management'
   ]},
   { industry: 'Real Estate & Construction', subDomains: [
-    'Residential', 'Commercial', 'Architecture & Design', 'Property Management'
+    'Residential', 'Commercial', 'Architecture & Design', 'Property Management',
+    'PropTech', 'Green Buildings', 'Infrastructure Development'
   ]},
   { industry: 'Telecommunications', subDomains: [
-    'Mobile Networks', 'Internet Service Providers', 'Cloud Communication', '5G / Fiber Infrastructure'
+    'Mobile Networks', 'Internet Service Providers', 'Cloud Communication', '5G / Fiber Infrastructure',
+    'Unified Communications', 'Satellite Internet', 'Network Security'
   ]},
   { industry: 'Media & Entertainment', subDomains: [
-    'Film & Television', 'Gaming', 'Publishing', 'Advertising', 'Music Industry'
+    'Film & Television', 'Gaming', 'Publishing', 'Advertising', 'Music Industry',
+    'Streaming Platforms', 'Podcasting', 'Digital Content Creation'
   ]},
   { industry: 'Agriculture', subDomains: [
-    'Agritech', 'Food Processing', 'Livestock Management', 'Organic Farming'
+    'Agritech', 'Food Processing', 'Livestock Management', 'Organic Farming',
+    'Precision Farming', 'Aquaculture', 'Agricultural Exports'
   ]},
   { industry: 'Government & Public Sector', subDomains: [
-    'Defense', 'Infrastructure', 'Public Policy', 'Civil Services'
+    'Defense', 'Infrastructure', 'Public Policy', 'Civil Services',
+    'E-Governance', 'Smart Cities', 'Urban Planning'
   ]},
   { industry: 'Nonprofit & NGOs', subDomains: [
-    'Social Services', 'Environmental', 'Education & Literacy', 'Healthcare', 'Advocacy & Human Rights'
+    'Social Services', 'Environmental', 'Education & Literacy', 'Healthcare', 'Advocacy & Human Rights',
+    'Microfinance', 'Disaster Relief', 'Community Development'
   ]},
   { industry: 'Hospitality & Travel', subDomains: [
-    'Hotels & Resorts', 'Tourism', 'Airlines', 'Food Services'
+    'Hotels & Resorts', 'Tourism', 'Airlines', 'Food Services',
+    'Cruise Industry', 'Vacation Rentals', 'Adventure Tourism'
+  ]},
+  { industry: 'Automotive', subDomains: [
+    'Electric Vehicles', 'Autonomous Driving', 'Auto Parts Manufacturing',
+    'Fleet Management', 'Connected Cars', 'Two-Wheeler / Three-Wheeler'
+  ]},
+  { industry: 'Aerospace & Defense', subDomains: [
+    'Space Technology', 'Military Systems', 'Avionics',
+    'Satellite Communication', 'Unmanned Systems / Drones', 'Defense Electronics'
+  ]},
+  { industry: 'Legal Services', subDomains: [
+    'Corporate Law', 'Intellectual Property', 'Litigation',
+    'Compliance & Regulatory', 'Contract Management', 'Legal Tech'
+  ]},
+  { industry: 'Pharmaceuticals & Biotech', subDomains: [
+    'Drug Discovery', 'Generic Medicines', 'Biologics',
+    'Regulatory Affairs', 'Pharmacovigilance', 'Clinical Trials'
+  ]},
+  { industry: 'Insurance', subDomains: [
+    'Life Insurance', 'Health Insurance', 'Property & Casualty',
+    'Reinsurance', 'InsurTech', 'Claims Management'
+  ]},
+  { industry: 'Sports & Fitness', subDomains: [
+    'Sports Management', 'Fitness Technology', 'Esports',
+    'Sports Analytics', 'Wellness & Nutrition', 'Sports Media'
+  ]},
+  { industry: 'Fashion & Luxury', subDomains: [
+    'Luxury Brands', 'Fast Fashion', 'Sustainable Fashion',
+    'Accessories & Jewelry', 'Textile Manufacturing', 'Fashion Tech'
+  ]},
+  { industry: 'Food & Beverage', subDomains: [
+    'Restaurants & QSR', 'Packaged Foods', 'Beverages',
+    'Food Delivery', 'Nutrition & Health Foods', 'Dairy & Bakery'
+  ]},
+  { industry: 'Mining & Metals', subDomains: [
+    'Precious Metals', 'Coal Mining', 'Rare Earth Minerals',
+    'Mineral Processing', 'Mining Technology', 'Steel & Iron'
+  ]},
+  { industry: 'Consulting & Professional Services', subDomains: [
+    'Management Consulting', 'Strategy Consulting', 'IT Consulting',
+    'Tax Advisory', 'Audit & Assurance', 'Human Capital Consulting'
   ]}
 ];
 
@@ -320,6 +408,16 @@ const SERVICE_CATEGORIES = [
   'HR & Recruitment',
   'Supply Chain & Logistics',
   'Music & Audio Production',
+  'AI & Automation Services',
+  'Mobile App Development',
+  'Public Relations & Communications',
+  'Virtual Assistance',
+  'Environmental & Sustainability Consulting',
+  'Insurance Advisory',
+  'Startup Advisory & Incubation',
+  'Video & Animation Production',
+  'Business Process Outsourcing (BPO)',
+  '3D Design & Printing',
   'Other',
 ];
 
