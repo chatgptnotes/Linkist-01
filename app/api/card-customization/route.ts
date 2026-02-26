@@ -66,8 +66,8 @@ function getFallbackOptions() {
 
   const patterns = [
     { id: 'fallback-geometric', category: 'pattern', option_key: 'geometric', label: 'Geometric', is_enabled: true, display_order: 1 },
-    { id: 'fallback-minimalist', category: 'pattern', option_key: 'minimalist', label: 'Minimalist', is_enabled: true, display_order: 2 },
-    { id: 'fallback-abstract', category: 'pattern', option_key: 'abstract', label: 'Abstract', is_enabled: true, display_order: 3 }
+    { id: 'fallback-waves', category: 'pattern', option_key: 'waves', label: 'Waves', is_enabled: true, display_order: 2 },
+    { id: 'fallback-crystal', category: 'pattern', option_key: 'crystal', label: 'Crystal', is_enabled: true, display_order: 3 }
   ];
 
   const materialPrices: Record<string, number> = { pvc: 69, wood: 79, metal: 99 };
