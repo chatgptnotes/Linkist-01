@@ -12,7 +12,7 @@ export default function FeaturesSection() {
           <div className="hidden lg:flex justify-center lg:order-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/Micro-site-Scene-1.png"
+              src="/new-image.png"
               alt="Features Illustration"
               className="w-full h-auto object-contain max-w-sm"
             />
@@ -55,7 +55,7 @@ export default function FeaturesSection() {
             <div className="flex lg:hidden justify-center my-10">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/Micro-site-Scene-1.png"
+                src="/new-image.png"
                 alt="Features Illustration"
                 className="w-full h-auto object-contain max-w-[260px]"
               />
