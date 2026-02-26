@@ -30,11 +30,11 @@ const PRICING_CARDS: PricingCard[] = [
     monthlyPrice: 9.9,
     yearlyPrice: 99,
     features: [
-      'Linkist Digital Profile',
-      'Claim a personalised Linkist ID (yours for life)',
-      'Share your profile instantly via link or QR',
-      '1-year Linkist Pro App subscription (worth $59)',
-      'AI credits worth $50 (1-year validity)'
+      'Digital Smart Card',
+      'Digital Profile',
+      'Personalised Linkist ID',
+      'Instant Share (QR, URL)',
+      'Linkist Pro App subscription and AI credits'
     ]
   },
   {
