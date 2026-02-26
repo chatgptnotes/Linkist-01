@@ -189,7 +189,8 @@ export async function POST(request: NextRequest) {
         showGithub: data.showGithub ?? false,
         showYoutube: data.showYoutube ?? false,
         showProfilePhoto: data.showProfilePhoto ?? true,
-        showBackgroundImage: data.showBackgroundImage ?? true
+        showBackgroundImage: data.showBackgroundImage ?? true,
+        ...(data.selectedTheme ? { selectedTheme: data.selectedTheme } : {})
       },
       preferences: {
         // Basic Information

@@ -88,6 +88,9 @@ export interface NormalizedProfileData {
   // Badges
   isFoundingMember?: boolean;
   foundingMemberPlan?: string | null;
+
+  // Theme
+  selectedTheme?: string;
 }
 
 // ─── Adapter for pages 1 & 2 (app/[username] and app/profiles/preview) ───
@@ -143,6 +146,7 @@ interface MainProfileData {
   certifications?: Array<{ id: string; name: string; title: string; url: string; size: number; type: string; showPublicly: boolean }>;
   isFoundingMember?: boolean;
   foundingMemberPlan?: string | null;
+  selectedTheme?: string;
 }
 
 export function normalizeMainProfile(data: MainProfileData, username?: string): NormalizedProfileData {
@@ -199,6 +203,7 @@ export function normalizeMainProfile(data: MainProfileData, username?: string): 
     certifications: data.certifications?.filter(c => c.showPublicly).map(({ showPublicly, ...rest }) => rest),
     isFoundingMember: data.isFoundingMember,
     foundingMemberPlan: data.foundingMemberPlan,
+    selectedTheme: data.selectedTheme || 'bottom-sheet',
   };
 }
 
