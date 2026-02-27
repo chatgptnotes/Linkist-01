@@ -565,24 +565,6 @@ export default function SuccessPage() {
           </button>
         </div>
 
-        {/* Support Information */}
-        <div className="text-center mt-12 p-6 bg-gray-100 rounded-lg">
-          <h3 className="font-semibold mb-2">Need Help?</h3>
-          <p className="text-gray-600 mb-4">
-            Questions about your order? We&apos;re here to help.
-          </p>
-          <div className="flex justify-center space-x-6 text-sm">
-            <Link href="/help" className="text-blue-600 hover:underline">
-              Help Center
-            </Link>
-            <Link href="/contact" className="text-blue-600 hover:underline">
-              Contact Support
-            </Link>
-            <Link href="mailto:support@linkist.ai" className="text-blue-600 hover:underline">
-              support@linkist.ai
-            </Link>
-          </div>
-        </div>
       </div>
 
       <Footer />

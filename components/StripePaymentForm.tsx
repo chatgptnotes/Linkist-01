@@ -2,20 +2,38 @@
 
 import { useState, FormEvent } from 'react';
 import {
-  PaymentElement,
+  CardNumberElement,
+  CardExpiryElement,
+  CardCvcElement,
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
 
 interface StripePaymentFormProps {
   amount: number;
+  clientSecret: string;
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
   returnUrl?: string;
 }
 
+const elementStyle = {
+  base: {
+    fontSize: '16px',
+    color: '#30313d',
+    fontFamily: 'system-ui, -apple-system, sans-serif',
+    '::placeholder': {
+      color: '#aab7c4',
+    },
+  },
+  invalid: {
+    color: '#df1b41',
+  },
+};
+
 export default function StripePaymentForm({
   amount,
+  clientSecret,
   onSuccess,
   onError,
   returnUrl
@@ -24,19 +42,24 @@ export default function StripePaymentForm({
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isElementReady, setIsElementReady] = useState(false);
+  const [readyCount, setReadyCount] = useState(0);
+
+  const isElementReady = readyCount >= 3;
+
+  const handleReady = () => {
+    setReadyCount((prev) => prev + 1);
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
     if (!stripe || !elements) {
-      // Stripe.js hasn't loaded yet
       setErrorMessage('Payment system is still loading. Please try again.');
       return;
     }
 
-    if (!isElementReady) {
-      // PaymentElement hasn't finished mounting
+    const cardNumberElement = elements.getElement(CardNumberElement);
+    if (!cardNumberElement) {
       setErrorMessage('Payment form is not ready yet. Please wait a moment.');
       return;
     }
@@ -45,29 +68,23 @@ export default function StripePaymentForm({
     setErrorMessage(null);
 
     try {
-      // Confirm the payment with Stripe
-      const { error, paymentIntent } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: returnUrl || window.location.origin + '/order-success',
+      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+        payment_method: {
+          card: cardNumberElement,
         },
-        redirect: 'if_required', // Only redirect if 3D Secure is needed
+        return_url: returnUrl || window.location.origin + '/order-success',
       });
 
       if (error) {
-        // Payment failed
         const message = error.message || 'An unexpected error occurred.';
         setErrorMessage(message);
         onError(message);
         setIsProcessing(false);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Payment succeeded
         onSuccess(paymentIntent.id);
       } else if (paymentIntent && paymentIntent.status === 'requires_action') {
-        // 3D Secure authentication required - Stripe will handle redirect
         setErrorMessage('Additional authentication required. Please complete the verification.');
       } else {
-        // Unexpected status
         setErrorMessage('Payment status unclear. Please check your order status.');
         setIsProcessing(false);
       }
@@ -81,26 +98,49 @@ export default function StripePaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Stripe Payment Element */}
-      <div className="p-4 border rounded-lg">
-        <PaymentElement
-          options={{
-            layout: 'tabs',
-            defaultValues: {
-              billingDetails: {
-                email: '',
-              },
-            },
-          }}
-          onReady={() => {
-            console.log('✅ PaymentElement is ready');
-            setIsElementReady(true);
-          }}
-          onLoadError={(error) => {
-            console.error('❌ PaymentElement failed to load:', error);
-            setErrorMessage('Payment form failed to load. Please refresh the page.');
-          }}
-        />
+      {/* Card Number */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">Card number</label>
+        <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
+          <CardNumberElement
+            options={{ style: elementStyle, showIcon: true }}
+            onReady={handleReady}
+            onChange={(event) => {
+              if (event.error) setErrorMessage(event.error.message);
+              else setErrorMessage(null);
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Expiry & CVC row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Expiry date</label>
+          <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
+            <CardExpiryElement
+              options={{ style: elementStyle }}
+              onReady={handleReady}
+              onChange={(event) => {
+                if (event.error) setErrorMessage(event.error.message);
+                else setErrorMessage(null);
+              }}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Security code</label>
+          <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
+            <CardCvcElement
+              options={{ style: elementStyle }}
+              onReady={handleReady}
+              onChange={(event) => {
+                if (event.error) setErrorMessage(event.error.message);
+                else setErrorMessage(null);
+              }}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Error Message */}

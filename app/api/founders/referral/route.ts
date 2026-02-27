@@ -345,7 +345,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
         </p>
 
         <div style="background-color: #fef3c7; border: 2px dashed #f59e0b; border-radius: 12px; padding: 25px; text-align: center; margin: 0 0 30px;">
-          <p style="color: #78350f; font-size: 32px; font-weight: bold; margin: 0; font-family: monospace; letter-spacing: 3px;">${code}</p>
+          <p style="color: #78350f; font-size: 32px; font-weight: bold; margin: 0; font-family: monospace; letter-spacing: 3px;">${code.replace(/^FC-/, '')}</p>
         </div>
 
         <div style="text-align: center; margin: 0 0 30px;">
@@ -356,7 +356,7 @@ function getReferralEmailTemplate(referrerName: string, referredFirstName: strin
         <ol style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 10px;">Click the button above or go to linkist.ai/product-selection</li>
           <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Circle card</li>
-          <li style="margin-bottom: 10px;">Enter this email address and your invite code</li>
+          <li style="margin-bottom: 10px;">Enter this email address and paste the code above</li>
           <li>Enjoy exclusive Founders Circle benefits!</li>
         </ol>
 

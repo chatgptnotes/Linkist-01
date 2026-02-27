@@ -179,7 +179,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
         </p>
 
         <div style="background-color: #fef3c7; border: 2px dashed #f59e0b; border-radius: 12px; padding: 25px; text-align: center; margin: 0 0 30px;">
-          <p style="color: #78350f; font-size: 32px; font-weight: bold; margin: 0; font-family: monospace; letter-spacing: 3px;">${code}</p>
+          <p style="color: #78350f; font-size: 32px; font-weight: bold; margin: 0; font-family: monospace; letter-spacing: 3px;">${code.replace(/^FC-/, '')}</p>
         </div>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 25px;">
@@ -194,7 +194,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
         <ol style="color: #666666; font-size: 14px; line-height: 24px; margin: 0 0 30px; padding-left: 20px;">
           <li style="margin-bottom: 10px;">Go to the Linkist plan selection page</li>
           <li style="margin-bottom: 10px;">Click "Enter Code" on the Founders Circle card</li>
-          <li style="margin-bottom: 10px;">Enter your email and invite code to unlock access</li>
+          <li style="margin-bottom: 10px;">Enter your email and paste the code above</li>
           <li>Enjoy exclusive Founders Circle benefits</li>
         </ol>
 

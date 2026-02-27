@@ -42,9 +42,7 @@ export async function POST(request: NextRequest) {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: formatAmountForStripe(amount),
       currency: PRODUCT_CONFIG.NFC_CARD.currency,
-      automatic_payment_methods: {
-        enabled: true,
-      },
+      payment_method_types: ['card'],
       metadata: {
         product: 'nfc-card',
         quantity: quantity.toString(),

@@ -654,7 +654,7 @@ export default function ConfigureNewPage() {
                       onClick={() => handleBaseMaterialChange(material.value)}
                       className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all ${
                         formData.baseMaterial === material.value
-                          ? 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
+                          ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
                           : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                       }`}
                     >
@@ -694,7 +694,7 @@ export default function ConfigureNewPage() {
                             !isAvailable
                               ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-100'
                               : isSelected
-                                ? 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
+                                ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
                                 : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                           }`}
                         >
@@ -727,7 +727,7 @@ export default function ConfigureNewPage() {
                           <div
                             className={`w-14 h-14 rounded-xl border-4 transition-all ${
                               isSelected
-                                ? 'border-red-500 scale-110 shadow-lg ring-4 ring-red-200'
+                                ? 'border-red-600 scale-110 shadow-lg ring-4 ring-red-400'
                                 : 'border-gray-300 hover:scale-105'
                             }`}
                             style={{ backgroundColor: colour.hex }}
@@ -771,7 +771,7 @@ export default function ConfigureNewPage() {
                         onClick={() => handlePatternChange(pattern.id)}
                         className={`relative p-3 border-2 rounded-xl transition-all ${
                           isSelected
-                            ? 'border-red-500 bg-red-50 shadow-md ring-2 ring-red-200'
+                            ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
                             : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
                         }`}
                       >

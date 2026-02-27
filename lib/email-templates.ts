@@ -161,13 +161,101 @@ export const orderConfirmationEmail = (data: OrderData) => {
   const quantity = data.cardConfig.quantity || 1;
   const isFounder = data.isFoundingMember || data.pricing?.isFoundersPricing;
   const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
+  const planType = data.cardConfig?.planType || '';
+  const isStarter = planType === 'starter';
 
   // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
   const fullCardName = data.cardConfig.fullName ||
     `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
 
+  // Starter plan gets a completely different email — no pricing, no card, no shipping
+  if (isStarter) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to Linkist Starter - Linkist</title>
+  ${baseEmailStyles}
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="content">
+      <p>Hi <strong>${data.customerName}</strong>,</p>
+
+      <p>Welcome to Linkist! Your <strong>Starter</strong> digital profile is now active and ready to use.</p>
+
+      <div class="status-badge">✓ Profile Activated</div>
+
+      <div class="card-preview">
+        <div class="card-name">${fullCardName}</div>
+        <div class="card-brand">LINKIST</div>
+        <p style="color: #94a3b8; font-size: 12px; margin-top: 16px;">DIGITAL PROFILE</p>
+      </div>
+
+      <div class="order-details">
+        <h3 style="margin-top: 0; color: #1e293b;">Account Details</h3>
+        <div class="detail-row">
+          <span>Order Number:</span>
+          <strong>${data.orderNumber}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">Starter (Free)</span>
+        </div>
+        <div class="detail-row">
+          <span>Profile Name:</span>
+          <span>${fullCardName}</span>
+        </div>
+        <div class="detail-row">
+          <span>Email:</span>
+          <span>${data.email}</span>
+        </div>
+      </div>
+
+      <p><strong>Get Started:</strong></p>
+      <ul style="color: #64748b;">
+        <li><strong>Complete your profile</strong> — Add your bio, contact info, and social links</li>
+        <li><strong>Share your profile</strong> — Send your unique Linkist URL to anyone</li>
+        <li><strong>Upgrade anytime</strong> — Get an NFC card and premium features with our paid plans</li>
+      </ul>
+
+      <div style="text-align: center; margin: 30px 0;">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/dashboard" class="tracking-button" style="background: #000000;">Go to Dashboard</a>
+      </div>
+
+      <p>Questions? Reply to this email or contact our support team.</p>
+    </div>
+
+    <div class="footer">
+      <p>Welcome to Linkist!</p>
+      <div class="footer-links">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/support">Support</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/shop">Upgrade Plan</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/dashboard">Dashboard</a>
+      </div>
+      <p style="margin-top: 20px; color: #94a3b8; font-size: 12px;">
+        © ${new Date().getFullYear()} Linkist. All rights reserved.<br>
+        You're receiving this email because you signed up for Linkist.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+  }
+
   // Build pricing rows based on plan type
-  const planType = data.cardConfig?.planType || '';
   const planLabels: Record<string, string> = {
     'pro': 'Pro',
     'signature': 'Signature',
@@ -629,13 +717,87 @@ export const receiptEmail = (data: OrderData) => {
   const quantity = data.cardConfig.quantity || 1;
   const isFounder = data.isFoundingMember || data.pricing?.isFoundersPricing;
   const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
+  const planType = data.cardConfig?.planType || '';
+  const isStarter = planType === 'starter';
 
   // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
   const fullCardName = data.cardConfig.fullName ||
     `${data.cardConfig.cardFirstName || data.cardConfig.firstName || ''} ${data.cardConfig.cardLastName || data.cardConfig.lastName || ''}`.trim();
 
+  // Starter plan gets a simple welcome receipt — no pricing, no card, no shipping
+  if (isStarter) {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome Receipt - Linkist</title>
+  ${baseEmailStyles}
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+        <tr>
+          <td style="text-align: center;">
+            <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="content">
+      <p>Hi <strong>${data.customerName}</strong>,</p>
+
+      <p>This is your confirmation for the Linkist Starter plan. Your digital profile has been activated successfully.</p>
+
+      <div class="order-details">
+        <h3 style="margin-top: 0; color: #1e293b;">Account Summary</h3>
+        <div class="detail-row">
+          <span>Reference Number:</span>
+          <strong>${data.orderNumber}</strong>
+        </div>
+        <div class="detail-row">
+          <span>Plan:</span>
+          <span style="color: #374151; font-weight: 600;">Starter (Free)</span>
+        </div>
+        <div class="detail-row">
+          <span>Profile Name:</span>
+          <span>${fullCardName}</span>
+        </div>
+        <div class="detail-row">
+          <span>Email:</span>
+          <span>${data.email}</span>
+        </div>
+        <div class="detail-row">
+          <span>Status:</span>
+          <span class="included-label">Active</span>
+        </div>
+      </div>
+
+      <p style="color: #64748b; font-size: 14px;">
+        Your Starter plan includes a digital profile you can share via link. Upgrade to a paid plan anytime to unlock NFC cards, premium themes, and advanced analytics.
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>Welcome to Linkist!</p>
+      <div class="footer-links">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/support">Support</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/shop">Upgrade Plan</a>
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/dashboard">Dashboard</a>
+      </div>
+      <p style="margin-top: 20px; color: #94a3b8; font-size: 12px;">
+        © ${new Date().getFullYear()} Linkist. All rights reserved.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+`;
+  }
+
   // Build pricing rows based on plan type (same as orderConfirmationEmail)
-  const planType = data.cardConfig?.planType || '';
   const planLabels: Record<string, string> = {
     'pro': 'Pro',
     'signature': 'Signature',
