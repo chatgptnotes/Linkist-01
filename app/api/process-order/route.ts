@@ -356,9 +356,9 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Send emails if order is confirmed (has payment) OR is a paid digital-only order (status 'delivered')
+    // Send emails if order is confirmed (has payment) OR is a digital-only order (status 'delivered')
     let finalOrder = order;
-    const shouldSendEmails = orderStatus === 'confirmed' || (orderStatus === 'delivered' && paymentData);
+    const shouldSendEmails = orderStatus === 'confirmed' || orderStatus === 'delivered';
     if (shouldSendEmails) {
       const emailData = formatOrderForEmail(order);
       const emailResults = await emailService.sendOrderLifecycleEmails(emailData);

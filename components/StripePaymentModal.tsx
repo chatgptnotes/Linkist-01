@@ -74,7 +74,6 @@ export default function StripePaymentModal({
   };
 
   const options = {
-    clientSecret,
     appearance,
   };
 
@@ -174,6 +173,7 @@ export default function StripePaymentModal({
           <Elements stripe={stripePromise} options={options}>
             <StripePaymentForm
               amount={amount}
+              clientSecret={clientSecret}
               onSuccess={onPaymentSuccess}
               onError={onPaymentError}
               returnUrl={`${window.location.origin}/nfc/success`}

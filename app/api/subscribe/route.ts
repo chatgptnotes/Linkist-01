@@ -6,9 +6,9 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, email } = await request.json();
 
     // Validate inputs
-    if (!firstName || !lastName || !email) {
+    if (!firstName || !email) {
       return NextResponse.json(
-        { success: false, error: 'All fields are required' },
+        { success: false, error: 'Name and email are required' },
         { status: 400 }
       );
     }
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
     await transporter.sendMail({
       from: process.env.EMAIL_FROM || 'Linkist <hello@linkist.ai>',
       to: 'support@linkist.ai',
-      subject: `New Newsletter Subscription: ${firstName} ${lastName}`,
+      subject: `New Newsletter Subscription: ${firstName}${lastName ? ' ' + lastName : ''}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #E02424;">New Newsletter Subscription</h2>

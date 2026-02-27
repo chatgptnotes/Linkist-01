@@ -48,15 +48,32 @@ const FooterSection = () => {
 
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: 'Subscriber',
+          lastName: '',
+          email: emailSubscription,
+        }),
+      });
 
-    setIsSubscribed(true);
-    setEmailSubscription('');
-    setIsLoading(false);
+      const data = await response.json();
 
-    // Reset success state after 3 seconds
-    setTimeout(() => setIsSubscribed(false), 3000);
+      if (data.success) {
+        setIsSubscribed(true);
+        setEmailSubscription('');
+        // Reset success state after 3 seconds
+        setTimeout(() => setIsSubscribed(false), 3000);
+      } else {
+        alert(data.error || 'Something went wrong. Please try again.');
+      }
+    } catch {
+      alert('Failed to subscribe. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const containerVariants = {
