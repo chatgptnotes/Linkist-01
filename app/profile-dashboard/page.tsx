@@ -27,6 +27,7 @@ import QrCode2Icon from '@mui/icons-material/QrCode2';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import EditIcon from '@mui/icons-material/Edit';
 import SendIcon from '@mui/icons-material/Send';
 import ReferralForm from '@/components/ReferralForm';
 
@@ -126,6 +127,24 @@ export default function AccountPage() {
     order.cardConfig?.planType === 'founders-circle'
   );
   const isActualFounder = user?.is_founding_member && (hasFoundersClubOrder || (user as any)?.has_founders_order);
+
+  // Derive current plan name from the most recent order
+  const getCurrentPlanName = (): string => {
+    if (isActualFounder) return "Founder's Circle";
+    if (orders.length === 0) return 'No Plan';
+    const latestOrder = orders[0];
+    const planType = latestOrder.cardConfig?.planType;
+    const planNames: Record<string, string> = {
+      'starter': 'Starter',
+      'next': 'Next',
+      'pro': 'Pro',
+      'signature': 'Signature',
+      'founders-circle': "Founder's Circle",
+      'founders-club': "Founder's Circle",
+    };
+    return planNames[planType] || 'Starter';
+  };
+  const currentPlanName = getCurrentPlanName();
   const [showQrCode, setShowQrCode] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [referralStats, setReferralStats] = useState<{
@@ -607,6 +626,10 @@ export default function AccountPage() {
             <div className="flex-1 min-w-0">
               <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">Profile Dashboard</h1>
               <p className="text-xs sm:text-sm text-gray-600 mt-1 line-clamp-2 sm:line-clamp-1">Manage your digital presence and connect with your network</p>
+              <div className="mt-1.5 inline-flex items-center gap-1.5 bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+                <span className="text-xs font-medium">Current Plan:</span>
+                <span className="text-xs font-bold text-[#263252]">{currentPlanName}</span>
+              </div>
             </div>
 
             {/* Right side: Badge + Edit button */}
@@ -760,7 +783,7 @@ export default function AccountPage() {
                   </code>
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <button
               type="button"
               onClick={() => {
@@ -821,18 +844,22 @@ export default function AccountPage() {
 
                 copyToClipboard(urlToCopy);
               }}
-              className="flex-1"
               style={{
                 backgroundColor: copied ? '#16a34a' : '#dc2626',
                 color: 'white',
-                padding: '12px 24px',
+                padding: '12px 8px',
                 borderRadius: '8px',
                 fontWeight: 'bold',
-                fontSize: '16px',
+                fontSize: '14px',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                minHeight: '48px'
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap' as const,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = copied ? '#15803d' : '#b91c1c';
@@ -845,20 +872,14 @@ export default function AccountPage() {
             </button>
             <button
               type="button"
-              onClick={() => {
-                const baseUrl = getBaseUrl();
-                const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
-                const profileUrl = `${baseUrl}/${username}`;
-                window.open(profileUrl, '_blank');
-              }}
-              className="flex-1"
+              onClick={() => router.push('/profiles/builder')}
               style={{
                 backgroundColor: '#dc2626',
                 color: 'white',
-                padding: '12px 24px',
+                padding: '12px 8px',
                 borderRadius: '8px',
                 fontWeight: 'bold',
-                fontSize: '16px',
+                fontSize: '14px',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -866,7 +887,8 @@ export default function AccountPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '6px',
+                whiteSpace: 'nowrap' as const,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#b91c1c';
@@ -875,20 +897,24 @@ export default function AccountPage() {
                 e.currentTarget.style.backgroundColor = '#dc2626';
               }}
             >
-              <ExternalLink style={{ width: '20px', height: '20px' }} />
-              View Profile
+              <EditIcon style={{ width: '18px', height: '18px' }} />
+              Edit
             </button>
             <button
               type="button"
-              onClick={() => setShowQrCode(true)}
-              className="flex-1"
+              onClick={() => {
+                const baseUrl = getBaseUrl();
+                const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
+                const profileUrl = `${baseUrl}/${username}`;
+                window.open(profileUrl, '_blank');
+              }}
               style={{
-                backgroundColor: '#263252',
+                backgroundColor: '#dc2626',
                 color: 'white',
-                padding: '12px 24px',
+                padding: '12px 8px',
                 borderRadius: '8px',
                 fontWeight: 'bold',
-                fontSize: '16px',
+                fontSize: '14px',
                 border: 'none',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
@@ -896,7 +922,38 @@ export default function AccountPage() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px'
+                gap: '6px',
+                whiteSpace: 'nowrap' as const,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#b91c1c';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = '#dc2626';
+              }}
+            >
+              <ExternalLink style={{ width: '18px', height: '18px' }} />
+              View
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowQrCode(true)}
+              style={{
+                backgroundColor: '#263252',
+                color: 'white',
+                padding: '12px 8px',
+                borderRadius: '8px',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                border: 'none',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                minHeight: '48px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                whiteSpace: 'nowrap' as const,
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.backgroundColor = '#1a2339';
@@ -905,10 +962,11 @@ export default function AccountPage() {
                 e.currentTarget.style.backgroundColor = '#263252';
               }}
             >
-              <QrCode2 style={{ width: '20px', height: '20px' }} />
+              <QrCode2 style={{ width: '18px', height: '18px' }} />
               QR Code
             </button>
               </div>
+
             </div>
           )}
         </div>

@@ -101,6 +101,8 @@ export default function ProductSelectionPage() {
   // User state
   const [userCountry, setUserCountry] = useState<string>('India');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authUser, setAuthUser] = useState<{ first_name: string; last_name: string; email: string; phone_number: string | null } | null>(null);
+  const [requestingAccess, setRequestingAccess] = useState(false);
 
   // Modals
   const [showRequestModal, setShowRequestModal] = useState(false);
@@ -118,6 +120,12 @@ export default function ProductSelectionPage() {
           const data = await response.json();
           if (data.user) {
             setIsLoggedIn(true);
+            setAuthUser({
+              first_name: data.user.first_name,
+              last_name: data.user.last_name,
+              email: data.user.email,
+              phone_number: data.user.phone_number || null,
+            });
             // Check founding member status ONLY from API (database is the source of truth)
             if (data.user.is_founding_member) {
               setFoundersClubUnlocked(true);
@@ -193,6 +201,72 @@ export default function ProductSelectionPage() {
     setTimeout(() => {
       router.push('/nfc/configure?founders=true');
     }, 500);
+  };
+
+  // Handle Request Access click
+  const handleRequestAccess = async () => {
+    // If user is NOT logged in, show the form modal
+    if (!isLoggedIn || !authUser) {
+      setShowRequestModal(true);
+      return;
+    }
+
+    // User is logged in — auto-send request without showing form
+    setRequestingAccess(true);
+
+    // Gather user data from auth + localStorage profile
+    let phone = authUser.phone_number || '';
+    let profession = '';
+    let companyName = '';
+
+    try {
+      const userProfile = localStorage.getItem('userProfile');
+      if (userProfile) {
+        const profile = JSON.parse(userProfile);
+        if (!phone) {
+          phone = profile.mobile || profile.phoneNumber || profile.phone || '';
+        }
+        profession = profile.title || profile.profession || profile.designation || '';
+        companyName = profile.company || profile.companyName || '';
+      }
+    } catch (e) {
+      console.error('Error reading user profile:', e);
+    }
+
+    // If critical fields are missing, fall back to showing the form
+    if (!authUser.first_name || !authUser.last_name || !authUser.email || !phone) {
+      setRequestingAccess(false);
+      setShowRequestModal(true);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/founders/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: authUser.first_name,
+          lastName: authUser.last_name,
+          email: authUser.email,
+          phone: phone,
+          profession: profession || 'Not specified',
+          companyName: companyName || '',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        showToast('Your request has been sent! We\'ll get back to you within 24-48 hours.', 'success');
+      } else {
+        showToast(data.error || 'Failed to submit request. Please try again.', 'error');
+      }
+    } catch (err) {
+      console.error('Error auto-submitting founders request:', err);
+      showToast('Network error. Please check your connection and try again.', 'error');
+    } finally {
+      setRequestingAccess(false);
+    }
   };
 
   // Handle card click - just select it (move red border)
@@ -432,7 +506,8 @@ export default function ProductSelectionPage() {
                   isSelected={selectedPlanId === plan.id}
                   foundersUnlocked={foundersClubUnlocked}
                   onCardClick={() => handleCardClick(plan.id)}
-                  onRequestAccess={() => setShowRequestModal(true)}
+                  onRequestAccess={handleRequestAccess}
+                  requestingAccess={requestingAccess}
                   onEnterCode={() => setShowCodeModal(true)}
                   onShowBenefits={() => setShowBenefitsModal(true)}
                   delay={idx * 0.05}
@@ -452,7 +527,8 @@ export default function ProductSelectionPage() {
                   isSelected={selectedPlanId === plan.id}
                   foundersUnlocked={foundersClubUnlocked}
                   onCardClick={() => handleCardClick(plan.id)}
-                  onRequestAccess={() => setShowRequestModal(true)}
+                  onRequestAccess={handleRequestAccess}
+                  requestingAccess={requestingAccess}
                   onEnterCode={() => setShowCodeModal(true)}
                   onShowBenefits={() => setShowBenefitsModal(true)}
                   delay={idx * 0.05}
@@ -474,7 +550,8 @@ export default function ProductSelectionPage() {
                   foundersUnlocked={foundersClubUnlocked}
                   onToggle={() => toggleExpand(plan.id)}
                   onCardClick={() => handleCardClick(plan.id)}
-                  onRequestAccess={() => setShowRequestModal(true)}
+                  onRequestAccess={handleRequestAccess}
+                  requestingAccess={requestingAccess}
                   onEnterCode={() => setShowCodeModal(true)}
                   onShowBenefits={() => setShowBenefitsModal(true)}
                   delay={idx * 0.05}
@@ -595,7 +672,7 @@ export default function ProductSelectionPage() {
 
 // Desktop Plan Card
 function DesktopPlanCard({
-  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, foundersUnlocked, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
+  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, foundersUnlocked, onCardClick, onRequestAccess, requestingAccess, onEnterCode, onShowBenefits, delay,
 }: {
   plan: PlanData;
   getDisplayPrice: (plan: PlanData) => string;
@@ -605,6 +682,7 @@ function DesktopPlanCard({
   foundersUnlocked: boolean;
   onCardClick: () => void;
   onRequestAccess: () => void;
+  requestingAccess: boolean;
   onEnterCode: () => void;
   onShowBenefits: () => void;
   delay: number;
@@ -653,9 +731,10 @@ function DesktopPlanCard({
           {/* Request Access button */}
           <button
             onClick={onRequestAccess}
-            className="w-full py-3 rounded-full text-sm font-semibold text-center transition-all cursor-pointer bg-red-600 text-white hover:bg-red-700 mb-3"
+            disabled={requestingAccess}
+            className="w-full py-3 rounded-full text-sm font-semibold text-center transition-all cursor-pointer bg-red-600 text-white hover:bg-red-700 mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Request Access
+            {requestingAccess ? 'Sending Request...' : 'Request Access'}
           </button>
 
           {/* Enter Code button */}
@@ -822,7 +901,7 @@ function DesktopPlanCard({
 
 // Mobile Plan Card (Collapsible)
 function MobilePlanCard({
-  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, expanded, foundersUnlocked, onToggle, onCardClick, onRequestAccess, onEnterCode, onShowBenefits, delay,
+  plan, getDisplayPrice, getPriceLabel, isPremium, isSelected, expanded, foundersUnlocked, onToggle, onCardClick, onRequestAccess, requestingAccess, onEnterCode, onShowBenefits, delay,
 }: {
   plan: PlanData;
   getDisplayPrice: (plan: PlanData) => string;
@@ -834,6 +913,7 @@ function MobilePlanCard({
   onToggle: () => void;
   onCardClick: () => void;
   onRequestAccess: () => void;
+  requestingAccess: boolean;
   onEnterCode: () => void;
   onShowBenefits: () => void;
   delay: number;
@@ -880,9 +960,10 @@ function MobilePlanCard({
 
           <button
             onClick={onRequestAccess}
-            className="w-full py-3 rounded-full text-sm font-semibold text-center transition-all cursor-pointer bg-red-600 text-white hover:bg-red-700 mb-3"
+            disabled={requestingAccess}
+            className="w-full py-3 rounded-full text-sm font-semibold text-center transition-all cursor-pointer bg-red-600 text-white hover:bg-red-700 mb-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Request Access
+            {requestingAccess ? 'Sending Request...' : 'Request Access'}
           </button>
 
           <button
