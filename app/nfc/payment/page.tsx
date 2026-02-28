@@ -958,6 +958,7 @@ export default function NFCPaymentPage() {
           onClose={() => setShowStripeModal(false)}
           clientSecret={stripeClientSecret}
           amount={stripePaymentAmount}
+          currency="usd"
           orderDetails={{
             customerName: orderData.customerName,
             email: orderData.email,

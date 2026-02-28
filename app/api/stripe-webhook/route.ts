@@ -14,7 +14,11 @@ const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
 export async function POST(request: NextRequest) {
   // Check if Stripe is configured
   if (!process.env.STRIPE_SECRET_KEY) {
-    return NextResponse.json({ received: true });
+    console.error('Stripe webhook: STRIPE_SECRET_KEY not configured');
+    return NextResponse.json(
+      { error: 'Payment processing not configured' },
+      { status: 503 }
+    );
   }
 
   const body = await request.text();
@@ -154,13 +158,18 @@ async function handlePaymentSuccess(paymentIntent: any) {
 
     // Create payment record in payments table
     try {
+      // Get actual payment method type from charge details (apple_pay, google_pay, upi, card, etc.)
+      const actualPaymentMethod = paymentIntent.charges?.data?.[0]?.payment_method_details?.type
+        || paymentIntent.payment_method_types?.[0]
+        || 'card';
+
       await SupabasePaymentStore.create({
         orderId: order.id,
         paymentIntentId: paymentIntent.id,
         amount: paymentIntent.amount, // Already in cents
         currency: paymentIntent.currency.toUpperCase(),
         status: 'succeeded',
-        paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+        paymentMethod: actualPaymentMethod,
         stripeFee: paymentIntent.charges?.data?.[0]?.application_fee_amount || 0,
         netAmount: paymentIntent.amount - (paymentIntent.charges?.data?.[0]?.application_fee_amount || 0),
         metadata: {
@@ -254,13 +263,17 @@ async function handlePaymentFailure(paymentIntent: any) {
       if (updatedOrder) {
         // Create failed payment record for the existing order
         try {
+          const failedPaymentMethod = paymentIntent.charges?.data?.[0]?.payment_method_details?.type
+            || paymentIntent.payment_method_types?.[0]
+            || 'card';
+
           await SupabasePaymentStore.create({
             orderId: orderId,
             paymentIntentId: paymentIntent.id,
             amount: paymentIntent.amount,
             currency: paymentIntent.currency.toUpperCase(),
             status: 'failed',
-            paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+            paymentMethod: failedPaymentMethod,
             failureReason: paymentIntent.last_payment_error?.message || 'Unknown payment error',
             metadata: {
               errorCode: paymentIntent.last_payment_error?.code,
@@ -315,13 +328,17 @@ async function handlePaymentFailure(paymentIntent: any) {
 
     // Create failed payment record in payments table
     try {
+      const failedMethod = paymentIntent.charges?.data?.[0]?.payment_method_details?.type
+        || paymentIntent.payment_method_types?.[0]
+        || 'card';
+
       await SupabasePaymentStore.create({
         orderId: failedOrder.id,
         paymentIntentId: paymentIntent.id,
         amount: paymentIntent.amount, // Already in cents
         currency: paymentIntent.currency.toUpperCase(),
         status: 'failed',
-        paymentMethod: paymentIntent.payment_method_types?.[0] || 'card',
+        paymentMethod: failedMethod,
         failureReason: paymentIntent.last_payment_error?.message || 'Unknown payment error',
         metadata: {
           errorCode: paymentIntent.last_payment_error?.code,

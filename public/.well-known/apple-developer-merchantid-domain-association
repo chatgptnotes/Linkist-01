@@ -1,0 +1,7 @@
+Replace this file with the actual domain association file from your Stripe Dashboard.
+
+To get the correct file:
+1. Go to Stripe Dashboard → Settings → Payment methods → Apple Pay
+2. Click "Add new domain" and enter your domain
+3. Download the verification file
+4. Replace this placeholder with the downloaded file content
