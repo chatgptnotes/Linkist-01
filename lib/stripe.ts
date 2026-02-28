@@ -8,10 +8,7 @@ export function getStripe(): Stripe {
     throw new Error('Stripe secret key not configured');
   }
 
-  return new Stripe(stripeSecretKey, {
-    apiVersion: '2024-11-20.acacia',
-    typescript: true,
-  });
+  return new Stripe(stripeSecretKey);
 }
 
 // Legacy export - only use when Stripe is definitely configured

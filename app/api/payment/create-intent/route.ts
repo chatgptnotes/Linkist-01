@@ -8,9 +8,7 @@ function getStripe() {
   if (!secretKey) {
     throw new Error('Stripe secret key not configured');
   }
-  return new Stripe(secretKey, {
-    apiVersion: '2024-11-20.acacia',
-  });
+  return new Stripe(secretKey);
 }
 
 // Helper function to get Supabase client
