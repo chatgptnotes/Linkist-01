@@ -104,8 +104,10 @@ export default function StripePaymentForm({
               setShowExpressCheckout(true);
             }
           }}
+          onLoadError={() => {
+            // Silently handle - express checkout is optional
+          }}
           onClick={({ resolve }) => {
-            // Resolve immediately to open the wallet sheet
             resolve();
           }}
           options={{
@@ -127,6 +129,11 @@ export default function StripePaymentForm({
       {/* Payment Element - Card, UPI, etc. */}
       <PaymentElement
         onReady={() => setIsReady(true)}
+        onLoadError={(e) => {
+          console.error('[Stripe] PaymentElement failed to load:', e);
+          setErrorMessage('Payment form failed to load. Please refresh the page and try again.');
+          setIsReady(true); // Unblock UI so user can see the error
+        }}
         onChange={(event) => {
           if (event.complete) setErrorMessage(null);
         }}

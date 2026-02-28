@@ -9,7 +9,7 @@ function getStripe() {
     throw new Error('Stripe secret key not configured');
   }
   return new Stripe(secretKey, {
-    apiVersion: '2024-09-30.acacia',
+    apiVersion: '2024-11-20.acacia',
   });
 }
 
