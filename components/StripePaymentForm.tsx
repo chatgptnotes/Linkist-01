@@ -2,65 +2,50 @@
 
 import { useState, FormEvent } from 'react';
 import {
-  CardNumberElement,
-  CardExpiryElement,
-  CardCvcElement,
+  PaymentElement,
+  ExpressCheckoutElement,
   useStripe,
   useElements
 } from '@stripe/react-stripe-js';
 
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  usd: '$',
+  inr: '₹',
+  aed: 'AED ',
+  gbp: '£',
+  eur: '€',
+};
+
+function getCurrencySymbol(currency: string): string {
+  return CURRENCY_SYMBOLS[currency.toLowerCase()] || '$';
+}
+
 interface StripePaymentFormProps {
   amount: number;
-  clientSecret: string;
+  currency?: string;
   onSuccess: (paymentIntentId: string) => void;
   onError: (error: string) => void;
   returnUrl?: string;
 }
 
-const elementStyle = {
-  base: {
-    fontSize: '16px',
-    color: '#30313d',
-    fontFamily: 'system-ui, -apple-system, sans-serif',
-    '::placeholder': {
-      color: '#aab7c4',
-    },
-  },
-  invalid: {
-    color: '#df1b41',
-  },
-};
-
 export default function StripePaymentForm({
   amount,
-  clientSecret,
+  currency = 'usd',
   onSuccess,
   onError,
   returnUrl
 }: StripePaymentFormProps) {
+  const currencySymbol = getCurrencySymbol(currency);
   const stripe = useStripe();
   const elements = useElements();
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [readyCount, setReadyCount] = useState(0);
+  const [isReady, setIsReady] = useState(false);
+  const [showExpressCheckout, setShowExpressCheckout] = useState(false);
 
-  const isElementReady = readyCount >= 3;
-
-  const handleReady = () => {
-    setReadyCount((prev) => prev + 1);
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
+  const confirmPayment = async () => {
     if (!stripe || !elements) {
       setErrorMessage('Payment system is still loading. Please try again.');
-      return;
-    }
-
-    const cardNumberElement = elements.getElement(CardNumberElement);
-    if (!cardNumberElement) {
-      setErrorMessage('Payment form is not ready yet. Please wait a moment.');
       return;
     }
 
@@ -68,11 +53,12 @@ export default function StripePaymentForm({
     setErrorMessage(null);
 
     try {
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardNumberElement,
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: returnUrl || window.location.origin + '/order-success',
         },
-        return_url: returnUrl || window.location.origin + '/order-success',
+        redirect: 'if_required',
       });
 
       if (error) {
@@ -84,6 +70,7 @@ export default function StripePaymentForm({
         onSuccess(paymentIntent.id);
       } else if (paymentIntent && paymentIntent.status === 'requires_action') {
         setErrorMessage('Additional authentication required. Please complete the verification.');
+        setIsProcessing(false);
       } else {
         setErrorMessage('Payment status unclear. Please check your order status.');
         setIsProcessing(false);
@@ -96,52 +83,57 @@ export default function StripePaymentForm({
     }
   };
 
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    await confirmPayment();
+  };
+
+  // Handle Express Checkout (Apple Pay / Google Pay) confirmation
+  const handleExpressCheckoutConfirm = async () => {
+    await confirmPayment();
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Card Number */}
+      {/* Express Checkout - Apple Pay, Google Pay buttons */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">Card number</label>
-        <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
-          <CardNumberElement
-            options={{ style: elementStyle, showIcon: true }}
-            onReady={handleReady}
-            onChange={(event) => {
-              if (event.error) setErrorMessage(event.error.message);
-              else setErrorMessage(null);
-            }}
-          />
-        </div>
+        <ExpressCheckoutElement
+          onConfirm={handleExpressCheckoutConfirm}
+          onReady={({ availablePaymentMethods }) => {
+            if (availablePaymentMethods) {
+              setShowExpressCheckout(true);
+            }
+          }}
+          onClick={({ resolve }) => {
+            // Resolve immediately to open the wallet sheet
+            resolve();
+          }}
+          options={{
+            paymentMethods: {
+              applePay: 'auto',
+              googlePay: 'auto',
+            },
+          }}
+        />
+        {showExpressCheckout && (
+          <div className="flex items-center gap-3 mt-4 mb-2">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-sm text-gray-500 font-medium">Or pay with card</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+        )}
       </div>
 
-      {/* Expiry & CVC row */}
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Expiry date</label>
-          <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
-            <CardExpiryElement
-              options={{ style: elementStyle }}
-              onReady={handleReady}
-              onChange={(event) => {
-                if (event.error) setErrorMessage(event.error.message);
-                else setErrorMessage(null);
-              }}
-            />
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Security code</label>
-          <div className="p-3.5 border border-gray-300 rounded-lg focus-within:border-black focus-within:ring-1 focus-within:ring-black transition-all">
-            <CardCvcElement
-              options={{ style: elementStyle }}
-              onReady={handleReady}
-              onChange={(event) => {
-                if (event.error) setErrorMessage(event.error.message);
-                else setErrorMessage(null);
-              }}
-            />
-          </div>
-        </div>
-      </div>
+      {/* Payment Element - Card, UPI, etc. */}
+      <PaymentElement
+        onReady={() => setIsReady(true)}
+        onChange={(event) => {
+          if (event.complete) setErrorMessage(null);
+        }}
+        options={{
+          layout: 'tabs',
+        }}
+      />
 
       {/* Error Message */}
       {errorMessage && (
@@ -154,16 +146,16 @@ export default function StripePaymentForm({
       <div className="flex justify-between items-center p-4 bg-gray-50 rounded-lg">
         <span className="text-lg font-semibold">Total Amount:</span>
         <span className="text-2xl font-bold">
-          ${(amount / 100).toFixed(2)}
+          {currencySymbol}{(amount / 100).toFixed(2)}
         </span>
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
-        disabled={!stripe || !elements || !isElementReady || isProcessing}
+        disabled={!stripe || !elements || !isReady || isProcessing}
         className={`w-full py-4 px-6 rounded-lg font-semibold text-white transition-all ${
-          !stripe || !elements || !isElementReady || isProcessing
+          !stripe || !elements || !isReady || isProcessing
             ? 'bg-gray-400 cursor-not-allowed'
             : 'bg-black hover:bg-gray-800 active:scale-95'
         }`}
@@ -192,7 +184,7 @@ export default function StripePaymentForm({
             </svg>
             Processing Payment...
           </span>
-        ) : !isElementReady ? (
+        ) : !isReady ? (
           <span className="flex items-center justify-center gap-2">
             <svg
               className="animate-spin h-5 w-5"
@@ -217,7 +209,7 @@ export default function StripePaymentForm({
             Loading Payment Form...
           </span>
         ) : (
-          `Pay $${(amount / 100).toFixed(2)}`
+          `Pay ${currencySymbol}${(amount / 100).toFixed(2)}`
         )}
       </button>
 

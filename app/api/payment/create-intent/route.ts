@@ -160,11 +160,13 @@ export async function POST(req: NextRequest) {
     // This ensures that retrying the same order always returns the same payment intent
     const idempotencyKey = `order_${orderId}_payment_intent`;
 
-    // Create a payment intent with idempotency key
+    // Create a payment intent
+    // automatic_payment_methods lets Stripe show all eligible methods
+    // (Card, Google Pay, Apple Pay, UPI, etc.) based on Dashboard settings + currency
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: currency.toLowerCase(),
-      payment_method_types: ['card'],
+      automatic_payment_methods: { enabled: true },
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',

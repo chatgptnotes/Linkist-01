@@ -36,10 +36,10 @@ export default function PrivacyPolicyPage() {
           </div>
           
           <p className="text-gray-300">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            Last updated: {new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </p>
         </div>
@@ -313,6 +313,12 @@ export default function PrivacyPolicyPage() {
                 <p><strong>Email:</strong> privacy@linkist.ai</p>
                 <p><strong>Data Protection Officer:</strong> dpo@linkist.ai</p>
                 <p><strong>Privacy Portal:</strong> <Link href="/privacy/manage" className="underline">linkist.ai/privacy/manage</Link></p>
+                <p><strong>Mailing Address:</strong></p>
+                <p className="ml-4">
+                  RatioX Labs DWC-LLC<br />
+                  A3, Business Park<br />
+                  Dubai South, Dubai, UAE
+                </p>
               </div>
               <p className="text-sm text-red-200/70 mt-4">
                 We will respond to all privacy requests within 30 days.

@@ -638,7 +638,7 @@ export default function ProfilePreviewPage() {
               <div className="p-4 border border-white/15 rounded-lg" style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}>
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <div className="flex items-center gap-2">
-                    <LinkIcon className="w-5 h-5 text-blue-400" />
+                    <LinkIcon className="w-5 h-5 text-white" />
                     <span className="text-sm font-semibold text-white">Your Profile URL</span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -647,7 +647,7 @@ export default function ProfilePreviewPage() {
                       className="flex-shrink-0 p-2 border border-white/20 text-white/70 rounded hover:bg-white/10 transition"
                       title="Show QR Code"
                     >
-                      <QrCode2 className="w-5 h-5" />
+                      <QrCode2 className="w-5 h-5 text-white" />
                     </button>
                     <button
                       onClick={handleCopyUrl}
@@ -657,7 +657,7 @@ export default function ProfilePreviewPage() {
                       {copied ? (
                         <CheckCircle className="w-5 h-5 text-green-400" />
                       ) : (
-                        <ContentCopy className="w-5 h-5" />
+                        <ContentCopy className="w-5 h-5 text-white" />
                       )}
                     </button>
                   </div>
@@ -666,7 +666,7 @@ export default function ProfilePreviewPage() {
                   href={customUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-400 hover:text-blue-300 font-medium break-all block"
+                  className="text-sm text-white hover:text-white/80 font-medium break-all block"
                 >
                   {customUrl}
                 </a>
@@ -763,12 +763,6 @@ export default function ProfilePreviewPage() {
 
           {/* Bottom navigation buttons */}
           <div className="flex gap-3 mt-4 mb-6">
-            <button
-              onClick={() => router.push('/profiles/builder')}
-              className="flex-1 px-4 py-3 text-white/80 border border-white/20 rounded-lg font-medium hover:bg-white/10 transition-colors text-sm"
-            >
-              Edit Profile
-            </button>
             <button
               onClick={() => router.push('/profile-dashboard')}
               className="flex-1 px-4 py-3 text-white rounded-lg font-medium hover:bg-red-700 transition-colors text-sm"

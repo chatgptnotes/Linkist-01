@@ -532,9 +532,6 @@ export default function SuccessPage() {
                     <li>• Delivery confirmation</li>
                   </>
                 )}
-                {isDigitalOnly && (
-                  <li>• Profile setup instructions</li>
-                )}
               </ul>
             </div>
           </div>

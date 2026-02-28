@@ -718,7 +718,8 @@ function DesktopPlanCard({
             className="text-xl font-bold text-gray-900 mb-2"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
-            Exclusive. Invite-Only Access.
+            Founder&apos;s Circle<br />
+            <span className="text-base font-semibold text-gray-600">Invite-Only Access</span>
           </h3>
 
           <p
@@ -948,7 +949,8 @@ function MobilePlanCard({
             className="text-lg font-bold text-gray-900 mb-1"
             style={{ fontFamily: 'Poppins, sans-serif' }}
           >
-            Exclusive. Invite-Only Access.
+            Founder&apos;s Circle<br />
+            <span className="text-sm font-semibold text-gray-600">Invite-Only Access</span>
           </h3>
 
           <p

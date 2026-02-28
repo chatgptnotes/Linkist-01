@@ -4,7 +4,6 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DescriptionIcon from '@mui/icons-material/Description';
 import ScaleIcon from '@mui/icons-material/Scale';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
-import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import WarningIcon from '@mui/icons-material/Warning';
 import Footer from '@/components/Footer';
 
@@ -13,7 +12,6 @@ const ArrowLeft = ArrowBackIcon;
 const FileText = DescriptionIcon;
 const Scale = ScaleIcon;
 const CreditCard = CreditCardIcon;
-const Truck = LocalShippingIcon;
 const AlertTriangle = WarningIcon;
 
 export default function TermsOfServicePage() {
@@ -36,10 +34,10 @@ export default function TermsOfServicePage() {
           </div>
           
           <p className="text-gray-300">
-            Last updated: {new Date().toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            Last updated: {new Date().toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </p>
         </div>
@@ -144,41 +142,6 @@ export default function TermsOfServicePage() {
             </div>
           </section>
 
-          {/* Shipping and Delivery */}
-          <section>
-            <div className="flex items-center space-x-2 mb-4">
-              <Truck className="w-6 h-6 text-purple-400" />
-              <h2 className="text-2xl font-semibold text-[#F5F7FA]">Shipping and Delivery</h2>
-            </div>
-            
-            <div className="space-y-4 text-gray-300">
-              <div>
-                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Shipping Policy</h3>
-                <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Processing time: 3-5 business days</li>
-                  <li>Shipping time: 5-7 business days (standard)</li>
-                  <li>Express shipping options available</li>
-                  <li>International shipping may take 10-21 business days</li>
-                </ul>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Shipping Address</h3>
-                <p>
-                  You are responsible for providing accurate shipping information. 
-                  We are not liable for delays or non-delivery due to incorrect addresses.
-                </p>
-              </div>
-
-              <div>
-                <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Risk of Loss</h3>
-                <p>
-                  Risk of loss and title passes to you upon delivery to the shipping carrier.
-                </p>
-              </div>
-            </div>
-          </section>
-
           {/* Product Quality and Returns */}
           <section>
             <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Product Quality and Returns</h2>
@@ -188,7 +151,7 @@ export default function TermsOfServicePage() {
                 <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Quality Guarantee</h3>
                 <p>
                   We guarantee our products to be free from defects in materials and workmanship. 
-                  If you receive a defective product, contact us within 30 days for a replacement.
+                  If you receive a defective product, contact us within 7 days for a replacement.
                 </p>
               </div>
 
@@ -203,7 +166,7 @@ export default function TermsOfServicePage() {
               <div>
                 <h3 className="text-lg font-medium text-[#F5F7FA] mb-2">Return Process</h3>
                 <ul className="list-disc list-inside space-y-1 ml-4">
-                  <li>Contact customer service within 30 days</li>
+                  <li>Contact customer service within 7 days</li>
                   <li>Provide order number and description of issue</li>
                   <li>Return shipping may be provided for defective items</li>
                   <li>Refunds processed within 5-10 business days</li>
@@ -346,7 +309,7 @@ export default function TermsOfServicePage() {
             <h2 className="text-2xl font-semibold text-[#F5F7FA] mb-4">Governing Law</h2>
             
             <p className="text-gray-300">
-              These Terms are governed by and construed in accordance with the laws of [Your State/Country], 
+              These Terms are governed by and construed in accordance with the laws of the United Arab Emirates, 
               without regard to its conflict of law provisions. Our failure to enforce any right or provision 
               will not be deemed a waiver of such right or provision.
             </p>
@@ -374,9 +337,9 @@ export default function TermsOfServicePage() {
                 <p><strong>Customer Support:</strong> support@linkist.ai</p>
                 <p><strong>Mailing Address:</strong></p>
                 <p className="ml-4">
-                  Linkist<br />
-                  [Your Address]<br />
-                  [City, State ZIP Code]
+                  RatioX Labs DWC-LLC<br />
+                  A3, Business Park<br />
+                  Dubai South, Dubai, UAE
                 </p>
               </div>
             </div>
