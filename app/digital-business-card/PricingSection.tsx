@@ -516,6 +516,7 @@ export default function PricingSection() {
         <div className="text-center mt-12 space-y-1 px-4">
           <p className="text-gray-500 text-xs md:text-sm">*Card customisation available at an additional cost of $30</p>
           <p className="text-gray-500 text-xs md:text-sm">*Student plan available from $69</p>
+          <p className="text-gray-500 text-xs md:text-sm">**Linkist Pro App and AI credits will be available at launch during Q2 of 2026</p>
         </div>
       </div>
     </section>
