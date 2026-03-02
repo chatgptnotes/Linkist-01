@@ -280,8 +280,11 @@ export default function PricingSection() {
 
         .pricing-card-responsive {
             width: 280px;
-            min-height: 680px;
+            height: auto;
+            min-height: 560px;
             padding: 24px;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Tablet/Desktop Overrides */
@@ -291,8 +294,11 @@ export default function PricingSection() {
             }
             .pricing-card-responsive {
                 width: 320px;
-                min-height: 700px;
+                height: auto;
+                min-height: 580px;
                 padding: 32px;
+                display: flex;
+                flex-direction: column;
             }
         }
 
@@ -334,7 +340,7 @@ export default function PricingSection() {
               backgroundClip: 'text',
             }}
           >
-            Linkist Pricing Plans
+            Pricing Plans
           </h2>
           <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto text-center">
             Select the plan that best suits your needs.
@@ -367,7 +373,7 @@ export default function PricingSection() {
                 />
 
                 {/* Card Content */}
-                <div className="relative z-10 flex flex-col h-full">
+                <div className="relative z-10 flex flex-col flex-1">
                   <h3 className="text-xl font-semibold text-white mb-2 font-poppins">
                     {card.name}
                   </h3>
@@ -378,9 +384,6 @@ export default function PricingSection() {
                   <div className="mb-6">
                     <span className="text-5xl font-medium text-white tracking-tight">
                       ${card.price}
-                    </span>
-                    <span className="text-gray-400 text-sm ml-1">
-                      /year
                     </span>
                   </div>
 
@@ -403,12 +406,14 @@ export default function PricingSection() {
                     </p>
                   </div>
 
-                  <a
-                    href="https://www.linkist.ai/choose-plan"
-                    className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 mt-6 block no-underline"
-                  >
-                    Get Started
-                  </a>
+                  <div className="mt-auto pt-6">
+                    <a
+                      href="https://www.linkist.ai/choose-plan"
+                      className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 block no-underline"
+                    >
+                      Get Started
+                    </a>
+                  </div>
                 </div>
               </div>
             ))}
@@ -427,7 +432,7 @@ export default function PricingSection() {
                     ? 'border-[rgba(255,0,0,0.5)] shadow-[0_30px_60px_-10px_rgba(0,0,0,0.9)] scale-[1.03]'
                     : 'border-white/10'
                 }`}
-                style={{ padding: '32px', minHeight: '680px' }}
+                style={{ padding: '32px', minHeight: '560px' }}
               >
                 {/* Active card header gradient */}
                 {isActive && (
@@ -437,16 +442,13 @@ export default function PricingSection() {
                   />
                 )}
 
-                <div className="relative z-10 flex flex-col h-full">
+                <div className="relative z-10 flex flex-col flex-1">
                   <h3 className="text-xl font-semibold text-white mb-2 font-poppins">{card.name}</h3>
                   <p className="text-gray-400 text-xs mb-4 leading-snug">{card.subtitle}</p>
 
                   <div className="mb-6">
                     <span className="text-5xl font-medium text-white tracking-tight">
                       ${card.price}
-                    </span>
-                    <span className="text-gray-400 text-sm ml-1">
-                      /year
                     </span>
                   </div>
 
@@ -471,32 +473,28 @@ export default function PricingSection() {
                     </p>
                   </div>
 
-                  <a
-                    href="https://www.linkist.ai/choose-plan"
-                    className="w-full py-[14px] px-4 rounded-full border text-white text-center font-medium transition-all duration-300 mt-auto block no-underline"
-                    style={isActive ? {
-                      background: '#FF3A29',
-                      borderColor: '#FF3A29',
-                      boxShadow: '0 4px 20px rgba(255,58,41,0.3)'
-                    } : {
-                      background: 'transparent',
-                      borderColor: 'rgba(255,255,255,0.3)'
-                    }}
-                  >
-                    Get Started
-                  </a>
+                  <div className="mt-auto pt-6">
+                    <a
+                      href="https://www.linkist.ai/choose-plan"
+                      className="w-full py-[14px] px-4 rounded-full border text-white text-center font-medium transition-all duration-300 block no-underline"
+                      style={isActive ? {
+                        background: '#FF3A29',
+                        borderColor: '#FF3A29',
+                        boxShadow: '0 4px 20px rgba(255,58,41,0.3)'
+                      } : {
+                        background: 'transparent',
+                        borderColor: 'rgba(255,255,255,0.3)'
+                      }}
+                    >
+                      Get Started
+                    </a>
+                  </div>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Pricing Footnotes */}
-        <div className="text-center mt-12 space-y-1 px-4">
-          <p className="text-gray-500 text-xs md:text-sm">*Card customisation available at an additional cost of $30</p>
-          <p className="text-gray-500 text-xs md:text-sm">*Student plan available from $69</p>
-          <p className="text-gray-500 text-xs md:text-sm">**Linkist Pro App and AI credits will be available at launch during Q2 of 2026</p>
-        </div>
       </div>
     </section>
   );

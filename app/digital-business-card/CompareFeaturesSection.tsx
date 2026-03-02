@@ -103,10 +103,10 @@ export default function CompareFeatures() {
         </div>
 
         <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0A0A0A] no-scrollbar shadow-2xl transition-all duration-500">
-          <table className="w-full text-left border-collapse min-w-[800px] font-poppins">
+          <table className="w-full text-left border-collapse min-w-[600px] font-poppins">
             <thead>
               <tr>
-                <th className="compare-table-sticky py-3 px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[160px] min-w-[160px]">
+                <th className="compare-table-sticky py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[110px] min-w-[110px]">
                   Features
                 </th>
                 {['Starter', 'Business', 'Signature', "Founder's Circle"].map((plan) => (
@@ -119,7 +119,7 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`compare-table-sticky py-2 px-4 text-xs md:text-sm border-b w-[160px] min-w-[160px] ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
+                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b w-[110px] min-w-[110px] ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.business, row.signature, row.founder].map((val, i) => (
@@ -143,7 +143,7 @@ export default function CompareFeatures() {
                 onClick={() => setShowAll(!showAll)}
                 className="group hover:bg-[#111] transition-colors cursor-pointer"
               >
-                <td className="compare-table-sticky py-2 px-4 text-xs md:text-sm border-b">
+                <td className="compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b">
                   <div className="flex items-center gap-2 text-[#FF3A29] font-semibold">
                     {showAll ? 'View Less' : 'View All Features'}
                     <svg className={`w-4 h-4 transition-transform duration-300 ${showAll ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,7 +156,7 @@ export default function CompareFeatures() {
 
               {/* Action Buttons Row */}
               <tr>
-                <td className="compare-table-sticky py-3 px-4"></td>
+                <td className="compare-table-sticky py-3 px-2 md:px-4"></td>
                 {['Starter', 'Business', 'Signature', "Founder's Circle"].map((plan, i) => (
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
