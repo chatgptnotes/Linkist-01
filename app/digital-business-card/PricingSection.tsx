@@ -45,8 +45,8 @@ const PRICING_CARDS: PricingCard[] = [
     price: 149,
     features: [
       'Everything in Business',
-      'Card Customisation Included',
-      'AI credits worth $50 ( post app launch Q3 2026)',
+      'Card Customisation included',
+      'AI credits worth $50 (post app launch Q3 2026)',
       'Access to Linkist partner privileges',
       'Lifetime Linkist Pro App Subscription (post app launch Q3 2026)',
     ],
