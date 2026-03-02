@@ -156,18 +156,12 @@ export async function POST(req: NextRequest) {
     // Initialize Stripe only when needed
     const stripe = getStripe();
 
-    // Generate idempotency key from orderId to prevent duplicate payment intents
-    // This ensures that retrying the same order always returns the same payment intent
-    const idempotencyKey = `order_${orderId}_payment_intent`;
-
-    // Create a payment intent
-    // For INR: explicitly include UPI so it appears in PaymentElement
-    // For other currencies: use automatic_payment_methods for broadest coverage
-    const isInr = currency.toLowerCase() === 'inr';
-
+    // Create a payment intent with automatic_payment_methods
+    // This enables all eligible methods: card, Google Pay, Apple Pay, UPI (for INR), etc.
     const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: currency.toLowerCase(),
+      automatic_payment_methods: { enabled: true },
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',
@@ -183,14 +177,11 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    if (isInr) {
-      createParams.payment_method_types = ['card', 'upi'];
-    } else {
-      createParams.automatic_payment_methods = { enabled: true };
-    }
+    // Use timestamp in idempotency key to avoid conflicts from parameter changes
+    const idempotencyKey = `order_${orderId}_${amountInCents}_${currency.toLowerCase()}_v2`;
 
     const paymentIntent = await stripe.paymentIntents.create(createParams, {
-      idempotencyKey: idempotencyKey,
+      idempotencyKey,
     });
 
     return NextResponse.json({
@@ -201,12 +192,20 @@ export async function POST(req: NextRequest) {
       discountAmount: Math.round(discountAmount * 100),
       voucherApplied: !!voucherCode && !!voucherId,
     });
-  } catch (error) {
-    console.error('Error creating payment intent:', error);
+  } catch (error: any) {
+    console.error('Error creating payment intent:', {
+      message: error?.message,
+      type: error?.type,
+      code: error?.code,
+      statusCode: error?.statusCode,
+      raw: error?.raw?.message,
+    });
     return NextResponse.json(
       {
         error: 'Failed to create payment intent',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error?.message || error?.raw?.message || 'Unknown error',
+        stripeCode: error?.code || null,
+        stripeType: error?.type || null,
       },
       { status: 500 }
     );
