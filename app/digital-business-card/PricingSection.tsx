@@ -340,11 +340,8 @@ export default function PricingSection() {
               backgroundClip: 'text',
             }}
           >
-            Pricing Plans
+            Select the plan that best suits your needs
           </h2>
-          <p className="text-gray-400 text-sm md:text-lg leading-relaxed max-w-md md:max-w-xl mx-auto text-center">
-            Select the plan that best suits your needs.
-          </p>
         </div>
 
         {/* Scroll Container */}
