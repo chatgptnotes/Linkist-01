@@ -405,7 +405,7 @@ export default function PricingSection() {
 
                   <a
                     href="https://www.linkist.ai/choose-plan"
-                    className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 mt-auto block no-underline"
+                    className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 mt-6 block no-underline"
                   >
                     Get Started
                   </a>
