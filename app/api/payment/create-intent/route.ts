@@ -160,11 +160,8 @@ export async function POST(req: NextRequest) {
     // This ensures that retrying the same order always returns the same payment intent
     const idempotencyKey = `order_${orderId}_payment_intent`;
 
-    // Create a payment intent
-    // For INR: explicitly include UPI so it appears in PaymentElement
-    // For other currencies: use automatic_payment_methods for broadest coverage
-    const isInr = currency.toLowerCase() === 'inr';
-
+    // Create a payment intent with automatic_payment_methods
+    // This enables all eligible methods: card, Google Pay, Apple Pay, UPI (for INR), etc.
     const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: currency.toLowerCase(),
@@ -183,11 +180,9 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    if (isInr) {
-      createParams.payment_method_types = ['card', 'upi'];
-    } else {
-      createParams.automatic_payment_methods = { enabled: true };
-    }
+    // Use automatic_payment_methods for all currencies
+    // This lets Stripe handle Google Pay, Apple Pay, UPI (for INR), cards, etc.
+    createParams.automatic_payment_methods = { enabled: true };
 
     const paymentIntent = await stripe.paymentIntents.create(createParams, {
       idempotencyKey: idempotencyKey,
@@ -201,12 +196,14 @@ export async function POST(req: NextRequest) {
       discountAmount: Math.round(discountAmount * 100),
       voucherApplied: !!voucherCode && !!voucherId,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating payment intent:', error);
     return NextResponse.json(
       {
         error: 'Failed to create payment intent',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error?.message || 'Unknown error',
+        stripeCode: error?.code || null,
+        stripeType: error?.type || null,
       },
       { status: 500 }
     );

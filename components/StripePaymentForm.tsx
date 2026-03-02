@@ -100,12 +100,13 @@ export default function StripePaymentForm({
         <ExpressCheckoutElement
           onConfirm={handleExpressCheckoutConfirm}
           onReady={({ availablePaymentMethods }) => {
+            console.log('[Stripe] ExpressCheckout available methods:', availablePaymentMethods);
             if (availablePaymentMethods) {
               setShowExpressCheckout(true);
             }
           }}
-          onLoadError={() => {
-            // Silently handle - express checkout is optional
+          onLoadError={(error) => {
+            console.error('[Stripe] ExpressCheckout load error:', error);
           }}
           onClick={({ resolve }) => {
             resolve();
