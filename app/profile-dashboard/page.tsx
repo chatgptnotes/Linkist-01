@@ -243,7 +243,10 @@ export default function AccountPage() {
   const checkAuthAndLoadData = async () => {
     try {
       // Check if user is authenticated via API
-      const authResponse = await fetch('/api/auth/me');
+      const authResponse = await fetch('/api/auth/me', {
+        credentials: 'include',
+        cache: 'no-store'
+      });
 
       if (!authResponse.ok || authResponse.status === 401) {
         // Not authenticated, redirect to login

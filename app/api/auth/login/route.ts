@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
+import { getCookieDomain } from '@/lib/cookie-utils';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -79,11 +80,11 @@ export async function POST(request: NextRequest) {
     // Set session cookie
     response.cookies.set('session', user.id, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
-      sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax' as const,
       maxAge: 60 * 60 * 24 * 30, // 30 days
       path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+      domain: getCookieDomain(request.headers.get('host') || ''),
     });
 
     return response;

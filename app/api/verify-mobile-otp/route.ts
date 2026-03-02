@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 import { SessionStore } from '@/lib/session-store';
 import { sendWelcomeEmail } from '@/lib/smtp-email-service';
+import { getSessionCookieOptions } from '@/lib/cookie-utils';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
@@ -101,12 +102,7 @@ export async function POST(request: NextRequest) {
             });
 
             response.cookies.set('session', sessionId, {
-              httpOnly: true,
-              secure: process.env.NODE_ENV === 'production',
-              sameSite: 'lax' as const, // 'lax' works on both mobile and desktop
-              maxAge: 60 * 60 * 24 * 365, // 1 year
-              path: '/',
-              domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+              ...getSessionCookieOptions(request.headers.get('host') || '')
             });
 
             return response;
@@ -174,12 +170,7 @@ export async function POST(request: NextRequest) {
               });
 
               response.cookies.set('session', sessionId, {
-                httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax' as const, // 'lax' works on both mobile and desktop
-                maxAge: 60 * 60 * 24 * 365, // 1 year
-                path: '/',
-                domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+                ...getSessionCookieOptions(request.headers.get('host') || '')
               });
 
               return response;
@@ -331,12 +322,7 @@ export async function POST(request: NextRequest) {
       });
 
       response.cookies.set('session', sessionId, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
-        sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
-        maxAge: 60 * 60 * 24 * 365, // 1 year
-        path: '/',
-        domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+        ...getSessionCookieOptions(request.headers.get('host') || '')
       });
 
       return response;
@@ -404,12 +390,7 @@ export async function POST(request: NextRequest) {
         });
 
         response.cookies.set('session', sessionId, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production', // Only secure in production (HTTP in dev)
-          sameSite: 'lax' as const, // 'lax' works for same-site navigation in both dev and prod
-          maxAge: 60 * 60 * 24 * 365, // 1 year
-          path: '/',
-          domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
+          ...getSessionCookieOptions(request.headers.get('host') || '')
         });
 
         return response;

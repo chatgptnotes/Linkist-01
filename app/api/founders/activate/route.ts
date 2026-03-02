@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { SessionStore } from '@/lib/session-store';
 import { linkProfileToUser } from '@/lib/profile-users-helpers';
+import { getCookieDomain } from '@/lib/cookie-utils';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -408,7 +409,7 @@ export async function POST(request: NextRequest) {
       sameSite: 'lax' as const,
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined
+      domain: getCookieDomain(request.headers.get('host') || ''),
     };
 
     response.cookies.set('session', sessionId, cookieOptions);

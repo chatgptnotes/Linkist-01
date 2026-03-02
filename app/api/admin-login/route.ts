@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminSession } from '@/lib/auth-middleware'
 import { supabaseAdmin } from '@/lib/supabase/admin-client'
 import bcrypt from 'bcryptjs'
+import { getCookieDomain } from '@/lib/cookie-utils'
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,7 +58,7 @@ export async function POST(request: NextRequest) {
       sameSite: 'lax' as const,
       maxAge: 24 * 60 * 60, // 24 hours
       path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined
+      domain: getCookieDomain(request.headers.get('host') || '')
     })
 
     return response
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function DELETE() {
+export async function DELETE(request: NextRequest) {
   try {
     console.log('Admin logout requested')
 
@@ -87,7 +88,7 @@ export async function DELETE() {
       sameSite: 'lax' as const,
       maxAge: 0,
       path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined
+      domain: getCookieDomain(request.headers.get('host') || '')
     })
 
     return response
