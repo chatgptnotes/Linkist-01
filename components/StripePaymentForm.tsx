@@ -139,6 +139,16 @@ export default function StripePaymentForm({
         }}
         options={{
           layout: 'tabs',
+          // Show Google Pay / Apple Pay inside PaymentElement as fallback
+          // (in case ExpressCheckoutElement doesn't render due to domain/HTTPS issues)
+          wallets: {
+            googlePay: 'auto',
+            applePay: 'auto',
+          },
+          // For INR: show UPI first so Indian users see it immediately
+          ...(currency.toLowerCase() === 'inr' && {
+            paymentMethodOrder: ['upi', 'card'],
+          }),
         }}
       />
 

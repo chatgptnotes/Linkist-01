@@ -143,10 +143,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Ensure minimum charge amount (Stripe requires at least $0.50 USD)
-    if (amountInCents < 50) {
+    // Ensure minimum charge amount (Stripe minimums vary by currency)
+    const minAmount = currency.toLowerCase() === 'inr' ? 100 : 50; // ₹1.00 or $0.50
+    if (amountInCents < minAmount) {
+      const minDisplay = currency.toLowerCase() === 'inr' ? '₹1.00' : '$0.50';
       return NextResponse.json(
-        { error: 'Payment amount too small. Minimum $0.50 required.' },
+        { error: `Payment amount too small. Minimum ${minDisplay} required.` },
         { status: 400 }
       );
     }
