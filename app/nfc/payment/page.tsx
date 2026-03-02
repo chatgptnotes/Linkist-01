@@ -429,7 +429,7 @@ export default function NFCPaymentPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        console.error('[Payment] create-intent failed:', data);
+        console.error('[Payment] create-intent failed:', JSON.stringify(data, null, 2));
         throw new Error(data.details || data.error || 'Failed to create payment intent');
       }
 
