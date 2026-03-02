@@ -143,10 +143,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Ensure minimum charge amount (Stripe requires at least $0.50 USD)
-    if (amountInCents < 50) {
+    // Ensure minimum charge amount (Stripe minimums vary by currency)
+    const minAmount = currency.toLowerCase() === 'inr' ? 100 : 50; // ₹1.00 or $0.50
+    if (amountInCents < minAmount) {
+      const minDisplay = currency.toLowerCase() === 'inr' ? '₹1.00' : '$0.50';
       return NextResponse.json(
-        { error: 'Payment amount too small. Minimum $0.50 required.' },
+        { error: `Payment amount too small. Minimum ${minDisplay} required.` },
         { status: 400 }
       );
     }
@@ -159,12 +161,13 @@ export async function POST(req: NextRequest) {
     const idempotencyKey = `order_${orderId}_payment_intent`;
 
     // Create a payment intent
-    // automatic_payment_methods lets Stripe show all eligible methods
-    // (Card, Google Pay, Apple Pay, UPI, etc.) based on Dashboard settings + currency
-    const paymentIntent = await stripe.paymentIntents.create({
+    // For INR: explicitly include UPI so it appears in PaymentElement
+    // For other currencies: use automatic_payment_methods for broadest coverage
+    const isInr = currency.toLowerCase() === 'inr';
+
+    const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: currency.toLowerCase(),
-      automatic_payment_methods: { enabled: true },
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',
@@ -174,12 +177,19 @@ export async function POST(req: NextRequest) {
         discountAmount: discountAmount.toString(),
         voucherCode: voucherCode || '',
         voucherId: voucherId || '',
-        // Add pricing breakdown for webhook
         subtotal: (orderData?.pricing?.subtotal || orderData?.subtotal || '0').toString(),
         shipping: (orderData?.pricing?.shipping || orderData?.shipping || '0').toString(),
         tax: (orderData?.pricing?.tax || orderData?.tax || '0').toString(),
       },
-    }, {
+    };
+
+    if (isInr) {
+      createParams.payment_method_types = ['card', 'upi'];
+    } else {
+      createParams.automatic_payment_methods = { enabled: true };
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(createParams, {
       idempotencyKey: idempotencyKey,
     });
 

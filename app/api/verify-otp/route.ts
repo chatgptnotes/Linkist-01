@@ -4,6 +4,7 @@ import { SupabaseUserStore } from '@/lib/supabase-user-store';
 import { SessionStore } from '@/lib/session-store';
 import { memoryOTPStore } from '@/lib/memory-otp-store';
 import { sendWelcomeEmail } from '@/lib/smtp-email-service';
+import { getSessionCookieOptions } from '@/lib/cookie-utils';
 import twilio from 'twilio';
 
 export async function POST(request: NextRequest) {
@@ -394,20 +395,9 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Detect if request is from mobile browser
-    const userAgent = request.headers.get('user-agent') || '';
-    const isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(userAgent);
-
-    // Set HTTP-only session cookie that works on BOTH desktop and mobile browsers
-    // Key insight: Use 'lax' which works well on mobile, and ensure proper secure/domain settings for desktop
-    const cookieOptions = {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Secure in production, allow HTTP in development
-      sameSite: 'lax' as const, // 'lax' works on both mobile and desktop when configured correctly
-      maxAge: 365 * 24 * 60 * 60, // 1 year
-      path: '/',
-      domain: process.env.COOKIE_DOMAIN || undefined // Support cross-subdomain cookies
-    };
+    // Get cookie options with proper domain handling (prevents rejection on localhost)
+    const requestHost = request.headers.get('host') || '';
+    const cookieOptions = getSessionCookieOptions(requestHost);
 
     response.cookies.set('session', sessionId, cookieOptions);
 

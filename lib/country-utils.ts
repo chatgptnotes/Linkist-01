@@ -195,6 +195,68 @@ export function getCurrency(country: string | undefined | null): 'INR' | 'USD' {
 }
 
 /**
+ * Get currency symbol for display based on country
+ */
+export function getCurrencySymbol(country: string | undefined | null): string {
+  return isIndia(country) ? '₹' : '$';
+}
+
+/**
+ * Get Stripe-compatible lowercase currency code
+ */
+export function getStripeCurrency(country: string | undefined | null): 'inr' | 'usd' {
+  return isIndia(country) ? 'inr' : 'usd';
+}
+
+const FALLBACK_USD_TO_INR = 85;
+
+/**
+ * Fetch live USD → INR exchange rate from free API
+ * Falls back to a fixed rate if the API is unreachable
+ */
+export async function fetchExchangeRate(): Promise<number> {
+  try {
+    const response = await fetch('https://open.er-api.com/v6/latest/USD', {
+      signal: AbortSignal.timeout(5000),
+    });
+
+    if (!response.ok) {
+      throw new Error('Exchange rate API returned non-OK status');
+    }
+
+    const data = await response.json();
+    const rate = data?.rates?.INR;
+
+    if (typeof rate === 'number' && rate > 0) {
+      return rate;
+    }
+
+    throw new Error('Invalid rate in API response');
+  } catch (error) {
+    console.warn('Exchange rate fetch failed, using fallback rate:', error);
+    return FALLBACK_USD_TO_INR;
+  }
+}
+
+/**
+ * Convert a USD amount to the appropriate Stripe currency for a given country
+ * - India: converts USD → INR using provided or fallback exchange rate
+ * - Others: returns USD amount unchanged
+ */
+export function convertToStripeCurrency(
+  amountUsd: number,
+  country: string | undefined | null,
+  exchangeRate: number | null
+): { amount: number; currency: 'inr' | 'usd'; rate: number | null } {
+  if (isIndia(country) && exchangeRate) {
+    const inrAmount = Math.round(amountUsd * exchangeRate * 100) / 100;
+    return { amount: inrAmount, currency: 'inr', rate: exchangeRate };
+  }
+
+  return { amount: amountUsd, currency: 'usd', rate: null };
+}
+
+/**
  * Allowed countries for physical card shipping
  */
 export const ALLOWED_PHYSICAL_CARD_COUNTRIES = ['India', 'UAE', 'USA', 'UK'];

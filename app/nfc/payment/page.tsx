@@ -10,6 +10,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Footer from '@/components/Footer';
 import { getOrderAmountForVoucher } from '@/lib/pricing-utils';
+import { getCurrencySymbol, getStripeCurrency, fetchExchangeRate, convertToStripeCurrency, isIndia } from '@/lib/country-utils';
 import StripePaymentModal from '@/components/StripePaymentModal';
 
 // Icon aliases
@@ -63,6 +64,11 @@ export default function NFCPaymentPage() {
 
   // Founding member status
   const [isFoundingMember, setIsFoundingMember] = useState(false);
+
+  // Currency state
+  const [paymentCurrency, setPaymentCurrency] = useState<'usd' | 'inr'>('usd');
+  const [currencySymbol, setCurrencySymbol] = useState('$');
+  const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
   // Stripe Modal state
   const [showStripeModal, setShowStripeModal] = useState(false);
@@ -126,6 +132,19 @@ export default function NFCPaymentPage() {
 
       setOrderData(data);
       setHasOrderError(false);
+
+      // Detect currency from shipping country
+      const shippingCountry = data.shipping?.country || 'IN';
+      const detectedCurrency = getStripeCurrency(shippingCountry);
+      const detectedSymbol = getCurrencySymbol(shippingCountry);
+      setPaymentCurrency(detectedCurrency);
+      setCurrencySymbol(detectedSymbol);
+
+      // Fetch exchange rate if INR (needed to convert USD prices to INR for Stripe)
+      if (isIndia(shippingCountry)) {
+        const rate = await fetchExchangeRate();
+        setExchangeRate(rate);
+      }
 
       // Store original total before any discounts
       if (data.pricing?.total) {
@@ -333,6 +352,14 @@ export default function NFCPaymentPage() {
     return (materialPrice || 0) * quantity;
   };
 
+  // Format a USD amount into the user's display currency
+  const displayPrice = (usdAmount: number) => {
+    if (paymentCurrency === 'inr' && exchangeRate) {
+      return `${currencySymbol}${(usdAmount * exchangeRate).toFixed(2)}`;
+    }
+    return `${currencySymbol}${usdAmount.toFixed(2)}`;
+  };
+
   const getFinalAmount = () => {
     if (!orderData) return 0;
 
@@ -360,14 +387,29 @@ export default function NFCPaymentPage() {
       // Calculate final amount with voucher discount
       const finalAmount = getFinalAmount();
 
+      // Convert to local currency for Stripe (e.g. USD → INR for India)
+      const { amount: convertedAmount, currency } = convertToStripeCurrency(
+        finalAmount,
+        orderData.shipping?.country,
+        exchangeRate
+      );
+
+      console.log('[Payment] Currency flow:', {
+        shippingCountry: orderData.shipping?.country,
+        usdAmount: finalAmount,
+        convertedAmount,
+        currency,
+        exchangeRate,
+      });
+
       // Create payment intent
       // Note: finalAmount already has voucher discount applied by frontend
       const response = await fetch('/api/payment/create-intent', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: finalAmount, // Already includes voucher discount
-          currency: 'usd',
+          amount: convertedAmount, // Converted to local currency if needed
+          currency,
           orderId: orderData.orderId, // Required for idempotency
           orderData: {
             customerName: orderData.customerName,
@@ -641,7 +683,7 @@ export default function NFCPaymentPage() {
                 ) : !orderData?.orderId ? (
                   'Order ID Required'
                 ) : (
-                  `Pay $${getFinalAmount().toFixed(2)}`
+                  `Pay ${displayPrice(getFinalAmount())}`
                 )}
               </button>
 
@@ -754,7 +796,7 @@ export default function NFCPaymentPage() {
                         {/* SUBSCRIPTION PLAN: Show plan name + billing period */}
                         <div className="flex justify-between">
                           <span>{(orderData as any).planName} Plan ({billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'})</span>
-                          <span>${getSubtotal().toFixed(2)}</span>
+                          <span>{displayPrice(getSubtotal())}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>Digital Card</span>
@@ -776,7 +818,7 @@ export default function NFCPaymentPage() {
                           <span>
                             Founder&apos;s Circle × {orderData?.cardConfig?.quantity || 1}
                           </span>
-                          <span>${getSubtotal().toFixed(2)}</span>
+                          <span>{displayPrice(getSubtotal())}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>1 Year Linkist App Subscription</span>
@@ -803,7 +845,7 @@ export default function NFCPaymentPage() {
                           <span>
                             {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}
                           </span>
-                          <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                          <span>{displayPrice(getSubtotal())}{priceSuffix}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>NFC Card</span>
@@ -828,7 +870,7 @@ export default function NFCPaymentPage() {
                         <span>
                           Base Material Price × {orderData?.cardConfig?.quantity || 1}
                         </span>
-                        <span>${getSubtotal().toFixed(2)}{priceSuffix}</span>
+                        <span>{displayPrice(getSubtotal())}{priceSuffix}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>GST</span>
@@ -923,7 +965,7 @@ export default function NFCPaymentPage() {
                     {voucherValid && voucherAmount > 0 && (
                       <div className="flex justify-between text-green-600 font-medium text-sm">
                         <span>Voucher Discount ({voucherDiscount}% off)</span>
-                        <span>-${voucherAmount.toFixed(2)}</span>
+                        <span>-{displayPrice(voucherAmount)}</span>
                       </div>
                     )}
                   </>
@@ -932,7 +974,7 @@ export default function NFCPaymentPage() {
                 {/* Total */}
                 <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3 flex justify-between font-semibold text-sm sm:text-base">
                   <span>Total</span>
-                  <span>${getFinalAmount().toFixed(2)}{orderData?.cardConfig?.billingPeriod === 'monthly' ? '/mo' : ''}</span>
+                  <span>{displayPrice(getFinalAmount())}{orderData?.cardConfig?.billingPeriod === 'monthly' ? '/mo' : ''}</span>
                 </div>
               </div>
 
@@ -958,7 +1000,7 @@ export default function NFCPaymentPage() {
           onClose={() => setShowStripeModal(false)}
           clientSecret={stripeClientSecret}
           amount={stripePaymentAmount}
-          currency="usd"
+          currency={paymentCurrency}
           orderDetails={{
             customerName: orderData.customerName,
             email: orderData.email,

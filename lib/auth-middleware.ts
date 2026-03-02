@@ -1,5 +1,6 @@
 // Production-ready authentication middleware using Supabase
 import { createServerClient } from '@supabase/ssr'
+import { createClient } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 import { SessionStore } from './session-store'
@@ -137,8 +138,14 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
         let foundingMemberPlan: string | null = null
 
         try {
-          const { supabase: dbClient } = createMiddlewareClient(request)
-          const { data: userData, error: userError } = await dbClient
+          // Use admin client (service_role) to bypass RLS on users table
+          // The anon key can't read users table due to RLS requiring auth.uid() match
+          const adminClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            { auth: { autoRefreshToken: false, persistSession: false } }
+          )
+          const { data: userData, error: userError } = await adminClient
             .from('users')
             .select('first_name, last_name, status, is_founding_member, founding_member_since, founding_member_plan')
             .eq('id', sessionData.userId)
