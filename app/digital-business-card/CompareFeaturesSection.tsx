@@ -9,14 +9,14 @@ const COMPARE_FEATURES = [
   { name: 'Multiple Profile themes', starter: true, next: true, pro: true, signature: true, founder: true },
   { name: 'Customisable rich details', starter: true, next: true, pro: true, signature: true, founder: true },
 
-  { name: 'Digital Smart Card', starter: false, next: false, pro: true, signature: true, founder: true, isHeader: true },
+  { name: 'Digital Smart Card', starter: false, next: false, pro: false, signature: false, founder: false, isHeader: true },
   { name: 'Linkist branded card', starter: false, next: false, pro: true, signature: true, founder: true },
   { name: 'Multiple base materials', starter: false, next: false, pro: true, signature: true, founder: true },
   { name: 'Various colour ways', starter: false, next: false, pro: true, signature: true, founder: true },
   { name: 'Tap to share', starter: false, next: false, pro: true, signature: true, founder: true },
   { name: 'Special Edition Designs', starter: false, next: false, pro: false, signature: true, founder: true },
 
-  { name: 'Card Personalisation', starter: false, next: false, pro: false, signature: true, founder: true, isHeader: true },
+  { name: 'Card Personalisation', starter: false, next: false, pro: false, signature: false, founder: false, isHeader: true },
   { name: 'Name', starter: false, next: false, pro: false, signature: true, founder: true },
   { name: 'Company Logo', starter: false, next: false, pro: false, signature: true, founder: true },
   { name: 'Remove Linkist Logo', starter: false, next: false, pro: false, signature: false, founder: true },
@@ -24,7 +24,7 @@ const COMPARE_FEATURES = [
   { name: 'Linkist Pro App', starter: false, next: true, pro: true, signature: true, founder: true, isHeader: true },
   { name: 'Multiple digital profiles', starter: false, next: true, pro: true, signature: true, founder: true },
   { name: 'Business card scanning', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Enhanced address book', starter: false, next: true, pro: true, signature: true, founder: true },
+  { name: 'Enchanced address book', starter: false, next: true, pro: true, signature: true, founder: true },
   { name: 'Contacts enrichment', starter: false, next: true, pro: true, signature: true, founder: true },
   { name: 'Network strength score', starter: false, next: true, pro: true, signature: true, founder: true },
   { name: 'ICP definition and match', starter: false, next: true, pro: true, signature: true, founder: true },
@@ -40,8 +40,8 @@ const COMPARE_FEATURES = [
   { name: 'Founding Member status', starter: false, next: false, pro: false, signature: false, founder: true },
   { name: 'Exclusive black designer card', starter: false, next: false, pro: false, signature: false, founder: true },
   { name: 'No expiry (AI credits)', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'Up to 3 founding member invites', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'Linkist partner privileges', starter: false, next: false, pro: false, signature: false, founder: true },
+  { name: 'Upto 3 founding member invites', starter: false, next: false, pro: false, signature: false, founder: true },
+  { name: 'Linkist partner previleges', starter: false, next: false, pro: false, signature: false, founder: true },
 ];
 
 export default function CompareFeatures() {

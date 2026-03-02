@@ -130,16 +130,8 @@ export default function HeroSection() {
     <section className="lg:min-h-screen flex items-center justify-center relative overflow-visible">
       {/* Background */}
       <div className="absolute inset-0 w-full h-full pointer-events-none z-0">
-        {/* Mobile background image */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/new-bg-micro-mobile.jpg"
-          alt=""
-          className="block lg:hidden w-full h-full object-cover"
-        />
-        {/* Desktop background gradient (restored) */}
         <div
-          className="hidden lg:block w-full h-full absolute inset-0"
+          className="w-full h-full absolute inset-0"
           style={{
             background:
               'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(255,58,41,0.35) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 20% 80%, rgba(255,58,41,0.15) 0%, transparent 50%)',
