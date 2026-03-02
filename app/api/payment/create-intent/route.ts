@@ -161,12 +161,18 @@ export async function POST(req: NextRequest) {
     const idempotencyKey = `order_${orderId}_payment_intent`;
 
     // Create a payment intent
-    // automatic_payment_methods lets Stripe show all eligible methods
-    // (Card, Google Pay, Apple Pay, UPI, etc.) based on Dashboard settings + currency
+    // For INR: explicitly include UPI (automatic_payment_methods often misses it)
+    // For other currencies: use automatic_payment_methods for broadest coverage
+    const isInr = currency.toLowerCase() === 'inr';
+
+    const paymentMethodConfig = isInr
+      ? { payment_method_types: ['card', 'upi'] as const }
+      : { automatic_payment_methods: { enabled: true } as const };
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
       currency: currency.toLowerCase(),
-      automatic_payment_methods: { enabled: true },
+      ...paymentMethodConfig,
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',
