@@ -98,7 +98,7 @@ export default function CompareFeatures() {
               backgroundClip: 'text',
             }}
           >
-            See exactly what&apos;s included in every plan.
+            See exactly what&apos;s included in every plan
           </h2>
         </div>
 
@@ -167,7 +167,7 @@ export default function CompareFeatures() {
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
                     >
-                      Get Started
+                      Start Now
                       <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 12h16M13 5l7 7-7 7" />
                       </svg>
