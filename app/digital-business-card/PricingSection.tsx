@@ -1,61 +1,62 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback } from 'react';
 
 // --- Types & Data ---
 
 interface PricingCard {
   name: string;
   subtitle: string;
-  monthlyPrice: number;
-  yearlyPrice: number;
+  price: number;
   features: string[];
+  addOn: string;
 }
 
 const PRICING_CARDS: PricingCard[] = [
   {
     name: 'Starter',
     subtitle: 'Best for getting started with a digital identity',
-    monthlyPrice: 0,
-    yearlyPrice: 0,
+    price: 0,
     features: [
-      'Linkist Digital Profile',
-      'Claim a personalised Linkist ID (yours for life)',
-      'Share your profile instantly via link or QR'
-    ]
+      'Digital Profile',
+      'Personalised Linkist ID (yours for life)',
+      'Quick Share via QR or URL',
+      'Link your social platforms',
+      'Upgrade to Business anytime',
+    ],
+    addOn: 'Add-on: Linkist Smart card at $30',
   },
   {
-    name: 'Pro',
+    name: 'Business',
     subtitle: 'Best for professionals who network in the real world',
-    monthlyPrice: 9.9,
-    yearlyPrice: 99,
+    price: 99,
     features: [
-      'Digital Smart Card',
-      'Digital Profile',
-      'Personalised Linkist ID',
-      'Instant Share (QR, URL)',
-      'Linkist Pro App subscription and AI credits'
-    ]
+      'Digital Profile and Smart Card',
+      'Personalised Linkist ID (yours for life)',
+      'Quick Share via QR or URL',
+      '1 year Linkist Pro App Subscription (post app launch Q3 2026)',
+      "Request upgrade to Founder's Circle before Q3 2026",
+    ],
+    addOn: 'Add-on: Card customisation at an additional cost of $30 (Signature)',
   },
   {
     name: "Founder's Circle",
-    subtitle: 'Invite-only, lifetime premium access',
-    monthlyPrice: 14.9,
-    yearlyPrice: 149,
+    subtitle: 'Invite-Only. Subscribe now, for lifetime pro app access',
+    price: 149,
     features: [
-      'Everything in Signature',
-      'AI credits worth $50 (available post app launch)',
-      'Up to 3 Founding Member referral invites',
-      'Access to Linkist partner privileges'
-    ]
-  }
+      'Everything in Business',
+      'Card Customisation Included',
+      'AI credits worth $50 ( post app launch Q3 2026)',
+      'Access to Linkist partner privileges',
+      'Lifetime Linkist Pro App Subscription (post app launch Q3 2026)',
+    ],
+    addOn: 'Add-on: Your at the top nothing more to add!',
+  },
 ];
 
 // --- Components ---
 
 export default function PricingSection() {
-  const [period, setPeriod] = useState<'monthly' | 'yearly'>('yearly');
-  
   // Refs for DOM manipulation (performance optimization)
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -340,34 +341,6 @@ export default function PricingSection() {
           </p>
         </div>
 
-        {/* Toggle Switch */}
-        <div className="flex justify-center mb-10">
-          <div className="inline-flex items-center bg-[#1A1A1A] p-1 rounded-full border border-white/10 relative z-20">
-            <button
-              onClick={() => setPeriod('monthly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                period === 'monthly'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={period === 'monthly' ? { backgroundColor: '#FF3A29' } : { backgroundColor: 'transparent' }}
-            >
-              Monthly
-            </button>
-            <button
-              onClick={() => setPeriod('yearly')}
-              className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-                period === 'yearly'
-                  ? 'text-white'
-                  : 'text-gray-400 hover:text-white'
-              }`}
-              style={period === 'yearly' ? { backgroundColor: '#FF3A29' } : { backgroundColor: 'transparent' }}
-            >
-              Yearly
-            </button>
-          </div>
-        </div>
-
         {/* Scroll Container */}
         <div className="w-full relative perspective-[1200px] lg:hidden">
           <div
@@ -398,16 +371,16 @@ export default function PricingSection() {
                   <h3 className="text-xl font-semibold text-white mb-2 font-poppins">
                     {card.name}
                   </h3>
-                  <p className="text-gray-400 text-xs mb-4 h-10 leading-snug">
+                  <p className="text-gray-400 text-xs mb-4 h-auto min-h-[40px] leading-snug">
                     {card.subtitle}
                   </p>
 
                   <div className="mb-6">
                     <span className="text-5xl font-medium text-white tracking-tight">
-                      ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
+                      ${card.price}
                     </span>
                     <span className="text-gray-400 text-sm ml-1">
-                      /{period === 'monthly' ? 'month' : 'year'}
+                      /year
                     </span>
                   </div>
 
@@ -425,6 +398,9 @@ export default function PricingSection() {
                         </li>
                       ))}
                     </ul>
+                    <p className="text-gray-500 text-xs mt-3 italic">
+                      {card.addOn}
+                    </p>
                   </div>
 
                   <a
@@ -442,7 +418,7 @@ export default function PricingSection() {
         {/* Desktop Layout: 3-column grid */}
         <div className="hidden lg:grid grid-cols-3 gap-6 px-6 xl:px-12 max-w-5xl mx-auto">
           {PRICING_CARDS.map((card, index) => {
-            const isActive = index === 1; // Pro is default active
+            const isActive = index === 1; // Business is default active
             return (
               <div
                 key={index}
@@ -467,10 +443,10 @@ export default function PricingSection() {
 
                   <div className="mb-6">
                     <span className="text-5xl font-medium text-white tracking-tight">
-                      ${period === 'monthly' ? card.monthlyPrice : card.yearlyPrice}
+                      ${card.price}
                     </span>
                     <span className="text-gray-400 text-sm ml-1">
-                      /{period === 'monthly' ? 'month' : 'year'}
+                      /year
                     </span>
                   </div>
 
@@ -490,6 +466,9 @@ export default function PricingSection() {
                         </li>
                       ))}
                     </ul>
+                    <p className="text-gray-500 text-xs mt-3 italic">
+                      {card.addOn}
+                    </p>
                   </div>
 
                   <a

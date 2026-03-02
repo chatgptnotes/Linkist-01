@@ -3,45 +3,48 @@
 import { useState } from 'react';
 
 const COMPARE_FEATURES = [
-  { name: 'Digital Profile', starter: true, next: true, pro: true, signature: true, founder: true, isHeader: true },
-  { name: 'Unique ID link (for life)', starter: true, next: true, pro: true, signature: true, founder: true },
-  { name: 'Instant Share (QR, URL)', starter: true, next: true, pro: true, signature: true, founder: true },
-  { name: 'Multiple Profile themes', starter: true, next: true, pro: true, signature: true, founder: true },
-  { name: 'Customisable rich details', starter: true, next: true, pro: true, signature: true, founder: true },
+  { name: 'Digital Profile', starter: true, business: true, signature: true, founder: true, isHeader: true },
+  { name: 'Unique ID link (for life)', starter: true, business: true, signature: true, founder: true },
+  { name: 'Instant Share (QR, URL)', starter: true, business: true, signature: true, founder: true },
+  { name: 'Multiple Profile themes', starter: true, business: true, signature: true, founder: true },
+  { name: 'Customisable rich details', starter: true, business: true, signature: true, founder: true },
+  { name: 'Link your social platforms', starter: true, business: true, signature: true, founder: true },
+  { name: 'Add your services', starter: true, business: true, signature: true, founder: true },
+  { name: 'Add Certifications', starter: true, business: true, signature: true, founder: true },
+  { name: 'Update anytime', starter: true, business: true, signature: true, founder: true },
 
-  { name: 'Digital Smart Card', starter: false, next: false, pro: false, signature: false, founder: false, isHeader: true },
-  { name: 'Linkist branded card', starter: false, next: false, pro: true, signature: true, founder: true },
-  { name: 'Multiple base materials', starter: false, next: false, pro: true, signature: true, founder: true },
-  { name: 'Various colour ways', starter: false, next: false, pro: true, signature: true, founder: true },
-  { name: 'Tap to share', starter: false, next: false, pro: true, signature: true, founder: true },
-  { name: 'Special Edition Designs', starter: false, next: false, pro: false, signature: true, founder: true },
+  { name: 'Digital Smart Card', starter: false, business: true, signature: true, founder: true, isHeader: true },
+  { name: 'Linkist branded card', starter: false, business: true, signature: true, founder: true },
+  { name: 'Multiple base materials', starter: false, business: true, signature: true, founder: true },
+  { name: 'Various colour ways', starter: false, business: true, signature: true, founder: true },
+  { name: 'Tap to share', starter: false, business: true, signature: true, founder: true },
+  { name: 'Multiple Designs', starter: false, business: true, signature: true, founder: true },
 
-  { name: 'Card Personalisation', starter: false, next: false, pro: false, signature: false, founder: false, isHeader: true },
-  { name: 'Name', starter: false, next: false, pro: false, signature: true, founder: true },
-  { name: 'Company Logo', starter: false, next: false, pro: false, signature: true, founder: true },
-  { name: 'Remove Linkist Logo', starter: false, next: false, pro: false, signature: false, founder: true },
+  { name: 'Card Personalisation', starter: false, business: false, signature: true, founder: true, isHeader: true },
+  { name: 'Name', starter: false, business: false, signature: true, founder: true },
+  { name: 'Company Logo', starter: false, business: false, signature: true, founder: true },
+  { name: 'Remove Linkist Logo', starter: false, business: false, signature: false, founder: true },
 
-  { name: 'Linkist Pro App', starter: false, next: true, pro: true, signature: true, founder: true, isHeader: true },
-  { name: 'Multiple digital profiles', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Business card scanning', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Enchanced address book', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Contacts enrichment', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Network strength score', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'ICP definition and match', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Priority Contacts', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Tags, Notes, Groups', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Intelligent actionable nudges', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'Contact matchmaking', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'AI credits (worth $50)', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: '1 year Pro App subscription (worth $99)', starter: false, next: true, pro: true, signature: true, founder: true },
-  { name: 'More (Coming Soon)', starter: false, next: true, pro: true, signature: true, founder: true },
+  { name: 'Linkist Pro App', starter: false, business: true, signature: true, founder: true, isHeader: true },
+  { name: 'Multiple digital profiles', starter: false, business: true, signature: true, founder: true },
+  { name: 'Business card scanning', starter: false, business: true, signature: true, founder: true },
+  { name: 'Enchanced address book', starter: false, business: true, signature: true, founder: true },
+  { name: 'Contacts enrichment', starter: false, business: true, signature: true, founder: true },
+  { name: 'Network strength score', starter: false, business: true, signature: true, founder: true },
+  { name: 'ICP definition and match', starter: false, business: true, signature: true, founder: true },
+  { name: 'Priority Contacts', starter: false, business: true, signature: true, founder: true },
+  { name: 'Tags, Notes, Groups', starter: false, business: true, signature: true, founder: true },
+  { name: 'Intelligent actionable nudges', starter: false, business: true, signature: true, founder: true },
+  { name: 'Contact matchmaking', starter: false, business: true, signature: true, founder: true },
+  { name: '1 year Pro App subscription', starter: false, business: true, signature: true, founder: true },
 
-  { name: 'Founding Member Benefits', starter: false, next: false, pro: false, signature: false, founder: true, isHeader: true },
-  { name: 'Founding Member status', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'Exclusive black designer card', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'No expiry (AI credits)', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'Upto 3 founding member invites', starter: false, next: false, pro: false, signature: false, founder: true },
-  { name: 'Linkist partner previleges', starter: false, next: false, pro: false, signature: false, founder: true },
+  { name: 'Founding Member Benefits', starter: false, business: false, signature: false, founder: true, isHeader: true },
+  { name: 'Founding Member status', starter: false, business: false, signature: false, founder: true },
+  { name: 'No expiry (AI credits)', starter: false, business: false, signature: false, founder: true },
+  { name: 'Upto 3 founding member invites', starter: false, business: false, signature: false, founder: true },
+  { name: 'Linkist partner privileges', starter: false, business: false, signature: false, founder: true },
+  { name: 'Lifetime Pro App subscription', starter: false, business: false, signature: false, founder: true },
+  { name: 'AI credits (worth $50)', starter: false, business: false, signature: false, founder: true },
 ];
 
 export default function CompareFeatures() {
@@ -106,7 +109,7 @@ export default function CompareFeatures() {
                 <th className="compare-table-sticky py-3 px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[160px] min-w-[160px]">
                   Features
                 </th>
-                {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan) => (
+                {['Starter', 'Business', 'Signature', "Founder's Circle"].map((plan) => (
                   <th key={plan} className="py-3 px-4 text-center text-xs md:text-sm font-semibold text-white border-b border-white/10 w-[14%]">
                     {plan}
                   </th>
@@ -119,7 +122,7 @@ export default function CompareFeatures() {
                   <td className={`compare-table-sticky py-2 px-4 text-xs md:text-sm border-b w-[160px] min-w-[160px] ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
-                  {[row.starter, row.next, row.pro, row.signature, row.founder].map((val, i) => (
+                  {[row.starter, row.business, row.signature, row.founder].map((val, i) => (
                     <td key={i} className={`py-2 px-4 text-center border-b border-white/10 ${row.isHeader ? 'pt-5' : ''}`}>
                       {val ? (
                         <div className="flex justify-center items-center">
@@ -148,18 +151,18 @@ export default function CompareFeatures() {
                     </svg>
                   </div>
                 </td>
-                <td colSpan={5} className="py-2 px-4 border-b border-white/10 bg-[#0A0A0A] group-hover:bg-[#111] transition-colors"></td>
+                <td colSpan={4} className="py-2 px-4 border-b border-white/10 bg-[#0A0A0A] group-hover:bg-[#111] transition-colors"></td>
               </tr>
 
               {/* Action Buttons Row */}
               <tr>
                 <td className="compare-table-sticky py-3 px-4"></td>
-                {['Starter', 'Next', 'Pro', 'Signature', "Founder's Circle"].map((plan, i) => (
+                {['Starter', 'Business', 'Signature', "Founder's Circle"].map((plan, i) => (
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
                       href="https://linkist.ai/choose-plan"
                       className={`flex items-center justify-center gap-2 w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-300 no-underline ${
-                        i === 2
+                        i === 1
                           ? 'bg-[#FF3A29] text-white shadow-[0_4px_14px_rgba(255,58,41,0.3)] hover:bg-[#e8321f]'
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
