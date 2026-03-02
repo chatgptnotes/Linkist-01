@@ -161,18 +161,13 @@ export async function POST(req: NextRequest) {
     const idempotencyKey = `order_${orderId}_payment_intent`;
 
     // Create a payment intent
-    // For INR: explicitly include UPI (automatic_payment_methods often misses it)
+    // For INR: explicitly include UPI so it appears in PaymentElement
     // For other currencies: use automatic_payment_methods for broadest coverage
     const isInr = currency.toLowerCase() === 'inr';
 
-    const paymentMethodConfig = isInr
-      ? { payment_method_types: ['card', 'upi'] as const }
-      : { automatic_payment_methods: { enabled: true } as const };
-
-    const paymentIntent = await stripe.paymentIntents.create({
+    const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: currency.toLowerCase(),
-      ...paymentMethodConfig,
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',
@@ -182,12 +177,19 @@ export async function POST(req: NextRequest) {
         discountAmount: discountAmount.toString(),
         voucherCode: voucherCode || '',
         voucherId: voucherId || '',
-        // Add pricing breakdown for webhook
         subtotal: (orderData?.pricing?.subtotal || orderData?.subtotal || '0').toString(),
         shipping: (orderData?.pricing?.shipping || orderData?.shipping || '0').toString(),
         tax: (orderData?.pricing?.tax || orderData?.tax || '0').toString(),
       },
-    }, {
+    };
+
+    if (isInr) {
+      createParams.payment_method_types = ['card', 'upi'];
+    } else {
+      createParams.automatic_payment_methods = { enabled: true };
+    }
+
+    const paymentIntent = await stripe.paymentIntents.create(createParams, {
       idempotencyKey: idempotencyKey,
     });
 
