@@ -280,7 +280,7 @@ export default function PricingSection() {
 
         .pricing-card-responsive {
             width: 280px;
-            height: 520px;
+            min-height: 680px;
             padding: 24px;
         }
 
@@ -291,7 +291,7 @@ export default function PricingSection() {
             }
             .pricing-card-responsive {
                 width: 320px;
-                height: 540px;
+                min-height: 700px;
                 padding: 32px;
             }
         }
@@ -427,7 +427,7 @@ export default function PricingSection() {
                     ? 'border-[rgba(255,0,0,0.5)] shadow-[0_30px_60px_-10px_rgba(0,0,0,0.9)] scale-[1.03]'
                     : 'border-white/10'
                 }`}
-                style={{ padding: '32px' }}
+                style={{ padding: '32px', minHeight: '680px' }}
               >
                 {/* Active card header gradient */}
                 {isActive && (
