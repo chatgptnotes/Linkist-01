@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
+import type { ReactNode } from 'react';
 
 // --- Types & Data ---
 
@@ -8,7 +9,7 @@ interface PricingCard {
   name: string;
   subtitle: string;
   price: number;
-  features: string[];
+  features: ReactNode[];
   addOn: string;
 }
 
@@ -22,7 +23,7 @@ const PRICING_CARDS: PricingCard[] = [
       'Personalised Linkist ID (yours for life)',
       'Quick Share via QR or URL',
       'Link your social platforms',
-      'Upgrade to Business anytime',
+      <>Upgrade to <strong>Business</strong> anytime</>,
     ],
     addOn: 'Add-on: Linkist Smart card at $30',
   },
@@ -34,8 +35,8 @@ const PRICING_CARDS: PricingCard[] = [
       'Digital Profile and Smart Card',
       'Personalised Linkist ID (yours for life)',
       'Quick Share via QR or URL',
-      '1 year Linkist Pro App Subscription (post app launch Q3 2026)',
-      "Request upgrade to Founder's Circle before Q3 2026",
+      <>1 year <strong>Linkist Pro App</strong> Subscription (post app launch Q3 2026)</>,
+      <>Request upgrade to <strong>Founder&apos;s Circle</strong> before Q3 2026</>,
     ],
     addOn: 'Add-on: Card customisation at an additional cost of $30 (Signature)',
   },
@@ -44,13 +45,13 @@ const PRICING_CARDS: PricingCard[] = [
     subtitle: 'Invite-Only. Subscribe now, for lifetime pro app access',
     price: 149,
     features: [
-      'Everything in Business',
+      <>Everything in <strong>Business</strong></>,
       'Card Customisation included',
       'AI credits worth $50 (post app launch Q3 2026)',
       'Access to Linkist partner privileges',
-      'Lifetime Linkist Pro App Subscription (post app launch Q3 2026)',
+      <><strong>Lifetime Linkist Pro</strong> App Subscription (post app launch Q3 2026)</>,
     ],
-    addOn: 'Add-on: Your at the top nothing more to add!',
+    addOn: "Add-on: You're at the top nothing more to add!",
   },
 ];
 

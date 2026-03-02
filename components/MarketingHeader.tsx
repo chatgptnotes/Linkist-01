@@ -8,7 +8,7 @@ import CloseIcon from '@mui/icons-material/Close';
 const navLinks = [
   { label: 'Pricing', href: '/digital-business-card#pricing' },
   { label: 'Founding Member Offer', href: '/digital-business-card#founding-member' },
-  { label: "FAQ's", href: '/digital-business-card#faq' },
+  { label: "FAQ's", href: 'https://linkist.ai/#faq' },
 ];
 
 export default function MarketingHeader() {

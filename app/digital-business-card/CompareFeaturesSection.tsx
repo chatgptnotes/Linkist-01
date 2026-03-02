@@ -119,20 +119,20 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b w-[110px] min-w-[110px] ${row.isHeader ? 'font-semibold text-white pt-5' : 'text-gray-300'}`}>
+                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b w-[110px] min-w-[110px] ${row.isHeader ? 'font-semibold text-[#FF3A29] pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.business, row.signature, row.founder].map((val, i) => (
                     <td key={i} className={`py-2 px-4 text-center border-b border-white/10 ${row.isHeader ? 'pt-5' : ''}`}>
-                      {val ? (
+                      {!row.isHeader && val ? (
                         <div className="flex justify-center items-center">
                           <svg className="w-[14px] h-[14px] text-[#FF3A29]" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
                           </svg>
                         </div>
-                      ) : (
+                      ) : !row.isHeader ? (
                         <span className="text-gray-600 font-medium">-</span>
-                      )}
+                      ) : null}
                     </td>
                   ))}
                 </tr>
@@ -161,16 +161,13 @@ export default function CompareFeatures() {
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
                       href="https://linkist.ai/choose-plan"
-                      className={`flex items-center justify-center gap-2 w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-300 no-underline ${
+                      className={`block w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs text-center transition-all duration-300 no-underline ${
                         i === 1
                           ? 'bg-[#FF3A29] text-white shadow-[0_4px_14px_rgba(255,58,41,0.3)] hover:bg-[#e8321f]'
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
                     >
                       Start Now
-                      <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 12h16M13 5l7 7-7 7" />
-                      </svg>
                     </a>
                   </td>
                 ))}
