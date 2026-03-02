@@ -4,6 +4,15 @@ import { createClient } from '@supabase/supabase-js'
 
 import { getCurrentUser } from '@/lib/auth-middleware'
 
+// Create admin client for payment queries
+const createAdminClient = () => {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+  return createClient(supabaseUrl, serviceRoleKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  })
+}
+
 export async function GET(request: NextRequest) {
   try {
     // Get authenticated user
@@ -34,12 +43,32 @@ export async function GET(request: NextRequest) {
 
     // Get user's orders from database
     const orders = await SupabaseOrderStore.getByEmail(email)
-    
+
     // Get user profile from Supabase (if exists)
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = createAdminClient()
+
+    // Fetch payment data for all orders in one batch query
+    const orderIds = orders.map(o => o.id)
+    let paymentsByOrderId = new Map<string, any>()
+    if (orderIds.length > 0) {
+      const { data: allPayments } = await supabase
+        .from('payments')
+        .select('*')
+        .in('order_id', orderIds)
+      paymentsByOrderId = new Map(
+        allPayments?.map(p => [p.order_id, {
+          paymentMethod: p.payment_method,
+          status: p.status,
+          amount: p.amount,
+        }]) || []
+      )
+    }
+
+    // Attach payment info to orders
+    const ordersWithPayments = orders.map(order => ({
+      ...order,
+      payment: paymentsByOrderId.get(order.id) || null,
+    }))
 
     const { data: profile } = await supabase
       .from('profiles')
@@ -56,15 +85,15 @@ export async function GET(request: NextRequest) {
 
     // Calculate user stats
     const stats = {
-      totalOrders: orders.length,
-      totalSpent: orders.reduce((sum, order) => sum + order.pricing.total, 0),
-      recentOrders: orders.slice(0, 5), // Last 5 orders
+      totalOrders: ordersWithPayments.length,
+      totalSpent: ordersWithPayments.reduce((sum, order) => sum + order.pricing.total, 0),
+      recentOrders: ordersWithPayments.slice(0, 5), // Last 5 orders
       founderMember: userRecord?.is_founding_member || false,
-      joinDate: profile?.created_at || orders[0]?.createdAt || new Date().toISOString()
+      joinDate: profile?.created_at || ordersWithPayments[0]?.createdAt || new Date().toISOString()
     }
 
     // Check if user actually has a Founder's Club/Circle order
-    const hasFoundersOrder = orders.some((order: any) =>
+    const hasFoundersOrder = ordersWithPayments.some((order: any) =>
       order.cardConfig?.planType === 'founders-club' ||
       order.cardConfig?.planType === 'founders-circle'
     );
@@ -85,13 +114,13 @@ export async function GET(request: NextRequest) {
       founding_member_plan: userRecord?.founding_member_plan || null
     }
 
-    console.log(`✅ Account data retrieved: ${orders.length} orders, $${stats.totalSpent.toFixed(2)} total`)
+    console.log(`✅ Account data retrieved: ${ordersWithPayments.length} orders, $${stats.totalSpent.toFixed(2)} total`)
 
     return NextResponse.json({
       success: true,
       data: {
         user: userData,
-        orders,
+        orders: ordersWithPayments,
         stats
       }
     })
