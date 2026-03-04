@@ -30,22 +30,22 @@ export default function FoundingMembersSection() {
           
           {/* Promo Card (Standardized to match others) */}
           <div className="rounded-3xl md:rounded-[32px] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
-            <div className="bg-[#E63929] p-6 md:p-8 flex flex-col flex-1">
-              <h3 className="text-white font-bold text-lg md:text-2xl mb-4">
+            <div className="bg-[#E63929] p-5 md:p-6 flex flex-col flex-1">
+              <h3 className="text-white font-bold text-lg md:text-xl mb-2">
                 Founding Member Rate
               </h3>
-              <p className="text-white/95 text-sm md:text-base leading-relaxed">
-                <span className="italic font-bold block mb-3">Locked in for life.</span>
+              <p className="text-white/95 text-sm leading-snug">
+                <span className="italic font-bold block mb-1">Locked in for life.</span>
                 Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
               </p>
             </div>
-            <div className="bg-[#CC2B1C] p-6 md:px-8 md:py-6 flex flex-col">
+            <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-4 flex flex-col">
               <div className="flex items-baseline gap-2 flex-wrap mb-1">
                 <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
                 <span className="text-white/90 text-sm md:text-base font-medium">/year</span>
                 <span className="text-white/60 text-sm md:text-base font-medium line-through ml-1">vs $99 /year</span>
               </div>
-              <p className="text-white/80 text-xs md:text-sm font-medium">
+              <p className="text-white/80 text-xs font-medium">
                 (First year free; Chargeable from second year onwards)
               </p>
             </div>
