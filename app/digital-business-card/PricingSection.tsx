@@ -46,10 +46,10 @@ const PRICING_CARDS: PricingCard[] = [
     price: 149,
     features: [
       <>Everything in <strong>Business</strong></>,
-      'Card Customisation included',
+      'Card customisation included',
+      <>Lifetime <strong>Linkist Pro App</strong> Subscription (post app launch Q3 2026)</>,
       'AI credits worth $50 (post app launch Q3 2026)',
       'Access to Linkist partner privileges',
-      <><strong>Lifetime Linkist Pro</strong> App Subscription (post app launch Q3 2026)</>,
     ],
     addOn: "Add-on: You're at the top nothing more to add!",
   },
