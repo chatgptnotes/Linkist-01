@@ -147,7 +147,7 @@ export default function HeroSection() {
 
             {/* Mobile H1 */}
             <h1
-              className="lg:hidden text-[36px] leading-[44px] min-[450px]:text-[35px] min-[450px]:leading-[42px] font-semibold tracking-[-0.04em] hero-title-gradient pb-2"
+              className="lg:hidden text-[36px] leading-[44px] min-[450px]:text-[35px] min-[450px]:leading-[42px] font-semibold tracking-[-0.04em] hero-title-gradient pb-3 overflow-visible"
             >
               Tap the smartest<br />
               card now.<br />
