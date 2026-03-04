@@ -28,27 +28,32 @@ export default function FoundingMembersSection() {
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           
-          {/* Card 1: Unique ID */}
-          <div className="bg-[#111111] border border-white/[0.12] rounded-3xl md:rounded-[32px] p-6 md:p-8 flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-6 transition-all duration-300 hover:border-white/30 hover:-translate-y-1">
-            <div className="flex-shrink-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/Layer-15.png"
-                alt="Unique ID"
-                className="w-12 h-12 md:w-[72px] md:h-[72px] object-contain"
-              />
-            </div>
-            <div className="flex flex-col">
-              <h3 className="text-white font-medium text-lg md:text-2xl mb-2">
-                Unique ID
+          {/* NEW PROMO CARD: Spanning 2 columns */}
+          <div className="md:col-span-2 rounded-3xl md:rounded-[32px] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
+            {/* Top Section */}
+            <div className="bg-[#E63929] p-6 md:px-8 md:py-6 flex flex-col justify-center">
+              <h3 className="text-white font-bold text-2xl md:text-3xl lg:text-[36px] leading-[1.2] mb-3">
+                Founding Member Rate — <br className="hidden md:block"/> locked in for life
               </h3>
-              <p className="text-[#A3A3A3] text-sm md:text-base">
-                Get a memorable linkist.ai URL that&apos;s yours forever
+              <p className="text-white/95 text-base md:text-lg font-medium max-w-2xl">
+                Subscribe now and keep this discounted rate forever! <br className="hidden md:block"/>
+                limited period offer until June 2026
+              </p>
+            </div>
+            {/* Bottom Section */}
+            <div className="bg-[#CC2B1C] p-6 md:px-8 md:py-5 flex flex-col justify-center">
+              <div className="flex items-baseline gap-2 md:gap-3 flex-wrap">
+                <span className="text-white font-bold text-3xl md:text-4xl">$69</span>
+                <span className="text-white/90 text-base md:text-lg font-medium">/year</span>
+                <span className="text-white/60 text-base md:text-lg font-medium line-through ml-1 md:ml-2">vs $99 /year</span>
+              </div>
+              <p className="text-white/80 text-xs md:text-sm mt-1 font-medium">
+                (First year free; Chargeable from second year onwards)
               </p>
             </div>
           </div>
 
-          {/* Card 2: Smart Card */}
+          {/* Card 1 (Previously 2nd): Smart Card */}
           <div className="bg-[#111111] border border-white/[0.12] rounded-3xl md:rounded-[32px] p-6 md:p-8 flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-6 transition-all duration-300 hover:border-white/30 hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -68,7 +73,7 @@ export default function FoundingMembersSection() {
             </div>
           </div>
 
-          {/* Card 3: Recognition */}
+          {/* Card 3 (Previously 3rd): Recognition */}
           <div className="bg-[#111111] border border-white/[0.12] rounded-3xl md:rounded-[32px] p-6 md:p-8 flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-6 transition-all duration-300 hover:border-white/30 hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -88,7 +93,7 @@ export default function FoundingMembersSection() {
             </div>
           </div>
 
-          {/* Card 4: Pro App with AI */}
+          {/* Card 4 (Previously 4th): Pro App with AI */}
           <div className="bg-[#111111] border border-white/[0.12] rounded-3xl md:rounded-[32px] p-6 md:p-8 flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-6 transition-all duration-300 hover:border-white/30 hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -108,7 +113,7 @@ export default function FoundingMembersSection() {
             </div>
           </div>
 
-          {/* Card 5: Rewards */}
+          {/* Card 5 (Previously 5th): Rewards */}
           <div className="bg-[#111111] border border-white/[0.12] rounded-3xl md:rounded-[32px] p-6 md:p-8 flex flex-row md:flex-col items-center md:items-start gap-4 md:gap-6 transition-all duration-300 hover:border-white/30 hover:-translate-y-1">
             <div className="flex-shrink-0">
               {/* eslint-disable-next-line @next/next/no-img-element */}
