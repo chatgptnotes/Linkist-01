@@ -10,6 +10,10 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import InfoIcon from '@mui/icons-material/Info';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 
 const Package = Inventory2Icon;
 const Truck = LocalShippingIcon;
@@ -36,6 +40,11 @@ interface Order {
   trackingUrl?: string;
   createdAt: number;
   updatedAt: number;
+  payment?: {
+    paymentMethod?: string;
+    status?: string;
+    amount?: number;
+  };
 }
 
 export default function OrdersPage() {
@@ -44,6 +53,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState<string>('');
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     loadOrders();
@@ -108,6 +118,59 @@ export default function OrdersPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const getPlanName = (order: Order): string => {
+    const planType = order.cardConfig?.planType;
+    const planMap: Record<string, string> = {
+      'signature': 'Signature',
+      'pro': 'Pro',
+      'next': 'Next',
+      'founders-club': "Founder's Circle",
+      'founders-circle': "Founder's Circle",
+      'digital-only': 'Digital Only',
+      'digital-profile-app': 'Digital Profile + App',
+      'starter': 'Starter',
+      'physical-digital': 'NFC Card + Digital',
+    };
+    if (planType && planMap[planType]) return planMap[planType];
+    // Fallback: derive from order number prefix
+    const orderNum = order.orderNumber || '';
+    if (orderNum.includes('-FC-')) return "Founder's Circle";
+    if (orderNum.includes('-SIG-')) return 'Signature';
+    if (orderNum.includes('-PRO-')) return 'Pro';
+    if (orderNum.includes('-NXT-')) return 'Next';
+    if (orderNum.includes('-DO-')) return 'Digital Only';
+    if (orderNum.includes('-DPLA-')) return 'Digital Profile + App';
+    if (orderNum.includes('-CDPLA-')) return 'NFC Card + Digital';
+    return order.cardConfig?.cardType || 'Standard';
+  };
+
+  const getPaymentMethodLabel = (method?: string): string => {
+    if (!method) return 'N/A';
+    const methodMap: Record<string, string> = {
+      'card': 'Credit/Debit Card',
+      'apple_pay': 'Apple Pay',
+      'google_pay': 'Google Pay',
+      'link': 'Link',
+    };
+    return methodMap[method.toLowerCase()] || method.charAt(0).toUpperCase() + method.slice(1);
+  };
+
+  const getShippingStatusLabel = (order: Order): string => {
+    const statusMap: Record<string, string> = {
+      'pending': 'Order Placed',
+      'confirmed': 'Order Confirmed',
+      'production': 'In Production',
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'cancelled': 'Cancelled',
+    };
+    return statusMap[order.status?.toLowerCase()] || order.status || 'Unknown';
+  };
+
+  const toggleOrderExpand = (orderId: string) => {
+    setExpandedOrderId(prev => prev === orderId ? null : orderId);
   };
 
   const getStatusBadge = (status: string) => {
@@ -193,7 +256,7 @@ export default function OrdersPage() {
           <div className="bg-white rounded-xl shadow-sm p-8 text-center">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">No Orders Yet</h2>
-            <p className="text-gray-600 mb-6">You haven't placed any orders yet. Get started with your first NFC card!</p>
+            <p className="text-gray-600 mb-6">You haven&apos;t placed any orders yet. Get started with your first NFC card!</p>
             <Link
               href="/product-selection"
               className="inline-block bg-red-600 text-white px-6 py-3 rounded-lg hover:bg-red-700 transition-colors font-medium"
@@ -222,106 +285,199 @@ export default function OrdersPage() {
             </div>
 
             {/* Orders List */}
-            {orders.map((order) => (
-              <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
-                <div className="p-6">
-                  {/* Order Header */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-3 bg-red-50 rounded-lg">
-                        <Package className="w-6 h-6 text-red-600" />
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Order #{order.orderNumber}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    {getStatusBadge(order.status)}
-                  </div>
-
-                  {/* Order Details Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-600 mb-1">Order Total</p>
-                      <p className="text-xl font-bold text-gray-900">${order.pricing.total.toFixed(2)}</p>
-                      <p className="text-xs text-gray-500 mt-1">
-                        Subtotal: ${order.pricing.subtotal.toFixed(2)} +
-                        Shipping: ${order.pricing.shipping.toFixed(2)}
-                      </p>
-                    </div>
-
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-600 mb-1">Shipping To</p>
-                      <p className="text-sm font-medium text-gray-900">{order.customerName || 'N/A'}</p>
-                      {order.shipping?.address && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {order.shipping.address.city}, {order.shipping.address.country}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="p-4 bg-gray-50 rounded-lg">
-                      <p className="text-xs text-gray-600 mb-1">
-                        {order.trackingNumber ? 'Tracking Number' : 'Estimated Delivery'}
-                      </p>
-                      {order.trackingNumber ? (
-                        <p className="text-sm font-mono font-medium text-gray-900">{order.trackingNumber}</p>
-                      ) : order.estimatedDelivery ? (
-                        <p className="text-sm font-medium text-gray-900">{order.estimatedDelivery}</p>
-                      ) : (
-                        <p className="text-sm text-gray-500">To be confirmed</p>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Tracking Link */}
-                  {order.trackingUrl && (
-                    <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Truck className="w-4 h-4" />
-                        <span>Track your shipment</span>
-                      </div>
-                      <a
-                        href={order.trackingUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-red-600 hover:text-red-700 font-medium text-sm"
-                      >
-                        Track Order →
-                      </a>
-                    </div>
-                  )}
-
-                  {/* Order Items Info */}
-                  {order.cardConfig && (
-                    <div className="mt-4 pt-4 border-t border-gray-200">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                        <Info className="w-4 h-4" />
-                        <span className="font-medium">Order Details</span>
-                      </div>
-                      <div className="pl-6">
-                        <p className="text-sm text-gray-700">
-                          NFC Card - {order.cardConfig.cardType || 'Standard'}
-                        </p>
-                        {order.cardConfig.customization && (
-                          <p className="text-xs text-gray-500 mt-1">
-                            Customization: {order.cardConfig.customization}
+            {orders.map((order) => {
+              const isExpanded = expandedOrderId === order.id;
+              return (
+                <div key={order.id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                  {/* Clickable Order Summary */}
+                  <div
+                    className="p-6 cursor-pointer"
+                    onClick={() => toggleOrderExpand(order.id)}
+                  >
+                    {/* Order Header */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="p-3 bg-red-50 rounded-lg">
+                          <Package className="w-6 h-6 text-red-600" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-gray-900">
+                            Order #{order.orderNumber}
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
                           </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(order.status)}
+                        {isExpanded ? (
+                          <ExpandLessIcon className="w-5 h-5 text-gray-400" />
+                        ) : (
+                          <ExpandMoreIcon className="w-5 h-5 text-gray-400" />
                         )}
                       </div>
                     </div>
+
+                    {/* Quick summary row */}
+                    <div className="flex items-center gap-4 text-sm text-gray-600">
+                      <span className="font-medium text-gray-900">${order.pricing.total.toFixed(2)}</span>
+                      <span className="text-gray-300">|</span>
+                      <span>{getPlanName(order)}</span>
+                      <span className="text-gray-300">|</span>
+                      <span>{getShippingStatusLabel(order)}</span>
+                    </div>
+                  </div>
+
+                  {/* Expanded Order Details */}
+                  {isExpanded && (
+                    <div className="px-6 pb-6 border-t border-gray-100">
+                      {/* Order Details Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        {/* Order ID */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <ReceiptLongIcon className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Order ID</p>
+                          </div>
+                          <p className="text-sm font-mono font-semibold text-gray-900 break-all">{order.orderNumber}</p>
+                        </div>
+
+                        {/* Date of Purchase */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Clock className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date of Purchase</p>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {new Date(order.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {new Date(order.createdAt).toLocaleTimeString('en-US', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+
+                        {/* Amount Paid */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <PaymentIcon className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Amount Paid</p>
+                          </div>
+                          <p className="text-xl font-bold text-gray-900">${order.pricing.total.toFixed(2)}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            Subtotal: ${order.pricing.subtotal.toFixed(2)} + Shipping: ${order.pricing.shipping.toFixed(2)}
+                          </p>
+                        </div>
+
+                        {/* Mode of Payment */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <PaymentIcon className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Mode of Payment</p>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">
+                            {getPaymentMethodLabel(order.payment?.paymentMethod)}
+                          </p>
+                          {order.payment?.status && (
+                            <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
+                              order.payment.status === 'succeeded'
+                                ? 'bg-green-100 text-green-700'
+                                : order.payment.status === 'failed'
+                                ? 'bg-red-100 text-red-700'
+                                : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {order.payment.status === 'succeeded' ? 'Paid' : order.payment.status.charAt(0).toUpperCase() + order.payment.status.slice(1)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Shipping Status */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Truck className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Shipping Status</p>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">{getShippingStatusLabel(order)}</p>
+                          {order.trackingNumber && (
+                            <p className="text-xs text-gray-500 mt-0.5 font-mono">
+                              Tracking: {order.trackingNumber}
+                            </p>
+                          )}
+                          {order.estimatedDelivery && (
+                            <p className="text-xs text-gray-500 mt-0.5">
+                              Est. delivery: {order.estimatedDelivery}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Plan Name */}
+                        <div className="p-4 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <Info className="w-4 h-4 text-gray-500" />
+                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Plan Name</p>
+                          </div>
+                          <p className="text-sm font-semibold text-gray-900">{getPlanName(order)}</p>
+                          {order.cardConfig?.baseMaterial && order.cardConfig.baseMaterial !== 'digital' && (
+                            <p className="text-xs text-gray-500 mt-0.5 capitalize">
+                              Material: {order.cardConfig.baseMaterial}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Shipping Address */}
+                      {order.shipping && (order.shipping.fullName || order.shipping.addressLine1) && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Shipping Address</p>
+                          <p className="text-sm text-gray-900 font-medium">{order.shipping.fullName || order.customerName}</p>
+                          {order.shipping.addressLine1 && (
+                            <p className="text-sm text-gray-600">{order.shipping.addressLine1}</p>
+                          )}
+                          {order.shipping.addressLine2 && (
+                            <p className="text-sm text-gray-600">{order.shipping.addressLine2}</p>
+                          )}
+                          <p className="text-sm text-gray-600">
+                            {[order.shipping.city, order.shipping.state, order.shipping.postalCode].filter(Boolean).join(', ')}
+                          </p>
+                          {order.shipping.country && (
+                            <p className="text-sm text-gray-600">{order.shipping.country}</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Tracking Link */}
+                      {order.trackingUrl && (
+                        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+                          <div className="flex items-center space-x-2 text-sm text-gray-600">
+                            <Truck className="w-4 h-4" />
+                            <span>Track your shipment</span>
+                          </div>
+                          <a
+                            href={order.trackingUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-red-600 hover:text-red-700 font-medium text-sm"
+                          >
+                            Track Order →
+                          </a>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

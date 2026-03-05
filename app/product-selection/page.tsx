@@ -234,7 +234,7 @@ export default function ProductSelectionPage() {
     }
 
     // If critical fields are missing, fall back to showing the form
-    if (!authUser.first_name || !authUser.last_name || !authUser.email || !phone) {
+    if (!authUser.first_name || !authUser.last_name || !authUser.email) {
       setRequestingAccess(false);
       setShowRequestModal(true);
       return;

@@ -7,6 +7,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import CloseIcon from '@mui/icons-material/Close';
 import StarIcon from '@mui/icons-material/Star';
+import PushPinIcon from '@mui/icons-material/PushPin';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 
 interface CardCustomizationOption {
   id: string;
@@ -22,6 +24,7 @@ interface CardCustomizationOption {
   is_founders_only: boolean;
   display_order: number;
   plan_enabled?: boolean;
+  is_default?: boolean;
 }
 
 interface GroupedOptions {
@@ -64,6 +67,7 @@ export default function CardCustomizationTab() {
   // Key format: "optionId" for materials, "optionId__materialKey" for textures/colours/patterns
   const [pendingToggles, setPendingToggles] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
+  const [settingDefault, setSettingDefault] = useState<string | null>(null);
 
   // Expanded sections
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
@@ -323,6 +327,67 @@ export default function CardCustomizationTab() {
     );
   };
 
+  // Handle setting/clearing default for an option
+  const handleSetDefault = async (option: CardCustomizationOption) => {
+    if (!selectedPlanId) return;
+
+    const isCurrentlyDefault = option.is_default;
+    const materialKey = (option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial
+      ? selectedMaterial : null;
+
+    setSettingDefault(option.id);
+    try {
+      const response = await fetch('/api/admin/card-customization', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: option.id,
+          action: 'setDefault',
+          plan_id: selectedPlanId,
+          material_key: materialKey,
+          category: option.category,
+          is_default: !isCurrentlyDefault,
+        }),
+      });
+
+      if (response.ok) {
+        await fetchOptions(); // Refresh to get updated defaults
+      }
+    } catch (error) {
+      console.error('Error setting default:', error);
+    } finally {
+      setSettingDefault(null);
+    }
+  };
+
+  // Render default pin button
+  const renderDefaultPin = (option: CardCustomizationOption) => {
+    const enabled = isOptionEnabled(option);
+    if (!enabled) return <span className="text-gray-300">-</span>;
+
+    const isDefault = option.is_default;
+    const isSettingThis = settingDefault === option.id;
+
+    return (
+      <button
+        onClick={() => handleSetDefault(option)}
+        disabled={isSettingThis}
+        title={isDefault ? 'Remove as default' : 'Set as default'}
+        className={`p-1 rounded-md transition-all ${
+          isDefault
+            ? 'text-red-600 bg-red-50 hover:bg-red-100'
+            : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'
+        } ${isSettingThis ? 'opacity-50 cursor-wait' : 'cursor-pointer'}`}
+      >
+        {isDefault ? (
+          <PushPinIcon className="h-4 w-4" />
+        ) : (
+          <PushPinOutlinedIcon className="h-4 w-4" />
+        )}
+      </button>
+    );
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -471,6 +536,7 @@ export default function CardCustomizationTab() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Texture</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled for {selectedMaterialOption.label}</th>
                       </tr>
                     </thead>
@@ -484,6 +550,9 @@ export default function CardCustomizationTab() {
                             </td>
                             <td className="px-6 py-4">
                               <span className="text-sm text-gray-500">{texture.description || '-'}</span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderDefaultPin(texture)}
                             </td>
                             <td className="px-6 py-4 text-center">
                               {renderToggle(texture)}
@@ -529,6 +598,7 @@ export default function CardCustomizationTab() {
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Colour</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Founders Only</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                           Enabled for {selectedMaterialOption?.label || 'Material'}
                         </th>
@@ -557,6 +627,9 @@ export default function CardCustomizationTab() {
                               ) : (
                                 <span className="text-gray-400">-</span>
                               )}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderDefaultPin(colour)}
                             </td>
                             <td className="px-6 py-4 text-center">
                               {renderToggle(colour)}
@@ -601,6 +674,7 @@ export default function CardCustomizationTab() {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
                           Enabled for {selectedMaterialOption?.label || 'Material'}
                         </th>
@@ -613,6 +687,9 @@ export default function CardCustomizationTab() {
                           <tr key={pattern.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
                             <td className="px-6 py-4">
                               <span className="text-sm font-medium text-gray-900">{pattern.label}</span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderDefaultPin(pattern)}
                             </td>
                             <td className="px-6 py-4 text-center">
                               {renderToggle(pattern)}

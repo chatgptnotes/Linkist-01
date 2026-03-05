@@ -71,22 +71,86 @@ export default function VerifyRegisterPage() {
           // Clear the pending flow flag
           localStorage.removeItem('pendingProductFlow');
 
-          // Redirect based on selected product
-          if (productSelection === 'digital-only') {
-            // Free tier - go to success page (order will be created)
-            router.push('/product-selection'); // Will auto-process and redirect to success
-          } else if (productSelection === 'digital-with-app') {
-            // Digital + App - go to payment
+          // Redirect based on selected product/plan type
+          if (productSelection === 'digital-only' || productSelection === 'starter') {
+            // Free tier - process order directly and redirect to success
+            try {
+              const userProfileStr = localStorage.getItem('userProfile');
+              let email = '', firstName = 'User', lastName = 'Name', phoneNumber = '', country = 'IN';
+              if (userProfileStr) {
+                try {
+                  const profile = JSON.parse(userProfileStr);
+                  email = profile.email || '';
+                  firstName = profile.firstName || 'User';
+                  lastName = profile.lastName || 'Name';
+                  phoneNumber = profile.mobile || '';
+                  country = profile.country || 'IN';
+                } catch (error) {
+                  console.error('Error parsing user profile:', error);
+                }
+              }
+              const response = await fetch('/api/process-order', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}`, planType: 'starter' },
+                  checkoutData: { fullName: `${firstName} ${lastName}`, email, phoneNumber, country, addressLine1: 'N/A - Digital Product', addressLine2: '', city: 'N/A', state: 'N/A', postalCode: 'N/A' },
+                  paymentData: null,
+                  pricing: { subtotal: 0, shipping: 0, tax: 0, total: 0 }
+                }),
+              });
+              const result = await response.json();
+              if (result.success && result.order) {
+                localStorage.setItem('orderConfirmation', JSON.stringify({
+                  orderId: result.order.id, orderNumber: result.order.orderNumber,
+                  customerName: `${firstName} ${lastName}`, email, phoneNumber,
+                  cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}` },
+                  shipping: { fullName: `${firstName} ${lastName}`, email, phone: phoneNumber, phoneNumber, country, addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false },
+                  pricing: { subtotal: 0, taxAmount: 0, shippingCost: 0, total: 0 },
+                  isDigitalProduct: true, isDigitalOnly: true
+                }));
+                router.push('/nfc/success');
+              } else {
+                console.error('Failed to create free tier order:', result.error);
+                router.push('/product-selection');
+              }
+            } catch (error) {
+              console.error('Error creating free tier order:', error);
+              router.push('/product-selection');
+            }
+          } else if (productSelection === 'next') {
+            // Next plan - go directly to payment
+            const storedBillingPeriod = localStorage.getItem('billingPeriod') || 'monthly';
+            const storedAmount = localStorage.getItem('selectedPlanAmount') || (storedBillingPeriod === 'yearly' ? '69' : '6.9');
+            let nFirstName = 'User', nLastName = 'Name', nEmail = '', nCountry = 'IN';
+            const nProfileStr = localStorage.getItem('userProfile');
+            if (nProfileStr) {
+              try {
+                const nProfile = JSON.parse(nProfileStr);
+                nFirstName = nProfile.firstName || 'User';
+                nLastName = nProfile.lastName || 'Name';
+                nEmail = nProfile.email || '';
+                nCountry = nProfile.country || 'IN';
+              } catch (e) { /* ignore */ }
+            }
+            const pendingOrder = {
+              customerName: `${nFirstName} ${nLastName}`, email: nEmail, phoneNumber: '',
+              cardConfig: { firstName: nFirstName, lastName: nLastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${nFirstName} ${nLastName}` },
+              shipping: { fullName: `${nFirstName} ${nLastName}`, email: nEmail, phone: '', phoneNumber: '', country: nCountry, addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false },
+              pricing: { subtotal: parseFloat(storedAmount), taxAmount: 0, shippingCost: 0, total: parseFloat(storedAmount) },
+              isDigitalProduct: true, isDigitalOnly: true, planName: 'Next', billingPeriod: storedBillingPeriod,
+            };
+            localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
             router.push('/nfc/payment');
-          } else if (productSelection === 'physical-digital') {
-            // Physical card - go to configure
+          } else if (productSelection === 'physical-digital' || productSelection === 'pro') {
+            // Physical card or Pro plan - go to configure
             router.push('/nfc/configure');
-          } else if (productSelection === 'founders-club') {
-            // Founders club - go to configure with founders flag
-            router.push('/nfc/configure?founders=true');
+          } else if (productSelection === 'founders-club' || productSelection === 'signature' || productSelection === 'founders-circle') {
+            // Founders club, Signature, or Founders Circle - go to configure
+            router.push('/nfc/configure');
           } else {
-            // Default fallback
-            router.push('/product-selection');
+            // Default fallback - go to configure
+            router.push('/nfc/configure');
           }
         } else {
           // Normal registration flow - redirect to product selection

@@ -21,6 +21,8 @@ interface LocationDropdownsProps {
   setValue: UseFormSetValue<any>;
   errors: FieldErrors<any>;
   initialCountry?: string;
+  initialState?: string;
+  initialCity?: string;
   watchedCountry?: string;
   onGpsCoordinatesChange?: (coords: { latitude?: number; longitude?: number; area?: string }) => void;
 }
@@ -33,6 +35,8 @@ const LocationDropdowns = forwardRef<LocationDropdownsRef, LocationDropdownsProp
   setValue,
   errors,
   initialCountry = 'IN',
+  initialState = '',
+  initialCity = '',
   watchedCountry,
   onGpsCoordinatesChange,
 }, ref) => {
@@ -45,6 +49,56 @@ const LocationDropdowns = forwardRef<LocationDropdownsRef, LocationDropdownsProp
   const [isUpdatingFromMap, setIsUpdatingFromMap] = useState(false);
   const previousStateRef = useRef<string>('');
   const previousCountryRef = useRef<string>('');
+  const initializedRef = useRef(false);
+
+  // Initialize state and city from saved address (runs once when initial values arrive)
+  useEffect(() => {
+    if (initializedRef.current || (!initialState && !initialCity)) return;
+    initializedRef.current = true;
+
+    const countryCode = initialCountry;
+    const states = State.getStatesOfCountry(countryCode);
+    setAvailableStates(states);
+    previousCountryRef.current = countryCode;
+
+    if (initialState) {
+      // Find state by name match
+      const stateMatch = states.find(s =>
+        s.name.toLowerCase() === initialState.toLowerCase() ||
+        s.isoCode.toLowerCase() === initialState.toLowerCase()
+      );
+      if (stateMatch) {
+        setSelectedState(stateMatch.isoCode);
+        previousStateRef.current = stateMatch.isoCode;
+        setValue('stateProvince', stateMatch.name);
+
+        // Load cities for this state
+        const cities = City.getCitiesOfState(countryCode, stateMatch.isoCode);
+        setAvailableCities(cities);
+
+        if (initialCity) {
+          const cityMatch = cities.find(c => c.name.toLowerCase() === initialCity.toLowerCase());
+          if (cityMatch) {
+            setSelectedCity(cityMatch.name);
+            setValue('city', cityMatch.name);
+          } else {
+            // City not in library, set directly
+            setSelectedCity(initialCity);
+            setValue('city', initialCity);
+          }
+        }
+      } else {
+        // State not in library, set directly
+        setSelectedState(initialState);
+        previousStateRef.current = initialState;
+        setValue('stateProvince', initialState);
+        if (initialCity) {
+          setSelectedCity(initialCity);
+          setValue('city', initialCity);
+        }
+      }
+    }
+  }, [initialState, initialCity, initialCountry, setValue]);
 
   // Keep country dropdown state in sync with form value
   useEffect(() => {

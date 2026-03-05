@@ -114,6 +114,29 @@ export async function PUT(request: NextRequest) {
       });
     }
 
+    // Handle setting/clearing default option for a plan + material combo
+    if (plan_id && action === 'setDefault') {
+      const { category, is_default: shouldBeDefault } = body;
+      if (!category) {
+        return NextResponse.json(
+          { error: 'Category is required for setDefault' },
+          { status: 400 }
+        );
+      }
+
+      let success: boolean;
+      if (shouldBeDefault === false) {
+        success = await SupabaseCardCustomizationStore.clearDefaultOption(plan_id, id, material_key || null);
+      } else {
+        success = await SupabaseCardCustomizationStore.setDefaultOption(plan_id, id, material_key || null, category);
+      }
+
+      return NextResponse.json({
+        success,
+        message: success ? 'Default updated successfully' : 'Failed to update default'
+      });
+    }
+
     // Handle global actions (for backward compatibility)
     if (action === 'toggle') {
       updatedOption = await SupabaseCardCustomizationStore.toggleEnabled(id);

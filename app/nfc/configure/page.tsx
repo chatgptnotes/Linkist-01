@@ -69,6 +69,7 @@ export default function ConfigureNewPage() {
     materialPrices: Record<string, number>;
     textureOptions: Record<string, string[]>;
     colourOptions: Record<string, string[]>;
+    defaults?: Record<string, { texture?: string; colour?: string; pattern?: string }>;
   } | null>(null);
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [userPlanType, setUserPlanType] = useState<string | null>(null);
@@ -426,18 +427,34 @@ export default function ConfigureNewPage() {
   const handleBaseMaterialChange = (material: BaseMaterial) => {
     const availableTextures = textureOptions[material] || [];
     const availableColours = colourOptions[material] || [];
+    const materialDefaults = customizationOptions?.defaults?.[material];
+
+    // Resolve default pattern ID from option_key
+    let defaultPatternId: number | null = null;
+    if (materialDefaults?.pattern) {
+      const patternMatch = patterns.find(p => p.key === materialDefaults.pattern);
+      if (patternMatch) defaultPatternId = patternMatch.id;
+    }
 
     const newFormData: StepData = {
       ...formData,
       baseMaterial: material,
-      // Clear texture if not valid for new base
+      // Keep current texture if valid, otherwise apply default, otherwise null
       texture: formData.texture && availableTextures.includes(formData.texture)
         ? formData.texture
-        : null,
-      // Clear colour if not valid for new base
+        : (materialDefaults?.texture && availableTextures.includes(materialDefaults.texture)
+          ? materialDefaults.texture as TextureOption
+          : null),
+      // Keep current colour if valid, otherwise apply default, otherwise null
       colour: formData.colour && availableColours.includes(formData.colour)
         ? formData.colour
-        : null
+        : (materialDefaults?.colour && availableColours.includes(materialDefaults.colour)
+          ? materialDefaults.colour as ColourOption
+          : null),
+      // Keep current pattern if set, otherwise apply default
+      pattern: formData.pattern !== null
+        ? formData.pattern
+        : defaultPatternId
     };
     setFormData(newFormData);
     console.log('Base material changed:', newFormData);
@@ -519,7 +536,7 @@ export default function ConfigureNewPage() {
       return;
     }
 
-    if (!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern) {
+    if (!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null) {
       alert('Please complete all configuration options');
       return;
     }
@@ -862,7 +879,7 @@ export default function ConfigureNewPage() {
                   if (!formData.colour) {
                     missingItems.push('Colour');
                   }
-                  if (!formData.pattern) {
+                  if (formData.pattern === null) {
                     missingItems.push('Pattern');
                   }
 
@@ -880,9 +897,9 @@ export default function ConfigureNewPage() {
 
                 <button
                   onClick={handleContinue}
-                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || !formData.pattern || (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) || isLoading}
+                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null || (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) || isLoading}
                   className={`w-full px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern && (userPlanType === 'pro' || (formData.cardFirstName?.trim() && formData.cardLastName?.trim())))
+                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern !== null && (userPlanType === 'pro' || (formData.cardFirstName?.trim() && formData.cardLastName?.trim())))
                       ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   }`}
