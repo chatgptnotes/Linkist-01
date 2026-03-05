@@ -333,8 +333,7 @@ export default function TermsOfServicePage() {
             <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-6">
               <h3 className="font-medium text-red-300 mb-3">Questions About These Terms?</h3>
               <div className="space-y-2 text-red-200/80">
-                <p><strong>Email:</strong> legal@linkist.ai</p>
-                <p><strong>Customer Support:</strong> support@linkist.ai</p>
+                <p><strong>Email:</strong> support@linkist.ai</p>
                 <p><strong>Mailing Address:</strong></p>
                 <p className="ml-4">
                   RatioX Labs DWC-LLC<br />
