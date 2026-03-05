@@ -310,9 +310,7 @@ export default function PrivacyPolicyPage() {
             <div className="bg-red-950/30 border border-red-900/30 rounded-lg p-6">
               <h3 className="font-medium text-red-300 mb-3">Privacy Questions or Concerns?</h3>
               <div className="space-y-2 text-red-200/80">
-                <p><strong>Email:</strong> privacy@linkist.ai</p>
-                <p><strong>Data Protection Officer:</strong> dpo@linkist.ai</p>
-                <p><strong>Privacy Portal:</strong> <Link href="/privacy/manage" className="underline">linkist.ai/privacy/manage</Link></p>
+                <p><strong>Email:</strong> support@linkist.ai</p>
                 <p><strong>Mailing Address:</strong></p>
                 <p className="ml-4">
                   RatioX Labs DWC-LLC<br />

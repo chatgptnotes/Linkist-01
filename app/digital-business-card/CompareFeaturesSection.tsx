@@ -55,9 +55,13 @@ export default function CompareFeatures() {
     <section className="w-full bg-black py-12 md:py-20 text-white font-sans">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
         
         .font-poppins {
             font-family: 'Poppins', sans-serif;
+        }
+        .font-roboto {
+          font-family: 'Roboto', sans-serif;
         }
         .compare-table-sticky {
           position: sticky;
@@ -106,11 +110,11 @@ export default function CompareFeatures() {
           <table className="w-full text-left border-collapse min-w-[600px] font-poppins">
             <thead>
               <tr>
-                <th className="compare-table-sticky py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[110px] min-w-[110px]">
+                <th className="compare-table-sticky py-3 px-2 md:px-4 text-xs md:text-sm font-semibold text-gray-400 border-b w-[35vw] md:w-auto">
                   Features
                 </th>
                 {['Starter', 'Business', 'Signature', "Founder's Circle"].map((plan) => (
-                  <th key={plan} className="py-3 px-4 text-center text-xs md:text-sm font-semibold text-white border-b border-white/10 w-[14%]">
+                  <th key={plan} className="py-3 px-4 text-center text-xs md:text-sm font-semibold text-white border-b border-white/10 min-w-[80px] md:min-w-[120px]">
                     {plan}
                   </th>
                 ))}
@@ -119,11 +123,11 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b w-[110px] min-w-[110px] ${row.isHeader ? 'font-semibold text-[#ff0000] pt-5' : 'text-gray-300'}`}>
+                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b font-roboto w-[35vw] md:w-auto ${row.isHeader ? 'font-semibold text-[#ff0000] pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.business, row.signature, row.founder].map((val, i) => (
-                    <td key={i} className={`py-2 px-4 text-center border-b border-white/10 ${row.isHeader ? 'pt-5' : ''}`}>
+                    <td key={i} className={`py-2 px-4 text-center border-b border-white/10 font-roboto ${row.isHeader ? 'pt-5' : ''}`}>
                       {!row.isHeader && val ? (
                         <div className="flex justify-center items-center">
                           <svg className="w-[14px] h-[14px] text-[#FF3A29]" viewBox="0 0 24 24" fill="currentColor">
@@ -161,7 +165,7 @@ export default function CompareFeatures() {
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
                       href="https://linkist.ai/choose-plan"
-                      className={`block w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs text-center transition-all duration-300 no-underline ${
+                      className={`block w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs text-center transition-all duration-300 no-underline whitespace-nowrap ${
                         i === 1
                           ? 'bg-[#FF3A29] text-white shadow-[0_4px_14px_rgba(255,58,41,0.3)] hover:bg-[#e8321f]'
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
