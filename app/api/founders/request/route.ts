@@ -14,9 +14,9 @@ export async function POST(request: NextRequest) {
     const { firstName, lastName, companyName, email, phone, profession, note } = body;
 
     // Validate required fields
-    if (!firstName || !lastName || !email || !phone || !profession) {
+    if (!firstName || !lastName || !email) {
       return NextResponse.json(
-        { success: false, error: 'All required fields must be provided' },
+        { success: false, error: 'Name and email are required' },
         { status: 400 }
       );
     }
@@ -48,17 +48,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if phone already exists in users table (with different email)
-    const { data: existingUserByPhone } = await supabase
-      .from('users')
-      .select('id, email, phone_number')
-      .eq('phone_number', phone.trim())
-      .single();
+    if (phone?.trim()) {
+      const { data: existingUserByPhone } = await supabase
+        .from('users')
+        .select('id, email, phone_number')
+        .eq('phone_number', phone.trim())
+        .single();
 
-    if (existingUserByPhone && existingUserByPhone.email.toLowerCase() !== email.toLowerCase().trim()) {
-      return NextResponse.json(
-        { success: false, error: 'This phone number is already registered with a different account. Please use a different phone number or use the email associated with this phone.' },
-        { status: 400 }
-      );
+      if (existingUserByPhone && existingUserByPhone.email.toLowerCase() !== email.toLowerCase().trim()) {
+        return NextResponse.json(
+          { success: false, error: 'This phone number is already registered with a different account. Please use a different phone number or use the email associated with this phone.' },
+          { status: 400 }
+        );
+      }
     }
 
     // Check for existing pending request with same email
@@ -127,8 +129,8 @@ export async function POST(request: NextRequest) {
         last_name: lastName.trim(),
         company_name: companyName?.trim() || null,
         email: email.toLowerCase().trim(),
-        phone: phone.trim(),
-        profession: profession.trim(),
+        phone: phone?.trim() || '',
+        profession: profession?.trim() || 'Not specified',
         note: note?.trim() || null,
         status: 'pending'
       })

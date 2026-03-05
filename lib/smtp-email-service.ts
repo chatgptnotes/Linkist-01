@@ -151,9 +151,13 @@ export async function sendOTPEmail({ to, otp, expiresInMinutes }: SendOTPEmailPa
           </style>
         </head>
         <body class="email-body" style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
-          <div style="background: #000000; padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-            <!-- Logo with white text on black background - visible in all modes -->
-            <img src="https://linkist.2men.co/logo2.png" alt="Linkist" style="height: 60px; width: auto; max-width: 100%;" />
+          <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="background-color: #000000; border-radius: 10px 10px 0 0;">
+            <tr>
+              <td bgcolor="#000000" style="background-color: #000000; padding: 30px; text-align: center;">
+                <img src="https://linkist.ai/logo2.png" alt="Linkist" style="height: 60px; width: auto; max-width: 100%;" />
+              </td>
+            </tr>
+          </table>
           </div>
 
           <div class="email-content" style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">

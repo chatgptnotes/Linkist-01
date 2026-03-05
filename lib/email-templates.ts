@@ -53,10 +53,10 @@ export const welcomeEmail = (data: WelcomeEmailData) => `
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -180,10 +180,10 @@ export const orderConfirmationEmail = (data: OrderData) => {
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -366,10 +366,10 @@ export const orderConfirmationEmail = (data: OrderData) => {
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -474,10 +474,10 @@ export const inProductionEmail = (data: OrderData) => `
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -548,10 +548,10 @@ export const shippedEmail = (data: OrderData) => `
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -634,10 +634,10 @@ export const deliveredEmail = (data: OrderData) => `
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -736,10 +736,10 @@ export const receiptEmail = (data: OrderData) => {
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -908,10 +908,10 @@ export const receiptEmail = (data: OrderData) => {
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
           </td>
         </tr>
@@ -1059,10 +1059,10 @@ export const printerBatchEmail = (orders: PrinterOrderData[], date: string) => `
 </head>
 <body>
   <div class="email-container">
-    <div class="header">
-      <table width="100%" cellpadding="0" cellspacing="0" style="text-align: center;">
+    <div class="header" style="background-color: #000000; padding: 40px; text-align: center;">
+      <table width="100%" cellpadding="0" cellspacing="0" bgcolor="#000000" style="text-align: center; background-color: #000000;">
         <tr>
-          <td style="text-align: center;">
+          <td bgcolor="#000000" style="text-align: center; background-color: #000000;">
             <img src="${process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai'}/logo2.png" alt="Linkist" style="height: 50px; width: auto;" />
             <p class="tagline">Print Orders - ${date}</p>
           </td>

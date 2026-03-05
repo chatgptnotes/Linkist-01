@@ -108,6 +108,9 @@ export default function CheckoutPage() {
     [key: string]: any;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [savedState, setSavedState] = useState('');
+  const [savedCity, setSavedCity] = useState('');
   const [showMap, setShowMap] = useState(false); // Map hidden by default
   const [gpsCoordinates, setGpsCoordinates] = useState<{
     latitude?: number;
@@ -216,8 +219,14 @@ export default function CheckoutPage() {
                 console.log('✅ Checkout: Found saved shipping address, auto-filling:', addr);
                 if (isReal(addr.addressLine1)) setValue('addressLine1', addr.addressLine1);
                 if (isReal(addr.addressLine2)) setValue('addressLine2', addr.addressLine2);
-                if (isReal(addr.city)) setValue('city', addr.city);
-                if (isReal(addr.state)) setValue('stateProvince', addr.state);
+                if (isReal(addr.city)) {
+                  setValue('city', addr.city);
+                  setSavedCity(addr.city);
+                }
+                if (isReal(addr.state)) {
+                  setValue('stateProvince', addr.state);
+                  setSavedState(addr.state);
+                }
                 if (isReal(addr.postalCode)) setValue('postalCode', addr.postalCode);
                 if (isReal(addr.country)) setValue('country', addr.country);
               } else {
@@ -236,6 +245,8 @@ export default function CheckoutPage() {
         }
       } catch (error) {
         console.log('⚠️ Checkout: Could not check founding member status early');
+      } finally {
+        setInitialLoading(false);
       }
     };
 
@@ -934,18 +945,18 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50 relative">
 
-      {/* Full-page Loading Overlay */}
-      {isLoading && (
+      {/* Full-page Loading Overlay - initial load or order processing */}
+      {(isLoading || initialLoading) && (
         <div className="fixed inset-0 bg-white bg-opacity-98 z-[9999] flex items-center justify-center backdrop-blur-md">
           <div className="bg-white rounded-xl p-8 shadow-2xl text-center border border-gray-200">
             <div className="animate-spin rounded-full h-16 w-16 border-4 border-red-500 border-t-transparent mx-auto mb-4"></div>
-            <p className="text-lg font-semibold text-gray-900">Processing your order...</p>
-            <p className="text-sm text-gray-600 mt-2">Please wait, redirecting to payment page</p>
+            <p className="text-lg font-semibold text-gray-900">{isLoading ? 'Processing your order...' : 'Loading checkout...'}</p>
+            <p className="text-sm text-gray-600 mt-2">{isLoading ? 'Please wait, redirecting to payment page' : 'Preparing your details'}</p>
           </div>
         </div>
       )}
 
-      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-opacity duration-300 relative z-0 ${isLoading ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 transition-opacity duration-300 relative z-0 ${(isLoading || initialLoading) ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
         {/* Checkout Header - Centered above everything */}
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900">Shipping & Delivery</h2>
@@ -1102,7 +1113,9 @@ export default function CheckoutPage() {
                     ref={locationDropdownsRef}
                     setValue={setValue}
                     errors={errors}
-                    initialCountry="IN"
+                    initialCountry={watchedValues.country || 'IN'}
+                    initialState={savedState}
+                    initialCity={savedCity}
                     watchedCountry={watchedValues.country}
                     onGpsCoordinatesChange={handleGpsCoordinatesChange}
                   />
