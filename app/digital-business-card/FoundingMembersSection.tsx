@@ -43,7 +43,7 @@ export default function FoundingMembersSection() {
               <div className="flex items-baseline gap-2 flex-wrap mb-1">
                 <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
                 <span className="text-white/90 text-sm md:text-base font-medium">/year</span>
-                <span className="text-white/60 text-sm md:text-base font-medium line-through ml-1">vs $99 /year</span>
+                <span className="text-white/60 text-sm md:text-base font-medium ml-1">vs <span className="line-through">$99 /year</span></span>
               </div>
               <p className="text-white/80 text-xs font-medium">
                 (First year free; Chargeable from second year onwards)
