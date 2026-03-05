@@ -29,7 +29,7 @@ export default function FAQSection() {
     },
     {
       question: "Who can become a Founding Member right now?",
-      answer: "Founding Member status is invite-only and limited. Approved members get a clean URL, the premium Founder's card, 1-year free subscription for Linkist Pro App, AI credits, and permanent "Founding Member" recognition. Subscribe now to lock in a discounted price for life, offered for a limited period. We also actively listen to our founding members and use their feedback to shape new features."
+      answer: "Founding Member status is invite-only and limited. Approved members get a clean URL, the premium Founder's card, 1-year free subscription for Linkist Pro App, AI credits, and permanent \"Founding Member\" recognition. Subscribe now to lock in a discounted price for life, offered for a limited period. We also actively listen to our founding members and use their feedback to shape new features."
     }
   ];
 
