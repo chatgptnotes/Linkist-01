@@ -3021,12 +3021,12 @@ function ProfileBuilderContent() {
                         {profileData.skills.map((skill) => (
                           <span
                             key={skill}
-                            className="inline-flex items-center gap-1 px-3 py-1 bg-red-600 text-white text-sm rounded-full"
+                            className="inline-flex items-center gap-1 px-3 py-1 bg-red-50 text-red-600 border border-red-200 text-sm rounded-full"
                           >
                             {skill}
                             <button
                               onClick={() => removeSkill(skill)}
-                              className="hover:bg-red-700 rounded-full p-0.5"
+                              className="hover:bg-red-100 rounded-full p-0.5"
                             >
                               <X2 className="w-3 h-3" />
                             </button>
@@ -3204,10 +3204,11 @@ function ProfileBuilderContent() {
                                   Service Category <span className="text-gray-400 font-normal">(Optional)</span>
                                 </label>
                                 <select
-                                  value={service.category}
+                                  value={service.category && service.category !== 'Other' && !SERVICE_CATEGORIES.includes(service.category) ? 'Other' : service.category}
                                   onChange={(e) => {
+                                    const val = e.target.value;
                                     const updatedServices = profileData.services.map(s =>
-                                      s.id === service.id ? { ...s, category: e.target.value } : s
+                                      s.id === service.id ? { ...s, category: val } : s
                                     );
                                     setProfileData({ ...profileData, services: updatedServices });
                                   }}
@@ -3218,6 +3219,21 @@ function ProfileBuilderContent() {
                                     <option key={cat} value={cat}>{cat}</option>
                                   ))}
                                 </select>
+                                {/* Custom category input when "Other" is selected */}
+                                {(service.category === 'Other' || (service.category && !SERVICE_CATEGORIES.includes(service.category))) && (
+                                  <input
+                                    type="text"
+                                    value={service.category === 'Other' ? '' : service.category}
+                                    onChange={(e) => {
+                                      const updatedServices = profileData.services.map(s =>
+                                        s.id === service.id ? { ...s, category: e.target.value || 'Other' } : s
+                                      );
+                                      setProfileData({ ...profileData, services: updatedServices });
+                                    }}
+                                    placeholder="Enter custom category..."
+                                    className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
+                                  />
+                                )}
                               </div>
 
 

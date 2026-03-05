@@ -75,7 +75,6 @@ export function PatternThumbnail({ patternKey, isSelected, baseColor, colour }: 
         className="aspect-square rounded-lg flex items-center justify-center"
         style={{ backgroundColor: bg }}
       >
-        <span className="text-white/60 text-xs font-medium">None</span>
       </div>
     );
   }

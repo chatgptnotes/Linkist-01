@@ -628,9 +628,9 @@ export default function NFCPaymentPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 flex-1">
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Payment Form - Left Side */}
           <div className="lg:col-span-2 order-2 lg:order-1">

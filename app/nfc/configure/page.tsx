@@ -382,7 +382,7 @@ export default function ConfigureNewPage() {
   // Admin-configured patterns - from API or fallback, always prepend "None"
   const patterns = customizationOptions?.patterns
     ? [
-        { id: 0, name: 'None', key: 'none' },
+        { id: 0, name: 'Blank', key: 'none' },
         ...customizationOptions.patterns.map((p, index) => ({
           id: index + 1,
           name: p.label,
@@ -390,7 +390,7 @@ export default function ConfigureNewPage() {
         }))
       ]
     : [
-        { id: 0, name: 'None', key: 'none' },
+        { id: 0, name: 'Blank', key: 'none' },
         { id: 1, name: 'Geometric', key: 'geometric' },
         { id: 2, name: 'Waves', key: 'waves' },
         { id: 3, name: 'Crystal', key: 'crystal' }
@@ -669,11 +669,17 @@ export default function ConfigureNewPage() {
                     <button
                       key={material.value}
                       onClick={() => handleBaseMaterialChange(material.value)}
-                      className={`relative p-4 border-2 rounded-xl cursor-pointer transition-all ${
+                      className={`relative p-4 rounded-xl cursor-pointer transition-all ${
                         formData.baseMaterial === material.value
-                          ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
-                          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                          ? 'bg-red-100 shadow-lg'
+                          : 'hover:shadow-sm'
                       }`}
+                      style={{
+                        border: formData.baseMaterial === material.value
+                          ? '2px solid #CC0000'
+                          : '2px solid #e5e7eb',
+                        outline: 'none',
+                      }}
                     >
                       <div className="text-center">
                         <h3 className={`font-semibold text-sm ${formData.baseMaterial === material.value ? 'text-red-600' : 'text-gray-900'}`}>{material.label}</h3>
@@ -707,13 +713,21 @@ export default function ConfigureNewPage() {
                           key={texture.value}
                           onClick={() => handleTextureChange(texture.value)}
                           disabled={!isAvailable}
-                          className={`relative p-3 border-2 rounded-lg transition-all ${
+                          className={`relative p-3 rounded-lg transition-all ${
                             !isAvailable
-                              ? 'opacity-50 cursor-not-allowed border-gray-200 bg-gray-100'
+                              ? 'opacity-50 cursor-not-allowed bg-gray-100'
                               : isSelected
-                                ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
-                                : 'border-gray-200 hover:border-gray-300 cursor-pointer'
+                                ? 'bg-red-100 shadow-lg'
+                                : 'cursor-pointer'
                           }`}
+                          style={{
+                            border: !isAvailable
+                              ? '2px solid #e5e7eb'
+                              : isSelected
+                                ? '2px solid #CC0000'
+                                : '2px solid #e5e7eb',
+                            outline: 'none',
+                          }}
                         >
                           <div className="text-center">
                             <h4 className={`text-xs font-medium ${!isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-900'}`}>
@@ -742,12 +756,18 @@ export default function ConfigureNewPage() {
                           className="relative group cursor-pointer"
                         >
                           <div
-                            className={`w-14 h-14 rounded-xl border-4 transition-all ${
+                            className={`w-14 h-14 rounded-xl transition-all ${
                               isSelected
-                                ? 'border-red-600 scale-110 shadow-lg ring-4 ring-red-400'
-                                : 'border-gray-300 hover:scale-105'
+                                ? 'scale-110 shadow-lg'
+                                : 'hover:scale-105'
                             }`}
-                            style={{ backgroundColor: colour.hex }}
+                            style={{
+                              backgroundColor: colour.hex,
+                              border: isSelected
+                                ? '4px solid #CC0000'
+                                : '4px solid #d1d5db',
+                              outline: 'none',
+                            }}
                           />
                           <span className={`text-xs mt-1 block text-center font-medium ${
                             isSelected ? 'text-red-600' : 'text-gray-700'
@@ -786,11 +806,17 @@ export default function ConfigureNewPage() {
                       <button
                         key={pattern.id}
                         onClick={() => handlePatternChange(pattern.id)}
-                        className={`relative p-3 border-2 rounded-xl transition-all ${
+                        className={`relative p-3 rounded-xl transition-all ${
                           isSelected
-                            ? 'border-red-600 bg-red-100 shadow-lg ring-2 ring-red-400'
-                            : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                            ? 'bg-red-100 shadow-lg'
+                            : 'hover:shadow-sm'
                         }`}
+                        style={{
+                          border: isSelected
+                            ? '2px solid #CC0000'
+                            : '2px solid #e5e7eb',
+                          outline: 'none',
+                        }}
                       >
                         <div className="mb-2">
                           <PatternThumbnail
