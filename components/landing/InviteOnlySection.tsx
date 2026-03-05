@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 
 export default function InviteOnlySection() {
     const cards = [
@@ -66,19 +65,50 @@ export default function InviteOnlySection() {
 
                 {/* Grid of Cards */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center px-4 md:px-0">
+                    
+                    {/* NEW: Promotional Pricing Card */}
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0 }} // Starts first
+                        className="rounded-[24px] overflow-hidden flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1"
+                    >
+                        <div className="bg-[#E63929] p-5 md:p-6 flex flex-col flex-1 text-left">
+                            <h3 className="text-white font-bold text-lg md:text-xl mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                Founding Member Rate
+                            </h3>
+                            <p className="text-white/95 text-sm leading-snug" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                <span className="italic font-bold block mb-1">Locked in for life.</span>
+                                Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
+                            </p>
+                        </div>
+                        <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-4 flex flex-col text-left">
+                            <div className="flex items-baseline gap-2 flex-wrap mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
+                                <span className="text-white/90 text-sm md:text-base font-medium">/year</span>
+                                <span className="text-white/60 text-sm md:text-base font-medium line-through ml-1">vs $99 /year</span>
+                            </div>
+                            <p className="text-white/80 text-xs font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                (First year free; Chargeable from second year onwards)
+                            </p>
+                        </div>
+                    </motion.div>
+
+                    {/* Original Feature Cards */}
                     {cards.map((card, idx) => (
                         <motion.div
                             key={idx}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            transition={{ delay: idx * 0.1 }}
-                            className="bg-[#1A1A1A] rounded-[24px] p-6 text-left flex flex-col w-full max-w-[350px]"
+                            transition={{ delay: (idx + 1) * 0.1 }} // Staggered delays after the promo card
+                            className="bg-[#1A1A1A] rounded-[24px] p-6 text-left flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1"
                         >
                             {/* Header row with icon + title */}
                             <div className="flex items-center mb-4">
                                 <div className="w-[48px] h-[48px] rounded-[12px] bg-[#FF3A29] flex items-center justify-center overflow-hidden flex-shrink-0">
-                                    <Image
+                                    <img
                                         src={card.icon}
                                         alt={card.title}
                                         width={card.iconSize}
