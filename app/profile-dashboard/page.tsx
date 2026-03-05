@@ -28,6 +28,8 @@ import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import EditIcon from '@mui/icons-material/Edit';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import SendIcon from '@mui/icons-material/Send';
 import ReferralForm from '@/components/ReferralForm';
 
@@ -786,7 +788,7 @@ export default function AccountPage() {
                   </code>
                 </div>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-4 gap-2">
               <button
               type="button"
               onClick={() => {
@@ -794,24 +796,19 @@ export default function AccountPage() {
                 const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
                 const urlToCopy = `${baseUrl}/${username}`;
 
-                // Mobile-compatible copy function with fallback
                 const copyToClipboard = (text: string) => {
-                  // Method 1: Try modern Clipboard API (works on HTTPS/localhost)
                   if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(text).then(() => {
                       setCopied(true);
                       setTimeout(() => setCopied(false), 2000);
                     }).catch(() => {
-                      // Fallback if clipboard API fails
                       fallbackCopy(text);
                     });
                   } else {
-                    // Method 2: Fallback for mobile/non-HTTPS
                     fallbackCopy(text);
                   }
                 };
 
-                // Fallback copy method that works on mobile
                 const fallbackCopy = (text: string) => {
                   try {
                     const textArea = document.createElement('textarea');
@@ -847,61 +844,22 @@ export default function AccountPage() {
 
                 copyToClipboard(urlToCopy);
               }}
-              style={{
-                backgroundColor: copied ? '#16a34a' : '#dc2626',
-                color: 'white',
-                padding: '12px 8px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                minHeight: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap' as const,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = copied ? '#15803d' : '#b91c1c';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = copied ? '#16a34a' : '#dc2626';
-              }}
+              className={`flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 ${
+                copied ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'
+              }`}
+              title={copied ? 'Copied!' : 'Copy'}
             >
-              {copied ? 'Copied!' : 'Copy'}
+              {copied ? <CheckIcon className="w-[18px] h-[18px]" /> : <ContentCopyIcon className="w-[18px] h-[18px]" />}
+              <span className="hidden sm:inline">{copied ? 'Copied!' : 'Copy'}</span>
             </button>
             <button
               type="button"
               onClick={() => router.push('/profiles/builder')}
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                padding: '12px 8px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                minHeight: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap' as const,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#b91c1c';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#dc2626';
-              }}
+              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700"
+              title="Edit"
             >
-              <EditIcon style={{ width: '18px', height: '18px' }} />
-              Edit
+              <EditIcon className="w-[18px] h-[18px]" />
+              <span className="hidden sm:inline">Edit</span>
             </button>
             <button
               type="button"
@@ -911,62 +869,20 @@ export default function AccountPage() {
                 const profileUrl = `${baseUrl}/${username}`;
                 window.open(profileUrl, '_blank');
               }}
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                padding: '12px 8px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                minHeight: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap' as const,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#b91c1c';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#dc2626';
-              }}
+              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700"
+              title="View"
             >
-              <ExternalLink style={{ width: '18px', height: '18px' }} />
-              View
+              <ExternalLink className="w-[18px] h-[18px]" />
+              <span className="hidden sm:inline">View</span>
             </button>
             <button
               type="button"
               onClick={() => setShowQrCode(true)}
-              style={{
-                backgroundColor: '#263252',
-                color: 'white',
-                padding: '12px 8px',
-                borderRadius: '8px',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                border: 'none',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                minHeight: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                whiteSpace: 'nowrap' as const,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#1a2339';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = '#263252';
-              }}
+              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700"
+              title="QR Code"
             >
-              <QrCode2 style={{ width: '18px', height: '18px' }} />
-              QR Code
+              <QrCode2 className="w-[18px] h-[18px]" />
+              <span className="hidden sm:inline">QR Code</span>
             </button>
               </div>
 
