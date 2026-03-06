@@ -30,7 +30,7 @@ export default function SocialIconsRow({ links }: SocialIconsRowProps) {
   if (links.length === 0) return null;
 
   return (
-    <div className="flex items-center gap-3 mb-6">
+    <div className="flex flex-wrap items-center gap-3 mb-6">
       {links.map((link) => {
         const Icon = ICON_MAP[link.type];
         if (!Icon) return null;
@@ -40,7 +40,7 @@ export default function SocialIconsRow({ links }: SocialIconsRowProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-transform active:scale-90"
+            className="flex-shrink-0 transition-transform active:scale-90"
             style={neuStyles.redIconCircle}
             title={link.label}
           >

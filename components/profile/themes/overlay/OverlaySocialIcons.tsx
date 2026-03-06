@@ -30,7 +30,7 @@ export default function OverlaySocialIcons({ links }: OverlaySocialIconsProps) {
   if (links.length === 0) return null;
 
   return (
-    <div className="flex items-center justify-center gap-3 mb-6">
+    <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
       {links.map((link) => {
         const Icon = ICON_MAP[link.type];
         if (!Icon) return null;
@@ -40,7 +40,7 @@ export default function OverlaySocialIcons({ links }: OverlaySocialIconsProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="transition-transform active:scale-90"
+            className="flex-shrink-0 transition-transform active:scale-90"
             style={overlayStyles.frostedSquare}
             title={link.label}
           >

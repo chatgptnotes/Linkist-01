@@ -107,6 +107,9 @@ export async function GET(
       facebook: socialLinks.facebook || '',
       youtube: socialLinks.youtube || '',
       github: socialLinks.github || '',
+      behance: socialLinks.behance || '',
+      dribbble: socialLinks.dribbble || '',
+      social_links: socialLinks,
       skills: profile.skills || [],
       industry: profile.industry || '',
       // Include visibility preferences

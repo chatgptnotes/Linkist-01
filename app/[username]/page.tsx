@@ -154,8 +154,8 @@ export default function ProfilePreviewPage() {
             instagramUrl: dbProfile.instagram || '',
             facebookUrl: dbProfile.facebook || '',
             twitterUrl: dbProfile.twitter || '',
-            behanceUrl: dbProfile.social_links?.behance || prefs.behanceUrl || '',
-            dribbbleUrl: dbProfile.social_links?.dribbble || prefs.dribbbleUrl || '',
+            behanceUrl: dbProfile.behance || dbProfile.social_links?.behance || prefs.behanceUrl || '',
+            dribbbleUrl: dbProfile.dribbble || dbProfile.social_links?.dribbble || prefs.dribbbleUrl || '',
             githubUrl: dbProfile.github || '',
             youtubeUrl: dbProfile.youtube || '',
             // Read toggle values from display_settings (preferred) or preferences (fallback)

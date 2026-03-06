@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { toast } from 'sonner';
 import { getBaseDomain } from '@/lib/get-base-url';
 import { searchSkills } from '@/lib/skills-data';
@@ -10,17 +9,6 @@ import { getPhoneCode } from '@/lib/country-utils';
 import Cropper from 'react-easy-crop';
 import type { Area } from 'react-easy-crop';
 
-const GoogleMapPicker = dynamic(() => import('@/components/GoogleMapPicker'), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-96">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Loading Google Maps...</p>
-      </div>
-    </div>
-  )
-});
 import PersonIcon from '@mui/icons-material/Person';
 import WorkIcon from '@mui/icons-material/Work';
 import ShareIcon from '@mui/icons-material/Share';
@@ -1040,8 +1028,9 @@ function ProfileBuilderContent() {
     event.target.value = '';
   };
 
-  // Add a new certification entry
+  // Add a new certification entry (max 5)
   const handleAddCertification = () => {
+    if (profileData.certifications.length >= 5) return;
     const newCertification = {
       id: `cert-${Date.now()}`,
       name: '',
@@ -1179,6 +1168,10 @@ function ProfileBuilderContent() {
               setMobileCountryCode(mobileDetected.countryCode);
               setWhatsappCountryCode(whatsappDetected.countryCode);
 
+              // Read toggle values from display_settings (preferred) then preferences (fallback)
+              const ds = profileToEdit.display_settings || {};
+              const prefs = profileToEdit.preferences || {};
+
               // Map database profile structure to builder structure
               const mappedProfile = {
                 salutation: profileToEdit.preferences?.salutation || '',
@@ -1188,10 +1181,10 @@ function ProfileBuilderContent() {
                 secondaryEmail: profileToEdit.alternate_email || '',
                 mobileNumber: mobileDetected.number,
                 whatsappNumber: whatsappDetected.number,
-                showEmailPublicly: profileToEdit.show_email_publicly ?? true,
-                showSecondaryEmailPublicly: profileToEdit.show_secondary_email_publicly ?? true,
-                showMobilePublicly: profileToEdit.show_mobile_publicly ?? true,
-                showWhatsappPublicly: profileToEdit.show_whatsapp_publicly ?? true,
+                showEmailPublicly: ds.showEmailPublicly ?? prefs.showEmailPublicly ?? true,
+                showSecondaryEmailPublicly: ds.showSecondaryEmailPublicly ?? prefs.showSecondaryEmailPublicly ?? true,
+                showMobilePublicly: ds.showMobilePublicly ?? prefs.showMobilePublicly ?? true,
+                showWhatsappPublicly: ds.showWhatsappPublicly ?? prefs.showWhatsappPublicly ?? false,
 
                 jobTitle: profileToEdit.job_title || profileToEdit.title || '',
                 companyName: profileToEdit.company || profileToEdit.company_name || '',
@@ -1202,12 +1195,12 @@ function ProfileBuilderContent() {
                 subDomain: profileToEdit.sub_domain || '',
                 skills: Array.isArray(profileToEdit.skills) ? profileToEdit.skills : [],
                 professionalSummary: profileToEdit.professional_summary || profileToEdit.bio || '',
-                showJobTitle: profileToEdit.show_job_title ?? true,
-                showCompanyName: profileToEdit.show_company_name ?? true,
-                showCompanyWebsite: profileToEdit.show_company_website ?? true,
-                showCompanyAddress: profileToEdit.show_company_address ?? true,
-                showIndustry: profileToEdit.show_industry ?? true,
-                showSkills: profileToEdit.show_skills ?? true,
+                showJobTitle: ds.showJobTitle ?? prefs.showJobTitle ?? true,
+                showCompanyName: ds.showCompanyName ?? prefs.showCompanyName ?? true,
+                showCompanyWebsite: ds.showCompanyWebsite ?? prefs.showCompanyWebsite ?? true,
+                showCompanyAddress: ds.showCompanyAddress ?? prefs.showCompanyAddress ?? true,
+                showIndustry: ds.showIndustry ?? prefs.showIndustry ?? true,
+                showSkills: ds.showSkills ?? prefs.showSkills ?? true,
 
                 linkedinUrl: (socialLinks as any)?.linkedin || '',
                 instagramUrl: (socialLinks as any)?.instagram || '',
@@ -1217,19 +1210,19 @@ function ProfileBuilderContent() {
                 dribbbleUrl: (socialLinks as any)?.dribbble || '',
                 githubUrl: (socialLinks as any)?.github || '',
                 youtubeUrl: (socialLinks as any)?.youtube || '',
-                showLinkedin: profileToEdit.show_linkedin ?? Boolean((socialLinks as any)?.linkedin),
-                showInstagram: profileToEdit.show_instagram ?? Boolean((socialLinks as any)?.instagram),
-                showFacebook: profileToEdit.show_facebook ?? Boolean((socialLinks as any)?.facebook),
-                showTwitter: profileToEdit.show_twitter ?? Boolean((socialLinks as any)?.twitter),
-                showBehance: profileToEdit.show_behance ?? false,
-                showDribbble: profileToEdit.show_dribbble ?? false,
-                showGithub: profileToEdit.show_github ?? false,
-                showYoutube: profileToEdit.show_youtube ?? Boolean((socialLinks as any)?.youtube),
+                showLinkedin: ds.showLinkedin ?? prefs.showLinkedin ?? Boolean((socialLinks as any)?.linkedin),
+                showInstagram: ds.showInstagram ?? prefs.showInstagram ?? Boolean((socialLinks as any)?.instagram),
+                showFacebook: ds.showFacebook ?? prefs.showFacebook ?? Boolean((socialLinks as any)?.facebook),
+                showTwitter: ds.showTwitter ?? prefs.showTwitter ?? Boolean((socialLinks as any)?.twitter),
+                showBehance: ds.showBehance ?? prefs.showBehance ?? Boolean((socialLinks as any)?.behance),
+                showDribbble: ds.showDribbble ?? prefs.showDribbble ?? Boolean((socialLinks as any)?.dribbble),
+                showGithub: ds.showGithub ?? prefs.showGithub ?? Boolean((socialLinks as any)?.github),
+                showYoutube: ds.showYoutube ?? prefs.showYoutube ?? Boolean((socialLinks as any)?.youtube),
 
                 profilePhoto: profileToEdit.profile_photo_url || profileToEdit.avatar_url || null,
                 backgroundImage: profileToEdit.background_image_url || null,
-                showProfilePhoto: profileToEdit.show_profile_photo ?? true,
-                showBackgroundImage: profileToEdit.show_background_image ?? true,
+                showProfilePhoto: ds.showProfilePhoto ?? prefs.showProfilePhoto ?? true,
+                showBackgroundImage: ds.showBackgroundImage ?? prefs.showBackgroundImage ?? true,
 
                 photos: Array.isArray(profileToEdit.gallery_urls) ? profileToEdit.gallery_urls.map((url: string, index: number) => ({
                   id: `photo-${index}`,
@@ -1727,6 +1720,16 @@ function ProfileBuilderContent() {
           dribbbleUrl: profileData.dribbbleUrl,
           githubUrl: profileData.githubUrl,
           youtubeUrl: profileData.youtubeUrl,
+          socialLinks: {
+            linkedin: profileData.linkedinUrl,
+            instagram: profileData.instagramUrl,
+            facebook: profileData.facebookUrl,
+            twitter: profileData.twitterUrl,
+            behance: profileData.behanceUrl,
+            dribbble: profileData.dribbbleUrl,
+            github: profileData.githubUrl,
+            youtube: profileData.youtubeUrl,
+          },
           showLinkedin: toggleName === 'showLinkedin' ? value : profileData.showLinkedin,
           showInstagram: toggleName === 'showInstagram' ? value : profileData.showInstagram,
           showFacebook: toggleName === 'showFacebook' ? value : profileData.showFacebook,
@@ -1866,6 +1869,16 @@ function ProfileBuilderContent() {
           dribbbleUrl: profileData.dribbbleUrl,
           githubUrl: profileData.githubUrl,
           youtubeUrl: profileData.youtubeUrl,
+          socialLinks: {
+            linkedin: profileData.linkedinUrl,
+            instagram: profileData.instagramUrl,
+            facebook: profileData.facebookUrl,
+            twitter: profileData.twitterUrl,
+            behance: profileData.behanceUrl,
+            dribbble: profileData.dribbbleUrl,
+            github: profileData.githubUrl,
+            youtube: profileData.youtubeUrl,
+          },
           showLinkedin: profileData.showLinkedin,
           showInstagram: profileData.showInstagram,
           showFacebook: profileData.showFacebook,
@@ -2297,6 +2310,7 @@ function ProfileBuilderContent() {
                           type="text"
                           value={profileData.firstName}
                           onChange={(e) => setProfileData({ ...profileData, firstName: toTitleCase(e.target.value) })}
+                          maxLength={30}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="Enter first name"
                         />
@@ -2307,6 +2321,7 @@ function ProfileBuilderContent() {
                           type="text"
                           value={profileData.lastName}
                           onChange={(e) => setProfileData({ ...profileData, lastName: toTitleCase(e.target.value) })}
+                          maxLength={30}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="Enter last name"
                         />
@@ -2325,6 +2340,7 @@ function ProfileBuilderContent() {
                             type="email"
                             value={profileData.primaryEmail}
                             onChange={(e) => setProfileData({ ...profileData, primaryEmail: e.target.value })}
+                            maxLength={100}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="Enter your email address"
                             suppressHydrationWarning
@@ -2354,6 +2370,7 @@ function ProfileBuilderContent() {
                             type="email"
                             value={profileData.secondaryEmail}
                             onChange={(e) => setProfileData({ ...profileData, secondaryEmail: e.target.value })}
+                            maxLength={100}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="Add secondary email"
                             suppressHydrationWarning
@@ -2553,6 +2570,7 @@ function ProfileBuilderContent() {
                             // Delay hiding to allow click on dropdown items
                             setTimeout(() => setShowJobTitleDropdown(false), 200);
                           }}
+                          maxLength={80}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="Type to search or enter custom job title..."
                         />
@@ -2631,6 +2649,7 @@ function ProfileBuilderContent() {
                           type="text"
                           value={profileData.companyName}
                           onChange={(e) => setProfileData({ ...profileData, companyName: e.target.value })}
+                          maxLength={80}
                           className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                           placeholder="TechCorp Solutions"
                         />
@@ -2659,6 +2678,7 @@ function ProfileBuilderContent() {
                               const fullUrl = domain ? `https://${domain}` : '';
                               setProfileData({ ...profileData, companyWebsite: fullUrl });
                             }}
+                            maxLength={100}
                             className="flex-1 px-2 py-2 border-0 outline-none rounded-r-lg"
                             placeholder="yourwebsite.com"
                           />
@@ -2684,6 +2704,7 @@ function ProfileBuilderContent() {
                         type="text"
                         value={profileData.companyAddress}
                         onChange={(e) => setProfileData({ ...profileData, companyAddress: e.target.value })}
+                        maxLength={200}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                         placeholder="Business Bay, Dubai, UAE"
                       />
@@ -2700,23 +2721,6 @@ function ProfileBuilderContent() {
                         <span className="text-sm text-gray-700">Show address & map</span>
                       </div>
 
-                      {/* Google Map Picker - shown when "Show address & map" is enabled */}
-                      {profileData.showCompanyAddress && (
-                        <div className="mt-4">
-                          <GoogleMapPicker
-                            initialAddress={{
-                              addressLine1: profileData.companyAddress,
-                            }}
-                            onAddressChange={(address) => {
-                              setProfileData(prev => ({
-                                ...prev,
-                                companyAddress: address.displayName || `${address.addressLine1}, ${address.city}, ${address.country}`
-                              }));
-                              showToast('Location updated successfully', 'success');
-                            }}
-                          />
-                        </div>
-                      )}
                     </div>
 
                     <div className="mt-4">
@@ -2821,6 +2825,7 @@ function ProfileBuilderContent() {
                               // Delay hiding to allow click on dropdown items
                               setTimeout(() => setShowIndustryDropdown(false), 200);
                             }}
+                            maxLength={80}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                             placeholder="Type to search or enter custom industry..."
                           />
@@ -2875,6 +2880,7 @@ function ProfileBuilderContent() {
                               setTimeout(() => setShowSubDomainDropdown(false), 200);
                             }}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
+                            maxLength={80}
                             placeholder={profileData.industry ? "Type to search or enter custom sub-domain..." : "Select industry first..."}
                             disabled={!profileData.industry}
                           />
@@ -2958,6 +2964,7 @@ function ProfileBuilderContent() {
                             value={skillInput}
                             onChange={(e) => handleSkillInputChange(e.target.value)}
                             onKeyDown={handleSkillKeyDown}
+                            maxLength={40}
                             disabled={profileData.skills.length >= 5}
                             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none disabled:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-500"
                             placeholder={profileData.skills.length >= 5 ? "Maximum 5 skills reached" : "Type skill name..."}
@@ -3193,6 +3200,7 @@ function ProfileBuilderContent() {
                                     );
                                     setProfileData({ ...profileData, services: updatedServices });
                                   }}
+                                  maxLength={80}
                                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                                   placeholder="e.g., Web Development"
                                 />
@@ -3231,6 +3239,7 @@ function ProfileBuilderContent() {
                                       setProfileData({ ...profileData, services: updatedServices });
                                     }}
                                     placeholder="Enter custom category..."
+                                    maxLength={50}
                                     className="w-full mt-2 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none"
                                   />
                                 )}
@@ -3351,6 +3360,7 @@ function ProfileBuilderContent() {
                                 showLinkedin: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourhandle"
                           />
@@ -3390,6 +3400,7 @@ function ProfileBuilderContent() {
                                 showInstagram: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourhandle"
                           />
@@ -3429,6 +3440,7 @@ function ProfileBuilderContent() {
                                 showFacebook: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourprofile"
                           />
@@ -3468,6 +3480,7 @@ function ProfileBuilderContent() {
                                 showTwitter: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourhandle"
                           />
@@ -3516,6 +3529,7 @@ function ProfileBuilderContent() {
                                 showBehance: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourportfolio"
                           />
@@ -3557,6 +3571,7 @@ function ProfileBuilderContent() {
                                 showDribbble: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourprofile"
                           />
@@ -3596,6 +3611,7 @@ function ProfileBuilderContent() {
                                 showGithub: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourhandle"
                           />
@@ -3635,6 +3651,7 @@ function ProfileBuilderContent() {
                                 showYoutube: handle.trim().length > 0
                               });
                             }}
+                            maxLength={50}
                             className="flex-1 min-w-0 px-2 py-2 border-0 outline-none rounded-r-lg text-sm"
                             placeholder="yourchannel"
                           />
@@ -3660,11 +3677,12 @@ function ProfileBuilderContent() {
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <h3 className="text-base sm:text-lg font-semibold text-gray-900">Certifications</h3>
-                        <p className="text-sm text-gray-600 mt-1">Add your certificates, awards, or credentials.</p>
+                        <p className="text-sm text-gray-600 mt-1">Add your certificates, awards, or credentials. <span className="text-gray-500">({profileData.certifications.length}/5)</span></p>
                       </div>
                       <button
                         onClick={handleAddCertification}
-                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm"
+                        disabled={profileData.certifications.length >= 5}
+                        className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium transition-colors flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <span className="text-lg leading-none">+</span> Add Certification
                       </button>
@@ -3704,6 +3722,7 @@ function ProfileBuilderContent() {
                                 type="text"
                                 value={cert.title}
                                 onChange={(e) => handleCertificationTitleChange(cert.id, e.target.value)}
+                                maxLength={100}
                                 placeholder="e.g., AWS Certified Solutions Architect"
                                 className={`w-full px-3 py-2 border ${
                                   !cert.title ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
