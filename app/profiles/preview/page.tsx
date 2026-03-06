@@ -134,6 +134,7 @@ interface ProfileData {
     url: string;
     size: number;
     type: string;
+    link?: string;
     showPublicly: boolean;
   }>;
   // Theme
@@ -680,17 +681,19 @@ export default function ProfilePreviewPage() {
               <h3 className="text-lg font-semibold text-white mb-4">Certifications</h3>
               <div className="space-y-2">
                 {normalized.certifications.map((cert) => {
-                  if (cert.url) {
-                    const isPdf = cert.type === 'application/pdf' || cert.url.toLowerCase().endsWith('.pdf');
-                    const viewUrl = isPdf
-                      ? `https://docs.google.com/gview?url=${encodeURIComponent(cert.url)}&embedded=true`
-                      : cert.url;
+                  const hasDoc = !!cert.url;
+                  const hasLink = !!cert.link;
+
+                  if (hasDoc || hasLink) {
+                    const isPdf = hasDoc && (cert.type === 'application/pdf' || cert.url.toLowerCase().endsWith('.pdf'));
+                    const viewUrl = hasDoc
+                      ? (isPdf ? `https://docs.google.com/gview?url=${encodeURIComponent(cert.url)}&embedded=true` : cert.url)
+                      : null;
 
                     return (
-                      <button
+                      <div
                         key={cert.id}
-                        onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
-                        className="block w-full text-left px-4 py-3 rounded-lg transition-colors border border-white/12 hover:border-white/25 cursor-pointer"
+                        className="block px-4 py-3 rounded-lg border border-white/12"
                         style={{ backgroundColor: 'rgba(255,255,255,0.08)' }}
                       >
                         <div className="flex items-center gap-3">
@@ -699,12 +702,33 @@ export default function ProfilePreviewPage() {
                             <path d="M14 2v6h6"/>
                           </svg>
                           <span className="text-sm text-white/80 font-medium flex-1">{cert.title}</span>
-                          <svg className="w-4 h-4 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                          </svg>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {hasDoc && viewUrl && (
+                              <button
+                                onClick={() => window.open(viewUrl, '_blank', 'noopener,noreferrer')}
+                                className="p-1 rounded hover:bg-white/10 transition-colors"
+                                title="View Document"
+                              >
+                                <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                              </button>
+                            )}
+                            {hasLink && (
+                              <button
+                                onClick={() => window.open(cert.link, '_blank', 'noopener,noreferrer')}
+                                className="p-1 rounded hover:bg-white/10 transition-colors"
+                                title="View Credential"
+                              >
+                                <svg className="w-4 h-4 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                </svg>
+                              </button>
+                            )}
+                          </div>
                         </div>
-                      </button>
+                      </div>
                     );
                   }
 

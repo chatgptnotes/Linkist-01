@@ -125,7 +125,7 @@ interface ProfileData {
   videos: Array<{ id: string; url: string; title: string; showPublicly: boolean }>;
 
   // Certifications & Documents
-  certifications: Array<{ id: string; name: string; title: string; url: string; size: number; type: string; showPublicly: boolean }>;
+  certifications: Array<{ id: string; name: string; title: string; url: string; size: number; type: string; link?: string; showPublicly: boolean }>;
 
   // Services
   services: Array<{ id: string; title: string; description: string; pricing: string; pricingUnit: string; currency: string; category: string; showPublicly: boolean }>;
@@ -1038,6 +1038,7 @@ function ProfileBuilderContent() {
       url: '',
       size: 0,
       type: '',
+      link: '',
       showPublicly: true
     };
     setProfileData({
@@ -1091,6 +1092,16 @@ function ProfileBuilderContent() {
       ...profileData,
       certifications: profileData.certifications.map(cert =>
         cert.id === certId ? { ...cert, title } : cert
+      )
+    });
+  };
+
+  // Update certification credential link
+  const handleCertificationLinkChange = (certId: string, link: string) => {
+    setProfileData({
+      ...profileData,
+      certifications: profileData.certifications.map(cert =>
+        cert.id === certId ? { ...cert, link } : cert
       )
     });
   };
@@ -3799,6 +3810,25 @@ function ProfileBuilderContent() {
                                   <p className="text-xs text-gray-500">Drop file or click to upload (PDF, PNG, JPG - Max 5MB)</p>
                                 </div>
                               )}
+                            </div>
+
+                            {/* Credential URL */}
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Credential URL <span className="text-gray-400 font-normal">(optional)</span></label>
+                              <div className="relative">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                  <svg className="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                                  </svg>
+                                </div>
+                                <input
+                                  type="url"
+                                  value={cert.link || ''}
+                                  onChange={(e) => handleCertificationLinkChange(cert.id, e.target.value)}
+                                  placeholder="e.g., https://www.credly.com/badges/..."
+                                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-md focus:border-blue-500 focus:ring-blue-500"
+                                />
+                              </div>
                             </div>
 
                             {/* Show Publicly Toggle */}
