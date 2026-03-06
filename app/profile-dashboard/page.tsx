@@ -907,7 +907,7 @@ export default function AccountPage() {
                   {referralStats.referrals.map((referral) => (
                     <div key={referral.id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-amber-100">
                       <div>
-                        <span className="font-medium text-gray-900">{referral.firstName} {referral.lastName}</span>
+                        <span className="font-medium text-gray-900">{referral.firstName}</span>
                         <span className="text-gray-500 text-sm ml-2">{referral.email}</span>
                       </div>
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${

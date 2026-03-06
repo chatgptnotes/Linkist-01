@@ -20,6 +20,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import StarsIcon from '@mui/icons-material/Stars';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -38,6 +39,7 @@ const LogOut = LogoutIcon;
 const User = PersonIcon;
 const Ticket = ConfirmationNumberIcon;
 const Crown = StarsIcon;
+const Newspaper = NewspaperIcon;
 
 interface AuthUser {
   id: string;
@@ -108,6 +110,12 @@ const navigationItems = [
     name: 'Users',
     href: '/admin/users',
     icon: UserCheck,
+    permission: Permission.VIEW_USERS,
+  },
+  {
+    name: 'Subscribers',
+    href: '/admin/subscribers',
+    icon: Newspaper,
     permission: Permission.VIEW_USERS,
   },
   {

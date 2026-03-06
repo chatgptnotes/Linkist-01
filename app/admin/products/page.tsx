@@ -59,9 +59,6 @@ interface SubscriptionPlan {
   name: string;
   type: PlanType;
   price: number;
-  monthly_price: number | null;
-  yearly_price: number | null;
-  yearly_discount_percent: number | null;
   has_card_customization: boolean;
   gst_percentage: number;
   vat_percentage: number;
@@ -94,9 +91,6 @@ export default function ProductsPage() {
     name: '',
     type: 'physical-digital' as PlanType,
     price: 0,
-    monthly_price: null as number | null,
-    yearly_price: null as number | null,
-    yearly_discount_percent: null as number | null,
     has_card_customization: false,
     gst_percentage: 18,
     vat_percentage: 5,
@@ -274,9 +268,6 @@ export default function ProductsPage() {
         name: formData.name,
         type: formData.type,
         price: formData.price,
-        monthly_price: formData.monthly_price,
-        yearly_price: formData.yearly_price,
-        yearly_discount_percent: formData.yearly_discount_percent,
         has_card_customization: formData.has_card_customization,
         gst_percentage: formData.gst_percentage,
         vat_percentage: formData.vat_percentage,
@@ -320,9 +311,6 @@ export default function ProductsPage() {
       name: plan.name,
       type: plan.type,
       price: plan.price,
-      monthly_price: plan.monthly_price ?? null,
-      yearly_price: plan.yearly_price ?? null,
-      yearly_discount_percent: plan.yearly_discount_percent ?? null,
       has_card_customization: plan.has_card_customization ?? false,
       gst_percentage: plan.gst_percentage || 18,
       vat_percentage: plan.vat_percentage || 5,
@@ -364,9 +352,6 @@ export default function ProductsPage() {
       name: '',
       type: 'physical-digital',
       price: 0,
-      monthly_price: null,
-      yearly_price: null,
-      yearly_discount_percent: null,
       has_card_customization: false,
       gst_percentage: 18,
       vat_percentage: 5,
@@ -927,46 +912,6 @@ export default function ProductsPage() {
                   </div>
 
                   {/* Monthly & Yearly Pricing */}
-                  <div className="grid grid-cols-3 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Monthly Price (USD)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.monthly_price ?? ''}
-                        onChange={(e) => setFormData({ ...formData, monthly_price: e.target.value ? parseFloat(e.target.value) : null })}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        placeholder="6.90"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Yearly Price/mo (USD)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={formData.yearly_price ?? ''}
-                        onChange={(e) => setFormData({ ...formData, yearly_price: e.target.value ? parseFloat(e.target.value) : null })}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        placeholder="5.50"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Yearly Discount %
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.yearly_discount_percent ?? ''}
-                        onChange={(e) => setFormData({ ...formData, yearly_discount_percent: e.target.value ? parseInt(e.target.value) : null })}
-                        className="w-full border border-gray-300 rounded-md px-3 py-2"
-                        placeholder="20"
-                      />
-                    </div>
-                  </div>
 
                   {/* Card Customization Toggle */}
                   <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">

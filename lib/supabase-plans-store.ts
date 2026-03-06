@@ -20,9 +20,6 @@ export interface SubscriptionPlan {
   name: string;
   type: PlanType;
   price: number;
-  monthly_price: number | null;
-  yearly_price: number | null;
-  yearly_discount_percent: number | null;
   has_card_customization: boolean;
   gst_percentage: number;
   vat_percentage: number;
@@ -41,9 +38,6 @@ export interface CreatePlanData {
   name: string;
   type: PlanType;
   price: number;
-  monthly_price?: number | null;
-  yearly_price?: number | null;
-  yearly_discount_percent?: number | null;
   has_card_customization?: boolean;
   gst_percentage?: number;
   vat_percentage?: number;

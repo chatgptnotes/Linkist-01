@@ -284,8 +284,7 @@ export default function CheckoutPage() {
             pattern: config.pattern,
             color: config.colour || config.color,  // Handle both colour and color
             fullName: `${config.cardFirstName} ${config.cardLastName}`.trim(),
-            // Billing period and plan type from configure page
-            billingPeriod: config.billingPeriod || localStorage.getItem('billingPeriod') || 'yearly',
+            // Plan type from configure page
             planType: config.planType || localStorage.getItem('productSelection') || 'physical-digital',
             // Founders Club data
             isFoundingMember: configIsFoundingMember,
@@ -583,23 +582,17 @@ export default function CheckoutPage() {
       includeAppSubscription: false,
     });
 
-    // Adjust material price for monthly billing
-    const billingPeriod = cardConfig?.billingPeriod || 'yearly';
-    const adjustedMaterialPrice = billingPeriod === 'monthly'
-      ? pricing.materialPrice / 10
-      : pricing.materialPrice;
-
     return {
       productPlanPrice: 0,
-      materialPrice: adjustedMaterialPrice,
+      materialPrice: pricing.materialPrice,
       appSubscriptionPrice: 0,
-      basePrice: adjustedMaterialPrice,
-      subtotal: adjustedMaterialPrice * quantity,
+      basePrice: pricing.materialPrice,
+      subtotal: pricing.materialPrice * quantity,
       taxAmount: 0,
       shippingCost: 0,
-      totalBeforeDiscount: adjustedMaterialPrice * quantity,
+      totalBeforeDiscount: pricing.materialPrice * quantity,
       discountAmount: 0,
-      total: adjustedMaterialPrice * quantity,
+      total: pricing.materialPrice * quantity,
       taxRate: 0,
       taxLabel: 'Included',
       isFoundersPricing: false
@@ -864,23 +857,18 @@ export default function CheckoutPage() {
           includeAppSubscription: false,
         });
 
-        const billingPeriod = cardConfig?.billingPeriod || 'yearly';
-        const adjustedMaterialPrice = billingPeriod === 'monthly'
-          ? pricing.materialPrice / 10
-          : pricing.materialPrice;
-
-        console.log('💰 Checkout: Using STANDARD pricing:', adjustedMaterialPrice, 'x', quantity, '(billing:', billingPeriod, ')');
+        console.log('💰 Checkout: Using STANDARD pricing:', pricing.materialPrice, 'x', quantity);
         pricingData = {
           productPlanPrice: 0,
-          materialPrice: adjustedMaterialPrice,
+          materialPrice: pricing.materialPrice,
           appSubscriptionPrice: 0,
-          basePrice: adjustedMaterialPrice,
-          subtotal: adjustedMaterialPrice * quantity,
+          basePrice: pricing.materialPrice,
+          subtotal: pricing.materialPrice * quantity,
           shippingCost: 0,
           taxAmount: 0,
-          totalBeforeDiscount: adjustedMaterialPrice * quantity,
+          totalBeforeDiscount: pricing.materialPrice * quantity,
           discountAmount: 0,
-          total: adjustedMaterialPrice * quantity,
+          total: pricing.materialPrice * quantity,
           taxRate: 0,
           taxLabel: 'Included',
           voucherCode: null,

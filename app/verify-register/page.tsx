@@ -128,8 +128,7 @@ export default function VerifyRegisterPage() {
             }
           } else if (productSelection === 'next') {
             // Next plan - go directly to payment
-            const storedBillingPeriod = localStorage.getItem('billingPeriod') || 'monthly';
-            const storedAmount = localStorage.getItem('selectedPlanAmount') || (storedBillingPeriod === 'yearly' ? '69' : '6.9');
+            const storedAmount = localStorage.getItem('selectedPlanAmount') || '69';
             let nFirstName = 'User', nLastName = 'Name', nEmail = '', nCountry = 'IN';
             const nProfileStr = localStorage.getItem('userProfile');
             if (nProfileStr) {
@@ -146,7 +145,7 @@ export default function VerifyRegisterPage() {
               cardConfig: { firstName: nFirstName, lastName: nLastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${nFirstName} ${nLastName}` },
               shipping: { fullName: `${nFirstName} ${nLastName}`, email: nEmail, phone: '', phoneNumber: '', country: nCountry, addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false },
               pricing: { subtotal: parseFloat(storedAmount), taxAmount: 0, shippingCost: 0, total: parseFloat(storedAmount) },
-              isDigitalProduct: true, isDigitalOnly: true, planName: 'Next', billingPeriod: storedBillingPeriod,
+              isDigitalProduct: true, isDigitalOnly: true, planName: 'Next',
             };
             localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
             router.push('/nfc/payment');

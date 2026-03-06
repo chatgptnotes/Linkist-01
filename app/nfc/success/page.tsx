@@ -38,7 +38,6 @@ export default function SuccessPage() {
     phoneNumber?: string;
     amount?: number;
     planName?: string;
-    billingPeriod?: 'monthly' | 'yearly';
   } | null>(null);
 
   useEffect(() => {
@@ -59,7 +58,6 @@ export default function SuccessPage() {
 
     // Read plan info from localStorage
     const storedPlanName = localStorage.getItem('selectedPlanName') || '';
-    const storedBillingPeriod = (localStorage.getItem('billingPeriod') || 'monthly') as 'monthly' | 'yearly';
     const storedPlanAmount = localStorage.getItem('selectedPlanAmount') || '0';
 
     // First check for orderConfirmation from payment page
@@ -74,7 +72,6 @@ export default function SuccessPage() {
         shipping: confirmation.shipping || {},
         pricing: confirmation.pricing || { total: confirmation.amount },
         planName: confirmation.planName || storedPlanName,
-        billingPeriod: confirmation.billingPeriod || storedBillingPeriod,
       };
       setOrderData(orderData);
       // Store the order data for page refreshes
@@ -305,9 +302,6 @@ export default function SuccessPage() {
               {orderData.pricing?.total > 0 && (
                 <p className="text-lg text-gray-600 mb-2">
                   ${orderData.pricing.total.toFixed(2)}
-                  {(orderData.isDigitalOnly || orderData.isDigitalProduct) && orderData.billingPeriod
-                    ? (orderData.billingPeriod === 'yearly' ? '/year' : '/month')
-                    : ''}
                 </p>
               )}
             </>

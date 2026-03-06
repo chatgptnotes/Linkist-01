@@ -59,6 +59,7 @@ export interface NormalizedProfileData {
     url: string;
     size: number;
     type: string;
+    link?: string;
   }>;
   experience?: Array<{
     title: string;
@@ -143,7 +144,7 @@ interface MainProfileData {
   showProfilePhoto: boolean;
   showBackgroundImage: boolean;
   services?: Array<{ id: string; title: string; description?: string; pricing: string; pricingUnit?: string; currency?: string; category: string; showPublicly?: boolean }>;
-  certifications?: Array<{ id: string; name: string; title: string; url: string; size: number; type: string; showPublicly: boolean }>;
+  certifications?: Array<{ id: string; name: string; title: string; url: string; size: number; type: string; link?: string; showPublicly: boolean }>;
   isFoundingMember?: boolean;
   foundingMemberPlan?: string | null;
   selectedTheme?: string;

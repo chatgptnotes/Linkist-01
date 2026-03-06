@@ -38,13 +38,14 @@ const CheckCircle = CheckCircleIcon;
 
 const FooterSection = () => {
   const currentYear = new Date().getFullYear();
+  const [nameSubscription, setNameSubscription] = useState('');
   const [emailSubscription, setEmailSubscription] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleNewsletterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailSubscription.trim()) return;
+    if (!emailSubscription.trim() || !nameSubscription.trim()) return;
 
     setIsLoading(true);
 
@@ -53,7 +54,7 @@ const FooterSection = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          firstName: 'Subscriber',
+          firstName: nameSubscription,
           lastName: '',
           email: emailSubscription,
         }),
@@ -63,6 +64,7 @@ const FooterSection = () => {
 
       if (data.success) {
         setIsSubscribed(true);
+        setNameSubscription('');
         setEmailSubscription('');
         // Reset success state after 3 seconds
         setTimeout(() => setIsSubscribed(false), 3000);
@@ -171,6 +173,14 @@ const FooterSection = () => {
               </p>
 
               <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                <input
+                  type="text"
+                  value={nameSubscription}
+                  onChange={(e) => setNameSubscription(e.target.value)}
+                  placeholder="Your name"
+                  required
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all"
+                />
                 <div className="relative">
                   <input
                     type="email"

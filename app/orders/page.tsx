@@ -340,19 +340,13 @@ export default function OrdersPage() {
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {/* Order ID */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <ReceiptLongIcon className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Order ID</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Order ID</p>
                           <p className="text-sm font-mono font-semibold text-gray-900 break-all">{order.orderNumber}</p>
                         </div>
 
                         {/* Date of Purchase */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Clock className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date of Purchase</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Date of Purchase</p>
                           <p className="text-sm font-semibold text-gray-900">
                             {new Date(order.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
@@ -370,10 +364,7 @@ export default function OrdersPage() {
 
                         {/* Amount Paid */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <PaymentIcon className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Amount Paid</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount Paid</p>
                           <p className="text-xl font-bold text-gray-900">${order.pricing.total.toFixed(2)}</p>
                           <p className="text-xs text-gray-500 mt-0.5">
                             Subtotal: ${order.pricing.subtotal.toFixed(2)} + Shipping: ${order.pricing.shipping.toFixed(2)}
@@ -382,10 +373,7 @@ export default function OrdersPage() {
 
                         {/* Mode of Payment */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <PaymentIcon className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Mode of Payment</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Mode of Payment</p>
                           <p className="text-sm font-semibold text-gray-900">
                             {getPaymentMethodLabel(order.payment?.paymentMethod)}
                           </p>
@@ -404,10 +392,7 @@ export default function OrdersPage() {
 
                         {/* Shipping Status */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Truck className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Shipping Status</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Shipping Status</p>
                           <p className="text-sm font-semibold text-gray-900">{getShippingStatusLabel(order)}</p>
                           {order.trackingNumber && (
                             <p className="text-xs text-gray-500 mt-0.5 font-mono">
@@ -423,10 +408,7 @@ export default function OrdersPage() {
 
                         {/* Plan Name */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <div className="flex items-center gap-1.5 mb-1">
-                            <Info className="w-4 h-4 text-gray-500" />
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Plan Name</p>
-                          </div>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Plan Name</p>
                           <p className="text-sm font-semibold text-gray-900">{getPlanName(order)}</p>
                           {order.cardConfig?.baseMaterial && order.cardConfig.baseMaterial !== 'digital' && (
                             <p className="text-xs text-gray-500 mt-0.5 capitalize">

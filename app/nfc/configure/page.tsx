@@ -74,7 +74,6 @@ export default function ConfigureNewPage() {
   const [optionsLoading, setOptionsLoading] = useState(true);
   const [userPlanType, setUserPlanType] = useState<string | null>(null);
   const [planTypeChecked, setPlanTypeChecked] = useState(false);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly');
 
   // Fetch customization options from API based on user's plan type
   const fetchCustomizationOptions = async (planType: string) => {
@@ -208,10 +207,6 @@ export default function ConfigureNewPage() {
             });
           }
 
-          // Read billing period from localStorage (set during product selection)
-          const storedBilling = localStorage.getItem('billingPeriod') as 'monthly' | 'yearly';
-          setBillingPeriod(storedBilling || 'yearly');
-
           // Detect plan type from localStorage (set during product selection)
           const selectedProduct = localStorage.getItem('productSelection');
           const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
@@ -327,12 +322,10 @@ export default function ConfigureNewPage() {
   // Founders Circle plan check: exclusive features only when plan is founders-circle/founders-club
   const isFoundersCirclePlan = userPlanType === 'founders-circle' || userPlanType === 'founders-club';
 
-  // Price display helper: monthly = yearly / 10
-  const getDisplayPrice = (yearlyPrice: number): number => {
-    if (billingPeriod === 'monthly') return yearlyPrice / 10;
-    return yearlyPrice;
+  // Price display helper
+  const getDisplayPrice = (price: number): number => {
+    return price;
   };
-  const priceSuffix = billingPeriod === 'monthly' ? '/mo' : '';
 
   // Base materials with descriptions - from API or fallback
   const baseMaterials: Array<{ value: string; label: string; description: string }> = customizationOptions?.materials
@@ -554,8 +547,7 @@ export default function ConfigureNewPage() {
       texture: formData.texture,
       colour: formData.colour,
       pattern: selectedPattern?.name || `Pattern ${formData.pattern}`,
-      // Billing period and plan type (for checkout/payment pricing)
-      billingPeriod: billingPeriod,
+      // Plan type (for checkout/payment pricing)
       planType: userPlanType,
       // Founding member exclusive options (only for Founder's Circle plan)
       showLinkistLogo: isFoundersCirclePlan ? showLinkistLogo : true,

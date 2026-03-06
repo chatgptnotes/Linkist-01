@@ -345,8 +345,7 @@ function VerifyMobileContent() {
             router.push('/nfc/payment');
           } else if (productSelection === 'next') {
             // Next plan - no card config, go directly to payment
-            const storedBillingPeriod = localStorage.getItem('billingPeriod') || 'monthly';
-            const storedAmount = localStorage.getItem('selectedPlanAmount') || (storedBillingPeriod === 'yearly' ? '69' : '6.9');
+            const storedAmount = localStorage.getItem('selectedPlanAmount') || '69';
             // Read user profile for order data
             let nFirstName = 'User', nLastName = 'Name', nEmail = '', nCountry = 'IN';
             const nProfileStr = localStorage.getItem('userProfile');
@@ -369,7 +368,6 @@ function VerifyMobileContent() {
               isDigitalProduct: true,
               isDigitalOnly: true,
               planName: 'Next',
-              billingPeriod: storedBillingPeriod,
             };
             localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
             router.push('/nfc/payment');

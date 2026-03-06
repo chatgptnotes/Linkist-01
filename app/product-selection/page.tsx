@@ -29,9 +29,6 @@ interface PlanData {
   name: string;
   type: string;
   price: number;
-  monthly_price: number | null;
-  yearly_price: number | null;
-  yearly_discount_percent: number | null;
   has_card_customization: boolean;
   description: string;
   features: string[];
@@ -43,39 +40,34 @@ interface PlanData {
 const FALLBACK_PLANS: PlanData[] = [
   {
     id: 'starter', name: 'Starter', type: 'starter', price: 0,
-    monthly_price: 0, yearly_price: 0, yearly_discount_percent: null,
     has_card_customization: false,
     description: 'A simple digital identity to get you started.',
     features: ['Linkist Digital Profile', 'Personalised Linkist ID', 'Easy sharing via link & QR', 'Basic analytics'],
     popular: false, display_order: 1,
   },
   {
-    id: 'next', name: 'Next', type: 'next', price: 6.9,
-    monthly_price: 6.9, yearly_price: 69, yearly_discount_percent: 17,
+    id: 'next', name: 'Next', type: 'next', price: 69,
     has_card_customization: false,
     description: 'Take your digital identity to the next level.',
     features: ['Everything in Starter', 'Custom profile themes', 'Advanced analytics', 'Priority link placement', 'Email signature integration'],
     popular: false, display_order: 2,
   },
   {
-    id: 'pro', name: 'Pro', type: 'pro', price: 9.9,
-    monthly_price: 9.9, yearly_price: 99, yearly_discount_percent: 17,
+    id: 'pro', name: 'Pro', type: 'pro', price: 99,
     has_card_customization: true,
     description: 'Professional networking with NFC card customization.',
     features: ['Everything in Next', 'NFC Card Customization', 'Custom card designs', 'Lead capture forms', 'CRM integrations', 'Branded QR codes'],
     popular: true, display_order: 3,
   },
   {
-    id: 'signature', name: 'Signature', type: 'signature', price: 12.9,
-    monthly_price: 12.9, yearly_price: 129, yearly_discount_percent: 17,
+    id: 'signature', name: 'Signature', type: 'signature', price: 129,
     has_card_customization: true,
     description: 'Premium features for the serious professional.',
     features: ['Everything in Pro', 'Premium Metal NFC Card', 'Founding Member tag', 'AI Credits worth $50', 'Priority 24/7 Support', 'Exclusive card materials', 'Early access to features'],
     popular: false, display_order: 4,
   },
   {
-    id: 'founders-circle', name: "Founder's Circle", type: 'founders-circle', price: 14.9,
-    monthly_price: 14.9, yearly_price: 149, yearly_discount_percent: 17,
+    id: 'founders-circle', name: "Founder's Circle", type: 'founders-circle', price: 149,
     has_card_customization: true,
     description: 'The ultimate Linkist experience for visionaries.',
     features: ['Everything in Signature', "Exclusive Founder's Circle badge", 'Up to 5 referral invites', 'Access to partner privileges', 'Lifetime premium benefits', 'Exclusive community access', 'Personal account manager'],
@@ -92,7 +84,6 @@ export default function ProductSelectionPage() {
 
   // Plans state
   const [plans, setPlans] = useState<PlanData[]>(FALLBACK_PLANS);
-  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('yearly');
   const [plansLoading, setPlansLoading] = useState(true);
   const [expandedPlan, setExpandedPlan] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -188,14 +179,12 @@ export default function ProductSelectionPage() {
     setShowCodeModal(false);
     localStorage.setItem('foundersInviteCode', data.code);
     localStorage.setItem('productSelection', 'founders-circle');
-    localStorage.setItem('billingPeriod', billingPeriod);
     // NOTE: Do NOT store isFoundingMember in localStorage - always verify from API
     // Store Founders Circle plan pricing so checkout has the correct amount
     const foundersPlan = plans.find(p => p.type === 'founders-circle');
     if (foundersPlan) {
-      const planAmount = billingPeriod === 'yearly' ? (foundersPlan.yearly_price || 0) : (foundersPlan.monthly_price || 0);
       localStorage.setItem('selectedPlanName', foundersPlan.name);
-      localStorage.setItem('selectedPlanAmount', String(planAmount));
+      localStorage.setItem('selectedPlanAmount', String(foundersPlan.price));
     }
     showToast('Welcome to the Founders Circle! Redirecting...', 'success');
     setTimeout(() => {
@@ -285,9 +274,8 @@ export default function ProductSelectionPage() {
   const handlePlanAction = async (plan: PlanData) => {
     const productId = plan.type;
     localStorage.setItem('productSelection', productId);
-    localStorage.setItem('billingPeriod', billingPeriod);
     localStorage.setItem('selectedPlanName', plan.name);
-    const planAmount = billingPeriod === 'yearly' ? (plan.yearly_price || 0) : (plan.monthly_price || 0);
+    const planAmount = plan.price;
     localStorage.setItem('selectedPlanAmount', String(planAmount));
 
     // If not logged in, show signup
@@ -388,7 +376,6 @@ export default function ProductSelectionPage() {
         isDigitalProduct: true,
         isDigitalOnly: true,
         planName: 'Next',
-        billingPeriod,
       };
       localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
       setTimeout(() => { router.push('/nfc/payment'); }, 500);
@@ -412,16 +399,12 @@ export default function ProductSelectionPage() {
   };
 
   const getDisplayPrice = (plan: PlanData): string => {
-    if (billingPeriod === 'yearly') {
-      if (plan.yearly_price === 0 || plan.yearly_price === null) return '$0';
-      return `$${plan.yearly_price}`;
-    }
-    if (plan.monthly_price === 0 || plan.monthly_price === null) return '$0';
-    return `$${plan.monthly_price}`;
+    if (plan.price === 0) return '$0';
+    return `$${plan.price}`;
   };
 
   const getPriceLabel = (plan: PlanData): string => {
-    return billingPeriod === 'yearly' ? '/Year' : '/month';
+    return '';
   };
 
   const isPremium = (plan: PlanData): boolean => {
@@ -454,44 +437,6 @@ export default function ProductSelectionPage() {
           Select the perfect plan for your professional networking needs
         </motion.p>
 
-        {/* Billing Toggle */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="inline-flex items-center rounded-full bg-gray-200 p-1"
-        >
-          <button
-            onClick={() => setBillingPeriod('yearly')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              billingPeriod === 'yearly'
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Yearly
-          </button>
-          <button
-            onClick={() => setBillingPeriod('monthly')}
-            className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              billingPeriod === 'monthly'
-                ? 'bg-red-600 text-white shadow-sm'
-                : 'text-gray-500 hover:text-gray-700'
-            }`}
-          >
-            Monthly
-          </button>
-        </motion.div>
-
-        {billingPeriod === 'yearly' && (
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-green-600 text-xs mt-2 font-medium"
-          >
-            Save 2 months free with yearly billing
-          </motion.p>
-        )}
       </section>
 
       {/* Plans Section */}
