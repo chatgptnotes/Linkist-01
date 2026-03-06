@@ -359,9 +359,38 @@ export async function POST(request: NextRequest) {
     // Send emails if order is confirmed (has payment) OR is a digital-only order (status 'delivered')
     let finalOrder = order;
     const shouldSendEmails = orderStatus === 'confirmed' || orderStatus === 'delivered';
+    
+    console.log(`📧 [process-order] Email decision:`, {
+      orderNumber: order.orderNumber,
+      orderStatus,
+      shouldSendEmails,
+      email: checkoutData.email || 'MISSING',
+      planType: cardConfig.planType || 'unknown',
+      isDigitalOnly: isDigitalOnlyOrder
+    });
+
     if (shouldSendEmails) {
+      // Validate email before attempting to send
+      if (!checkoutData.email || !checkoutData.email.includes('@')) {
+        console.error(`❌ [process-order] Cannot send email - invalid email address:`, checkoutData.email);
+        return NextResponse.json({
+          success: true,
+          order: order,
+          emailResults: { confirmation: { success: false, error: 'Invalid email' }, receipt: { success: false, error: 'Invalid email' } },
+          warning: 'Order created but email not sent - invalid email address'
+        });
+      }
+
       const emailData = formatOrderForEmail(order);
+      console.log(`📤 [process-order] Sending emails to:`, emailData.email);
       const emailResults = await emailService.sendOrderLifecycleEmails(emailData);
+      
+      console.log(`📧 [process-order] Email results:`, {
+        confirmation: emailResults.confirmation?.success ? '✅' : '❌',
+        receipt: emailResults.receipt?.success ? '✅' : '❌',
+        confirmationError: emailResults.confirmation?.error,
+        receiptError: emailResults.receipt?.error
+      });
 
       // Update order with email tracking in Supabase
       finalOrder = await SupabaseOrderStore.update(order.id, {
