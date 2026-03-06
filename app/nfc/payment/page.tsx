@@ -709,7 +709,7 @@ export default function NFCPaymentPage() {
                 <div className="mb-4 sm:mb-6 p-4 bg-gray-50 rounded-lg">
                   <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">{(orderData as any).planName} Plan</h4>
                   <p className="text-xs sm:text-sm text-gray-600">
-                    {(orderData as any).billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'} subscription
+                    Digital subscription
                   </p>
                 </div>
               )}
@@ -784,16 +784,14 @@ export default function NFCPaymentPage() {
               {/* PRICING BREAKDOWN */}
               <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
                 {(() => {
-                  const billingPeriod = (orderData as any)?.billingPeriod || orderData?.cardConfig?.billingPeriod || 'yearly';
-                  const priceSuffix = billingPeriod === 'monthly' ? '/mo' : billingPeriod === 'yearly' ? '/yr' : '';
                   const planType = orderData?.cardConfig?.planType || '';
 
                   if (orderData?.cardConfig?.isDigitalOnly && (orderData as any)?.planName) {
                     return (
                       <>
-                        {/* SUBSCRIPTION PLAN: Show plan name + billing period */}
+                        {/* SUBSCRIPTION PLAN: Show plan name */}
                         <div className="flex justify-between">
-                          <span>{(orderData as any).planName} Plan ({billingPeriod === 'yearly' ? 'Yearly' : 'Monthly'})</span>
+                          <span>{(orderData as any).planName} Plan</span>
                           <span>{displayPrice(getSubtotal())}</span>
                         </div>
                         <div className="flex justify-between">
@@ -843,7 +841,7 @@ export default function NFCPaymentPage() {
                           <span>
                             {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}
                           </span>
-                          <span>{displayPrice(getSubtotal())}{priceSuffix}</span>
+                          <span>{displayPrice(getSubtotal())}</span>
                         </div>
                         <div className="flex justify-between">
                           <span>NFC Card</span>
@@ -868,7 +866,7 @@ export default function NFCPaymentPage() {
                         <span>
                           Base Material Price × {orderData?.cardConfig?.quantity || 1}
                         </span>
-                        <span>{displayPrice(getSubtotal())}{priceSuffix}</span>
+                        <span>{displayPrice(getSubtotal())}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>GST</span>
@@ -972,7 +970,7 @@ export default function NFCPaymentPage() {
                 {/* Total */}
                 <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3 flex justify-between font-semibold text-sm sm:text-base">
                   <span>Total</span>
-                  <span>{displayPrice(getFinalAmount())}{orderData?.cardConfig?.billingPeriod === 'monthly' ? '/mo' : ''}</span>
+                  <span>{displayPrice(getFinalAmount())}</span>
                 </div>
               </div>
 
