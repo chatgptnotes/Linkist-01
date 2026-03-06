@@ -648,15 +648,6 @@ export default function AccountPage() {
                   <span className="text-xs sm:text-sm font-bold whitespace-nowrap">Founder's Circle</span>
                 </div>
               )}
-
-              <Link
-                href="/profiles/builder"
-                className="flex-shrink-0 flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-[#263252] text-white rounded-lg hover:bg-[#1a2339] transition-colors font-medium text-xs sm:text-sm shadow-sm"
-              >
-                <Settings className="w-4 h-4 flex-shrink-0" />
-                <span className="hidden sm:inline">Edit Profile</span>
-                <span className="sm:hidden">Edit</span>
-              </Link>
             </div>
           </div>
         </div>

@@ -89,6 +89,14 @@ export default function VerifyRegisterPage() {
                   console.error('Error parsing user profile:', error);
                 }
               }
+
+              // Validate email exists before creating order
+              if (!email || !email.includes('@')) {
+                console.error('Email missing for Starter order, redirecting to registration');
+                router.push('/welcome-to-linkist');
+                return;
+              }
+
               const response = await fetch('/api/process-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

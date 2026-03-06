@@ -20,6 +20,8 @@ const ArrowRight = ArrowForwardIcon;
 export default function SuccessPage() {
   const router = useRouter();
   const [isNavigating, setIsNavigating] = useState(false);
+  const [hasClaimedUrl, setHasClaimedUrl] = useState(false);
+  const [claimStatusLoaded, setClaimStatusLoaded] = useState(false);
   const [orderData, setOrderData] = useState<{
     orderNumber: string;
     cardConfig: { fullName: string; quantity?: number; baseMaterial?: string };
@@ -98,6 +100,24 @@ export default function SuccessPage() {
       }
     }
 
+    // Check if user has already claimed a URL
+    const checkClaimedUrl = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.isAuthenticated && data.user?.has_claimed_url) {
+            setHasClaimedUrl(true);
+          }
+        }
+      } catch {
+        // Non-fatal - default to showing claim URL
+      } finally {
+        setClaimStatusLoaded(true);
+      }
+    };
+    checkClaimedUrl();
+
     // Cleanup: remove event listener when component unmounts
     return () => {
       window.removeEventListener('popstate', handleBackButton);
@@ -166,53 +186,88 @@ export default function SuccessPage() {
           {/* What's Next */}
           <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
             <h2 className="text-xl font-bold text-gray-900 mb-2">What&apos;s Next?</h2>
-            <p className="text-gray-600 mb-6">
-              You&apos;re just one step away from going live.
-            </p>
-
-            <div className="bg-gray-50 rounded-xl p-6 mb-6">
-              <h3 className="font-semibold text-gray-900 text-lg mb-2">
-                Claim your personalised Linkist ID
-              </h3>
-              <p className="text-gray-500 text-sm mb-4">
-                This will be your unique public identity &mdash; yours for life.
-              </p>
-              <p className="text-gray-600 text-sm mb-3">Once claimed, you&apos;ll be able to:</p>
-              <ul className="space-y-2.5 text-gray-700 text-sm">
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Build your digital profile</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Share instantly via link or QR</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                  <span>Start growing your professional presence</span>
-                </li>
-              </ul>
-            </div>
+            {!claimStatusLoaded ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-gray-300 border-t-gray-600"></div>
+              </div>
+            ) : hasClaimedUrl ? (
+              <>
+                <p className="text-gray-600 mb-6">
+                  Your plan has been upgraded successfully!
+                </p>
+                <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                  <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                    Your new plan is now active
+                  </h3>
+                  <p className="text-gray-500 text-sm mb-4">
+                    Head to your dashboard to explore your upgraded features.
+                  </p>
+                  <ul className="space-y-2.5 text-gray-700 text-sm">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Access your upgraded plan features</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Update your profile with new options</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Share your enhanced digital presence</span>
+                    </li>
+                  </ul>
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-gray-600 mb-6">
+                  You&apos;re just one step away from going live.
+                </p>
+                <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                  <h3 className="font-semibold text-gray-900 text-lg mb-2">
+                    Claim your personalised Linkist ID
+                  </h3>
+                  <p className="text-gray-500 text-sm mb-4">
+                    This will be your unique public identity &mdash; yours for life.
+                  </p>
+                  <p className="text-gray-600 text-sm mb-3">Once claimed, you&apos;ll be able to:</p>
+                  <ul className="space-y-2.5 text-gray-700 text-sm">
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Build your digital profile</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Share instantly via link or QR</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span>Start growing your professional presence</span>
+                    </li>
+                  </ul>
+                </div>
+              </>
+            )}
           </div>
 
           {/* CTA Button */}
           <button
             onClick={() => {
               setIsNavigating(true);
-              router.push('/claim-url');
+              router.push(hasClaimedUrl ? '/profile-dashboard' : '/claim-url');
             }}
-            disabled={isNavigating}
+            disabled={isNavigating || !claimStatusLoaded}
             className="w-full py-4 px-6 rounded-xl font-semibold text-lg transition text-center flex items-center justify-center disabled:opacity-80 shadow-lg"
-            style={{ backgroundColor: isNavigating ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
+            style={{ backgroundColor: (isNavigating || !claimStatusLoaded) ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
           >
-            {isNavigating ? (
+            {isNavigating || !claimStatusLoaded ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                 Loading...
               </>
             ) : (
               <>
-                Claim Your Linkist ID
+                {hasClaimedUrl ? 'Go to Dashboard' : 'Claim Your Linkist ID'}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </>
             )}
@@ -542,20 +597,20 @@ export default function SuccessPage() {
           <button
             onClick={() => {
               setIsNavigating(true);
-              router.push('/claim-url');
+              router.push(hasClaimedUrl ? '/profile-dashboard' : '/claim-url');
             }}
-            disabled={isNavigating}
+            disabled={isNavigating || !claimStatusLoaded}
             className="w-full py-3 px-6 rounded-lg font-semibold transition text-center flex items-center justify-center disabled:opacity-80"
-            style={{ backgroundColor: isNavigating ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
+            style={{ backgroundColor: (isNavigating || !claimStatusLoaded) ? '#EF4444' : '#DC2626', color: '#FFFFFF' }}
           >
-            {isNavigating ? (
+            {isNavigating || !claimStatusLoaded ? (
               <>
                 <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent mr-2"></div>
                 Loading...
               </>
             ) : (
               <>
-                Claim Your URL
+                {hasClaimedUrl ? 'Go to Dashboard' : 'Claim Your URL'}
                 <ArrowRight className="h-5 w-5 ml-2" />
               </>
             )}

@@ -316,6 +316,14 @@ export default function ProductSelectionPage() {
         }
       }
 
+      // Validate email is present before creating order
+      if (!email || !email.includes('@')) {
+        showToast('Please complete registration first. Email is required.', 'error');
+        setLoading(false);
+        router.push('/welcome-to-linkist');
+        return;
+      }
+
       try {
         const response = await fetch('/api/process-order', {
           method: 'POST',

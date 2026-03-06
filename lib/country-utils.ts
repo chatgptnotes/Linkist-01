@@ -189,23 +189,26 @@ export async function detectCountryFromIP(): Promise<{
 
 /**
  * Get currency based on country
+ * NOTE: Always using USD for all countries (no auto-conversion to INR)
  */
 export function getCurrency(country: string | undefined | null): 'INR' | 'USD' {
-  return isIndia(country) ? 'INR' : 'USD';
+  return 'USD';
 }
 
 /**
  * Get currency symbol for display based on country
+ * NOTE: Always using $ for all countries (no auto-conversion to ₹)
  */
 export function getCurrencySymbol(country: string | undefined | null): string {
-  return isIndia(country) ? '₹' : '$';
+  return '$';
 }
 
 /**
  * Get Stripe-compatible lowercase currency code
+ * NOTE: Always using USD for all countries
  */
 export function getStripeCurrency(country: string | undefined | null): 'inr' | 'usd' {
-  return isIndia(country) ? 'inr' : 'usd';
+  return 'usd';
 }
 
 const FALLBACK_USD_TO_INR = 85;
@@ -240,19 +243,14 @@ export async function fetchExchangeRate(): Promise<number> {
 
 /**
  * Convert a USD amount to the appropriate Stripe currency for a given country
- * - India: converts USD → INR using provided or fallback exchange rate
- * - Others: returns USD amount unchanged
+ * NOTE: Always returns USD amount unchanged (no INR conversion)
  */
 export function convertToStripeCurrency(
   amountUsd: number,
   country: string | undefined | null,
   exchangeRate: number | null
 ): { amount: number; currency: 'inr' | 'usd'; rate: number | null } {
-  if (isIndia(country) && exchangeRate) {
-    const inrAmount = Math.round(amountUsd * exchangeRate * 100) / 100;
-    return { amount: inrAmount, currency: 'inr', rate: exchangeRate };
-  }
-
+  // Always return USD, no conversion
   return { amount: amountUsd, currency: 'usd', rate: null };
 }
 

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-middleware';
 import { RBAC } from '@/lib/rbac';
 import { SupabaseOrderStore } from '@/lib/supabase-order-store';
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,6 +38,26 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Check if user has already claimed a URL (has a profile with custom_url)
+    let hasClaimedUrl = false;
+    let claimedUsername: string | null = null;
+    try {
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('custom_url')
+        .eq('email', user.email)
+        .not('custom_url', 'is', null)
+        .maybeSingle();
+
+      if (profile?.custom_url) {
+        hasClaimedUrl = true;
+        claimedUsername = profile.custom_url;
+      }
+    } catch {
+      // Non-fatal - default to false
+    }
+
     return NextResponse.json({
       isAuthenticated: true,
       user: {
@@ -49,7 +73,9 @@ export async function GET(request: NextRequest) {
         is_founding_member: user.is_founding_member || false,
         has_founders_order: hasFoundersOrder,
         founding_member_since: user.founding_member_since || null,
-        founding_member_plan: user.founding_member_plan || null
+        founding_member_plan: user.founding_member_plan || null,
+        has_claimed_url: hasClaimedUrl,
+        claimed_username: claimedUsername
       },
       permissions,
       canAccessAdmin,

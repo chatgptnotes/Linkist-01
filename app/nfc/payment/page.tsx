@@ -352,12 +352,9 @@ export default function NFCPaymentPage() {
     return (materialPrice || 0) * quantity;
   };
 
-  // Format a USD amount into the user's display currency
+  // Format a USD amount for display (always USD, no conversion)
   const displayPrice = (usdAmount: number) => {
-    if (paymentCurrency === 'inr' && exchangeRate) {
-      return `${currencySymbol}${(usdAmount * exchangeRate).toFixed(2)}`;
-    }
-    return `${currencySymbol}${usdAmount.toFixed(2)}`;
+    return `$${usdAmount.toFixed(2)}`;
   };
 
   const getFinalAmount = () => {
