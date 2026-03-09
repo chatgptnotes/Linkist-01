@@ -123,7 +123,7 @@ export default function CompareFeatures() {
             <tbody>
               {displayFeatures.map((row, idx) => (
                 <tr key={idx} className="group hover:bg-[#111] transition-colors">
-                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b font-roboto w-[35vw] md:w-auto ${row.isHeader ? 'font-semibold text-[#ff0000] pt-5' : 'text-gray-300'}`}>
+                  <td className={`compare-table-sticky py-2 px-2 md:px-4 text-xs md:text-sm border-b font-roboto w-[35vw] md:w-auto ${row.isHeader ? 'font-semibold text-[#FF3A29] pt-5' : 'text-gray-300'}`}>
                     {row.name}
                   </td>
                   {[row.starter, row.business, row.signature, row.founder].map((val, i) => (

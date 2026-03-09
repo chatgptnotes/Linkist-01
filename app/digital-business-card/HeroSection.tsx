@@ -147,16 +147,16 @@ export default function HeroSection() {
 
             {/* Mobile H1 */}
             <h1
-              className="lg:hidden text-[36px] leading-[44px] min-[450px]:text-[35px] min-[450px]:leading-[42px] font-semibold tracking-[-0.04em] hero-title-gradient pb-3 overflow-visible"
+              className="lg:hidden text-[36px] leading-[44px] min-[450px]:text-[35px] min-[450px]:leading-[42px] font-semibold tracking-[-0.04em] hero-title-gradient pb-4 overflow-visible"
             >
               Tap the smartest<br />
               card now.<br />
-              <span className="block mt-1 pb-2">Grow relationship intelligence.</span>
+              <span className="block mt-1 pb-4 overflow-visible">Grow relationship intelligence.</span>
             </h1>
 
             {/* Desktop H1 */}
             <h1
-              className="hidden lg:block text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight pb-2 overflow-visible"
+              className="hidden lg:block text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight pb-4 overflow-visible"
               style={{
                 backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)',
                 WebkitBackgroundClip: 'text',
@@ -166,7 +166,7 @@ export default function HeroSection() {
             >
               Tap the smartest <br />
               card now.
-              <span className="block mt-1 pb-2">
+              <span className="block mt-1 pb-4 overflow-visible">
                 Grow relationship intelligence.
               </span>
             </h1>
