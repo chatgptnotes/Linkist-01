@@ -278,7 +278,7 @@ export default function OrdersPage() {
                 <div className="text-right">
                   <p className="text-sm text-gray-600">Total Spent</p>
                   <p className="text-2xl font-bold text-gray-900">
-                    ${orders.reduce((sum, order) => sum + (order.pricing?.total || 0), 0).toFixed(2)}
+                    ${orders.filter(o => o.status?.toLowerCase() !== 'pending').reduce((sum, order) => sum + (order.pricing?.total || 0), 0).toFixed(2)}
                   </p>
                 </div>
               </div>
