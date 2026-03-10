@@ -799,7 +799,7 @@ export default function NFCPaymentPage() {
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>GST</span>
+                          <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
                           <span className="text-green-600">Included</span>
                         </div>
                       </>
@@ -817,11 +817,11 @@ export default function NFCPaymentPage() {
                           <span>{displayPrice(getSubtotal())}</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>1 Year Linkist App Subscription</span>
+                          <span>1 Year Linkist Pro App Subscription</span>
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>GST</span>
+                          <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
@@ -848,7 +848,7 @@ export default function NFCPaymentPage() {
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
-                          <span>GST</span>
+                          <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
                           <span className="text-green-600">Included</span>
                         </div>
                         <div className="flex justify-between">
@@ -869,7 +869,7 @@ export default function NFCPaymentPage() {
                         <span>{displayPrice(getSubtotal())}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span>GST</span>
+                        <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
                         <span className="text-green-600">Included</span>
                       </div>
                       <div className="flex justify-between">
