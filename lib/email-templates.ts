@@ -163,6 +163,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
   const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
   const planType = data.cardConfig?.planType || '';
   const isStarter = planType === 'starter';
+  const taxLabel = (data.shipping?.country || 'IN').toUpperCase() === 'IN' ? 'GST' : 'VAT';
 
   // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
   const fullCardName = data.cardConfig.fullName ||
@@ -283,11 +284,11 @@ export const orderConfirmationEmail = (data: OrderData) => {
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
         <div class="detail-row">
-          <span>1 Year Linkist Subscription:</span>
+          <span>1 Year Linkist Pro App Subscription:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">
@@ -313,7 +314,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
         </div>
         ` : ''}
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         ${!isDigitalOnlyPlan ? `
@@ -340,7 +341,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">
@@ -719,6 +720,7 @@ export const receiptEmail = (data: OrderData) => {
   const materialPrice = data.pricing?.materialPrice || data.pricing.subtotal;
   const planType = data.cardConfig?.planType || '';
   const isStarter = planType === 'starter';
+  const taxLabel = (data.shipping?.country || 'IN').toUpperCase() === 'IN' ? 'GST' : 'VAT';
 
   // Fix: If fullName exists, use it directly (don't append lastName to avoid duplication)
   const fullCardName = data.cardConfig.fullName ||
@@ -825,11 +827,11 @@ export const receiptEmail = (data: OrderData) => {
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
         <div class="detail-row">
-          <span>1 Year Linkist Subscription:</span>
+          <span>1 Year Linkist Pro App Subscription:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">
@@ -855,7 +857,7 @@ export const receiptEmail = (data: OrderData) => {
         </div>
         ` : ''}
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         ${!isDigitalOnlyPlan ? `
@@ -882,7 +884,7 @@ export const receiptEmail = (data: OrderData) => {
           <span>$${(materialPrice * quantity).toFixed(2)}</span>
         </div>
         <div class="detail-row">
-          <span>GST:</span>
+          <span>${taxLabel}:</span>
           <span class="included-label">Included</span>
         </div>
         <div class="detail-row">

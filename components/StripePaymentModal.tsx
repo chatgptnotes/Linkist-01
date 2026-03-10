@@ -136,21 +136,18 @@ export default function StripePaymentModal({
         {/* Accepted Payment Methods */}
         <div className="px-6 py-3 border-b border-gray-200">
           <p className="text-xs text-gray-500 mb-2">We accept</p>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
             {/* Visa */}
-            <div className="px-2 py-1 border border-gray-200 rounded bg-white">
-              <svg className="h-5 w-auto" viewBox="0 0 48 16" fill="none"><path d="M19.4 1.2l-3.7 13.6h-3L16.4 1.2h3zm15.8 8.8l1.6-4.4.9 4.4h-2.5zm2.8 4.8h2.8L38.4 1.2h-2.5c-.6 0-1 .3-1.2.8l-4.3 12.8h3l.6-1.6h3.7l.3 1.6zm-7-9.1c0 3.6-5 3.8-5 5.4 0 .5.5 1 1.5 1.1.5.1 1.9.1 3.5-.7l.6 2.9c-.8.3-1.9.6-3.3.6-3.5 0-6-1.9-6-4.5 0-3.4 4.7-3.6 4.7-5.4 0-.5-.5-.9-1.4-1-.5 0-1.7 0-3.1.7l-.6-2.8c.8-.3 1.7-.5 2.9-.5 3.3 0 5.2 1.7 5.2 4.2zM16 1.2L12.3 14.8H9.5L7.7 4c-.1-.5-.2-.6-.6-.8C6.3 2.8 5 2.4 3.8 2.2l.1-.5h5c.7 0 1.2.4 1.4 1.2l1.2 6.6 3-7.8H16z" fill="#1434CB"/></svg>
+            <div className="px-3 py-1.5 border border-gray-200 rounded bg-white flex items-center justify-center" style={{ minWidth: 56, height: 36 }}>
+              <img src="/visa.png" alt="Visa" className="h-5 w-auto object-contain" />
             </div>
             {/* Mastercard */}
-            <div className="px-2 py-1 border border-gray-200 rounded bg-white">
-              <svg className="h-5 w-auto" viewBox="0 0 32 20" fill="none"><circle cx="12" cy="10" r="8" fill="#EB001B"/><circle cx="20" cy="10" r="8" fill="#F79E1B"/><path d="M16 3.8a8 8 0 010 12.4 8 8 0 000-12.4z" fill="#FF5F00"/></svg>
+            <div className="px-3 py-1.5 border border-gray-200 rounded bg-white flex items-center justify-center" style={{ minWidth: 56, height: 36 }}>
+              <img src="/mc.png" alt="Mastercard" className="h-5 w-auto object-contain" />
             </div>
             {/* Amex */}
-            <div className="px-2 py-1 border border-gray-200 rounded bg-white">
-              <svg className="h-5 w-auto" viewBox="0 0 40 16" fill="none">
-                <rect width="40" height="16" rx="2" fill="#006FCF"/>
-                <path d="M7.5 11.5L5 4.5h2l1.5 5 1.5-5h2l-2.5 7h-2zm7 0v-7h5v1.5h-3v1.5h3v1.5h-3v1h3v1.5h-5zm6.5 0l2.5-3.5-2.5-3.5h2.5l1.5 2 1.5-2h2.5l-2.5 3.5 2.5 3.5h-2.5l-1.5-2-1.5 2h-2.5z" fill="white"/>
-              </svg>
+            <div className="px-3 py-1.5 border border-gray-200 rounded bg-white flex items-center justify-center" style={{ minWidth: 56, height: 36 }}>
+              <img src="/amex.png" alt="Amex" className="h-5 w-auto object-contain" />
             </div>
           </div>
         </div>

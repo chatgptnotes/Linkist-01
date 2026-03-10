@@ -3733,7 +3733,7 @@ function ProfileBuilderContent() {
                                 type="text"
                                 value={cert.title}
                                 onChange={(e) => handleCertificationTitleChange(cert.id, e.target.value)}
-                                maxLength={100}
+                                maxLength={50}
                                 placeholder="e.g., AWS Certified Solutions Architect"
                                 className={`w-full px-3 py-2 border ${
                                   !cert.title ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-blue-500 focus:ring-blue-500'
@@ -3832,7 +3832,7 @@ function ProfileBuilderContent() {
                             </div>
 
                             {/* Show Publicly Toggle */}
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between mt-3">
                               <span className="text-sm text-gray-700">Show publicly</span>
                               <label className="relative inline-flex items-center cursor-pointer">
                                 <input

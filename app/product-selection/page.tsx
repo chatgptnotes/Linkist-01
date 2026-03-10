@@ -447,8 +447,8 @@ export default function ProductSelectionPage() {
           </div>
         ) : (
           <>
-            {/* Desktop: 5-column grid */}
-            <div className="hidden lg:grid lg:grid-cols-5 gap-4">
+            {/* Desktop: dynamic column grid based on plan count */}
+            <div className={`hidden lg:grid gap-4 ${plans.length <= 4 ? 'lg:grid-cols-4 max-w-5xl mx-auto' : 'lg:grid-cols-5'}`}>
               {plans.map((plan, idx) => (
                 <DesktopPlanCard
                   key={plan.id}
@@ -468,8 +468,8 @@ export default function ProductSelectionPage() {
               ))}
             </div>
 
-            {/* Tablet: 3-column grid */}
-            <div className="hidden md:grid md:grid-cols-3 lg:hidden gap-4">
+            {/* Tablet: grid */}
+            <div className={`hidden md:grid lg:hidden gap-4 ${plans.length <= 4 ? 'md:grid-cols-2 max-w-2xl mx-auto' : 'md:grid-cols-3'}`}>
               {plans.map((plan, idx) => (
                 <DesktopPlanCard
                   key={plan.id}

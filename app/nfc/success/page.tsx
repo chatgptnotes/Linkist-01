@@ -365,7 +365,7 @@ export default function SuccessPage() {
 
                         {/* 1 Year Subscription - Included for founders */}
                         <div className="flex justify-between text-gray-600">
-                          <span>1 Year Linkist Subscription</span>
+                          <span>1 Year Linkist Pro App Subscription</span>
                           <span className="text-green-600">Included</span>
                         </div>
 
