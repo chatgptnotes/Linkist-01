@@ -26,8 +26,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Linkist NFC - Smart Business Cards",
-  description: "Create premium NFC business cards with instant contact sharing. Tap to connect.",
+  title: "Linkist.ai – AI-Powered Business Networking & Personal Relationship Manager",
+  description: "Transform how you network with AI-driven contact intelligence, smart follow-ups, and dynamic professional profiles. Turn connections into opportunities with Linkist.",
   keywords: "NFC, business cards, smart cards, digital business card, contactless",
   icons: {
     icon: [
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   manifest: '/site.webmanifest',
   openGraph: {
-    title: "Linkist NFC - Smart Business Cards",
-    description: "Create premium NFC business cards with instant contact sharing",
-    url: "https://linkist.ai/nfc",
+    title: "Linkist.ai – AI-Powered Business Networking & Personal Relationship Manager",
+    description: "Transform how you network with AI-driven contact intelligence, smart follow-ups, and dynamic professional profiles. Turn connections into opportunities with Linkist.",
+    url: "https://linkist.ai/",
     siteName: "Linkist",
     type: "website",
   },

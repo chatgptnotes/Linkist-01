@@ -74,7 +74,7 @@ Team Size: ${formData.teamSize}`;
       <div className="max-w-5xl mx-auto px-4 md:px-6 py-6 md:py-12 flex-grow">
         <div className="text-center mb-6 md:mb-12">
           <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-2 md:mb-4">
-            Who is this for?
+            Choose Your Linkist Plan
           </h1>
           <p className="text-base md:text-xl text-gray-600">
             Choose the option that best fits your needs
