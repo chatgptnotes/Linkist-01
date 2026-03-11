@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
           if (userEmail) {
             const { data: userData, error: emailError } = await supabase
               .from('users')
-              .select('id, email, role')
+              .select('id, email, role, status')
               .eq('email', userEmail)
               .single();
 
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
           if (!user) {
             const { data: userData, error: phoneError } = await supabase
               .from('users')
-              .select('id, email, role')
+              .select('id, email, role, status')
               .eq('phone_number', mobile)
               .single();
 
@@ -89,6 +89,13 @@ export async function POST(request: NextRequest) {
               .from('users')
               .update({ mobile_verified: true, phone_number: mobile })
               .eq('id', user.id);
+
+            // Activate user if still pending (ensures they can access protected routes)
+            if (user.status === 'pending' || !user.status) {
+              const { SupabaseUserStore } = await import('@/lib/supabase-user-store');
+              await SupabaseUserStore.activateUser(user.id, 'mobile');
+              console.log('✅ [verify-mobile-otp] Twilio: Pending user activated after mobile verification');
+            }
 
             // Create session
             const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
@@ -278,7 +285,7 @@ export async function POST(request: NextRequest) {
     if (userEmail) {
       const { data: userData, error: emailError } = await supabase
         .from('users')
-        .select('id, email, role')
+        .select('id, email, role, status')
         .eq('email', userEmail)
         .single();
 
@@ -291,7 +298,7 @@ export async function POST(request: NextRequest) {
     if (!user) {
       const { data: userData, error: phoneError } = await supabase
         .from('users')
-        .select('id, email, role')
+        .select('id, email, role, status')
         .eq('phone_number', mobile)
         .single();
 
@@ -309,6 +316,13 @@ export async function POST(request: NextRequest) {
         .from('users')
         .update({ mobile_verified: true, phone_number: mobile })
         .eq('id', user.id);
+
+      // Activate user if still pending (ensures they can access protected routes)
+      if (user.status === 'pending' || !user.status) {
+        const { SupabaseUserStore } = await import('@/lib/supabase-user-store');
+        await SupabaseUserStore.activateUser(user.id, 'mobile');
+        console.log('✅ [verify-mobile-otp] Pending user activated after mobile verification');
+      }
 
       // Create session
       const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');

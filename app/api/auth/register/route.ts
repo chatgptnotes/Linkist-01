@@ -57,12 +57,11 @@ export async function POST(request: NextRequest) {
           { status: 409 }
         );
       }
-      // If user exists but is pending, they need to complete OTP verification
+      // If user exists but is pending, allow them to proceed with OTP verification again
+      // Don't block re-registration - they may have failed the previous OTP step
       if (existingEmailUser.status === 'pending') {
-        return NextResponse.json(
-          { success: false, error: 'Registration pending. Please complete OTP verification.' },
-          { status: 409 }
-        );
+        console.log('👤 Pending user re-registering, allowing to proceed:', normalizedEmail);
+        // Fall through to allow OTP verification flow to continue
       }
       // If suspended
       if (existingEmailUser.status === 'suspended') {
