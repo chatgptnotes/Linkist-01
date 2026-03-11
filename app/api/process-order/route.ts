@@ -80,9 +80,23 @@ export async function POST(request: NextRequest) {
         phone_number: checkoutData.phoneNumber || null,
         email_verified: true, // They completed checkout, so email is verified
         mobile_verified: !!checkoutData.phoneNumber, // If they provided phone, assume verified
+        status: 'active', // User completed checkout, they should be active
       });
     } catch (userError) {
       throw new Error(`User creation failed: ${userError instanceof Error ? userError.message : 'Unknown error'}`);
+    }
+
+    // For digital-only (Starter) orders, ensure user is active (they completed checkout)
+    if (user && user.status === 'pending' && (cardConfig.isDigitalOnly === true || cardConfig.baseMaterial === 'digital')) {
+      try {
+        const activatedUser = await SupabaseUserStore.activateUser(user.id, 'email');
+        if (activatedUser) {
+          user = activatedUser;
+          console.log('✅ [process-order] Activated pending Starter user:', user.id);
+        }
+      } catch (activateError) {
+        console.error('Failed to activate Starter user:', activateError);
+      }
     }
 
     // Determine if this is a digital-only order (no physical card)
@@ -322,7 +336,7 @@ export async function POST(request: NextRequest) {
       try {
         // SECURITY: Verify the user is actually a founding member in the database
         // Do NOT trust the frontend flag blindly
-        const dbUser = await SupabaseUserStore.findByEmail(user.email);
+        const dbUser = await SupabaseUserStore.getByEmail(user.email);
         const isVerifiedFounder = dbUser?.is_founding_member === true;
 
         if (isVerifiedFounder) {
