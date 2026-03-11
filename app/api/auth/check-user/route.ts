@@ -39,12 +39,13 @@ export async function POST(request: NextRequest) {
 
     let exists = false;
 
-    // Check if email exists
+    // Check if email exists (only active users count as "registered")
+    // Pending users are treated as not yet registered since they never completed signup
     if (email) {
       const normalizedEmail = email.toLowerCase().trim();
       const { data: emailUser, error: emailError } = await supabase
         .from('users')
-        .select('id')
+        .select('id, status')
         .eq('email', normalizedEmail)
         .maybeSingle(); // Use maybeSingle instead of single to avoid errors if not found
 
@@ -53,17 +54,17 @@ export async function POST(request: NextRequest) {
         // Don't fail the request, just log and continue
       }
 
-      if (emailUser) {
+      if (emailUser && emailUser.status === 'active') {
         exists = true;
       }
     }
 
-    // Check if mobile exists
+    // Check if mobile exists (only active users)
     if (mobile && !exists) {
       const normalizedMobile = mobile.replace(/\s/g, ''); // Remove spaces
       const { data: mobileUser, error: mobileError } = await supabase
         .from('users')
-        .select('id')
+        .select('id, status')
         .eq('phone_number', normalizedMobile)
         .maybeSingle(); // Use maybeSingle instead of single to avoid errors if not found
 
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
         // Don't fail the request, just log and continue
       }
 
-      if (mobileUser) {
+      if (mobileUser && mobileUser.status === 'active') {
         exists = true;
       }
     }

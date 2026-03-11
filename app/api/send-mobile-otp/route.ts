@@ -159,6 +159,32 @@ export async function POST(request: NextRequest) {
 
       console.log('✅ Twilio verification sent:', verification.status);
 
+      // Store temp_user_data in database even when Twilio manages the OTP
+      // This is needed so verify-mobile-otp can find registration data for new users
+      if (firstName && lastName) {
+        try {
+          const tempUserData = {
+            firstName,
+            lastName,
+            email: email || null,
+            phone: mobile
+          };
+          console.log('💾 [send-mobile-otp] Storing temp_user_data for Twilio path:', tempUserData);
+
+          await SupabaseMobileOTPStore.set(mobile, {
+            user_id: null,
+            mobile,
+            otp: 'twilio-managed', // OTP is managed by Twilio, this is just for temp_user_data storage
+            expires_at: new Date(Date.now() + (10 * 60 * 1000)).toISOString(),
+            verified: false,
+            temp_user_data: tempUserData
+          });
+        } catch (storeError) {
+          // Don't fail the request - SMS was already sent successfully
+          console.error('⚠️ [send-mobile-otp] Failed to store temp_user_data (non-fatal):', storeError);
+        }
+      }
+
       return NextResponse.json({
         success: true,
         message: 'Verification code sent to your mobile number',
