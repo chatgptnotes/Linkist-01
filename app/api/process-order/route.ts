@@ -8,6 +8,8 @@ import { emailService } from '@/lib/email-service';
 import { createClient } from '@/lib/supabase/client';
 import { calculatePricing } from '@/lib/pricing-utils';
 import { getCurrency } from '@/lib/country-utils';
+import { SessionStore } from '@/lib/session-store';
+import { getSessionCookieOptions } from '@/lib/cookie-utils';
 
 export async function POST(request: NextRequest) {
   try {
@@ -407,6 +409,27 @@ export async function POST(request: NextRequest) {
           }
         }
       }) || order;
+
+      // For digital-only (Starter) orders, create a session so the user is authenticated immediately
+      if (isDigitalOnlyOrder && user) {
+        try {
+          const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
+          const requestHost = request.headers.get('host') || '';
+          const cookieOptions = getSessionCookieOptions(requestHost);
+
+          const response = NextResponse.json({
+            success: true,
+            order: finalOrder,
+            emailResults: emailResults,
+            sessionCreated: true
+          });
+          response.cookies.set('session', sessionId, cookieOptions);
+          return response;
+        } catch (sessionError) {
+          console.error('Failed to create session for Starter order:', sessionError);
+          // Fall through to return without session
+        }
+      }
 
       return NextResponse.json({
         success: true,
