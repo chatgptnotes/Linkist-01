@@ -131,7 +131,7 @@ export const RateLimits = {
   // OTP/verification endpoints
   otp: {
     interval: 60 * 1000, // 1 minute
-    maxRequests: 10, // 10 OTP requests per minute
+    maxRequests: 3, // 3 OTP requests per minute
   },
   // General API endpoints
   api: {
@@ -141,6 +141,6 @@ export const RateLimits = {
   // Strict rate limit for sensitive operations
   strict: {
     interval: 60 * 60 * 1000, // 1 hour
-    maxRequests: 30, // 30 attempts per hour
+    maxRequests: 10, // 10 attempts per hour
   },
 };

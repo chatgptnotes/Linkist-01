@@ -197,12 +197,28 @@ function VerifyMobileContent() {
     setError('');
 
     try {
+      // Include registration data as fallback in case temp_user_data wasn't stored in OTP record
+      const userProfileStr = localStorage.getItem('userProfile');
+      let registrationData: { firstName?: string; lastName?: string; email?: string } = {};
+      if (userProfileStr) {
+        try {
+          const profile = JSON.parse(userProfileStr);
+          registrationData = {
+            firstName: profile.firstName || '',
+            lastName: profile.lastName || '',
+            email: profile.email || '',
+          };
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+
       const response = await fetch('/api/verify-mobile-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ mobile: phone, otp: otpToVerify }),
+        body: JSON.stringify({ mobile: phone, otp: otpToVerify, ...registrationData }),
       });
 
       const data = await response.json();
