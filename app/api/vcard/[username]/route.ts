@@ -4,6 +4,20 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
+async function fetchPhotoAsBase64(url: string): Promise<{ base64: string; mimeType: string } | null> {
+  try {
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const buffer = await response.arrayBuffer();
+    const base64 = Buffer.from(buffer).toString('base64');
+    return { base64, mimeType: contentType.split(';')[0] };
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ username: string }> }
@@ -57,8 +71,11 @@ export async function GET(
     if ((profile.mobile_number || profile.phone_number) && preferences.showMobilePublicly !== false) {
       lines.push(`TEL;TYPE=CELL:${profile.mobile_number || profile.phone_number}`);
     }
+    // WhatsApp number as a clickable URL that opens WhatsApp to text (not call)
     if (profile.whatsapp_number && preferences.showWhatsappPublicly !== false) {
-      lines.push(`TEL;TYPE=WHATSAPP:${profile.whatsapp_number}`);
+      const cleanNumber = profile.whatsapp_number.replace(/[^0-9+]/g, '').replace('+', '');
+      lines.push(`item1.URL:https://wa.me/${cleanNumber}`);
+      lines.push(`item1.X-ABLabel:WHATSAPP`);
     }
     if (profile.company_website && preferences.showCompanyWebsite !== false) {
       lines.push(`URL:${profile.company_website}`);
@@ -73,8 +90,60 @@ export async function GET(
     if (profile.professional_summary) {
       lines.push(`NOTE:${profile.professional_summary.replace(/\n/g, '\\n')}`);
     }
+
+    // Profile photo - fetch and embed as base64 for iOS/Android compatibility
     if (profile.profile_photo_url) {
-      lines.push(`PHOTO;VALUE=URI:${profile.profile_photo_url}`);
+      const photo = await fetchPhotoAsBase64(profile.profile_photo_url);
+      if (photo) {
+        lines.push(`PHOTO;ENCODING=b;TYPE=${photo.mimeType}:${photo.base64}`);
+      } else {
+        // Fallback to URI if fetch fails
+        lines.push(`PHOTO;VALUE=URI:${profile.profile_photo_url}`);
+      }
+    }
+
+    // Social media links
+    let itemIndex = 2; // Start at 2 since item1 is used for WhatsApp
+
+    if (socialLinks.linkedin && preferences.showLinkedin !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.linkedin}`);
+      lines.push(`item${itemIndex}.X-ABLabel:LinkedIn`);
+      itemIndex++;
+    }
+    if (socialLinks.instagram && preferences.showInstagram !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.instagram}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Instagram`);
+      itemIndex++;
+    }
+    if (socialLinks.facebook && preferences.showFacebook !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.facebook}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Facebook`);
+      itemIndex++;
+    }
+    if (socialLinks.twitter && preferences.showTwitter !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.twitter}`);
+      lines.push(`item${itemIndex}.X-ABLabel:X (Twitter)`);
+      itemIndex++;
+    }
+    if (socialLinks.youtube && preferences.showYoutube !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.youtube}`);
+      lines.push(`item${itemIndex}.X-ABLabel:YouTube`);
+      itemIndex++;
+    }
+    if (socialLinks.github && preferences.showGithub !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.github}`);
+      lines.push(`item${itemIndex}.X-ABLabel:GitHub`);
+      itemIndex++;
+    }
+    if (socialLinks.behance && preferences.showBehance !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.behance}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Behance`);
+      itemIndex++;
+    }
+    if (socialLinks.dribbble && preferences.showDribbble !== false) {
+      lines.push(`item${itemIndex}.URL:${socialLinks.dribbble}`);
+      lines.push(`item${itemIndex}.X-ABLabel:Dribbble`);
+      itemIndex++;
     }
 
     lines.push('END:VCARD');

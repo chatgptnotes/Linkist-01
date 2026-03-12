@@ -28,6 +28,7 @@ export default function ClaimURLPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [baseDomain, setBaseDomain] = useState('linkist.com');
   const [baseOrigin, setBaseOrigin] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   // Set dynamic base domain from current URL
   useEffect(() => {
@@ -45,6 +46,7 @@ export default function ClaimURLPage() {
         if (response.ok) {
           const data = await response.json();
           if (data.isAuthenticated && data.user?.email) {
+            setIsAuthenticated(true);
             setEmail(data.user.email);
 
             // Also set name from authenticated user if available
@@ -283,10 +285,20 @@ export default function ClaimURLPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <Toaster position="top-center" richColors />
 
-      {/* Simple Logo-only Header */}
+      {/* Header with Logo and Login Status */}
       <div className="bg-white border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4">
+        <div className="max-w-6xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <Logo width={140} height={45} variant="light" />
+          {isAuthenticated && firstName && (
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center text-white text-xs font-semibold">
+                {firstName[0]?.toUpperCase() || 'U'}
+              </div>
+              <span className="text-sm text-gray-700 font-medium hidden sm:block">
+                {firstName} {lastName}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
