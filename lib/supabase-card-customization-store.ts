@@ -76,6 +76,7 @@ export interface StructuredCustomizationOptions {
   materialPrices: Record<string, number>;
   textureOptions: Record<string, string[]>;
   colourOptions: Record<string, string[]>;
+  patternOptions: Record<string, string[]>;
   defaults?: Record<string, { texture?: string; colour?: string; pattern?: string }>;
 }
 
@@ -238,6 +239,12 @@ export const SupabaseCardCustomizationStore = {
         .map(c => c.option_key);
     });
 
+    // Build pattern options map (material -> patterns) - all patterns available for all materials in non-plan mode
+    const patternOptions: Record<string, string[]> = {};
+    materials.forEach(m => {
+      patternOptions[m.option_key] = patterns.map(p => p.option_key);
+    });
+
     return {
       materials,
       textures,
@@ -245,7 +252,8 @@ export const SupabaseCardCustomizationStore = {
       patterns,
       materialPrices,
       textureOptions,
-      colourOptions
+      colourOptions,
+      patternOptions
     };
   },
 
@@ -499,6 +507,15 @@ export const SupabaseCardCustomizationStore = {
         .map(c => c.option_key);
     });
 
+    // Build pattern options map (material -> enabled patterns for that material)
+    const patternOptions: Record<string, string[]> = {};
+    materials.forEach(m => {
+      const enabledPatIds = patternStatusMap.get(m.option_key) || new Set();
+      patternOptions[m.option_key] = allPatterns
+        .filter(p => enabledPatIds.has(p.id))
+        .map(p => p.option_key);
+    });
+
     // Get the textures that are enabled for at least one material
     const enabledTextureIds = new Set<string>();
     textureStatusMap.forEach(ids => ids.forEach(id => enabledTextureIds.add(id)));
@@ -538,6 +555,7 @@ export const SupabaseCardCustomizationStore = {
       materialPrices,
       textureOptions,
       colourOptions,
+      patternOptions,
       defaults
     };
   },
