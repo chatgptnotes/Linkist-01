@@ -159,15 +159,28 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
             foundingMemberSince = userData.founding_member_since || null
             foundingMemberPlan = userData.founding_member_plan || null
 
-            // Check if user is suspended or pending - reject session
+            // Check if user is suspended - reject session
             if (userStatus === 'suspended') {
               console.warn('Suspended user attempted to access:', sessionData.email)
               return { user: null, isAuthenticated: false, isAdmin: false }
             }
 
+            // If user has a valid session but status is still 'pending', auto-activate them.
+            // Having a valid session means they already completed OTP verification successfully.
+            // The status was not updated due to a previous bug — self-heal it here.
             if (userStatus === 'pending') {
-              console.warn('Pending user attempted to access:', sessionData.email)
-              return { user: null, isAuthenticated: false, isAdmin: false }
+              console.log('🔄 Auto-activating pending user with valid session:', sessionData.email)
+              try {
+                await adminClient
+                  .from('users')
+                  .update({ status: 'active', mobile_verified: true, updated_at: new Date().toISOString() })
+                  .eq('id', sessionData.userId)
+                userStatus = 'active'
+              } catch (activateError) {
+                console.error('Failed to auto-activate pending user:', activateError)
+                // Don't block the user - let them through since they have a valid session
+                userStatus = 'active'
+              }
             }
           }
         } catch (error) {

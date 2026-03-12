@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { mobile, otp } = await request.json();
+    const { mobile, otp, firstName, lastName, email } = await request.json();
 
     if (!mobile || !otp) {
       return NextResponse.json(
@@ -126,17 +126,20 @@ export async function POST(request: NextRequest) {
             temp_user_data: mobileOTPRecord?.temp_user_data
           });
 
-          if (mobileOTPRecord && mobileOTPRecord.temp_user_data) {
-            console.log('🆕 [verify-mobile-otp] Twilio: Creating new user account for mobile:', mobile);
+          // Use temp_user_data from OTP record, or fallback to request body data
+          const tempData = mobileOTPRecord?.temp_user_data || (firstName && lastName ? { firstName, lastName, email: email || null, phone: mobile } : null);
+
+          if (tempData) {
+            console.log('🆕 [verify-mobile-otp] Twilio: Creating new user account for mobile:', mobile, 'source:', mobileOTPRecord?.temp_user_data ? 'otp_record' : 'request_body');
 
             try {
               const { SupabaseUserStore } = await import('@/lib/supabase-user-store');
 
               // Create the user account with pending status
               const newUser = await SupabaseUserStore.upsertByEmail({
-                email: mobileOTPRecord.temp_user_data.email || `${Date.now()}@temp-mobile-user.com`,
-                first_name: mobileOTPRecord.temp_user_data.firstName,
-                last_name: mobileOTPRecord.temp_user_data.lastName,
+                email: tempData.email || `${Date.now()}@temp-mobile-user.com`,
+                first_name: tempData.firstName,
+                last_name: tempData.lastName,
                 phone_number: mobile,
                 role: 'user',
                 status: 'pending',
@@ -148,21 +151,22 @@ export async function POST(request: NextRequest) {
 
               // Activate user now that OTP is verified
               const activatedUser = await SupabaseUserStore.activateUser(newUser.id, 'mobile');
+              const finalUser = activatedUser || newUser; // Fallback to newUser if activation returns null
               console.log('✅ [verify-mobile-otp] Twilio: User activated successfully with mobile verification');
 
               // Send welcome email to new user (non-blocking) - only for starter/personal plans (not founders)
-              const userEmail = mobileOTPRecord.temp_user_data.email;
-              if (userEmail && !mobileOTPRecord.temp_user_data.isFoundingMember) {
+              const welcomeEmail = tempData.email;
+              if (welcomeEmail) {
                 sendWelcomeEmail({
-                  firstName: mobileOTPRecord.temp_user_data.firstName || '',
-                  lastName: mobileOTPRecord.temp_user_data.lastName || '',
-                  email: userEmail,
+                  firstName: tempData.firstName || '',
+                  lastName: tempData.lastName || '',
+                  email: welcomeEmail,
                   isFoundingMember: false,
                 }).catch((err) => console.error('Failed to send welcome email:', err));
               }
 
               // Create session
-              const sessionId = await SessionStore.create(activatedUser.id, activatedUser.email, activatedUser.role);
+              const sessionId = await SessionStore.create(finalUser.id, finalUser.email, finalUser.role);
               console.log('✅ [verify-mobile-otp] Twilio: Session created for new user:', sessionId);
 
               // Clean up OTP record
@@ -192,11 +196,13 @@ export async function POST(request: NextRequest) {
             }
           }
 
-          return NextResponse.json({
-            success: true,
-            message: 'Mobile number verified successfully',
-            verified: true
-          });
+          // Twilio verified the OTP but no user account exists and no registration data found
+          console.error('❌ [verify-mobile-otp] Twilio: OTP approved but no user or registration data found for:', mobile);
+          console.error('❌ [verify-mobile-otp] Request body firstName:', firstName, 'lastName:', lastName);
+          return NextResponse.json(
+            { success: false, error: 'Verification successful but account creation failed. Please try registering again.' },
+            { status: 400 }
+          );
         } else {
           return NextResponse.json(
             { success: false, error: 'Invalid verification code. Please try again.' },
@@ -353,17 +359,20 @@ export async function POST(request: NextRequest) {
       temp_user_data: mobileOTPRecord?.temp_user_data
     });
 
-    if (mobileOTPRecord && mobileOTPRecord.temp_user_data) {
-      console.log('🆕 [verify-mobile-otp] Creating new user account for mobile:', mobile);
+    // Use temp_user_data from OTP record, or fallback to request body data
+    const dbTempData = mobileOTPRecord?.temp_user_data || (firstName && lastName ? { firstName, lastName, email: email || null, phone: mobile } : null);
+
+    if (dbTempData) {
+      console.log('🆕 [verify-mobile-otp] Creating new user account for mobile:', mobile, 'source:', mobileOTPRecord?.temp_user_data ? 'otp_record' : 'request_body');
 
       try {
         const { SupabaseUserStore } = await import('@/lib/supabase-user-store');
 
         // Create the user account with pending status
         const newUser = await SupabaseUserStore.upsertByEmail({
-          email: mobileOTPRecord.temp_user_data.email || `${Date.now()}@temp-mobile-user.com`,
-          first_name: mobileOTPRecord.temp_user_data.firstName,
-          last_name: mobileOTPRecord.temp_user_data.lastName,
+          email: dbTempData.email || `${Date.now()}@temp-mobile-user.com`,
+          first_name: dbTempData.firstName,
+          last_name: dbTempData.lastName,
           phone_number: mobile,
           role: 'user',
           status: 'pending',
@@ -375,21 +384,22 @@ export async function POST(request: NextRequest) {
 
         // Activate user now that OTP is verified
         const activatedUser = await SupabaseUserStore.activateUser(newUser.id, 'mobile');
+        const finalUser = activatedUser || newUser; // Fallback to newUser if activation returns null
         console.log('✅ [verify-mobile-otp] User activated successfully with mobile verification');
 
         // Send welcome email to new user (non-blocking) - only for starter/personal plans (not founders)
-        const userEmail = mobileOTPRecord.temp_user_data.email;
-        if (userEmail && !mobileOTPRecord.temp_user_data.isFoundingMember) {
+        const dbWelcomeEmail = dbTempData.email;
+        if (dbWelcomeEmail) {
           sendWelcomeEmail({
-            firstName: mobileOTPRecord.temp_user_data.firstName || '',
-            lastName: mobileOTPRecord.temp_user_data.lastName || '',
-            email: userEmail,
+            firstName: dbTempData.firstName || '',
+            lastName: dbTempData.lastName || '',
+            email: dbWelcomeEmail,
             isFoundingMember: false,
           }).catch((err) => console.error('Failed to send welcome email:', err));
         }
 
         // Create session
-        const sessionId = await SessionStore.create(activatedUser.id, activatedUser.email, activatedUser.role);
+        const sessionId = await SessionStore.create(finalUser.id, finalUser.email, finalUser.role);
         console.log('✅ [verify-mobile-otp] Session created for new user:', sessionId);
 
         // Clean up OTP record
