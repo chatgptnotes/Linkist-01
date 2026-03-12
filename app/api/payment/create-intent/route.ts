@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, currency = 'usd', orderData, voucherCode, orderId } = body;
+    const { amount, currency = 'usd', country, orderData, voucherCode, orderId } = body;
 
     // Validate amount
     if (!amount || amount <= 0) {
@@ -162,6 +162,12 @@ export async function POST(req: NextRequest) {
       amount: amountInCents,
       currency: currency.toLowerCase(),
       automatic_payment_methods: { enabled: true },
+      ...(country && {
+        shipping: {
+          name: orderData?.customerName || 'Customer',
+          address: { country: country.toUpperCase() },
+        },
+      }),
       metadata: {
         orderId: orderId,
         customerName: orderData?.customerName || '',
