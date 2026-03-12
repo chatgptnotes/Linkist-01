@@ -42,6 +42,7 @@ export default function StripePaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [showExpressCheckout, setShowExpressCheckout] = useState(false);
+  const [expressDebug, setExpressDebug] = useState<string>('loading...');
 
   const confirmPayment = async () => {
     if (!stripe || !elements) {
@@ -101,23 +102,27 @@ export default function StripePaymentForm({
           onConfirm={handleExpressCheckoutConfirm}
           onReady={({ availablePaymentMethods }) => {
             console.log('[Stripe] ExpressCheckout available methods:', availablePaymentMethods);
+            setExpressDebug(JSON.stringify(availablePaymentMethods));
             if (availablePaymentMethods) {
               setShowExpressCheckout(true);
             }
           }}
           onLoadError={(error) => {
             console.error('[Stripe] ExpressCheckout load error:', error);
+            setExpressDebug(`error: ${error?.message || JSON.stringify(error)}`);
           }}
           onClick={({ resolve }) => {
             resolve();
           }}
           options={{
             paymentMethods: {
-              applePay: 'auto',
+              applePay: 'always',
               googlePay: 'auto',
             },
           }}
         />
+        {/* Temporary debug - remove after testing */}
+        <p className="text-xs text-gray-400 mt-1">Wallet: {expressDebug}</p>
         {showExpressCheckout && (
           <div className="flex items-center gap-3 mt-4 mb-2">
             <div className="flex-1 h-px bg-gray-200" />
@@ -140,11 +145,11 @@ export default function StripePaymentForm({
         }}
         options={{
           layout: 'tabs',
-          // Show Google Pay / Apple Pay inside PaymentElement as fallback
-          // (in case ExpressCheckoutElement doesn't render due to domain/HTTPS issues)
+          // Disable wallets in PaymentElement — handled by ExpressCheckoutElement above
+          // Having both enabled can cause conflicts where neither shows
           wallets: {
-            googlePay: 'auto',
-            applePay: 'auto',
+            googlePay: 'never',
+            applePay: 'never',
           },
           // For INR: show UPI first so Indian users see it immediately
           ...(currency.toLowerCase() === 'inr' && {
