@@ -732,11 +732,15 @@ export default function NFCPaymentPage() {
                         const colorName = color.charAt(0).toUpperCase() + color.slice(1);
                         return colorName;
                       })()} •
-                      Plan: <span className={isFoundingMember ? 'text-amber-600 font-medium' : 'text-gray-600'}>{
-                        isFoundingMember ? 'Founders Circle'
-                        : orderData?.cardConfig?.planType === 'signature' ? 'Signature'
+                      Plan: <span className={
+                        isFoundingMember && !['pro', 'signature', 'next', 'business'].includes(orderData?.cardConfig?.planType || '')
+                          ? 'text-amber-600 font-medium' : 'text-gray-600'
+                      }>{
+                        orderData?.cardConfig?.planType === 'signature' ? 'Signature'
                         : orderData?.cardConfig?.planType === 'pro' ? 'Pro'
                         : orderData?.cardConfig?.planType === 'next' ? 'Next'
+                        : orderData?.cardConfig?.planType === 'business' ? 'Business'
+                        : isFoundingMember ? 'Founders Circle'
                         : 'Personal'
                       }</span>
                     </p>
@@ -807,6 +811,33 @@ export default function NFCPaymentPage() {
                     );
                   }
 
+                  if (planType === 'pro' || planType === 'signature' || planType === 'next' || planType === 'business') {
+                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'business' ? 'Business' : planType === 'next' ? 'Next' : 'Signature';
+                    return (
+                      <>
+                        {/* PRO / SIGNATURE: Plan subscription price */}
+                        <div className="flex justify-between">
+                          <span>
+                            {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}
+                          </span>
+                          <span>{displayPrice(getSubtotal())}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>NFC Card</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Shipping</span>
+                          <span className="text-green-600">Included</span>
+                        </div>
+                      </>
+                    );
+                  }
+
                   if (isFoundingMember) {
                     return (
                       <>
@@ -827,33 +858,6 @@ export default function NFCPaymentPage() {
                         </div>
                         <div className="flex justify-between">
                           <span>Shipping & Customization</span>
-                          <span className="text-green-600">Included</span>
-                        </div>
-                      </>
-                    );
-                  }
-
-                  if (planType === 'pro' || planType === 'signature' || planType === 'next') {
-                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'next' ? 'Next' : 'Signature';
-                    return (
-                      <>
-                        {/* PRO / SIGNATURE: Plan subscription price */}
-                        <div className="flex justify-between">
-                          <span>
-                            {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}
-                          </span>
-                          <span>{displayPrice(getSubtotal())}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>NFC Card</span>
-                          <span className="text-green-600">Included</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>{isIndia(orderData?.shipping?.country || 'IN') ? 'GST' : 'VAT'}</span>
-                          <span className="text-green-600">Included</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Shipping</span>
                           <span className="text-green-600">Included</span>
                         </div>
                       </>

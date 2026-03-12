@@ -78,6 +78,7 @@ interface Order {
     fullName: string;
     addressLine1: string;
     addressLine2?: string;
+    landmark?: string;
     city: string;
     state: string;
     country: string;
@@ -695,6 +696,7 @@ export default function OrdersPage() {
                     <p>{selectedOrder.shipping.fullName}</p>
                     <p>{selectedOrder.shipping.addressLine1}</p>
                     {selectedOrder.shipping.addressLine2 && <p>{selectedOrder.shipping.addressLine2}</p>}
+                    {selectedOrder.shipping.landmark && <p className="text-gray-500">Landmark: {selectedOrder.shipping.landmark}</p>}
                     <p>{selectedOrder.shipping.city}, {selectedOrder.shipping.state} {selectedOrder.shipping.postalCode}</p>
                     <p>{selectedOrder.shipping.country}</p>
                   </div>

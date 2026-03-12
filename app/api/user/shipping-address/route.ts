@@ -38,7 +38,17 @@ export async function GET(request: NextRequest) {
     const addresses = await SupabaseShippingAddressStore.getByUserId(userId);
 
     // Find the first valid physical address (skip digital product placeholders)
-    const address = addresses.find(isValidPhysicalAddress) || null;
+    const baseAddress = addresses.find(isValidPhysicalAddress) || null;
+
+    // Merge in landmark from the most recent address that has one
+    // (handles case where landmark was added after earlier orders)
+    let address = baseAddress;
+    if (address && !address.landmark) {
+      const addrWithLandmark = addresses.find(a => a.landmark && a.landmark.trim() !== '');
+      if (addrWithLandmark) {
+        address = { ...address, landmark: addrWithLandmark.landmark };
+      }
+    }
 
     // Also extract phone number from any previous address as fallback
     const fallbackPhone = addresses.find(a => {
