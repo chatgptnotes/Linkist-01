@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export default function Navbar() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -47,6 +48,8 @@ export default function Navbar() {
         }
       } catch (error) {
         setIsLoggedIn(false);
+      } finally {
+        setIsAuthLoading(false);
       }
     };
 
@@ -120,7 +123,7 @@ export default function Navbar() {
         </div>
 
         {/* Desktop Auth Buttons - Hidden on mobile */}
-        {!isLoggedIn && (
+        {!isAuthLoading && !isLoggedIn && (
           <div className="hidden md:flex items-center gap-6">
             <button
               onClick={() => {
@@ -152,7 +155,7 @@ export default function Navbar() {
         )}
 
         {/* Mobile Hamburger Button */}
-        {!isLoggedIn && (
+        {!isAuthLoading && !isLoggedIn && (
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="md:hidden p-2 text-white/90 hover:text-white transition-colors"
@@ -278,7 +281,7 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Dropdown Menu */}
-      {isMobileMenuOpen && !isLoggedIn && (
+      {isMobileMenuOpen && !isAuthLoading && !isLoggedIn && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-[#1A1A1A]/95 backdrop-blur-sm border-b border-white/10 px-4 py-4 space-y-3">
           <button
             onClick={() => {

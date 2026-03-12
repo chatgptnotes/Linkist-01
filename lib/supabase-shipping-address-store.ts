@@ -29,6 +29,7 @@ export interface ShippingAddress {
   company?: string
   addressLine1: string
   addressLine2?: string
+  landmark?: string
   city: string
   state?: string
   postalCode: string
@@ -47,6 +48,7 @@ interface ShippingAddressRow {
   company?: string
   address_line1: string
   address_line2?: string
+  landmark?: string
   city: string
   state?: string
   postal_code: string
@@ -65,6 +67,7 @@ const rowToShippingAddress = (row: ShippingAddressRow): ShippingAddress => ({
   company: row.company,
   addressLine1: row.address_line1,
   addressLine2: row.address_line2,
+  landmark: row.landmark,
   city: row.city,
   state: row.state,
   postalCode: row.postal_code,
@@ -82,6 +85,7 @@ const shippingAddressToInsert = (address: Omit<ShippingAddress, 'id' | 'createdA
   company: address.company || null,
   address_line1: address.addressLine1,
   address_line2: address.addressLine2 || null,
+  landmark: address.landmark || null,
   city: address.city,
   state: address.state || null,
   postal_code: address.postalCode,
@@ -281,6 +285,7 @@ export const SupabaseShippingAddressStore = {
     if (updates.company !== undefined) dbUpdates.company = updates.company
     if (updates.addressLine1) dbUpdates.address_line1 = updates.addressLine1
     if (updates.addressLine2 !== undefined) dbUpdates.address_line2 = updates.addressLine2
+    if (updates.landmark !== undefined) dbUpdates.landmark = updates.landmark
     if (updates.city) dbUpdates.city = updates.city
     if (updates.state !== undefined) dbUpdates.state = updates.state
     if (updates.postalCode) dbUpdates.postal_code = updates.postalCode

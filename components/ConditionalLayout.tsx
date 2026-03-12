@@ -21,6 +21,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   const pathname = usePathname();
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isOnboarded, setIsOnboarded] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -80,6 +81,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
       } catch (error) {
         // Network or other errors - silently handle
         setUserData(null);
+      } finally {
+        setIsAuthLoading(false);
       }
     };
 
@@ -178,7 +181,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
             <Link href="/">
               <Logo width={100} height={32} noLink={true} variant="light" />
             </Link>
-            {!userData && !isAuthPage && (
+            {!isAuthLoading && !userData && !isAuthPage && (
               <Link
                 href="/login"
                 className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors"

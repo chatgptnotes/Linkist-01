@@ -184,7 +184,7 @@ export default function LoginPage() {
                 </div>
               </div>
               <p className="mt-2 text-sm text-gray-500">
-                We'll send a verification code to your registered {inputType === 'email' ? 'email' : 'phone'}
+                We&apos;ll send a verification code to your preferred mode of communication
               </p>
             </div>
 

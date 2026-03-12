@@ -56,15 +56,16 @@ const LocationDropdowns = dynamic(() => import('@/components/LocationDropdowns')
 import type { LocationDropdownsRef } from '@/components/LocationDropdowns';
 
 const checkoutSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  phone: z.string().min(10, 'Valid phone number required'),
-  addressLine1: z.string().min(1, 'Address is required'),
-  addressLine2: z.string().optional(),
-  city: z.string().min(1, 'City is required'),
-  stateProvince: z.string().optional(),
-  postalCode: z.string().optional(),
+  email: z.string().email('Invalid email address').max(254, 'Email is too long'),
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name is too long'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name is too long'),
+  phone: z.string().min(10, 'Valid phone number required').max(20, 'Phone number is too long'),
+  addressLine1: z.string().min(1, 'Address is required').max(150, 'Address is too long'),
+  addressLine2: z.string().max(150, 'Address is too long').optional(),
+  landmark: z.string().max(100, 'Landmark is too long').optional(),
+  city: z.string().min(1, 'City is required').max(50, 'City name is too long'),
+  stateProvince: z.string().max(50, 'State is too long').optional(),
+  postalCode: z.string().max(10, 'Postal code is too long').optional(),
   country: z.string().min(1, 'Country is required'),
   quantity: z.number().min(1).max(10),
   isFounderMember: z.boolean(),
@@ -219,6 +220,7 @@ export default function CheckoutPage() {
                 console.log('✅ Checkout: Found saved shipping address, auto-filling:', addr);
                 if (isReal(addr.addressLine1)) setValue('addressLine1', addr.addressLine1);
                 if (isReal(addr.addressLine2)) setValue('addressLine2', addr.addressLine2);
+                if (isReal(addr.landmark)) setValue('landmark', addr.landmark);
                 if (isReal(addr.city)) {
                   setValue('city', addr.city);
                   setSavedCity(addr.city);
@@ -715,6 +717,7 @@ export default function CheckoutPage() {
             phoneNumber: orderPayload.phoneNumber,
             addressLine1: orderPayload.shipping.addressLine1,
             addressLine2: orderPayload.shipping.addressLine2,
+            landmark: orderPayload.shipping.landmark,
             city: orderPayload.shipping.city,
             state: orderPayload.shipping.stateProvince,
             country: orderPayload.shipping.country,
@@ -893,6 +896,7 @@ export default function CheckoutPage() {
           fullName: `${formData.firstName} ${formData.lastName}`,
           addressLine1: formData.addressLine1,
           addressLine2: formData.addressLine2,
+          landmark: formData.landmark,
           city: formData.city,
           stateProvince: formData.stateProvince,
           country: formData.country,
@@ -967,6 +971,7 @@ export default function CheckoutPage() {
                     <input
                       {...register('email')}
                       type="email"
+                      maxLength={254}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                       placeholder="john@example.com"
                       suppressHydrationWarning
@@ -982,6 +987,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         {...register('firstName')}
+                        maxLength={50}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                         placeholder="John"
                       />
@@ -995,6 +1001,7 @@ export default function CheckoutPage() {
                       </label>
                       <input
                         {...register('lastName')}
+                        maxLength={50}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                         placeholder="Doe"
                       />
@@ -1010,6 +1017,7 @@ export default function CheckoutPage() {
                     <input
                       {...register('phone')}
                       type="tel"
+                      maxLength={20}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                       placeholder="+1 234 567 8900"
                     />
@@ -1022,55 +1030,10 @@ export default function CheckoutPage() {
 
               {/* Shipping Address */}
               <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
-                  <h2 className="text-lg font-semibold flex items-center">
-                    <Truck className="h-5 w-5 mr-2" />
-                    Shipping Address
-                  </h2>
-                  <button
-                    type="button"
-                    onClick={() => setShowMap(!showMap)}
-                    className="flex items-center justify-center space-x-2 text-sm px-3 py-2 rounded-lg transition-colors cursor-pointer w-full sm:w-auto"
-                    style={{ backgroundColor: '#ff0000', color: '#FFFFFF' }}
-                  >
-                    <MapPin className="h-4 w-4" />
-                    <span>{showMap ? 'Hide Map' : 'Use Map'}</span>
-                  </button>
-                </div>
-
-                {/* Google Map Picker - Only shows when user clicks "Use Map" button AND not loading */}
-                {!isLoading && showMap && (
-                  <div className="mb-4">
-                    <GoogleMapPicker
-                      initialAddress={{
-                        addressLine1: watchedValues.addressLine1,
-                        addressLine2: watchedValues.addressLine2,
-                        city: watchedValues.city,
-                        stateProvince: watchedValues.stateProvince,
-                        postalCode: watchedValues.postalCode,
-                        country: watchedValues.country,
-                        latitude: gpsCoordinates.latitude,
-                        longitude: gpsCoordinates.longitude,
-                      }}
-                      onAddressChange={handleMapAddressChange}
-                      className="mb-4"
-                    />
-                  </div>
-                )}
-
-                {/* GPS Coordinates Display */}
-                {gpsCoordinates.latitude && gpsCoordinates.longitude && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm text-green-800 font-medium flex items-center">
-                      <MapPin className="h-4 w-4 mr-2" />
-                      Location Captured
-                    </p>
-                    <p className="text-xs text-green-600 mt-1">
-                      GPS: {gpsCoordinates.latitude.toFixed(6)}, {gpsCoordinates.longitude.toFixed(6)}
-                      {gpsCoordinates.area && ` • Area: ${gpsCoordinates.area}`}
-                    </p>
-                  </div>
-                )}
+                <h2 className="text-lg font-semibold flex items-center mb-4">
+                  <Truck className="h-5 w-5 mr-2" />
+                  Shipping Address
+                </h2>
 
                 <div className="space-y-4">
                   <div>
@@ -1079,6 +1042,7 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       {...register('addressLine1')}
+                      maxLength={150}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                       placeholder="123 Main St"
                     />
@@ -1092,8 +1056,20 @@ export default function CheckoutPage() {
                     </label>
                     <input
                       {...register('addressLine2')}
+                      maxLength={150}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
                       placeholder="Apt 4B"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Landmark
+                    </label>
+                    <input
+                      {...register('landmark')}
+                      maxLength={100}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                      placeholder="Near Metro Station, Opposite Mall"
                     />
                   </div>
                   {/* Location Dropdowns - Lazy loaded for bundle optimization */}
@@ -1108,25 +1084,28 @@ export default function CheckoutPage() {
                     onGpsCoordinatesChange={handleGpsCoordinatesChange}
                   />
 
-                  {/* Postal Code - kept separate from LocationDropdowns */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Postal Code {watchedValues.country === 'IN' && '*'}
-                      </label>
-                      <input
-                        {...register('postalCode')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
-                        placeholder="10001"
-                      />
-                      {errors.postalCode && (
-                        <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
-                      )}
-                      {watchedValues.country === 'IN' && !errors.postalCode && (
-                        <p className="text-xs text-gray-500 mt-1">Mandatory field for users in India</p>
-                      )}
+                  {/* Postal Code - hidden for UAE users */}
+                  {watchedValues.country !== 'AE' && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Postal Code {watchedValues.country === 'IN' && '*'}
+                        </label>
+                        <input
+                          {...register('postalCode')}
+                          maxLength={10}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
+                          placeholder="10001"
+                        />
+                        {errors.postalCode && (
+                          <p className="text-red-500 text-sm mt-1">{errors.postalCode.message}</p>
+                        )}
+                        {watchedValues.country === 'IN' && !errors.postalCode && (
+                          <p className="text-xs text-gray-500 mt-1">Mandatory field for users in India</p>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
 
