@@ -603,7 +603,7 @@ export default function ProductSelectionPage() {
               <h2 className="text-xl font-bold text-gray-900">Founder's Circle Benefits</h2>
             </div>
             <ul className="space-y-3">
-              {['Lifetime subscription to Linkist Pro App', 'Linkist Digital Profile', 'AI Credits worth $50', 'Premium Metal Card', 'Exclusive Black colour variants', '"Founding Member" tag on the card', 'No expiry on AI credits', 'Customisable Card', 'Up to 5 Referral invites', 'Access to Linkist Exclusive Partner Privileges'].map((benefit, i) => (
+              {['Lifetime subscription to Linkist Pro App', 'Linkist Digital Profile', 'AI Credits worth $50', '"Founding Member" tag on the card', 'No expiry on AI credits', 'Customisable Card', 'Up to 3 Referral invites', '50% discount on AI credits for life', 'Access to Linkist Exclusive Partner Privileges'].map((benefit, i) => (
                 <li key={i} className="flex items-start gap-2">
                   <CheckIcon className="w-5 h-5 text-amber-500 mt-0.5 flex-shrink-0" />
                   <span className="text-gray-700">{benefit}</span>
