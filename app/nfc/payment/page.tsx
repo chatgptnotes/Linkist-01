@@ -407,6 +407,7 @@ export default function NFCPaymentPage() {
         body: JSON.stringify({
           amount: convertedAmount, // Converted to local currency if needed
           currency,
+          country: orderData.shipping?.country || 'IN',
           orderId: orderData.orderId, // Required for idempotency
           orderData: {
             customerName: orderData.customerName,
