@@ -69,6 +69,7 @@ export default function ConfigureNewPage() {
     materialPrices: Record<string, number>;
     textureOptions: Record<string, string[]>;
     colourOptions: Record<string, string[]>;
+    patternOptions?: Record<string, string[]>;
     defaults?: Record<string, { texture?: string; colour?: string; pattern?: string }>;
   } | null>(null);
   const [optionsLoading, setOptionsLoading] = useState(true);
@@ -372,22 +373,35 @@ export default function ConfigureNewPage() {
         { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
       ];
 
-  // Admin-configured patterns - from API or fallback, always prepend "None"
-  const patterns = customizationOptions?.patterns
-    ? [
-        { id: 0, name: 'Blank', key: 'none' },
-        ...customizationOptions.patterns.map((p, index) => ({
-          id: index + 1,
-          name: p.label,
-          key: p.option_key
-        }))
-      ]
-    : [
+  // Helper: build patterns list for a given material (or all if no material)
+  const buildPatternsForMaterial = (material: string | null) => {
+    if (!customizationOptions?.patterns) {
+      return [
         { id: 0, name: 'Blank', key: 'none' },
         { id: 1, name: 'Geometric', key: 'geometric' },
         { id: 2, name: 'Waves', key: 'waves' },
         { id: 3, name: 'Crystal', key: 'crystal' }
       ];
+    }
+    const filtered = material && customizationOptions.patternOptions
+      ? customizationOptions.patterns.filter(p => {
+          const allowed = customizationOptions.patternOptions?.[material];
+          return allowed ? allowed.includes(p.option_key) : false;
+        })
+      : customizationOptions.patterns;
+
+    return [
+      { id: 0, name: 'Blank', key: 'none' },
+      ...filtered.map((p, index) => ({
+        id: index + 1,
+        name: p.label,
+        key: p.option_key
+      }))
+    ];
+  };
+
+  // Admin-configured patterns - filtered by selected material, always prepend "Blank"
+  const patterns = buildPatternsForMaterial(formData.baseMaterial);
 
   // Look up the selected pattern's key for the card overlay
   const selectedPatternKey = patterns.find(p => p.id === formData.pattern)?.key || null;
@@ -422,12 +436,29 @@ export default function ConfigureNewPage() {
     const availableColours = colourOptions[material] || [];
     const materialDefaults = customizationOptions?.defaults?.[material];
 
-    // Resolve default pattern ID from option_key
-    let defaultPatternId: number | null = null;
-    if (materialDefaults?.pattern) {
-      const patternMatch = patterns.find(p => p.key === materialDefaults.pattern);
-      if (patternMatch) defaultPatternId = patternMatch.id;
+    // Build the new patterns list for the target material using the shared helper
+    const newMaterialPatterns = buildPatternsForMaterial(material);
+
+    // Resolve the current pattern's key using the OLD material's pattern list
+    const currentPatternKey = formData.pattern !== null
+      ? patterns.find(p => p.id === formData.pattern)?.key
+      : null;
+
+    // Try to carry over the current pattern to the new material (match by key)
+    let newPatternId: number | null = null;
+    if (currentPatternKey) {
+      const match = newMaterialPatterns.find(p => p.key === currentPatternKey);
+      if (match) newPatternId = match.id;
     }
+
+    // If current pattern isn't available, try the default for this material
+    if (newPatternId === null && materialDefaults?.pattern) {
+      const defaultMatch = newMaterialPatterns.find(p => p.key === materialDefaults.pattern);
+      if (defaultMatch) newPatternId = defaultMatch.id;
+    }
+
+    // Fallback to Blank (id 0) if nothing else matches
+    if (newPatternId === null) newPatternId = 0;
 
     const newFormData: StepData = {
       ...formData,
@@ -444,10 +475,8 @@ export default function ConfigureNewPage() {
         : (materialDefaults?.colour && availableColours.includes(materialDefaults.colour)
           ? materialDefaults.colour as ColourOption
           : null),
-      // Keep current pattern if set, otherwise apply default
-      pattern: formData.pattern !== null
-        ? formData.pattern
-        : defaultPatternId
+      // Keep current pattern if still available, otherwise default, otherwise Blank
+      pattern: newPatternId
     };
     setFormData(newFormData);
     console.log('Base material changed:', newFormData);

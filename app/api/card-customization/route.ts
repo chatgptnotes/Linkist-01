@@ -81,6 +81,11 @@ function getFallbackOptions() {
     wood: ['cherry', 'birch'],
     metal: ['black', 'silver', 'rose-gold']
   };
+  const patternOptions: Record<string, string[]> = {
+    pvc: ['geometric', 'waves', 'crystal'],
+    wood: ['geometric', 'waves', 'crystal'],
+    metal: ['geometric', 'waves', 'crystal']
+  };
 
   return {
     materials,
@@ -89,6 +94,7 @@ function getFallbackOptions() {
     patterns,
     materialPrices,
     textureOptions,
-    colourOptions
+    colourOptions,
+    patternOptions
   };
 }
