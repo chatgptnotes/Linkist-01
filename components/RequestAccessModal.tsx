@@ -115,8 +115,14 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+
+    if (!formData.companyName.trim()) {
+      setError('Company Name is required.');
+      return;
+    }
+
+    setLoading(true);
 
     try {
       const response = await fetch('/api/founders/request', {
@@ -265,7 +271,7 @@ export default function RequestAccessModal({ isOpen, onClose, onSuccess }: Reque
               {/* Company Name (Optional) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Company Name <span className="text-gray-400">(Optional)</span>
+                  Company Name <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <BusinessIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
