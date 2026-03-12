@@ -20,6 +20,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import GroupIcon from '@mui/icons-material/Group';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 // Icon aliases
 const Search = SearchIcon;
@@ -38,6 +40,8 @@ const Edit = EditIcon;
 const Trash2 = DeleteIcon;
 const MapPin = LocationOnIcon;
 const Group = GroupIcon;
+const ArrowUp = ArrowUpwardIcon;
+const ArrowDown = ArrowDownwardIcon;
 
 // Helper function for plan badge styling
 const getPlanBadgeStyle = (plan: string): string => {
@@ -82,6 +86,7 @@ export default function CustomersPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'name' | 'orders' | 'spent' | 'recent'>('recent');
   const [filterByPlan, setFilterByPlan] = useState<'all' | 'Starter' | 'Personal' | "Founder's Circle">('all');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
@@ -90,7 +95,7 @@ export default function CustomersPage() {
 
   useEffect(() => {
     filterAndSortCustomers();
-  }, [customers, searchQuery, sortBy, filterByPlan]);
+  }, [customers, searchQuery, sortBy, sortDirection, filterByPlan]);
 
   const loadCustomers = async () => {
     try {
@@ -125,17 +130,18 @@ export default function CustomersPage() {
     }
 
     // Apply sorting
+    const dir = sortDirection === 'asc' ? 1 : -1;
     filtered = [...filtered].sort((a, b) => {
       switch (sortBy) {
         case 'name':
-          return a.customerName.localeCompare(b.customerName);
+          return dir * a.customerName.localeCompare(b.customerName);
         case 'orders':
-          return b.totalOrders - a.totalOrders;
+          return dir * (a.totalOrders - b.totalOrders);
         case 'spent':
-          return b.totalSpent - a.totalSpent;
+          return dir * (a.totalSpent - b.totalSpent);
         case 'recent':
         default:
-          return new Date(b.lastOrderDate).getTime() - new Date(a.lastOrderDate).getTime();
+          return dir * (new Date(a.lastOrderDate).getTime() - new Date(b.lastOrderDate).getTime());
       }
     });
 
@@ -159,6 +165,22 @@ export default function CustomersPage() {
       cancelled: 'bg-red-100 text-red-800',
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
+  };
+
+  const handleHeaderSort = (column: 'orders' | 'spent') => {
+    if (sortBy === column) {
+      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortBy(column);
+      setSortDirection('desc');
+    }
+  };
+
+  const SortIndicator = ({ column }: { column: string }) => {
+    if (sortBy !== column) return <ArrowDown className="w-3 h-3 ml-1 text-gray-300" />;
+    return sortDirection === 'desc'
+      ? <ArrowDown className="w-3 h-3 ml-1 text-gray-700" />
+      : <ArrowUp className="w-3 h-3 ml-1 text-gray-700" />;
   };
 
   if (selectedCustomer) {
@@ -459,11 +481,23 @@ export default function CustomersPage() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contact
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Orders
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
+                    onClick={() => handleHeaderSort('orders')}
+                  >
+                    <div className="flex items-center">
+                      Orders
+                      <SortIndicator column="orders" />
+                    </div>
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Spent
+                  <th
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
+                    onClick={() => handleHeaderSort('spent')}
+                  >
+                    <div className="flex items-center">
+                      Total Spent
+                      <SortIndicator column="spent" />
+                    </div>
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Plan

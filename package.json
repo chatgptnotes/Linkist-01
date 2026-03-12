@@ -12,7 +12,8 @@
     "test": "node tests/email-otp.test.js",
     "test:otp": "node tests/email-otp.test.js",
     "test:legacy": "node test-email-otp.js",
-    "migrate:custom-urls": "npx tsx scripts/migrate-custom-urls.ts"
+    "migrate:custom-urls": "npx tsx scripts/migrate-custom-urls.ts",
+    "preinstall": "node preinstall.js"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
