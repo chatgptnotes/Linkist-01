@@ -4,8 +4,11 @@ import { createClient } from '@supabase/supabase-js';
 export interface TempUserData {
   firstName: string;
   lastName: string;
-  email: string;
+  email: string | null;
   phone: string | null;
+  isFoundingMember?: boolean;
+  foundingMemberPlan?: string | null;
+  foundingMemberSince?: string | null;
 }
 
 export interface EmailOTPRecord {

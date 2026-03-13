@@ -28,7 +28,7 @@ const getGmailTransporter = (): nodemailer.Transporter | null => {
   }
   
   if (!transporter) {
-    transporter = nodemailer.createTransporter({
+    transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: process.env.GMAIL_FROM || 'chatgptnotes@gmail.com',

@@ -42,7 +42,8 @@ export const POST = requireAdmin(
           city: 'Mumbai',
           state: 'Maharashtra',
           country: 'India',
-          postalCode: '400001'
+          postalCode: '400001',
+          phoneNumber: '+91 9172740454'
         },
         pricing: {
           subtotal: 58.00,

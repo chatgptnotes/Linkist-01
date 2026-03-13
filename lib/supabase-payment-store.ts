@@ -341,10 +341,10 @@ export const SupabasePaymentStore = {
     }
 
     // Calculate statistics
-    const statusCounts = payments.reduce((acc, payment) => {
+    const statusCounts = payments.reduce((acc: Record<string, number>, payment) => {
       acc[payment.status] = (acc[payment.status] || 0) + 1
       return acc
-    }, {} as Record<PaymentStatus, number>)
+    }, {} as Record<string, number>)
 
     const totalAmount = payments.reduce((sum, payment) => sum + (payment.amount || 0), 0)
     const totalFees = payments.reduce((sum, payment) => sum + (payment.stripe_fee || 0), 0)

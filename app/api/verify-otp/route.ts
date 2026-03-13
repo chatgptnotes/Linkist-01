@@ -203,7 +203,7 @@ export async function POST(request: NextRequest) {
             sendWelcomeEmail({
               firstName: mobileRecord.temp_user_data.firstName,
               lastName: mobileRecord.temp_user_data.lastName,
-              email: mobileRecord.temp_user_data.email || user.email,
+              email: mobileRecord.temp_user_data.email || user?.email || '',
               isFoundingMember: mobileRecord.temp_user_data.isFoundingMember || false,
             }).catch((err) => console.error('Failed to send welcome email:', err));
           } catch (createError) {
@@ -287,7 +287,7 @@ export async function POST(request: NextRequest) {
               email: normalizedIdentifier,
               first_name: storedRecord.temp_user_data.firstName,
               last_name: storedRecord.temp_user_data.lastName,
-              phone_number: storedRecord.temp_user_data.phone || null,
+              phone_number: storedRecord.temp_user_data.phone || undefined,
               role: 'user',
               status: 'pending',
               email_verified: false,

@@ -23,7 +23,14 @@ export async function GET() {
       .limit(5);
 
     // Create activity feed combining orders and customers
-    const activities = [];
+    interface Activity {
+      id: string;
+      type: 'order' | 'customer' | 'payment';
+      message: string;
+      timestamp: string;
+      status: string;
+    }
+    const activities: Activity[] = [];
 
     // Add order activities
     recentOrders?.forEach(order => {

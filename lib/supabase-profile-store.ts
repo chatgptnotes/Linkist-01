@@ -73,6 +73,7 @@ export interface ProfileInput {
     whatsappNumber?: string
     showEmailPublicly?: boolean
     showMobilePublicly?: boolean
+    showSecondaryEmailPublicly?: boolean
     showWhatsappPublicly?: boolean
 
     // Professional Information

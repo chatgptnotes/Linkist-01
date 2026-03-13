@@ -17,10 +17,10 @@ export async function POST(request: NextRequest) {
 
     // Get admin password from database
     const { data: adminPassword, error: dbError } = await supabaseAdmin
-      .from('admin_password')
+      .from('admin_password' as any)
       .select('password_hash')
       .eq('id', 1)
-      .single()
+      .single() as { data: { password_hash: string } | null; error: any }
 
     if (dbError || !adminPassword) {
       console.error('Failed to fetch admin password:', dbError)

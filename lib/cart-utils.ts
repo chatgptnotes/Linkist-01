@@ -138,15 +138,20 @@ export const cartUtils = {
 
 // Storage health check and cleanup
 export const storageHealth = {
-  checkQuota: (): { available: boolean; usage?: number; limit?: number } => {
+  checkQuota: async (): Promise<{ available: boolean; usage?: number; limit?: number }> => {
     if ('storage' in navigator && 'estimate' in navigator.storage) {
-      return navigator.storage.estimate().then(estimate => ({
-        available: true,
-        usage: estimate.usage,
-        limit: estimate.quota
-      })).catch(() => ({ available: false }));
+      try {
+        const estimate = await navigator.storage.estimate();
+        return {
+          available: true,
+          usage: estimate.usage,
+          limit: estimate.quota
+        };
+      } catch {
+        return { available: false };
+      }
     }
-    
+
     // Fallback test
     try {
       const testKey = '__storage_test__';

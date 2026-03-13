@@ -56,21 +56,21 @@ export async function POST(request: NextRequest) {
       full_name: `${firstName} ${lastName}`,
       title,
       company,
-      phone: mobile || null,
+      phone: mobile || undefined,
       email,
-      website: website || null,
-      linkedin_url: linkedin || null,
-      instagram_url: instagram || null,
-      twitter_url: twitter || null,
-      facebook_url: null, // Not provided from form
-      logo_url: profileImage || null,
-      photo_url: backgroundImage || null,
+      website: website || undefined,
+      linkedin_url: linkedin || undefined,
+      instagram_url: instagram || undefined,
+      twitter_url: twitter || undefined,
+      facebook_url: undefined, // Not provided from form
+      logo_url: profileImage || undefined,
+      photo_url: backgroundImage || undefined,
       primary_color: '#000000', // Default
       secondary_color: '#FFFFFF', // Default
       background_style: 'gradient', // Default
       card_type: 'standard', // Default
-      user_id: null, // Will be set when user auth is implemented
-      qr_code_data: null, // Will be generated later
+      user_id: undefined, // Will be set when user auth is implemented
+      qr_code_data: undefined, // Will be generated later
     };
 
     // Save to Supabase

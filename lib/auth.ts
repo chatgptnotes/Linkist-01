@@ -12,7 +12,7 @@ export async function getCurrentUser(request: NextRequest) {
     }
 
     // Get session from store
-    const session = SessionStore.get(sessionId);
+    const session = await SessionStore.get(sessionId);
     
     if (!session) {
       return null;

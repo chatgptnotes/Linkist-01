@@ -138,7 +138,7 @@ export class OrderEmailService {
           return this.sendWithRetry(type, data, subject, html, transporterInstance, attempt + 1);
         }
 
-        return { success: false, error: result.error?.message || 'Email sending failed' };
+        return { success: false, error: result.error || 'Email sending failed' };
       }
 
       console.log(`✅ [${type.toUpperCase()}] Email sent successfully to ${data.email}:`, {
@@ -227,7 +227,7 @@ export class OrderEmailService {
     options: { batchSize?: number; delayBetweenBatches?: number } = {}
   ): Promise<Array<{ request: { type: EmailType; data: OrderData }; result: EmailResult }>> {
     const { batchSize = 10, delayBetweenBatches = 1000 } = options;
-    const results = [];
+    const results: Array<{ request: { type: EmailType; data: OrderData }; result: EmailResult }> = [];
 
     console.log(`📧 Starting batch email send: ${emailRequests.length} emails in batches of ${batchSize}`);
 

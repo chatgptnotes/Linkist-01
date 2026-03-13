@@ -743,7 +743,7 @@ export default function ConfigureNewPage() {
                   {baseMaterials.map((material) => (
                     <button
                       key={material.value}
-                      onClick={() => handleBaseMaterialChange(material.value)}
+                      onClick={() => handleBaseMaterialChange(material.value as BaseMaterial)}
                       className={`relative p-4 rounded-xl cursor-pointer transition-all ${
                         formData.baseMaterial === material.value
                           ? 'bg-red-100 shadow-lg'
@@ -786,7 +786,7 @@ export default function ConfigureNewPage() {
                       return (
                         <button
                           key={texture.value}
-                          onClick={() => handleTextureChange(texture.value)}
+                          onClick={() => handleTextureChange(texture.value as TextureOption)}
                           disabled={!isAvailable}
                           className={`relative p-3 rounded-lg transition-all ${
                             !isAvailable
@@ -827,7 +827,7 @@ export default function ConfigureNewPage() {
                       return (
                         <button
                           key={colour.value}
-                          onClick={() => handleColourChange(colour.value)}
+                          onClick={() => handleColourChange(colour.value as ColourOption)}
                           className="relative group cursor-pointer"
                         >
                           <div

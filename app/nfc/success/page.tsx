@@ -24,7 +24,7 @@ export default function SuccessPage() {
   const [claimStatusLoaded, setClaimStatusLoaded] = useState(false);
   const [orderData, setOrderData] = useState<{
     orderNumber: string;
-    cardConfig: { fullName: string; quantity?: number; baseMaterial?: string };
+    cardConfig: { fullName: string; quantity?: number; baseMaterial?: string; planType?: string };
     shipping: { fullName: string; email: string; phone: string; addressLine1: string; addressLine2?: string; city: string; stateProvince?: string; postalCode: string; country: string; isFounderMember: boolean; quantity: number };
     pricing: { total: number; materialPrice?: number; appSubscriptionPrice?: number; taxAmount?: number; subtotal?: number; isFoundersPricing?: boolean };
     voucherCode?: string;
@@ -475,7 +475,7 @@ export default function SuccessPage() {
 
               <div className="pb-3 border-b border-gray-100">
                 <p className="text-sm text-gray-600 mb-1">Phone:</p>
-                <p className="text-gray-900">{orderData.shipping?.phone || orderData.shipping?.phoneNumber || orderData.phoneNumber || '+1 (555) 123-4567'}</p>
+                <p className="text-gray-900">{orderData.shipping?.phone || orderData.phoneNumber || '+1 (555) 123-4567'}</p>
               </div>
 
               <div>

@@ -11,7 +11,7 @@ import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import type { SocialLink } from './types';
 import { neuStyles } from './neumorphic';
 
-const ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   linkedin: LinkedInIcon,
   instagram: InstagramIcon,
   facebook: FacebookIcon,

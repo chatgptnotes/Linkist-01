@@ -1472,6 +1472,7 @@ function ProfileBuilderContent() {
           // Map database fields to form state
           const displaySettings = profile.display_settings || {};
           const mappedData = {
+            salutation: prefs.salutation || '',
             firstName: profile.first_name || '',
             lastName: profile.last_name || '',
             primaryEmail: profile.email || '',
@@ -3022,7 +3023,7 @@ function ProfileBuilderContent() {
                           )}
                         </div>
                         <button
-                          onClick={addSkill}
+                          onClick={() => addSkill()}
                           disabled={profileData.skills.length >= 5}
                           className={`px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 ${
                             profileData.skills.length >= 5
