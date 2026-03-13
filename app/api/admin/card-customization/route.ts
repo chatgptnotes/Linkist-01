@@ -18,10 +18,12 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const planId = searchParams.get('plan_id');
     const selectedMaterial = searchParams.get('material') || undefined;
+    const selectedTexture = searchParams.get('texture') || undefined;
+    const selectedColour = searchParams.get('colour') || undefined;
 
     // If plan_id is provided, return plan-specific options
     if (planId) {
-      const options = await SupabaseCardCustomizationStore.getAllOptionsWithPlanStatus(planId, selectedMaterial);
+      const options = await SupabaseCardCustomizationStore.getAllOptionsWithPlanStatus(planId, selectedMaterial, selectedTexture, selectedColour);
 
       // Group by category for easier frontend consumption
       const grouped = {
@@ -83,7 +85,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { id, action, plan_id, material_key, ...updateData } = body;
+    const { id, action, plan_id, material_key, texture_key, colour_key, ...updateData } = body;
 
     if (!id) {
       return NextResponse.json(
@@ -124,11 +126,15 @@ export async function PUT(request: NextRequest) {
         );
       }
 
+      const params = {
+        planId: plan_id, optionId: id,
+        materialKey: material_key || null, textureKey: texture_key || null, colourKey: colour_key || null,
+      };
       let success: boolean;
       if (shouldBeDefault === false) {
-        success = await SupabaseCardCustomizationStore.clearDefaultOption(plan_id, id, material_key || null);
+        success = await SupabaseCardCustomizationStore.clearDefaultOption(params);
       } else {
-        success = await SupabaseCardCustomizationStore.setDefaultOption(plan_id, id, material_key || null, category);
+        success = await SupabaseCardCustomizationStore.setDefaultOption({ ...params, category });
       }
 
       return NextResponse.json({

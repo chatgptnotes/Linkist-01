@@ -60,11 +60,12 @@ export default function CardCustomizationTab() {
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
-  // Material selection state
+  // Hierarchy selection state
   const [selectedMaterial, setSelectedMaterial] = useState<string | null>(null);
+  const [selectedTexture, setSelectedTexture] = useState<string | null>(null);
+  const [selectedColour, setSelectedColour] = useState<string | null>(null);
 
   // Pending toggle changes (local state, not yet saved)
-  // Key format: "optionId" for materials, "optionId__materialKey" for textures/colours/patterns
   const [pendingToggles, setPendingToggles] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
   const [settingDefault, setSettingDefault] = useState<string | null>(null);
@@ -83,17 +84,36 @@ export default function CardCustomizationTab() {
   // Clear pending toggles and refetch when plan changes
   useEffect(() => {
     setPendingToggles({});
+    setSelectedTexture(null);
+    setSelectedColour(null);
     if (plans.length > 0) {
       fetchOptions();
     }
   }, [selectedPlanId]);
 
-  // Refetch options when material changes (keep pending toggles for other materials)
+  // Refetch when material changes — reset texture/colour selections
   useEffect(() => {
+    setSelectedTexture(null);
+    setSelectedColour(null);
     if (plans.length > 0) {
       fetchOptions();
     }
   }, [selectedMaterial]);
+
+  // Refetch when texture changes — reset colour selection
+  useEffect(() => {
+    setSelectedColour(null);
+    if (plans.length > 0 && selectedTexture) {
+      fetchOptions();
+    }
+  }, [selectedTexture]);
+
+  // Refetch when colour changes
+  useEffect(() => {
+    if (plans.length > 0 && selectedColour) {
+      fetchOptions();
+    }
+  }, [selectedColour]);
 
   // Auto-select first enabled material when data loads
   useEffect(() => {
@@ -110,6 +130,8 @@ export default function CardCustomizationTab() {
       const params = new URLSearchParams();
       if (selectedPlanId) params.append('plan_id', selectedPlanId);
       if (selectedMaterial) params.append('material', selectedMaterial);
+      if (selectedTexture) params.append('texture', selectedTexture);
+      if (selectedColour) params.append('colour', selectedColour);
       if (params.toString()) url += `?${params.toString()}`;
 
       const response = await fetch(url);
@@ -139,9 +161,18 @@ export default function CardCustomizationTab() {
   };
 
   // Get toggle key for an option (used to track pending changes)
+  // Key format encodes the full hierarchy path
   const getToggleKey = (option: CardCustomizationOption): string => {
-    if (selectedPlanId && (option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
+    if (!selectedPlanId) return option.id;
+
+    if (option.category === 'texture' && selectedMaterial) {
       return `${option.id}__${selectedMaterial}`;
+    }
+    if (option.category === 'colour' && selectedMaterial && selectedTexture) {
+      return `${option.id}__${selectedMaterial}__${selectedTexture}`;
+    }
+    if (option.category === 'pattern' && selectedMaterial && selectedTexture && selectedColour) {
+      return `${option.id}__${selectedMaterial}__${selectedTexture}__${selectedColour}`;
     }
     return option.id;
   };
@@ -163,7 +194,6 @@ export default function CardCustomizationTab() {
     setPendingToggles(prev => {
       const next = { ...prev };
       if (newValue === serverValue) {
-        // Back to original state, remove from pending
         delete next[key];
       } else {
         next[key] = newValue;
@@ -183,6 +213,8 @@ export default function CardCustomizationTab() {
         return {
           option_id: parts[0],
           material_key: parts[1] || null,
+          texture_key: parts[2] || null,
+          colour_key: parts[3] || null,
           is_enabled: pendingToggles[key]
         };
       });
@@ -279,29 +311,12 @@ export default function CardCustomizationTab() {
     return getPlanDisplayName(plan);
   };
 
-  // Get ALL textures - admin can enable any texture for any material
-  const getAllTextures = () => {
-    return grouped.textures;
-  };
-
-  // Get ALL colours - admin can enable any colour for any material
-  const getAllColours = () => {
-    return grouped.colours;
-  };
-
-  // Get ALL patterns - admin can enable any pattern for any material
-  const getAllPatterns = () => {
-    return grouped.patterns;
-  };
-
-  // Get selected material object
   const getSelectedMaterialOption = () => {
     return grouped.materials.find(m => m.option_key === selectedMaterial);
   };
 
   const hasUnsavedChanges = Object.keys(pendingToggles).length > 0;
 
-  // Check if a specific option has a pending (unsaved) change
   const hasPendingChange = (option: CardCustomizationOption): boolean => {
     const key = getToggleKey(option);
     return key in pendingToggles;
@@ -332,8 +347,6 @@ export default function CardCustomizationTab() {
     if (!selectedPlanId) return;
 
     const isCurrentlyDefault = option.is_default;
-    const materialKey = (option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial
-      ? selectedMaterial : null;
 
     setSettingDefault(option.id);
     try {
@@ -344,14 +357,16 @@ export default function CardCustomizationTab() {
           id: option.id,
           action: 'setDefault',
           plan_id: selectedPlanId,
-          material_key: materialKey,
+          material_key: selectedMaterial || null,
+          texture_key: option.category === 'colour' ? selectedTexture || null : null,
+          colour_key: option.category === 'pattern' ? selectedColour || null : null,
           category: option.category,
           is_default: !isCurrentlyDefault,
         }),
       });
 
       if (response.ok) {
-        await fetchOptions(); // Refresh to get updated defaults
+        await fetchOptions();
       }
     } catch (error) {
       console.error('Error setting default:', error);
@@ -388,7 +403,29 @@ export default function CardCustomizationTab() {
     );
   };
 
-  if (loading) {
+  // Render a "Configure →" / "✓ Selected" button for drill-down
+  const renderConfigureButton = (
+    enabled: boolean,
+    isSelected: boolean,
+    onToggle: () => void,
+    activeColor: string = 'bg-red-600'
+  ) => {
+    if (!enabled) return <span className="text-xs text-gray-400">-</span>;
+    return (
+      <button
+        onClick={onToggle}
+        className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-all ${
+          isSelected
+            ? `${activeColor} text-white shadow-sm`
+            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+        }`}
+      >
+        {isSelected ? '✓ Selected' : 'Configure →'}
+      </button>
+    );
+  };
+
+  if (loading && options.length === 0) {
     return (
       <div className="flex items-center justify-center py-12">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
@@ -398,22 +435,37 @@ export default function CardCustomizationTab() {
   }
 
   const selectedMaterialOption = getSelectedMaterialOption();
-  const allTextures = getAllTextures();
-  const allColours = getAllColours();
-  const allPatterns = getAllPatterns();
+  const allTextures = grouped.textures;
+  const allColours = grouped.colours;
+  const allPatterns = grouped.patterns;
+
+  // Pre-compute enabled counts and selected labels (avoid repeated .find/.filter in render)
+  const enabledTextures = allTextures.filter(t => isOptionEnabled(t));
+  const enabledColours = allColours.filter(c => isOptionEnabled(c));
+  const enabledPatterns = allPatterns.filter(p => isOptionEnabled(p));
+
+  const selectedTextureLabel = selectedTexture ? allTextures.find(t => t.option_key === selectedTexture)?.label : null;
+  const selectedColourLabel = selectedColour ? allColours.find(c => c.option_key === selectedColour)?.label : null;
+
+  // Breadcrumb path
+  const breadcrumb = [
+    selectedMaterialOption?.label,
+    selectedTextureLabel,
+    selectedColourLabel,
+  ].filter(Boolean);
 
   return (
     <div className="space-y-6">
       {/* Header with Plan Selector */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <p className="text-gray-500">
-          Configure which card customization options are available for each subscription plan.
+          Configure card customization hierarchy: Material → Texture → Colour → Pattern
         </p>
 
         {plans.length > 0 && (
           <div className="flex items-center gap-3">
             <label htmlFor="plan-select" className="text-sm font-medium text-gray-700 whitespace-nowrap">
-              Configure options for:
+              Configure for:
             </label>
             <select
               id="plan-select"
@@ -431,13 +483,29 @@ export default function CardCustomizationTab() {
         )}
       </div>
 
+      {/* Hierarchy Breadcrumb */}
+      {selectedMaterial && (
+        <div className="flex items-center gap-2 text-sm">
+          <span className="text-gray-400">Path:</span>
+          <span className="font-medium text-gray-700">{getSelectedPlanName()}</span>
+          {breadcrumb.map((item, i) => (
+            <span key={i} className="flex items-center gap-2">
+              <span className="text-gray-400">→</span>
+              <span className={`font-medium ${i === breadcrumb.length - 1 ? 'text-red-600' : 'text-gray-700'}`}>
+                {item}
+              </span>
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* Plan Info Banner */}
       {selectedPlanId && (
         <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <span className="font-semibold">Configuring: {getSelectedPlanName()}</span>
             {' '}&mdash;{' '}
-            Select a material, then toggle which textures, colours, and patterns are available for that material.
+            Select Material → toggle Textures → select a Texture to configure its Colours → select a Colour to configure its Patterns.
           </p>
         </div>
       )}
@@ -445,7 +513,7 @@ export default function CardCustomizationTab() {
       {/* Material Selection Tabs */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-          <h3 className="text-lg font-semibold text-gray-900">Select Base Material</h3>
+          <h3 className="text-lg font-semibold text-gray-900">① Select Base Material</h3>
         </div>
         <div className="p-4">
           <div className="flex flex-wrap gap-3">
@@ -502,14 +570,14 @@ export default function CardCustomizationTab() {
           {/* Header showing selected material */}
           <div className="bg-gradient-to-r from-gray-800 to-gray-900 text-white rounded-lg px-6 py-4">
             <h3 className="text-lg font-semibold">
-              Options for {selectedMaterialOption.label} Material
+              ② Textures for {selectedMaterialOption.label}
             </h3>
             <p className="text-sm text-gray-300 mt-1">
-              Configure which textures, colours, and patterns are available when users select {selectedMaterialOption.label}
+              Toggle which textures are available, then select one to configure its colours.
             </p>
           </div>
 
-          {/* Textures Section */}
+          {/* Textures Section — toggles + selectable */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200">
             <button
               onClick={() => toggleSection('textures')}
@@ -518,7 +586,7 @@ export default function CardCustomizationTab() {
               <div className="flex items-center">
                 <h3 className="text-lg font-medium text-gray-900">Textures</h3>
                 <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                  {allTextures.filter(t => isOptionEnabled(t)).length}/{allTextures.length} enabled
+                  {enabledTextures.length}/{allTextures.length} enabled
                 </span>
               </div>
               {expandedSections.textures ? (
@@ -537,14 +605,19 @@ export default function CardCustomizationTab() {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Texture</th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Description</th>
                         <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled for {selectedMaterialOption.label}</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
+                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Colours</th>
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                       {allTextures.map((texture) => {
                         const enabled = isOptionEnabled(texture);
+                        const isSelectedTexture = selectedTexture === texture.option_key;
                         return (
-                          <tr key={texture.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
+                          <tr
+                            key={texture.id}
+                            className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''} ${isSelectedTexture ? 'bg-red-50 border-l-4 border-l-red-500' : ''}`}
+                          >
                             <td className="px-6 py-4">
                               <span className="text-sm font-medium text-gray-900">{texture.label}</span>
                             </td>
@@ -556,6 +629,13 @@ export default function CardCustomizationTab() {
                             </td>
                             <td className="px-6 py-4 text-center">
                               {renderToggle(texture)}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              {renderConfigureButton(
+                                enabled, isSelectedTexture,
+                                () => setSelectedTexture(isSelectedTexture ? null : texture.option_key),
+                                'bg-red-600'
+                              )}
                             </td>
                           </tr>
                         );
@@ -571,142 +651,176 @@ export default function CardCustomizationTab() {
             )}
           </div>
 
-          {/* Colours Section - Shows ALL colours */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <button
-              onClick={() => toggleSection('colours')}
-              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
-            >
-              <div className="flex items-center">
-                <h3 className="text-lg font-medium text-gray-900">Colours</h3>
-                <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                  {allColours.filter(c => isOptionEnabled(c)).length}/{allColours.length} enabled
-                </span>
+          {/* Colours Section — only shown when a texture is selected */}
+          {selectedTexture && (
+            <>
+              <div className="bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-lg px-6 py-4">
+                <h3 className="text-lg font-semibold">
+                  ③ Colours for {selectedMaterialOption.label} → {selectedTextureLabel}
+                </h3>
+                <p className="text-sm text-blue-200 mt-1">
+                  Toggle which colours are available for this texture, then select one to configure its patterns.
+                </p>
               </div>
-              {expandedSections.colours ? (
-                <ExpandLessIcon className="h-5 w-5 text-gray-400" />
-              ) : (
-                <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
 
-            {expandedSections.colours && (
-              <div className="border-t border-gray-200">
-                {allColours.length > 0 ? (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Colour</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Founders Only</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                          Enabled for {selectedMaterialOption?.label || 'Material'}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {allColours.map((colour) => {
-                        const enabled = isOptionEnabled(colour);
-                        return (
-                          <tr key={colour.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center">
-                                <div
-                                  className="h-8 w-8 rounded-lg mr-3 border-2 border-gray-400 shadow-sm"
-                                  style={{ backgroundColor: colour.hex_color || '#ccc' }}
-                                />
-                                <span className="text-sm font-medium text-gray-900">{colour.label}</span>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {colour.is_founders_only ? (
-                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
-                                  <StarIcon className="h-3 w-3 mr-1" />
-                                  Founders
-                                </span>
-                              ) : (
-                                <span className="text-gray-400">-</span>
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {renderDefaultPin(colour)}
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {renderToggle(colour)}
-                            </td>
+              <div className="bg-white rounded-lg shadow-sm border border-blue-200">
+                <button
+                  onClick={() => toggleSection('colours')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+                >
+                  <div className="flex items-center">
+                    <h3 className="text-lg font-medium text-gray-900">Colours</h3>
+                    <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
+                      {enabledColours.length}/{allColours.length} enabled
+                    </span>
+                  </div>
+                  {expandedSections.colours ? (
+                    <ExpandLessIcon className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+
+                {expandedSections.colours && (
+                  <div className="border-t border-gray-200">
+                    {allColours.length > 0 ? (
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Colour</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Founders Only</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Patterns</th>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="px-6 py-8 text-center text-gray-500">
-                    No colours found
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {allColours.map((colour) => {
+                            const enabled = isOptionEnabled(colour);
+                            const isSelectedColour = selectedColour === colour.option_key;
+                            return (
+                              <tr
+                                key={colour.id}
+                                className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''} ${isSelectedColour ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''}`}
+                              >
+                                <td className="px-6 py-4">
+                                  <div className="flex items-center">
+                                    <div
+                                      className="h-8 w-8 rounded-lg mr-3 border-2 border-gray-400 shadow-sm"
+                                      style={{ backgroundColor: colour.hex_color || '#ccc' }}
+                                    />
+                                    <span className="text-sm font-medium text-gray-900">{colour.label}</span>
+                                  </div>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {colour.is_founders_only ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800">
+                                      <StarIcon className="h-3 w-3 mr-1" />
+                                      Founders
+                                    </span>
+                                  ) : (
+                                    <span className="text-gray-400">-</span>
+                                  )}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {renderDefaultPin(colour)}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {renderToggle(colour)}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {renderConfigureButton(
+                                    enabled, isSelectedColour,
+                                    () => setSelectedColour(isSelectedColour ? null : colour.option_key),
+                                    'bg-blue-600'
+                                  )}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="px-6 py-8 text-center text-gray-500">
+                        No colours found
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
-          {/* Patterns Section - Shows ALL patterns */}
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-            <button
-              onClick={() => toggleSection('patterns')}
-              className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
-            >
-              <div className="flex items-center">
-                <h3 className="text-lg font-medium text-gray-900">Patterns</h3>
-                <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                  {allPatterns.filter(p => isOptionEnabled(p)).length}/{allPatterns.length} enabled
-                </span>
+          {/* Patterns Section — only shown when a colour is selected */}
+          {selectedTexture && selectedColour && (
+            <>
+              <div className="bg-gradient-to-r from-purple-800 to-purple-900 text-white rounded-lg px-6 py-4">
+                <h3 className="text-lg font-semibold">
+                  ④ Patterns for {selectedMaterialOption.label} → {selectedTextureLabel} → {selectedColourLabel}
+                </h3>
+                <p className="text-sm text-purple-200 mt-1">
+                  Toggle which patterns are available for this colour combination.
+                </p>
               </div>
-              {expandedSections.patterns ? (
-                <ExpandLessIcon className="h-5 w-5 text-gray-400" />
-              ) : (
-                <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
-              )}
-            </button>
 
-            {expandedSections.patterns && (
-              <div className="border-t border-gray-200">
-                {allPatterns.length > 0 ? (
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
-                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
-                          Enabled for {selectedMaterialOption?.label || 'Material'}
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {allPatterns.map((pattern) => {
-                        const enabled = isOptionEnabled(pattern);
-                        return (
-                          <tr key={pattern.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
-                            <td className="px-6 py-4">
-                              <span className="text-sm font-medium text-gray-900">{pattern.label}</span>
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {renderDefaultPin(pattern)}
-                            </td>
-                            <td className="px-6 py-4 text-center">
-                              {renderToggle(pattern)}
-                            </td>
+              <div className="bg-white rounded-lg shadow-sm border border-purple-200">
+                <button
+                  onClick={() => toggleSection('patterns')}
+                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50"
+                >
+                  <div className="flex items-center">
+                    <h3 className="text-lg font-medium text-gray-900">Patterns</h3>
+                    <span className="ml-3 px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-600">
+                      {enabledPatterns.length}/{allPatterns.length} enabled
+                    </span>
+                  </div>
+                  {expandedSections.patterns ? (
+                    <ExpandLessIcon className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ExpandMoreIcon className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+
+                {expandedSections.patterns && (
+                  <div className="border-t border-gray-200">
+                    {allPatterns.length > 0 ? (
+                      <table className="min-w-full divide-y divide-gray-200">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pattern</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Default</th>
+                            <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Enabled</th>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                ) : (
-                  <div className="px-6 py-8 text-center text-gray-500">
-                    No patterns found
+                        </thead>
+                        <tbody className="bg-white divide-y divide-gray-200">
+                          {allPatterns.map((pattern) => {
+                            const enabled = isOptionEnabled(pattern);
+                            return (
+                              <tr key={pattern.id} className={`hover:bg-gray-50 ${!enabled ? 'opacity-50' : ''}`}>
+                                <td className="px-6 py-4">
+                                  <span className="text-sm font-medium text-gray-900">{pattern.label}</span>
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {renderDefaultPin(pattern)}
+                                </td>
+                                <td className="px-6 py-4 text-center">
+                                  {renderToggle(pattern)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    ) : (
+                      <div className="px-6 py-8 text-center text-gray-500">
+                        No patterns found
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </div>
       )}
 
@@ -720,19 +834,19 @@ export default function CardCustomizationTab() {
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-gray-900">
-            {grouped.textures.filter(t => isOptionEnabled(t)).length}/{grouped.textures.length}
+            {enabledTextures.length}/{allTextures.length}
           </div>
           <div className="text-sm text-gray-500">Textures Enabled</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-gray-900">
-            {grouped.colours.filter(c => isOptionEnabled(c)).length}/{grouped.colours.length}
+            {enabledColours.length}/{allColours.length}
           </div>
           <div className="text-sm text-gray-500">Colours Enabled</div>
         </div>
         <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
           <div className="text-2xl font-bold text-gray-900">
-            {grouped.patterns.filter(p => isOptionEnabled(p)).length}/{grouped.patterns.length}
+            {enabledPatterns.length}/{allPatterns.length}
           </div>
           <div className="text-sm text-gray-500">Patterns Enabled</div>
         </div>

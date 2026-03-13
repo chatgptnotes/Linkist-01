@@ -65,9 +65,13 @@ export interface UpdatePlanOptionData {
   is_enabled?: boolean;
   price_override?: number | null;
   material_key?: string | null;
+  texture_key?: string | null;
+  colour_key?: string | null;
 }
 
 // Structured options for the configure page
+// colourOptions keys: "material|texture" e.g. "pvc|matte"
+// patternOptions keys: "material|texture|colour" e.g. "pvc|matte|white"
 export interface StructuredCustomizationOptions {
   materials: CardCustomizationOption[];
   textures: CardCustomizationOption[];
@@ -78,6 +82,38 @@ export interface StructuredCustomizationOptions {
   colourOptions: Record<string, string[]>;
   patternOptions: Record<string, string[]>;
   defaults?: Record<string, { texture?: string; colour?: string; pattern?: string }>;
+}
+
+// Hierarchy key helpers — shared convention for key construction
+export const HIERARCHY_SEPARATOR = '|';
+
+export function buildHierarchyKey(...parts: (string | null | undefined)[]): string {
+  return parts.filter(Boolean).join(HIERARCHY_SEPARATOR);
+}
+
+// Apply nullable hierarchy filters to a Supabase query builder
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyHierarchyFilters(
+  query: any,
+  keys: { material_key?: string | null; texture_key?: string | null; colour_key?: string | null }
+) {
+  if (keys.material_key) query = query.eq('material_key', keys.material_key);
+  else query = query.is('material_key', null);
+  if (keys.texture_key) query = query.eq('texture_key', keys.texture_key);
+  else query = query.is('texture_key', null);
+  if (keys.colour_key) query = query.eq('colour_key', keys.colour_key);
+  else query = query.is('colour_key', null);
+  return query;
+}
+
+// Options object for set/clear default
+export interface DefaultOptionParams {
+  planId: string;
+  optionId: string;
+  materialKey?: string | null;
+  textureKey?: string | null;
+  colourKey?: string | null;
+  category?: string;
 }
 
 export const SupabaseCardCustomizationStore = {
@@ -352,7 +388,10 @@ export const SupabaseCardCustomizationStore = {
 
   /**
    * Get structured options for a specific plan type (for configure page)
-   * Now returns material-specific colour options
+   * Returns hierarchy-aware maps:
+   *   textureOptions: { "pvc": ["matte","glossy"], ... }           (material → textures)
+   *   colourOptions:  { "pvc|matte": ["white","black"], ... }      (material|texture → colours)
+   *   patternOptions: { "pvc|matte|white": ["geometric"], ... }    (material|texture|colour → patterns)
    */
   async getStructuredOptionsForPlan(planType: string): Promise<StructuredCustomizationOptions> {
     const supabase = getAdminClient();
@@ -366,16 +405,13 @@ export const SupabaseCardCustomizationStore = {
 
     if (planError || !plan) {
       console.error('Error fetching plan:', planError);
-      // Fall back to all enabled options
       return this.getStructuredOptions(true);
     }
 
-    // Get enabled materials only (material_key is NULL for materials)
+    // Get enabled materials (material_key is NULL for materials)
     const { data: globalOptions, error: optError } = await supabase
       .from('plan_customization_options')
-      .select(`
-        option:card_customization_options(*)
-      `)
+      .select(`option:card_customization_options(*)`)
       .eq('plan_id', plan.id)
       .eq('is_enabled', true)
       .is('material_key', null);
@@ -385,7 +421,6 @@ export const SupabaseCardCustomizationStore = {
       return this.getStructuredOptions(true);
     }
 
-    // Extract the option objects
     const enabledGlobalOptions: CardCustomizationOption[] = [];
     for (const item of globalOptions || []) {
       const option = item.option;
@@ -398,152 +433,119 @@ export const SupabaseCardCustomizationStore = {
 
     const materials = enabledGlobalOptions.filter(o => o.category === 'material');
 
-    // Get all textures (we'll filter by material later, like colours)
-    const { data: allTexturesData } = await supabase
-      .from('card_customization_options')
-      .select('*')
-      .eq('category', 'texture')
-      .eq('is_enabled', true);
+    // Get all base options by category + hierarchy rows in parallel
+    const [allTexturesData, allColoursData, allPatternsData, hierarchyResult] = await Promise.all([
+      supabase.from('card_customization_options').select('*').eq('category', 'texture').eq('is_enabled', true),
+      supabase.from('card_customization_options').select('*').eq('category', 'colour').eq('is_enabled', true),
+      supabase.from('card_customization_options').select('*').eq('category', 'pattern').eq('is_enabled', true),
+      supabase.from('plan_customization_options')
+        .select('option_id, material_key, texture_key, colour_key, is_enabled, is_default')
+        .eq('plan_id', plan.id).eq('is_enabled', true).not('material_key', 'is', null),
+    ]);
 
-    const allTextures = (allTexturesData || []) as CardCustomizationOption[];
+    const allTextures = (allTexturesData.data || []) as CardCustomizationOption[];
+    const allColours = (allColoursData.data || []) as CardCustomizationOption[];
+    const allPatterns = (allPatternsData.data || []) as CardCustomizationOption[];
+    const hierarchyRows = hierarchyResult.data;
 
-    // Get all colours (we'll filter by material later)
-    const { data: allColoursData } = await supabase
-      .from('card_customization_options')
-      .select('*')
-      .eq('category', 'colour')
-      .eq('is_enabled', true);
-
-    const allColours = (allColoursData || []) as CardCustomizationOption[];
-
-    // Get all patterns (we'll filter by material later)
-    const { data: allPatternsData } = await supabase
-      .from('card_customization_options')
-      .select('*')
-      .eq('category', 'pattern')
-      .eq('is_enabled', true);
-
-    const allPatterns = (allPatternsData || []) as CardCustomizationOption[];
-
-    // Get material-specific enabled status (for colours, textures, and patterns)
-    const { data: materialSpecificStatus, error: statusError } = await supabase
-      .from('plan_customization_options')
-      .select('option_id, material_key, is_enabled, is_default')
-      .eq('plan_id', plan.id)
-      .not('material_key', 'is', null);
-
-    if (statusError) {
-      console.error('Error fetching material-specific status:', statusError);
+    if (hierarchyResult.error) {
+      console.error('Error fetching hierarchy rows:', hierarchyResult.error);
     }
 
-    // Build status maps: material_key -> [enabled option_ids]
-    // Separate maps for colours, textures, and patterns
-    const colourStatusMap = new Map<string, Set<string>>();
-    const textureStatusMap = new Map<string, Set<string>>();
-    const patternStatusMap = new Map<string, Set<string>>();
-
-    // Build default maps: material_key -> option_id for each category
-    const defaultTextureMap = new Map<string, string>(); // material -> option_id
-    const defaultColourMap = new Map<string, string>();
-    const defaultPatternMap = new Map<string, string>();
-
-    // Get colour, texture, and pattern IDs for categorization
-    const colourIds = new Set(allColours.map(c => c.id));
-    const textureIds = new Set(allTextures.map(t => t.id));
-    const patternIds = new Set(allPatterns.map(p => p.id));
-
-    // ID -> option_key lookups
+    // ID → option_key lookups
     const textureIdToKey = new Map(allTextures.map(t => [t.id, t.option_key]));
     const colourIdToKey = new Map(allColours.map(c => [c.id, c.option_key]));
     const patternIdToKey = new Map(allPatterns.map(p => [p.id, p.option_key]));
 
-    (materialSpecificStatus || []).forEach(item => {
-      if (item.is_enabled && item.material_key) {
-        if (colourIds.has(item.option_id)) {
-          if (!colourStatusMap.has(item.material_key)) {
-            colourStatusMap.set(item.material_key, new Set());
-          }
-          colourStatusMap.get(item.material_key)!.add(item.option_id);
-          if (item.is_default) defaultColourMap.set(item.material_key, item.option_id);
-        } else if (textureIds.has(item.option_id)) {
-          if (!textureStatusMap.has(item.material_key)) {
-            textureStatusMap.set(item.material_key, new Set());
-          }
-          textureStatusMap.get(item.material_key)!.add(item.option_id);
-          if (item.is_default) defaultTextureMap.set(item.material_key, item.option_id);
-        } else if (patternIds.has(item.option_id)) {
-          if (!patternStatusMap.has(item.material_key)) {
-            patternStatusMap.set(item.material_key, new Set());
-          }
-          patternStatusMap.get(item.material_key)!.add(item.option_id);
-          if (item.is_default) defaultPatternMap.set(item.material_key, item.option_id);
-        }
-      }
-    });
+    const colourIds = new Set(allColours.map(c => c.id));
+    const textureIds = new Set(allTextures.map(t => t.id));
+    const patternIds = new Set(allPatterns.map(p => p.id));
 
-    // Build material prices map
-    const materialPrices: Record<string, number> = {};
-    materials.forEach(m => {
-      if (m.price !== null) {
-        materialPrices[m.option_key] = m.price;
-      }
-    });
+    // Build hierarchy maps
+    // textureOptions: material → texture option_keys
+    const textureOptionsMap = new Map<string, Set<string>>();
+    // colourOptions: "material|texture" → colour option_keys
+    const colourOptionsMap = new Map<string, Set<string>>();
+    // patternOptions: "material|texture|colour" → pattern option_keys
+    const patternOptionsMap = new Map<string, Set<string>>();
 
-    // Build texture options map (material -> enabled textures for that material)
-    const textureOptions: Record<string, string[]> = {};
-    materials.forEach(m => {
-      const enabledTextureIds = textureStatusMap.get(m.option_key) || new Set();
-      textureOptions[m.option_key] = allTextures
-        .filter(t => enabledTextureIds.has(t.id))
-        .map(t => t.option_key);
-    });
+    // Default maps
+    const defaultTextureMap = new Map<string, string>(); // material → texture option_key
+    const defaultColourMap = new Map<string, string>();   // "material|texture" → colour option_key
+    const defaultPatternMap = new Map<string, string>();  // "material|texture|colour" → pattern option_key
 
-    // Build colour options map (material -> enabled colours for that material)
-    const colourOptions: Record<string, string[]> = {};
-    materials.forEach(m => {
-      const enabledColourIds = colourStatusMap.get(m.option_key) || new Set();
-      colourOptions[m.option_key] = allColours
-        .filter(c => enabledColourIds.has(c.id))
-        .map(c => c.option_key);
-    });
-
-    // Build pattern options map (material -> enabled patterns for that material)
-    const patternOptions: Record<string, string[]> = {};
-    materials.forEach(m => {
-      const enabledPatIds = patternStatusMap.get(m.option_key) || new Set();
-      patternOptions[m.option_key] = allPatterns
-        .filter(p => enabledPatIds.has(p.id))
-        .map(p => p.option_key);
-    });
-
-    // Get the textures that are enabled for at least one material
+    // Collect all unique IDs for filtering the returned arrays
     const enabledTextureIds = new Set<string>();
-    textureStatusMap.forEach(ids => ids.forEach(id => enabledTextureIds.add(id)));
-    const textures = allTextures.filter(t => enabledTextureIds.has(t.id));
-
-    // Get the colours that are enabled for at least one material
     const enabledColourIds = new Set<string>();
-    colourStatusMap.forEach(ids => ids.forEach(id => enabledColourIds.add(id)));
-    const colours = allColours.filter(c => enabledColourIds.has(c.id));
-
-    // Get the patterns that are enabled for at least one material
     const enabledPatternIds = new Set<string>();
-    patternStatusMap.forEach(ids => ids.forEach(id => enabledPatternIds.add(id)));
+
+    (hierarchyRows || []).forEach(row => {
+      if (!row.material_key) return;
+
+      if (textureIds.has(row.option_id) && !row.texture_key) {
+        // Texture row: material_key set, texture_key NULL
+        const textureKey = textureIdToKey.get(row.option_id);
+        if (!textureKey) return;
+        if (!textureOptionsMap.has(row.material_key)) textureOptionsMap.set(row.material_key, new Set());
+        textureOptionsMap.get(row.material_key)!.add(textureKey);
+        enabledTextureIds.add(row.option_id);
+        if (row.is_default) defaultTextureMap.set(row.material_key, textureKey);
+      } else if (colourIds.has(row.option_id) && row.texture_key && !row.colour_key) {
+        // Colour row: material_key + texture_key set, colour_key NULL
+        const colourKey = colourIdToKey.get(row.option_id);
+        if (!colourKey) return;
+        const mapKey = buildHierarchyKey(row.material_key, row.texture_key);
+        if (!colourOptionsMap.has(mapKey)) colourOptionsMap.set(mapKey, new Set());
+        colourOptionsMap.get(mapKey)!.add(colourKey);
+        enabledColourIds.add(row.option_id);
+        if (row.is_default) defaultColourMap.set(mapKey, colourKey);
+      } else if (patternIds.has(row.option_id) && row.texture_key && row.colour_key) {
+        // Pattern row: all keys set
+        const patternKey = patternIdToKey.get(row.option_id);
+        if (!patternKey) return;
+        const mapKey = buildHierarchyKey(row.material_key, row.texture_key, row.colour_key);
+        if (!patternOptionsMap.has(mapKey)) patternOptionsMap.set(mapKey, new Set());
+        patternOptionsMap.get(mapKey)!.add(patternKey);
+        enabledPatternIds.add(row.option_id);
+        if (row.is_default) defaultPatternMap.set(mapKey, patternKey);
+      }
+    });
+
+    // Build material prices
+    const materialPrices: Record<string, number> = {};
+    materials.forEach(m => { if (m.price !== null) materialPrices[m.option_key] = m.price; });
+
+    // Convert maps to plain objects
+    const textureOptions: Record<string, string[]> = {};
+    textureOptionsMap.forEach((keys, mat) => { textureOptions[mat] = Array.from(keys); });
+
+    const colourOptions: Record<string, string[]> = {};
+    colourOptionsMap.forEach((keys, mapKey) => { colourOptions[mapKey] = Array.from(keys); });
+
+    const patternOptions: Record<string, string[]> = {};
+    patternOptionsMap.forEach((keys, mapKey) => { patternOptions[mapKey] = Array.from(keys); });
+
+    // Filter to only options that are enabled in at least one hierarchy path
+    const textures = allTextures.filter(t => enabledTextureIds.has(t.id));
+    const colours = allColours.filter(c => enabledColourIds.has(c.id));
     const patterns = allPatterns.filter(p => enabledPatternIds.has(p.id));
 
-    // Build defaults map: material_key -> { texture, colour, pattern }
+    // Build defaults map
     const defaults: Record<string, { texture?: string; colour?: string; pattern?: string }> = {};
     materials.forEach(m => {
       const mat = m.option_key;
-      const defTextureId = defaultTextureMap.get(mat);
-      const defColourId = defaultColourMap.get(mat);
-      const defPatternId = defaultPatternMap.get(mat);
-      if (defTextureId || defColourId || defPatternId) {
-        defaults[mat] = {
-          texture: defTextureId ? textureIdToKey.get(defTextureId) : undefined,
-          colour: defColourId ? colourIdToKey.get(defColourId) : undefined,
-          pattern: defPatternId ? patternIdToKey.get(defPatternId) : undefined,
-        };
+      const defTexture = defaultTextureMap.get(mat);
+      // For colour/pattern defaults, we need the texture context — store the first found default
+      let defColour: string | undefined;
+      let defPattern: string | undefined;
+      defaultColourMap.forEach((colourKey, mapKey) => {
+        if (mapKey.startsWith(mat + HIERARCHY_SEPARATOR) && !defColour) defColour = colourKey;
+      });
+      defaultPatternMap.forEach((patternKey, mapKey) => {
+        if (mapKey.startsWith(mat + HIERARCHY_SEPARATOR) && !defPattern) defPattern = patternKey;
+      });
+      if (defTexture || defColour || defPattern) {
+        defaults[mat] = { texture: defTexture, colour: defColour, pattern: defPattern };
       }
     });
 
@@ -662,72 +664,58 @@ export const SupabaseCardCustomizationStore = {
    * Batch set plan option states (for Save All functionality)
    * Sets multiple plan options to specific enabled/disabled states in one go
    */
-  async batchSetPlanOptions(planId: string, toggles: Array<{ option_id: string; material_key: string | null; is_enabled: boolean }>): Promise<number> {
+  async batchSetPlanOptions(planId: string, toggles: Array<{ option_id: string; material_key: string | null; texture_key?: string | null; colour_key?: string | null; is_enabled: boolean }>): Promise<number> {
     const supabase = getAdminClient();
-    let updated = 0;
 
-    for (const toggle of toggles) {
-      // Try to find existing record
-      let query = supabase
+    const results = await Promise.all(toggles.map(async (toggle) => {
+      const baseQuery = supabase
         .from('plan_customization_options')
         .select('id, is_enabled')
         .eq('plan_id', planId)
         .eq('option_id', toggle.option_id);
 
-      if (toggle.material_key) {
-        query = query.eq('material_key', toggle.material_key);
-      } else {
-        query = query.is('material_key', null);
-      }
-
+      const query = applyHierarchyFilters(baseQuery, toggle);
       const { data: existing, error: fetchError } = await query.maybeSingle();
 
       if (fetchError) {
         console.error('Error checking plan option:', fetchError);
-        continue;
+        return false;
       }
 
       if (existing) {
-        // Update existing record
-        let updateQuery = supabase
+        const { error } = await supabase
           .from('plan_customization_options')
-          .update({
-            is_enabled: toggle.is_enabled,
-            updated_at: new Date().toISOString()
-          })
-          .eq('plan_id', planId)
-          .eq('option_id', toggle.option_id);
-
-        if (toggle.material_key) {
-          updateQuery = updateQuery.eq('material_key', toggle.material_key);
-        } else {
-          updateQuery = updateQuery.is('material_key', null);
-        }
-
-        const { error } = await updateQuery;
-        if (!error) updated++;
+          .update({ is_enabled: toggle.is_enabled, updated_at: new Date().toISOString() })
+          .eq('id', existing.id);
+        return !error;
       } else {
-        // Insert new record
         const { error } = await supabase
           .from('plan_customization_options')
           .insert({
             plan_id: planId,
             option_id: toggle.option_id,
-            material_key: toggle.material_key,
+            material_key: toggle.material_key || null,
+            texture_key: toggle.texture_key || null,
+            colour_key: toggle.colour_key || null,
             is_enabled: toggle.is_enabled
           });
-        if (!error) updated++;
+        return !error;
       }
-    }
+    }));
 
-    return updated;
+    return results.filter(Boolean).length;
   },
 
   /**
    * Get all options with plan-specific enabled status for admin view
    * For colours, returns material-specific status based on selectedMaterial
    */
-  async getAllOptionsWithPlanStatus(planId: string, selectedMaterial?: string): Promise<(CardCustomizationOption & { plan_enabled: boolean; is_default?: boolean })[]> {
+  async getAllOptionsWithPlanStatus(
+    planId: string,
+    selectedMaterial?: string,
+    selectedTexture?: string,
+    selectedColour?: string
+  ): Promise<(CardCustomizationOption & { plan_enabled: boolean; is_default?: boolean })[]> {
     const supabase = getAdminClient();
 
     // Get all options
@@ -736,7 +724,7 @@ export const SupabaseCardCustomizationStore = {
     // Get plan-specific settings (including is_default)
     const { data: planOptions, error } = await supabase
       .from('plan_customization_options')
-      .select('option_id, material_key, is_enabled, is_default')
+      .select('option_id, material_key, texture_key, colour_key, is_enabled, is_default')
       .eq('plan_id', planId);
 
     if (error) {
@@ -744,40 +732,52 @@ export const SupabaseCardCustomizationStore = {
       throw new Error(`Failed to fetch plan options: ${error.message}`);
     }
 
-    // Create maps for option_id -> is_enabled
-    // For non-colours: option_id -> is_enabled (material_key is null)
-    // For colours: option_id + material_key -> is_enabled
-    const planOptionMap = new Map<string, boolean>();
-    const colourMaterialMap = new Map<string, boolean>(); // key: `${option_id}_${material_key}`
-    const defaultMap = new Map<string, boolean>(); // key: `${option_id}` or `${option_id}_${material_key}`
+    // Build lookup maps
+    // Materials: option_id -> { is_enabled, is_default } (material_key is null)
+    // Textures: `${option_id}_${material_key}` -> { is_enabled, is_default } (texture_key is null)
+    // Colours: `${option_id}_${material_key}_${texture_key}` -> { is_enabled, is_default }
+    // Patterns: `${option_id}_${material_key}_${texture_key}_${colour_key}` -> { is_enabled, is_default }
+    const statusMap = new Map<string, { is_enabled: boolean; is_default: boolean }>();
 
     planOptions?.forEach(po => {
-      if (po.material_key) {
-        colourMaterialMap.set(`${po.option_id}_${po.material_key}`, po.is_enabled);
-        if (po.is_default) defaultMap.set(`${po.option_id}_${po.material_key}`, true);
+      let key: string;
+      if (!po.material_key) {
+        // Material-level (materials themselves)
+        key = po.option_id;
+      } else if (!po.texture_key) {
+        // Texture-level: material_key set, no texture_key
+        key = `${po.option_id}_${po.material_key}`;
+      } else if (!po.colour_key) {
+        // Colour-level: material_key + texture_key set
+        key = `${po.option_id}_${po.material_key}_${po.texture_key}`;
       } else {
-        planOptionMap.set(po.option_id, po.is_enabled);
-        if (po.is_default) defaultMap.set(po.option_id, true);
+        // Pattern-level: all keys set
+        key = `${po.option_id}_${po.material_key}_${po.texture_key}_${po.colour_key}`;
       }
+      statusMap.set(key, { is_enabled: po.is_enabled, is_default: po.is_default ?? false });
     });
 
     // Merge the data
     return allOptions.map(option => {
-      let plan_enabled = false;
-      let is_default = false;
+      let key: string;
 
-      if ((option.category === 'colour' || option.category === 'texture' || option.category === 'pattern') && selectedMaterial) {
-        plan_enabled = colourMaterialMap.get(`${option.id}_${selectedMaterial}`) ?? false;
-        is_default = defaultMap.get(`${option.id}_${selectedMaterial}`) ?? false;
+      if (option.category === 'material') {
+        key = option.id;
+      } else if (option.category === 'texture' && selectedMaterial) {
+        key = `${option.id}_${selectedMaterial}`;
+      } else if (option.category === 'colour' && selectedMaterial && selectedTexture) {
+        key = `${option.id}_${selectedMaterial}_${selectedTexture}`;
+      } else if (option.category === 'pattern' && selectedMaterial && selectedTexture && selectedColour) {
+        key = `${option.id}_${selectedMaterial}_${selectedTexture}_${selectedColour}`;
       } else {
-        plan_enabled = planOptionMap.get(option.id) ?? false;
-        is_default = defaultMap.get(option.id) ?? false;
+        key = option.id;
       }
 
+      const status = statusMap.get(key);
       return {
         ...option,
-        plan_enabled,
-        is_default
+        plan_enabled: status?.is_enabled ?? false,
+        is_default: status?.is_default ?? false
       };
     });
   },
@@ -786,48 +786,43 @@ export const SupabaseCardCustomizationStore = {
    * Set an option as the default for a plan + material combination.
    * Clears any existing default for the same (plan, category, material_key) first.
    */
-  async setDefaultOption(planId: string, optionId: string, materialKey: string | null, category: string): Promise<boolean> {
+  async setDefaultOption(params: DefaultOptionParams): Promise<boolean> {
+    const { planId, optionId, materialKey, textureKey, colourKey, category } = params;
     const supabase = getAdminClient();
+    const keys = { material_key: materialKey || null, texture_key: textureKey || null, colour_key: colourKey || null };
 
-    // First, get all option IDs in this category to clear existing defaults
+    if (!category) return false;
+
+    // Get all option IDs in this category to clear existing defaults
     const { data: categoryOptions } = await supabase
       .from('card_customization_options')
       .select('id')
       .eq('category', category);
 
     const categoryOptionIds = (categoryOptions || []).map(o => o.id);
-
     if (categoryOptionIds.length === 0) return false;
 
-    // Clear existing defaults for this plan + category + material_key
-    let clearQuery = supabase
-      .from('plan_customization_options')
-      .update({ is_default: false, updated_at: new Date().toISOString() })
-      .eq('plan_id', planId)
-      .eq('is_default', true)
-      .in('option_id', categoryOptionIds);
-
-    if (materialKey) {
-      clearQuery = clearQuery.eq('material_key', materialKey);
-    } else {
-      clearQuery = clearQuery.is('material_key', null);
-    }
-
+    // Clear existing defaults for this plan + category + hierarchy keys
+    const clearQuery = applyHierarchyFilters(
+      supabase
+        .from('plan_customization_options')
+        .update({ is_default: false, updated_at: new Date().toISOString() })
+        .eq('plan_id', planId)
+        .eq('is_default', true)
+        .in('option_id', categoryOptionIds),
+      keys
+    );
     await clearQuery;
 
-    // Now set the new default - find or create the record
-    let findQuery = supabase
-      .from('plan_customization_options')
-      .select('id')
-      .eq('plan_id', planId)
-      .eq('option_id', optionId);
-
-    if (materialKey) {
-      findQuery = findQuery.eq('material_key', materialKey);
-    } else {
-      findQuery = findQuery.is('material_key', null);
-    }
-
+    // Find or create the record and set as default
+    const findQuery = applyHierarchyFilters(
+      supabase
+        .from('plan_customization_options')
+        .select('id')
+        .eq('plan_id', planId)
+        .eq('option_id', optionId),
+      keys
+    );
     const { data: existing } = await findQuery.maybeSingle();
 
     if (existing) {
@@ -835,55 +830,36 @@ export const SupabaseCardCustomizationStore = {
         .from('plan_customization_options')
         .update({ is_default: true, updated_at: new Date().toISOString() })
         .eq('id', existing.id);
-
-      if (error) {
-        console.error('Error setting default option:', error);
-        return false;
-      }
+      if (error) { console.error('Error setting default option:', error); return false; }
     } else {
-      // Insert new record with is_default = true
       const { error } = await supabase
         .from('plan_customization_options')
         .insert({
-          plan_id: planId,
-          option_id: optionId,
-          material_key: materialKey,
-          is_enabled: true,
-          is_default: true
+          plan_id: planId, option_id: optionId,
+          material_key: materialKey || null, texture_key: textureKey || null, colour_key: colourKey || null,
+          is_enabled: true, is_default: true
         });
-
-      if (error) {
-        console.error('Error inserting default option:', error);
-        return false;
-      }
+      if (error) { console.error('Error inserting default option:', error); return false; }
     }
 
     return true;
   },
 
-  /**
-   * Clear the default for a plan + category + material_key combination.
-   */
-  async clearDefaultOption(planId: string, optionId: string, materialKey: string | null): Promise<boolean> {
+  async clearDefaultOption(params: Omit<DefaultOptionParams, 'category'>): Promise<boolean> {
+    const { planId, optionId, materialKey, textureKey, colourKey } = params;
     const supabase = getAdminClient();
 
-    let query = supabase
-      .from('plan_customization_options')
-      .update({ is_default: false, updated_at: new Date().toISOString() })
-      .eq('plan_id', planId)
-      .eq('option_id', optionId);
-
-    if (materialKey) {
-      query = query.eq('material_key', materialKey);
-    } else {
-      query = query.is('material_key', null);
-    }
+    const query = applyHierarchyFilters(
+      supabase
+        .from('plan_customization_options')
+        .update({ is_default: false, updated_at: new Date().toISOString() })
+        .eq('plan_id', planId)
+        .eq('option_id', optionId),
+      { material_key: materialKey || null, texture_key: textureKey || null, colour_key: colourKey || null }
+    );
 
     const { error } = await query;
-    if (error) {
-      console.error('Error clearing default option:', error);
-      return false;
-    }
+    if (error) { console.error('Error clearing default option:', error); return false; }
     return true;
   }
 };
