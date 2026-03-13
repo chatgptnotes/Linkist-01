@@ -65,19 +65,21 @@ export default function ProfileHeader({ data }: ProfileHeaderProps) {
             <img
               src={logoSrc}
               alt={data.companyName}
-              className="w-11 h-11 rounded-full object-contain bg-white"
+              className="w-11 h-11 rounded-[10px] object-cover"
               onError={() => setLogoError(true)}
             />
           )}
-          <span
-            className="text-white font-semibold whitespace-nowrap"
-            style={{ fontSize: '18px' }}
-          >
-            {data.companyName}
-          </span>
-          {data.industry && (
-            <span className="text-sm text-white/50 whitespace-nowrap">- {data.industry}</span>
-          )}
+          <div className="flex flex-col">
+            <span
+              className="text-white font-semibold whitespace-nowrap"
+              style={{ fontSize: '18px' }}
+            >
+              {data.companyName}
+            </span>
+            {data.industry && (
+              <span className="text-sm text-white/50">{data.industry}</span>
+            )}
+          </div>
         </div>
       )}
 

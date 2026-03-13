@@ -507,9 +507,8 @@ export const generateOrderNumber = async (
   isFoundersClub: boolean = false,
   selectedPlanType?: string
 ): Promise<string> => {
-  // Generate cryptic number using industry best practices
-  // Combine timestamp (6 chars) + random (4 chars) = 10 character cryptic string
-  const timestamp = Date.now().toString(36).toUpperCase();
+  // Generate 8-char cryptic: last 4 of timestamp (base36) + 4 random chars
+  const timestamp = Date.now().toString(36).toUpperCase().slice(-4);
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   const cryptic = `${timestamp}${random}`;
 

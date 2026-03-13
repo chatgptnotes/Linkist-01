@@ -37,14 +37,13 @@ export const neuStyles = {
   } as CSSProperties,
 
   redIconCircle: {
-    backgroundColor: '#dc2626',
-    borderRadius: '50%',
+    backgroundColor: 'transparent',
+    borderRadius: '10px',
     width: '44px',
     height: '44px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '3px 3px 6px rgba(220,38,38,0.3)',
   } as CSSProperties,
 
   sheet: {
