@@ -33,6 +33,13 @@ export async function POST(request: NextRequest) {
     // Determine identifier for rate limiting
     identifier = email || mobile || emailOrPhone;
 
+    if (!identifier) {
+      return NextResponse.json(
+        { error: 'Email or phone number is required' },
+        { status: 400 }
+      );
+    }
+
     // Check if OTP was recently sent to this identifier
     const lastSentTime = recentOTPSends.get(identifier);
     const now = Date.now();
@@ -66,7 +73,9 @@ export async function POST(request: NextRequest) {
 
     // Set auto-release timeout (10 seconds max - reduced from 30s for faster recovery)
     const lockTimeout = setTimeout(() => {
-      processingLocks.delete(identifier);
+      if (identifier) {
+        processingLocks.delete(identifier);
+      }
     }, 10000);
     lockTimeouts.set(identifier, lockTimeout);
 
@@ -146,7 +155,7 @@ export async function POST(request: NextRequest) {
               firstName,
               lastName,
               email,
-              phone: phone || null,  // Use phone from request if provided
+              phone: phone || undefined,  // Use phone from request if provided
               isFoundingMember: isFoundingMember || false,
               foundingMemberPlan: foundingMemberPlan || null,
               foundingMemberSince: foundingMemberSince || null
@@ -233,7 +242,7 @@ export async function POST(request: NextRequest) {
                 userData: {
                   firstName,
                   lastName,
-                  email: null,
+                  email: undefined,
                   phone: mobile
                 }
               });
@@ -274,7 +283,7 @@ export async function POST(request: NextRequest) {
             userData: {
               firstName,
               lastName,
-              email: null,
+              email: undefined,
               phone: mobile
             }
           });

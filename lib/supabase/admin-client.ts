@@ -15,7 +15,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
 }
 
 // Create admin client with service role for full access
-export const supabaseAdmin = createClient<Database>(
+export const supabaseAdmin = createClient(
   supabaseUrl,
   supabaseServiceKey,
   {
@@ -46,7 +46,7 @@ export const adminDb = {
   // Admin Users
   async getAdminUsers() {
     const { data, error } = await supabaseAdmin
-      .from('admin_users')
+      .from('admin_users' as any)
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -56,7 +56,7 @@ export const adminDb = {
 
   async getAdminUserById(id: string) {
     const { data, error } = await supabaseAdmin
-      .from('admin_users')
+      .from('admin_users' as any)
       .select('*')
       .eq('id', id)
       .single();
@@ -67,7 +67,7 @@ export const adminDb = {
 
   async createAdminUser(userData: any) {
     const { data, error } = await supabaseAdmin
-      .from('admin_users')
+      .from('admin_users' as any)
       .insert(userData)
       .select()
       .single();
@@ -78,7 +78,7 @@ export const adminDb = {
 
   async updateAdminUser(id: string, updates: any) {
     const { data, error } = await supabaseAdmin
-      .from('admin_users')
+      .from('admin_users' as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -91,7 +91,7 @@ export const adminDb = {
   // Users Management
   async getUsers(filters?: any) {
     let query = supabaseAdmin
-      .from('users')
+      .from('users' as any)
       .select(`
         *,
         user_profiles(*)
@@ -110,7 +110,7 @@ export const adminDb = {
   // Products
   async getProducts(filters?: any) {
     let query = supabaseAdmin
-      .from('products')
+      .from('products' as any)
       .select(`
         *,
         product_categories(name, slug)
@@ -132,7 +132,7 @@ export const adminDb = {
 
   async createProduct(productData: any) {
     const { data, error } = await supabaseAdmin
-      .from('products')
+      .from('products' as any)
       .insert(productData)
       .select()
       .single();
@@ -143,7 +143,7 @@ export const adminDb = {
 
   async updateProduct(id: string, updates: any) {
     const { data, error } = await supabaseAdmin
-      .from('products')
+      .from('products' as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -156,7 +156,7 @@ export const adminDb = {
   // Orders
   async getOrders(filters?: any) {
     let query = supabaseAdmin
-      .from('orders')
+      .from('orders' as any)
       .select(`
         *,
         order_items(*),
@@ -184,7 +184,7 @@ export const adminDb = {
 
   async getOrderById(id: string) {
     const { data, error } = await supabaseAdmin
-      .from('orders')
+      .from('orders' as any)
       .select(`
         *,
         order_items(*),
@@ -201,7 +201,7 @@ export const adminDb = {
   async updateOrderStatus(id: string, status: string, notes?: string, adminId?: string) {
     // Start a transaction
     const { data: order, error: orderError } = await supabaseAdmin
-      .from('orders')
+      .from('orders' as any)
       .update({ status })
       .eq('id', id)
       .select()
@@ -211,7 +211,7 @@ export const adminDb = {
 
     // Add to status history
     const { error: historyError } = await supabaseAdmin
-      .from('order_status_history')
+      .from('order_status_history' as any)
       .insert({
         order_id: id,
         status,
@@ -227,7 +227,7 @@ export const adminDb = {
   // Inventory
   async getInventoryMovements(productId?: string) {
     let query = supabaseAdmin
-      .from('inventory_movements')
+      .from('inventory_movements' as any)
       .select(`
         *,
         products(name, sku)
@@ -245,7 +245,7 @@ export const adminDb = {
 
   async createInventoryMovement(movementData: any) {
     const { data, error } = await supabaseAdmin
-      .from('inventory_movements')
+      .from('inventory_movements' as any)
       .insert(movementData)
       .select()
       .single();
@@ -255,9 +255,9 @@ export const adminDb = {
     // Update product stock
     if (movementData.product_id && movementData.quantity) {
       await supabaseAdmin
-        .from('products')
+        .from('products' as any)
         .update({
-          stock_quantity: supabaseAdmin.raw('stock_quantity + ?', [movementData.quantity])
+          stock_quantity: (supabaseAdmin as any).raw('stock_quantity + ?', [movementData.quantity])
         })
         .eq('id', movementData.product_id);
     }
@@ -268,7 +268,7 @@ export const adminDb = {
   // Support Tickets
   async getTickets(filters?: any) {
     let query = supabaseAdmin
-      .from('support_tickets')
+      .from('support_tickets' as any)
       .select(`
         *,
         ticket_messages(*),
@@ -295,7 +295,7 @@ export const adminDb = {
     const ticketNumber = `TKT-${Date.now()}`;
 
     const { data, error } = await supabaseAdmin
-      .from('support_tickets')
+      .from('support_tickets' as any)
       .insert({
         ...ticketData,
         ticket_number: ticketNumber
@@ -309,7 +309,7 @@ export const adminDb = {
 
   async updateTicket(id: string, updates: any) {
     const { data, error } = await supabaseAdmin
-      .from('support_tickets')
+      .from('support_tickets' as any)
       .update(updates)
       .eq('id', id)
       .select()
@@ -321,7 +321,7 @@ export const adminDb = {
 
   async addTicketMessage(ticketId: string, message: any) {
     const { data, error } = await supabaseAdmin
-      .from('ticket_messages')
+      .from('ticket_messages' as any)
       .insert({
         ticket_id: ticketId,
         ...message
@@ -336,7 +336,7 @@ export const adminDb = {
   // Email Campaigns
   async getEmailCampaigns() {
     const { data, error } = await supabaseAdmin
-      .from('email_campaigns')
+      .from('email_campaigns' as any)
       .select(`
         *,
         email_templates(name),
@@ -350,7 +350,7 @@ export const adminDb = {
 
   async createEmailCampaign(campaignData: any) {
     const { data, error } = await supabaseAdmin
-      .from('email_campaigns')
+      .from('email_campaigns' as any)
       .insert(campaignData)
       .select()
       .single();
@@ -368,14 +368,14 @@ export const adminDb = {
     }));
 
     const { error: recipientError } = await supabaseAdmin
-      .from('email_campaign_recipients')
+      .from('email_campaign_recipients' as any)
       .insert(recipientData);
 
     if (recipientError) throw recipientError;
 
     // Update campaign status
     const { data, error } = await supabaseAdmin
-      .from('email_campaigns')
+      .from('email_campaigns' as any)
       .update({
         status: 'sending',
         sent_at: new Date().toISOString(),
@@ -392,7 +392,7 @@ export const adminDb = {
   // Analytics
   async getAnalyticsEvents(filters?: any) {
     let query = supabaseAdmin
-      .from('analytics_events')
+      .from('analytics_events' as any)
       .select('*');
 
     if (filters?.eventType) {
@@ -415,7 +415,7 @@ export const adminDb = {
 
   async trackEvent(eventData: any) {
     const { data, error } = await supabaseAdmin
-      .from('analytics_events')
+      .from('analytics_events' as any)
       .insert(eventData)
       .select()
       .single();
@@ -428,7 +428,7 @@ export const adminDb = {
   async getDashboardMetrics(period: string = 'today') {
     // Check cache first
     const { data: cached } = await supabaseAdmin
-      .from('dashboard_metrics')
+      .from('dashboard_metrics' as any)
       .select('*')
       .eq('metric_type', 'dashboard')
       .eq('period', period)
@@ -446,7 +446,7 @@ export const adminDb = {
 
     // Update cache
     await supabaseAdmin
-      .from('dashboard_metrics')
+      .from('dashboard_metrics' as any)
       .upsert({
         metric_type: 'dashboard',
         period,
@@ -460,7 +460,7 @@ export const adminDb = {
   // Activity Logging
   async logAdminActivity(activity: any) {
     const { data, error } = await supabaseAdmin
-      .from('admin_activity_logs')
+      .from('admin_activity_logs' as any)
       .insert(activity)
       .select()
       .single();
@@ -471,7 +471,7 @@ export const adminDb = {
 
   async getAdminActivityLogs(adminId?: string) {
     let query = supabaseAdmin
-      .from('admin_activity_logs')
+      .from('admin_activity_logs' as any)
       .select(`
         *,
         admin_users(username, email)
@@ -490,7 +490,7 @@ export const adminDb = {
   // System Settings
   async getSettings() {
     const { data, error } = await supabaseAdmin
-      .from('system_settings')
+      .from('system_settings' as any)
       .select('*')
       .order('key');
 
@@ -505,7 +505,7 @@ export const adminDb = {
 
   async updateSetting(key: string, value: any, adminId?: string) {
     const { data, error } = await supabaseAdmin
-      .from('system_settings')
+      .from('system_settings' as any)
       .upsert({
         key,
         value,
@@ -538,7 +538,7 @@ export const adminDb = {
 
     // Save file record
     const { data, error } = await supabaseAdmin
-      .from('file_uploads')
+      .from('file_uploads' as any)
       .insert({
         filename,
         original_name: file.name,

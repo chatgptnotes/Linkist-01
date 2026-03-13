@@ -41,7 +41,7 @@ const AUTH_CONFIG: {
 export interface AuthUser {
   id: string
   email: string
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'moderator'
   status?: 'pending' | 'active' | 'suspended'
   email_verified?: boolean
   mobile_verified?: boolean
@@ -51,6 +51,7 @@ export interface AuthUser {
   is_founding_member?: boolean
   founding_member_since?: string | null
   founding_member_plan?: string | null
+  phone_number?: string | null
 }
 
 export interface AuthSession {

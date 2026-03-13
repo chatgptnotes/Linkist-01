@@ -51,7 +51,7 @@ const NewsletterSection = () => {
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errors: { email?: string; consent?: string } = {};
-        error.errors.forEach(err => {
+        error.issues.forEach((err) => {
           if (err.path[0] === 'email') {
             errors.email = err.message;
           } else if (err.path[0] === 'consent') {

@@ -98,6 +98,7 @@ export default function MapPicker({ initialAddress, onAddressChange, className =
     if (typeof window === 'undefined') return;
 
     // Import Leaflet CSS
+    // @ts-ignore - CSS module import
     import('leaflet/dist/leaflet.css');
 
     // Fix default marker icon

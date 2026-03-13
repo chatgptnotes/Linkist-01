@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   const body = await request.text();
-  const headersList = headers();
+  const headersList = await headers();
   const signature = headersList.get('stripe-signature');
 
   if (!endpointSecret || !signature) {
@@ -134,7 +134,6 @@ async function handlePaymentSuccess(paymentIntent: any) {
         quantity: parseInt(paymentIntent.metadata?.quantity || '1'),
         baseMaterial: baseMaterial,
         isDigitalOnly: isDigitalOnly,
-        planType: paymentIntent.metadata?.planType || '',
       },
       shipping: {
         fullName: paymentIntent.metadata?.shippingName || paymentIntent.metadata?.customerName || 'Customer',

@@ -109,7 +109,7 @@ export default function StripePaymentForm({
           }}
           onLoadError={(error) => {
             console.error('[Stripe] ExpressCheckout load error:', error);
-            setExpressDebug(`error: ${error?.message || JSON.stringify(error)}`);
+            setExpressDebug(`error: ${(error as any)?.message || JSON.stringify(error)}`);
           }}
           onClick={({ resolve }) => {
             resolve();

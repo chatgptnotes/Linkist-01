@@ -24,10 +24,10 @@ export async function PUT(request: NextRequest) {
 
     // Get current password hash from database
     const { data: adminPassword, error: dbError } = await supabaseAdmin
-      .from('admin_password')
+      .from('admin_password' as any)
       .select('password_hash')
       .eq('id', 1)
-      .single()
+      .single() as { data: { password_hash: string } | null; error: any }
 
     if (dbError || !adminPassword) {
       console.error('Failed to fetch admin password:', dbError)
@@ -51,8 +51,8 @@ export async function PUT(request: NextRequest) {
     const newPasswordHash = await bcrypt.hash(newPassword, 12)
 
     // Update password in database
-    const { error: updateError } = await supabaseAdmin
-      .from('admin_password')
+    const { error: updateError } = await (supabaseAdmin
+      .from('admin_password' as any) as any)
       .update({
         password_hash: newPasswordHash,
         updated_at: new Date().toISOString()

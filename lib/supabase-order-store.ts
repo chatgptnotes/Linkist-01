@@ -73,7 +73,7 @@ const rowToOrder = (row: OrderRow): Order => ({
   status: row.status as OrderStatus,
   customerName: row.customer_name || '',
   email: row.email || '',
-  phoneNumber: row.phone_number,
+  phoneNumber: row.phone_number || '',
   cardConfig: row.card_config || {},
   shipping: row.shipping || {},
   pricing: row.pricing || {
@@ -367,10 +367,10 @@ export const SupabaseOrderStore = {
     }
 
     // Calculate statistics
-    const statusCounts = orders.reduce((acc, order) => {
+    const statusCounts = orders.reduce((acc: Record<string, number>, order) => {
       acc[order.status] = (acc[order.status] || 0) + 1
       return acc
-    }, {} as Record<OrderStatus, number>)
+    }, {} as Record<string, number>)
 
     const totalRevenue = orders.reduce((sum, order) => sum + (order.pricing?.total || 0), 0)
 

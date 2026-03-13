@@ -34,6 +34,9 @@ export interface SupabaseUser {
   status: UserStatus
   email_verified: boolean
   mobile_verified: boolean
+  is_founding_member?: boolean
+  founding_member_plan?: string | null
+  founding_member_since?: string | null
   created_at: string
   updated_at: string
 }

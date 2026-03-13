@@ -101,7 +101,7 @@ const getTransporterInstance = (): Transporter | null => {
     });
 
     try {
-      transporter = nodemailer.createTransport(SMTP_CONFIG);
+      transporter = nodemailer.createTransport(SMTP_CONFIG as nodemailer.TransportOptions);
       console.log('✅ SMTP transporter created successfully');
     } catch (error) {
       console.error('❌ Failed to create SMTP transporter:', error);

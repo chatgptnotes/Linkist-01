@@ -29,8 +29,8 @@ const Filter = FilterListIcon;
 const RefreshCw = RefreshIcon;
 const ArrowUpRight = NorthEastIcon;
 const ArrowDownRight = SouthEastIcon;
-const BarChart = BarChartIcon;
-const PieChart = PieChartIcon;
+const BarChartMuiIcon = BarChartIcon;
+const PieChartMuiIcon = PieChartIcon;
 const Eye = VisibilityIcon;
 const Target = GpsFixedIcon;
 
@@ -153,7 +153,7 @@ export default function AnalyticsPage() {
       <AdminLayout>
         <div className="p-6">
           <div className="text-center py-12">
-            <BarChart className="mx-auto h-12 w-12 text-gray-400" />
+            <BarChartMuiIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">No analytics data</h3>
             <p className="mt-1 text-sm text-gray-500">Analytics data will appear here once you have orders.</p>
           </div>

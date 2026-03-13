@@ -8,6 +8,9 @@ interface OTPRecord {
     lastName?: string;
     email?: string;
     phone?: string;
+    isFoundingMember?: boolean;
+    foundingMemberPlan?: string | null;
+    foundingMemberSince?: string | null;
   };
 }
 

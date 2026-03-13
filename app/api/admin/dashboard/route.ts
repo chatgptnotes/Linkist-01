@@ -4,7 +4,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { adminDb } from '@/lib/supabase/admin-client';
+import { adminDb, supabaseAdmin } from '@/lib/supabase/admin-client';
 
 // GET /api/admin/dashboard - Get dashboard metrics
 export async function GET(request: NextRequest) {
@@ -19,14 +19,14 @@ export async function GET(request: NextRequest) {
     const activities = await adminDb.getAdminActivityLogs();
 
     // Get revenue reports
-    const { data: revenueData } = await adminDb.supabase
+    const { data: revenueData } = await supabaseAdmin
       .from('revenue_reports')
       .select('*')
       .order('date', { ascending: false })
       .limit(30);
 
     // Get order status distribution
-    const { data: orderStats } = await adminDb.supabase
+    const { data: orderStats } = await supabaseAdmin
       .from('orders')
       .select('status')
       .then(({ data }) => {
@@ -38,14 +38,14 @@ export async function GET(request: NextRequest) {
       });
 
     // Get user growth
-    const { data: userGrowth } = await adminDb.supabase
+    const { data: userGrowth } = await supabaseAdmin
       .from('users')
       .select('created_at')
       .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
       .order('created_at');
 
     // Get top products
-    const { data: topProducts } = await adminDb.supabase
+    const { data: topProducts } = await supabaseAdmin
       .from('order_items')
       .select('product_name, product_id')
       .then(({ data }) => {
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
       });
 
     // Get support ticket stats
-    const { data: ticketStats } = await adminDb.supabase
+    const { data: ticketStats } = await supabaseAdmin
       .from('support_tickets')
       .select('status, priority')
       .then(({ data }) => {
@@ -118,10 +118,10 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Refresh materialized view
-    await adminDb.supabase.rpc('refresh_revenue_reports');
+    await supabaseAdmin.rpc('refresh_revenue_reports');
 
     // Clear metrics cache
-    await adminDb.supabase
+    await supabaseAdmin
       .from('dashboard_metrics')
       .delete()
       .gte('calculated_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
