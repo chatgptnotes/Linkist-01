@@ -8,12 +8,10 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import GroupsIcon from '@mui/icons-material/Groups';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import DescriptionIcon from '@mui/icons-material/Description';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import PersonAddAlt1Icon from '@mui/icons-material/PersonAddAlt1';
 import EmailIcon from '@mui/icons-material/Email';
 import SettingsIcon from '@mui/icons-material/Settings';
-import CreditCardIcon from '@mui/icons-material/CreditCard';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -27,12 +25,10 @@ const LayoutDashboard = DashboardIcon;
 const Package = Inventory2Icon;
 const Users = GroupsIcon;
 const ShoppingCart = ShoppingCartIcon;
-const FileText = DescriptionIcon;
 const BarChart = BarChartIcon;
 const UserCheck = PersonAddAlt1Icon;
 const Mail = EmailIcon;
 const Settings = SettingsIcon;
-const CreditCard = CreditCardIcon;
 const Menu = MenuIcon;
 const X = CloseIcon;
 const LogOut = LogoutIcon;
@@ -95,12 +91,6 @@ const navigationItems = [
     permission: Permission.VIEW_USERS,
   },
   {
-    name: 'Content',
-    href: '/admin/content',
-    icon: FileText,
-    permission: Permission.SYSTEM_SETTINGS,
-  },
-  {
     name: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart,
@@ -123,12 +113,6 @@ const navigationItems = [
     href: '/admin/communications',
     icon: Mail,
     permission: Permission.SEND_EMAILS,
-  },
-  {
-    name: 'E-commerce',
-    href: '/admin/ecommerce',
-    icon: CreditCard,
-    permission: Permission.SYSTEM_SETTINGS,
   },
   {
     name: 'Settings',

@@ -289,11 +289,54 @@ export default function OrdersPage() {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.email.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
+
+  const exportOrders = () => {
+    const rows = filteredOrders.map(order => ({
+      'Order Number': order.orderNumber,
+      'Customer': order.customerName,
+      'Email': order.email,
+      'Phone': order.phoneNumber || '',
+      'Card Name': `${order.cardConfig.cardFirstName} ${order.cardConfig.cardLastName}`,
+      'Material': order.cardConfig.baseMaterial || '',
+      'Colour': order.cardConfig.colour || order.cardConfig.color || '',
+      'Texture': order.cardConfig.texture || '',
+      'Pattern': order.cardConfig.pattern ? String(order.cardConfig.pattern) : '',
+      'Quantity': order.cardConfig.quantity || 1,
+      'Status': order.status,
+      'Payment': order.payment?.status || 'No Payment',
+      'Total': order.pricing.total.toFixed(2),
+      'Voucher': order.voucherCode || '',
+      'Discount': order.voucherDiscount ? `${order.voucherDiscount}%` : '',
+      'Date': new Date(order.createdAt).toLocaleDateString(),
+      'Shipping Address': `${order.shipping.addressLine1}, ${order.shipping.city}, ${order.shipping.state} ${order.shipping.postalCode}, ${order.shipping.country}`,
+    }));
+
+    if (rows.length === 0) return;
+
+    const headers = Object.keys(rows[0]);
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row =>
+        headers.map(h => {
+          const val = String(row[h as keyof typeof row]);
+          return val.includes(',') || val.includes('"') ? `"${val.replace(/"/g, '""')}"` : val;
+        }).join(',')
+      ),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   if (loading) {
     return (
@@ -313,6 +356,28 @@ export default function OrdersPage() {
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Order Management</h1>
           <p className="text-gray-600">Manage all customer orders, track status, and handle fulfillment</p>
+        </div>
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white rounded-lg border border-gray-200 p-5 flex items-center space-x-4">
+            <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
+              <Package className="h-6 w-6 text-red-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total Orders</p>
+              <p className="text-2xl font-bold text-gray-900">{orders.length}</p>
+            </div>
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-5 flex items-center space-x-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <User className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <p className="text-sm text-gray-500">Total Customers</p>
+              <p className="text-2xl font-bold text-gray-900">{new Set(orders.map(o => o.email.toLowerCase())).size}</p>
+            </div>
+          </div>
         </div>
 
         {/* Filters and Actions */}
@@ -353,13 +418,9 @@ export default function OrdersPage() {
 
               <div className="flex space-x-3">
                 <button
-                  onClick={fetchOrders}
+                  onClick={exportOrders}
                   className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  <RefreshCw className="h-4 w-4" />
-                  <span>Refresh</span>
-                </button>
-                <button className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                   <Download className="h-4 w-4" />
                   <span>Export</span>
                 </button>
