@@ -542,16 +542,6 @@ export default function ProductsPage() {
               Subscription Plans
             </button>
             <button
-              onClick={() => setActiveTab('products')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'products'
-                  ? 'border-red-600 text-red-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Physical Products
-            </button>
-            <button
               onClick={() => setActiveTab('customization')}
               className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                 activeTab === 'customization'
