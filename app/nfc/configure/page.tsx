@@ -12,6 +12,7 @@ import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
 import { calculateFoundersPricing, FoundersPricingBreakdown } from '@/lib/pricing-utils';
 import { detectCountryFromIP } from '@/lib/country-utils';
+import { buildHierarchyKey } from '@/lib/supabase-card-customization-store';
 
 import CompanyLogoUpload from '@/components/CompanyLogoUpload';
 import { CardPatternOverlay, PatternThumbnail } from '@/components/CardPatternOverlay';
@@ -318,6 +319,7 @@ export default function ConfigureNewPage() {
   // Use API options if available, otherwise use fallbacks
   const prices: Record<string, number> = customizationOptions?.materialPrices || fallbackPrices;
   const textureOptions: Record<string, string[]> = customizationOptions?.textureOptions || fallbackTextureOptions;
+  // colourOptions may use hierarchy keys ("material|texture") or flat keys ("material")
   const colourOptions: Record<string, string[]> = customizationOptions?.colourOptions || fallbackColourOptions;
 
   // Founders Circle plan check: exclusive features only when plan is founders-circle/founders-club
@@ -373,7 +375,7 @@ export default function ConfigureNewPage() {
         { value: 'rose-gold', label: 'Rose Gold', hex: '#B76E79', gradient: 'from-rose-300 to-rose-400' }
       ];
 
-  // Helper: build patterns list for a given material (or all if no material)
+  // Helper: build patterns list based on hierarchy (material + texture + colour)
   const buildPatternsForMaterial = (material: string | null) => {
     if (!customizationOptions?.patterns) {
       return [
@@ -383,12 +385,34 @@ export default function ConfigureNewPage() {
         { id: 3, name: 'Crystal', key: 'crystal' }
       ];
     }
-    const filtered = material && customizationOptions.patternOptions
-      ? customizationOptions.patterns.filter(p => {
-          const allowed = customizationOptions.patternOptions?.[material];
-          return allowed ? allowed.includes(p.option_key) : false;
-        })
-      : customizationOptions.patterns;
+
+    let allowed: string[] | undefined;
+    let hierarchyKeyFound = false;
+    if (material && formData.texture && formData.colour && customizationOptions.patternOptions) {
+      // Try hierarchy key: "material|texture|colour"
+      const hKey = buildHierarchyKey(material, formData.texture, formData.colour);
+      if (hKey in customizationOptions.patternOptions) {
+        allowed = customizationOptions.patternOptions[hKey];
+        hierarchyKeyFound = true;
+      }
+    }
+    // Fall back to flat key: "material" (only if no hierarchy key was found)
+    if (!hierarchyKeyFound && material && customizationOptions.patternOptions) {
+      if (material in customizationOptions.patternOptions) {
+        allowed = customizationOptions.patternOptions[material];
+        hierarchyKeyFound = true;
+      }
+    }
+
+    // If the full hierarchy path is selected (material + texture + colour) but no key
+    // exists in patternOptions, it means admin has not enabled any patterns — show empty.
+    // Only show all patterns when no hierarchy context exists (no material/texture/colour selected).
+    const hasFullPath = !!(material && formData.texture && formData.colour);
+    const filtered = hierarchyKeyFound
+      ? customizationOptions.patterns.filter(p => (allowed || []).includes(p.option_key))
+      : hasFullPath
+        ? [] // Full path but no key = admin disabled everything for this path
+        : customizationOptions.patterns;
 
     return [
       { id: 0, name: 'Blank', key: 'none' },
@@ -416,15 +440,34 @@ export default function ConfigureNewPage() {
   const isColourAvailable = (colour: string): boolean => {
     if (!formData.baseMaterial) return false;
 
-    // Check if color is available for this material
-    const availableColours = colourOptions[formData.baseMaterial];
-    const isValidForMaterial = availableColours ? availableColours.includes(colour) : false;
-    if (!isValidForMaterial) return false;
+    // Try hierarchy key first: "material|texture"
+    let availableColours: string[] | undefined;
+    let colourKeyFound = false;
+    if (formData.texture) {
+      const hKey = buildHierarchyKey(formData.baseMaterial, formData.texture);
+      if (hKey in colourOptions) {
+        availableColours = colourOptions[hKey];
+        colourKeyFound = true;
+      }
+    }
+    // Fall back to flat key: "material" only if no texture is selected yet
+    // (if texture IS selected but key is absent, it means admin hasn't configured
+    // colours for this texture — show nothing, don't fall back to material-level)
+    if (!colourKeyFound && !formData.texture && formData.baseMaterial in colourOptions) {
+      availableColours = colourOptions[formData.baseMaterial];
+    }
 
-    // Check if this color is founders-only (only available when Founder's Circle plan is selected)
-    const colourOption = allColours.find(c => c.value === colour);
-    if (colourOption?.isFoundersOnly && !isFoundersCirclePlan) {
-      return false;
+    const isValidForSelection = (availableColours || []).includes(colour);
+    if (!isValidForSelection) return false;
+
+    // If we have plan-specific data from the API, the admin has already decided
+    // which colours are available per plan — no need for a frontend founders-only check.
+    // Only apply the founders-only restriction when using fallback (non-plan-specific) data.
+    if (!customizationOptions) {
+      const colourOption = allColours.find(c => c.value === colour);
+      if (colourOption?.isFoundersOnly && !isFoundersCirclePlan) {
+        return false;
+      }
     }
 
     return true;
@@ -482,16 +525,27 @@ export default function ConfigureNewPage() {
     console.log('Base material changed:', newFormData);
   };
 
-  // Handle other selections
+  // Handle other selections — texture change resets colour & pattern (hierarchy)
   const handleTextureChange = (texture: TextureOption) => {
     if (isTextureAvailable(texture)) {
-      setFormData({ ...formData, texture });
+      // Check if current colour is still available with the new texture
+      const hierarchyKey = formData.baseMaterial ? buildHierarchyKey(formData.baseMaterial, texture) : null;
+      const availableColours = hierarchyKey && hierarchyKey in colourOptions ? colourOptions[hierarchyKey] : null;
+      const currentColourStillValid = formData.colour && availableColours?.includes(formData.colour);
+
+      setFormData({
+        ...formData,
+        texture,
+        colour: currentColourStillValid ? formData.colour : null,
+        pattern: currentColourStillValid ? formData.pattern : null
+      });
     }
   };
 
   const handleColourChange = (colour: ColourOption) => {
     if (isColourAvailable(colour)) {
-      setFormData({ ...formData, colour });
+      // Reset pattern when colour changes (different colours may have different patterns)
+      setFormData({ ...formData, colour, pattern: null });
     }
   };
 

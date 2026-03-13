@@ -148,6 +148,8 @@ export default function AccountPage() {
   };
   const currentPlanName = getCurrentPlanName();
   const [showQrCode, setShowQrCode] = useState(false);
+  const [editLoading, setEditLoading] = useState(false);
+  const [viewLoading, setViewLoading] = useState(false);
   const [showReferralModal, setShowReferralModal] = useState(false);
   const [referralStats, setReferralStats] = useState<{
     referralsUsed: number;
@@ -845,26 +847,38 @@ export default function AccountPage() {
             </button>
             <button
               type="button"
-              onClick={() => router.push('/profiles/builder')}
-              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700"
+              disabled={editLoading}
+              onClick={() => { setEditLoading(true); router.push('/profiles/builder'); }}
+              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-70"
               title="Edit"
             >
-              <EditIcon className="w-[18px] h-[18px]" />
-              <span className="hidden sm:inline">Edit</span>
+              {editLoading ? (
+                <div className="w-[18px] h-[18px] border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <EditIcon className="w-[18px] h-[18px]" />
+              )}
+              <span className="hidden sm:inline">{editLoading ? 'Loading...' : 'Edit'}</span>
             </button>
             <button
               type="button"
+              disabled={viewLoading}
               onClick={() => {
+                setViewLoading(true);
                 const baseUrl = getBaseUrl();
                 const username = profileData?.customUrl || profileData?.custom_url || 'your-profile';
                 const profileUrl = `${baseUrl}/${username}`;
                 window.open(profileUrl, '_blank');
+                setTimeout(() => setViewLoading(false), 1000);
               }}
-              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700"
+              className="flex items-center justify-center gap-1.5 rounded-lg font-bold text-sm text-white border-none cursor-pointer transition-all min-h-[48px] px-2 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-70"
               title="View"
             >
-              <ExternalLink className="w-[18px] h-[18px]" />
-              <span className="hidden sm:inline">View</span>
+              {viewLoading ? (
+                <div className="w-[18px] h-[18px] border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <ExternalLink className="w-[18px] h-[18px]" />
+              )}
+              <span className="hidden sm:inline">{viewLoading ? 'Loading...' : 'View'}</span>
             </button>
             <button
               type="button"

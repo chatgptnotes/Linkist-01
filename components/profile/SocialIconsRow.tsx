@@ -44,7 +44,7 @@ export default function SocialIconsRow({ links }: SocialIconsRowProps) {
             style={neuStyles.redIconCircle}
             title={link.label}
           >
-            <Icon className="w-5 h-5 text-white" />
+            <Icon className="text-red-600" style={{ width: '38px', height: '38px' }} />
           </a>
         );
       })}
