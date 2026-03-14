@@ -17,13 +17,13 @@ export default function ProfileBackground({
 
   return (
     <div className="fixed inset-0 z-0 bg-black md:absolute">
-      {/* Image constrained to top 75% */}
-      <div className="absolute inset-x-0 top-0 h-[75vh]">
+      {/* Full-screen hero image — face stays visible above sheet */}
+      <div className="absolute inset-0">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt="Profile"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-top"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-500 to-teal-400 flex items-center justify-center">
@@ -32,8 +32,8 @@ export default function ProfileBackground({
             </span>
           </div>
         )}
-        {/* Gradient fade at bottom — blends photo into black */}
-        <div className="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-black to-transparent" />
+        {/* Subtle vignette at bottom for readability */}
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       </div>
     </div>
   );

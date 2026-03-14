@@ -53,9 +53,14 @@ export default function ThemeRenderer({
       />
 
       <BottomSheetCard>
-        <div className="flex items-start justify-between gap-3">
-          <ProfileHeader data={data} />
-          <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
+        {/* Name row with action buttons aligned to first line */}
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <div className="flex-1 min-w-0">
+            <ProfileHeader data={data} />
+          </div>
+          <div className="flex-shrink-0 pt-1">
+            <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
+          </div>
         </div>
         <SocialIconsRow links={data.socialLinks} />
         <AboutSection summary={data.professionalSummary} />

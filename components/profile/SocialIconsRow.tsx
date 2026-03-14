@@ -9,7 +9,6 @@ import YouTubeIcon from '@mui/icons-material/YouTube';
 import BrushIcon from '@mui/icons-material/Brush';
 import SportsBasketballIcon from '@mui/icons-material/SportsBasketball';
 import type { SocialLink } from './types';
-import { neuStyles } from './neumorphic';
 
 const ICON_MAP: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
   linkedin: LinkedInIcon,
@@ -40,11 +39,10 @@ export default function SocialIconsRow({ links }: SocialIconsRowProps) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-shrink-0 transition-transform active:scale-90"
-            style={neuStyles.redIconCircle}
+            className="flex-shrink-0 transition-all active:scale-90 hover:scale-105"
             title={link.label}
           >
-            <Icon className="text-red-600" style={{ width: '38px', height: '38px' }} />
+            <Icon style={{ width: '36px', height: '36px', color: '#DC2626' }} />
           </a>
         );
       })}

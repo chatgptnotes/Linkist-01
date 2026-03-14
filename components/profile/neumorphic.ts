@@ -14,16 +14,17 @@ export const neuStyles = {
   } as CSSProperties,
 
   glassButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-    backdropFilter: 'blur(8px)',
-    WebkitBackdropFilter: 'blur(8px)',
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    backdropFilter: 'blur(12px)',
+    WebkitBackdropFilter: 'blur(12px)',
     borderRadius: '50%',
-    width: '40px',
-    height: '40px',
+    width: '44px',
+    height: '44px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    border: '1px solid rgba(255, 255, 255, 0.25)',
+    border: '1px solid rgba(255, 255, 255, 0.18)',
+    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
   } as CSSProperties,
 
   buttonPressed: {
@@ -47,11 +48,12 @@ export const neuStyles = {
   } as CSSProperties,
 
   sheet: {
-    borderTopLeftRadius: '24px',
-    borderTopRightRadius: '24px',
-    background: 'linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.05) 8%, rgba(0, 0, 0, 0.15) 18%, rgba(0, 0, 0, 0.35) 35%, rgba(0, 0, 0, 0.6) 55%, rgba(0, 0, 0, 0.85) 75%, rgba(0, 0, 0, 0.95) 100%)',
-    backdropFilter: 'blur(20px) saturate(1.2)',
-    WebkitBackdropFilter: 'blur(20px) saturate(1.2)',
+    borderRadius: '28px 28px 0 0',
+    background: 'linear-gradient(180deg, rgba(30, 30, 40, 0.65) 0%, rgba(20, 20, 30, 0.80) 15%, rgba(15, 15, 25, 0.90) 40%, rgba(10, 10, 20, 0.95) 70%, rgba(5, 5, 15, 0.98) 100%)',
+    backdropFilter: 'blur(40px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.4)',
+    borderTop: '1px solid rgba(255, 255, 255, 0.12)',
+    boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)',
   } as CSSProperties,
 
   skillTag: {

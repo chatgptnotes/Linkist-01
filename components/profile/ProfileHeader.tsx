@@ -39,23 +39,28 @@ export default function ProfileHeader({ data }: ProfileHeaderProps) {
         className="text-white capitalize"
         style={{
           fontFamily: 'var(--font-inter), Inter, sans-serif',
-          fontWeight: 600,
-          fontSize: '55.15px',
-          lineHeight: '52px',
-          letterSpacing: '0%',
+          fontWeight: 700,
+          fontSize: 'clamp(36px, 10vw, 52px)',
+          lineHeight: '1.0',
+          letterSpacing: '-0.01em',
         }}
       >
         {data.fullName}
       </h1>
 
-      {/* Username */}
+      {/* Username handle */}
       {data.username && (
-        <p className="text-sm text-white/60 mt-1">{data.username}</p>
+        <p
+          className="text-white/50 mt-2"
+          style={{ fontSize: '13px' }}
+        >
+          @{data.username.replace('linkist.ai/', '')}.Linkist.ai
+        </p>
       )}
 
       {/* Job Title */}
       {data.jobTitle && (
-        <p className="text-base text-white/80 mt-1.5">{data.jobTitle}</p>
+        <p className="text-[15px] text-white/70 mt-0.5">{data.jobTitle}</p>
       )}
 
       {/* Company with logo */}
@@ -65,21 +70,16 @@ export default function ProfileHeader({ data }: ProfileHeaderProps) {
             <img
               src={logoSrc}
               alt={data.companyName}
-              className="w-11 h-11 rounded-[10px] object-cover"
+              className="w-9 h-9 rounded-lg object-cover bg-white/10"
               onError={() => setLogoError(true)}
             />
           )}
-          <div className="flex flex-col">
-            <span
-              className="text-white font-semibold whitespace-nowrap"
-              style={{ fontSize: '18px' }}
-            >
-              {data.companyName}
-            </span>
-            {data.industry && (
-              <span className="text-sm text-white/50">{data.industry}</span>
-            )}
-          </div>
+          <span
+            className="text-white font-semibold"
+            style={{ fontSize: '17px' }}
+          >
+            {data.companyName}
+          </span>
         </div>
       )}
 

@@ -9,8 +9,17 @@ export default function AboutSection({ summary }: AboutSectionProps) {
 
   return (
     <div className="mb-6">
-      {/* Dotted separator */}
-      <div className="border-t border-dashed border-white/20 mb-5" />
+      {/* Fading dotted separator — thick on left, fades to right */}
+      <div
+        className="mb-5 h-[2px]"
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.45) 1.5px, transparent 1.5px)',
+          backgroundSize: '8px 2px',
+          backgroundRepeat: 'repeat-x',
+          maskImage: 'linear-gradient(to right, white 0%, transparent 85%)',
+          WebkitMaskImage: 'linear-gradient(to right, white 0%, transparent 85%)',
+        }}
+      />
       <h3
         className="text-white mb-3"
         style={{
