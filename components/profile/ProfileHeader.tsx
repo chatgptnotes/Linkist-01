@@ -54,7 +54,7 @@ export default function ProfileHeader({ data }: ProfileHeaderProps) {
           className="text-white/50 mt-2"
           style={{ fontSize: '13px' }}
         >
-          @{data.username.replace('linkist.ai/', '')}.Linkist.ai
+          @{data.username}
         </p>
       )}
 
@@ -74,12 +74,17 @@ export default function ProfileHeader({ data }: ProfileHeaderProps) {
               onError={() => setLogoError(true)}
             />
           )}
-          <span
-            className="text-white font-semibold"
-            style={{ fontSize: '17px' }}
-          >
-            {data.companyName}
-          </span>
+          <div className="flex flex-col">
+            <span
+              className="text-white font-semibold"
+              style={{ fontSize: '17px' }}
+            >
+              {data.companyName}
+            </span>
+            {(data.subDomain || data.industry) && (
+              <span className="text-xs text-white/45">{data.subDomain || data.industry}</span>
+            )}
+          </div>
         </div>
       )}
 
