@@ -13,7 +13,7 @@ export default function AboutSection({ summary }: AboutSectionProps) {
       <div
         className="mb-5 h-[2px]"
         style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.45) 1.5px, transparent 1.5px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,1) 1.5px, transparent 1.5px)',
           backgroundSize: '8px 2px',
           backgroundRepeat: 'repeat-x',
           maskImage: 'linear-gradient(to right, white 0%, transparent 85%)',
