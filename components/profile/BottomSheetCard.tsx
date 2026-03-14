@@ -33,36 +33,36 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Snap positions (y offset from top of viewport)
-  const collapsedY = windowHeight * 0.48;
+  // Snap positions — collapsed shows face, expanded reveals full card
+  const collapsedY = windowHeight * 0.52;
   const expandedY = windowHeight * 0.06;
 
   const y = useMotionValue(windowHeight);
 
-  // Trigger initial slide-up animation once mounted and dimensions are ready
+  // Initial slide-up animation
   useEffect(() => {
     if (mounted && windowHeight > 0) {
       controls.start({
         y: collapsedY,
-        transition: { type: 'spring', damping: 30, stiffness: 200, delay: 0.3 },
+        transition: { type: 'spring', damping: 28, stiffness: 180, delay: 0.3 },
       });
     }
   }, [mounted, windowHeight, collapsedY, controls]);
 
-  // Background overlay opacity increases as sheet goes up
-  const overlayOpacity = useTransform(y, [expandedY, collapsedY], [0.4, 0]);
+  // Background overlay
+  const overlayOpacity = useTransform(y, [expandedY, collapsedY], [0.35, 0]);
 
   const handleDragEnd = (_: unknown, info: PanInfo) => {
     const currentY = y.get();
     const velocity = info.velocity.y;
     const midpoint = (collapsedY + expandedY) / 2;
-    const spring = { type: 'spring' as const, damping: 30, stiffness: 300 };
+    const spring = { type: 'spring' as const, damping: 32, stiffness: 280 };
 
-    if (velocity < -500) {
+    if (velocity < -400) {
       controls.start({ y: expandedY, transition: spring });
       isExpandedRef.current = true;
       setIsExpanded(true);
-    } else if (velocity > 500) {
+    } else if (velocity > 400) {
       controls.start({ y: collapsedY, transition: spring });
       isExpandedRef.current = false;
       setIsExpanded(false);
@@ -79,7 +79,7 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
 
   const expandSheet = () => {
     if (!isExpandedRef.current) {
-      const spring = { type: 'spring' as const, damping: 30, stiffness: 300 };
+      const spring = { type: 'spring' as const, damping: 32, stiffness: 280 };
       controls.start({ y: expandedY, transition: spring });
       isExpandedRef.current = true;
       setIsExpanded(true);
@@ -88,7 +88,7 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
 
   const collapseSheet = () => {
     if (isExpandedRef.current) {
-      const spring = { type: 'spring' as const, damping: 30, stiffness: 300 };
+      const spring = { type: 'spring' as const, damping: 32, stiffness: 280 };
       controls.start({ y: collapsedY, transition: spring });
       isExpandedRef.current = false;
       setIsExpanded(false);
@@ -104,10 +104,8 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
     }
   };
 
-  // Handle wheel/scroll events on the content area
   const handleContentWheel = (e: React.WheelEvent) => {
     if (!isExpandedRef.current) {
-      // Collapsed: any scroll should expand the sheet, not scroll content
       e.preventDefault();
       expandSheet();
     }
@@ -123,9 +121,9 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
         style={{ opacity: overlayOpacity }}
       />
 
-      {/* Draggable sheet - glassmorphism */}
+      {/* Draggable sheet */}
       <motion.div
-        className="fixed left-0 right-0 z-20 md:absolute"
+        className="fixed left-3 right-3 z-20 md:absolute"
         style={{
           y,
           height: windowHeight * 1.2,
@@ -135,12 +133,12 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
         dragControls={dragControls}
         dragListener={false}
         dragConstraints={{ top: expandedY, bottom: collapsedY }}
-        dragElastic={0.1}
+        dragElastic={0.08}
         onDragEnd={handleDragEnd}
         animate={controls}
         initial={false}
       >
-        {/* Drag handle area - always draggable */}
+        {/* Drag handle area */}
         <motion.div
           onPointerDown={(e) => dragControls.start(e)}
           className="touch-none"
@@ -153,7 +151,6 @@ export default function BottomSheetCard({ children }: BottomSheetCardProps) {
           ref={scrollRef}
           className={`px-5 pb-24 ${isExpanded ? 'overflow-y-auto' : 'overflow-hidden'}`}
           onPointerDown={(e) => {
-            // When collapsed, click-drag anywhere to expand
             if (!isExpanded) {
               dragControls.start(e);
             }
