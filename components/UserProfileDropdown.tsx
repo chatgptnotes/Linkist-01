@@ -90,7 +90,7 @@ export default function UserProfileDropdown({ user }: UserProfileDropdownProps) 
       {/* Avatar Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors"
+        className="flex items-center space-x-2 p-1 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
         aria-label="User menu"
       >
         <div className="relative">
