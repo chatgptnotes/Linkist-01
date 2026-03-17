@@ -613,7 +613,7 @@ export default function CheckoutPage() {
       const country = watchedValues.country || 'US';
       let orderAmount: number;
 
-      // For Pro/Signature/Founders plans, use the fixed plan amount
+      // For Business/Signature/Founders plans, use the fixed plan amount
       if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
         const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
         orderAmount = selectedPlanAmount * quantity;

@@ -19,12 +19,13 @@ const createAdminClient = () => {
 // Helper function to derive plan name from order number
 const getPlanFromOrderNumber = (orderNumber: string): string => {
   if (orderNumber.startsWith('LKFM-FC-')) return "Founder's Circle";
-  if (orderNumber.startsWith('LKFM-SIG-')) return 'Signature';
-  if (orderNumber.startsWith('LKFM-PRO-')) return 'Pro';
+  if (orderNumber.startsWith('LKFM-SG-') || orderNumber.startsWith('LKFM-SIG-')) return 'Signature';
+  if (orderNumber.startsWith('LKFM-BS-') || orderNumber.startsWith('LKFM-PRO-')) return 'Business';
+  if (orderNumber.startsWith('LKFM-SR-')) return 'Starter';
   if (orderNumber.startsWith('LKFM-NXT-')) return 'Next';
   if (orderNumber.startsWith('LKFM-DO-')) return 'Starter';
   if (orderNumber.startsWith('LKFM-DPLA-')) return 'Next';
-  if (orderNumber.startsWith('LKFM-CDPLA-')) return 'Pro';
+  if (orderNumber.startsWith('LKFM-CDPLA-')) return 'Business';
   return 'Starter';
 };
 

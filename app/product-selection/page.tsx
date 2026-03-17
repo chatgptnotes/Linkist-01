@@ -53,7 +53,7 @@ const FALLBACK_PLANS: PlanData[] = [
     popular: false, display_order: 2,
   },
   {
-    id: 'pro', name: 'Pro', type: 'pro', price: 99,
+    id: 'pro', name: 'Business', type: 'pro', price: 99,
     has_card_customization: true,
     description: 'Professional networking with NFC card customization.',
     features: ['Everything in Next', 'NFC Card Customization', 'Custom card designs', 'Lead capture forms', 'CRM integrations', 'Branded QR codes'],
@@ -63,7 +63,7 @@ const FALLBACK_PLANS: PlanData[] = [
     id: 'signature', name: 'Signature', type: 'signature', price: 129,
     has_card_customization: true,
     description: 'Premium features for the serious professional.',
-    features: ['Everything in Pro', 'Premium Metal NFC Card', 'Founding Member tag', 'AI Credits worth $50', 'Priority 24/7 Support', 'Exclusive card materials', 'Early access to features'],
+    features: ['Everything in Business', 'Premium Metal NFC Card', 'Founding Member tag', 'AI Credits worth $50', 'Priority 24/7 Support', 'Exclusive card materials', 'Early access to features'],
     popular: false, display_order: 4,
   },
   {
@@ -380,7 +380,7 @@ export default function ProductSelectionPage() {
       localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
       setTimeout(() => { router.push('/nfc/payment'); }, 500);
     } else if (productId === 'pro') {
-      // Pro plan - has card customization, go to configure
+      // Business plan - has card customization, go to configure
       setTimeout(() => { router.push('/nfc/configure'); }, 500);
     } else if (productId === 'signature') {
       // Signature plan - premium card customization (not a founding member)

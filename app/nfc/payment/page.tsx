@@ -737,7 +737,7 @@ export default function NFCPaymentPage() {
                           ? 'text-amber-600 font-medium' : 'text-gray-600'
                       }>{
                         orderData?.cardConfig?.planType === 'signature' ? 'Signature'
-                        : orderData?.cardConfig?.planType === 'pro' ? 'Pro'
+                        : orderData?.cardConfig?.planType === 'pro' ? 'Business'
                         : orderData?.cardConfig?.planType === 'next' ? 'Next'
                         : orderData?.cardConfig?.planType === 'business' ? 'Business'
                         : isFoundingMember ? 'Founders Circle'
@@ -812,10 +812,10 @@ export default function NFCPaymentPage() {
                   }
 
                   if (planType === 'pro' || planType === 'signature' || planType === 'next' || planType === 'business') {
-                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'business' ? 'Business' : planType === 'next' ? 'Next' : 'Signature';
+                    const planLabel = planType === 'pro' ? 'Business' : planType === 'business' ? 'Business' : planType === 'next' ? 'Next' : 'Signature';
                     return (
                       <>
-                        {/* PRO / SIGNATURE: Plan subscription price */}
+                        {/* BUSINESS / SIGNATURE: Plan subscription price */}
                         <div className="flex justify-between">
                           <span>
                             {planLabel} Plan × {orderData?.cardConfig?.quantity || 1}

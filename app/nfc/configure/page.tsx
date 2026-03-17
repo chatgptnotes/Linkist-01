@@ -606,7 +606,7 @@ export default function ConfigureNewPage() {
   };
 
   const handleContinue = () => {
-    // Name is not required for Pro plan
+    // Name is not required for Business plan
     if (userPlanType !== 'pro' && (!formData.cardFirstName.trim() || !formData.cardLastName.trim())) {
       alert('Please enter both first and last name for the card');
       return;
@@ -675,7 +675,7 @@ export default function ConfigureNewPage() {
           {/* Configuration Section - Left Side */}
           <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
 
-            {/* Step 1: Personalize Name - Compact Modern Card (hidden for Pro plan) */}
+            {/* Step 1: Personalize Name - Compact Modern Card (hidden for Business plan) */}
             {userPlanType !== 'pro' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
@@ -1051,7 +1051,7 @@ export default function ConfigureNewPage() {
                         />
                       </div>
 
-                      {/* User Initials or Name (hidden for Pro plan) */}
+                      {/* User Initials or Name (hidden for Business plan) */}
                       {userPlanType !== 'pro' && (
                       <div className="absolute bottom-6 left-6">
                         {(() => {

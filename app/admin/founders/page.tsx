@@ -348,6 +348,7 @@ export default function AdminFoundersPage() {
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">S.No.</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Company</th>
                   <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contact</th>
@@ -360,13 +361,14 @@ export default function AdminFoundersPage() {
               <tbody className="divide-y divide-gray-200">
                 {filteredRequests.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                       No requests found
                     </td>
                   </tr>
                 ) : (
-                  filteredRequests.map((request) => (
+                  filteredRequests.map((request, index) => (
                     <tr key={request.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
                       <td className="px-4 py-4">
                         <div className="font-medium text-gray-900">{getDisplayName(request)}</div>
                         {request.note && (

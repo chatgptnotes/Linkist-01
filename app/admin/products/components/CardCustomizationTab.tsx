@@ -295,7 +295,7 @@ export default function CardCustomizationTab() {
     switch (plan.type) {
       case 'physical-digital': return 'Personal Plan';
       case 'signature': return 'Signature Plan';
-      case 'pro': return 'Pro Plan';
+      case 'pro': return 'Business Plan';
       case 'founders-club': return 'Founders Club';
       case 'founders-circle': return 'Founders Circle';
       case 'starter': return 'Starter Plan';
@@ -539,7 +539,6 @@ export default function CardCustomizationTab() {
                         {material.label}
                       </h4>
                       <p className="text-xs text-gray-500 mt-1">{material.description}</p>
-                      <div className="mt-2 text-sm font-bold text-gray-900">${material.price?.toFixed(2)}</div>
                     </div>
                     {isSelected && (
                       <div className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 rounded-full flex items-center justify-center">

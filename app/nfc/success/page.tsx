@@ -383,7 +383,7 @@ export default function SuccessPage() {
                   } else {
                     const planType = orderData.cardConfig?.planType || '';
                     const isPlanBased = planType === 'pro' || planType === 'signature';
-                    const planLabel = planType === 'pro' ? 'Pro' : planType === 'signature' ? 'Signature' : (orderData.planName || 'Personal');
+                    const planLabel = planType === 'pro' ? 'Business' : planType === 'signature' ? 'Signature' : (orderData.planName || 'Personal');
 
                     if (isPlanBased) {
                       return (

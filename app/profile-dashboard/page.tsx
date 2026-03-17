@@ -139,7 +139,7 @@ export default function AccountPage() {
     const planNames: Record<string, string> = {
       'starter': 'Starter',
       'next': 'Next',
-      'pro': 'Pro',
+      'pro': 'Business',
       'signature': 'Signature',
       'founders-circle': "Founder's Circle",
       'founders-club': "Founder's Circle",

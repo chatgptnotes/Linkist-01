@@ -371,6 +371,9 @@ export default function VouchersPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    S.No.
+                  </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Code
                   </th>
@@ -394,7 +397,7 @@ export default function VouchersPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {/* Quick Add Row */}
                 <tr className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b-2 border-blue-300">
-                  <td className="px-6 py-4" colSpan={6}>
+                  <td className="px-6 py-4" colSpan={7}>
                     <div className="flex items-center space-x-3">
                       <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border-2 border-blue-300 flex-1 max-w-2xl">
                         <Tag className="h-5 w-5 text-blue-600" />
@@ -439,10 +442,11 @@ export default function VouchersPage() {
                   </td>
                 </tr>
 
-                {filteredVouchers.map((voucher) => {
+                {filteredVouchers.map((voucher, index) => {
                   const isFoundingMemberVoucher = voucher.code === 'LINKISTFM';
                   return (
                   <tr key={voucher.id} className={`hover:bg-gray-50 ${isFoundingMemberVoucher ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border-l-4 border-yellow-500' : ''}`}>
+                    <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
                         <span className="font-mono font-bold text-gray-900">{voucher.code}</span>
