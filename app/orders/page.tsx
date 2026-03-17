@@ -124,7 +124,7 @@ export default function OrdersPage() {
     const planType = order.cardConfig?.planType;
     const planMap: Record<string, string> = {
       'signature': 'Signature',
-      'pro': 'Pro',
+      'pro': 'Business',
       'next': 'Next',
       'founders-club': "Founder's Circle",
       'founders-circle': "Founder's Circle",
@@ -137,8 +137,9 @@ export default function OrdersPage() {
     // Fallback: derive from order number prefix
     const orderNum = order.orderNumber || '';
     if (orderNum.includes('-FC-')) return "Founder's Circle";
-    if (orderNum.includes('-SIG-')) return 'Signature';
-    if (orderNum.includes('-PRO-')) return 'Pro';
+    if (orderNum.includes('-SG-') || orderNum.includes('-SIG-')) return 'Signature';
+    if (orderNum.includes('-BS-') || orderNum.includes('-PRO-')) return 'Business';
+    if (orderNum.includes('-SR-')) return 'Starter';
     if (orderNum.includes('-NXT-')) return 'Next';
     if (orderNum.includes('-DO-')) return 'Digital Only';
     if (orderNum.includes('-DPLA-')) return 'Digital Profile + App';

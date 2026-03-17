@@ -197,7 +197,7 @@ export default function ProductsPage() {
       case 'founders-club': return "Founder's Circle";
       case 'starter': return 'Starter';
       case 'next': return 'Next';
-      case 'pro': return 'Pro';
+      case 'pro': return 'Business';
       case 'signature': return 'Signature';
       case 'founders-circle': return "Founder's Circle";
       default: return type;
@@ -654,6 +654,9 @@ export default function ProductsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    S.No.
+                  </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {activeTab === 'products' ? 'Product' : 'Plan'}
                   </th>
@@ -682,7 +685,7 @@ export default function ProductsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center">
+                    <td colSpan={7} className="px-6 py-12 text-center">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                         <span className="ml-2 text-gray-500">Loading...</span>
@@ -692,13 +695,14 @@ export default function ProductsPage() {
                 ) : activeTab === 'products' ? (
                   filteredProducts.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                      <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
                         No products found
                       </td>
                     </tr>
                   ) : (
-                    filteredProducts.map((product) => (
+                    filteredProducts.map((product, index) => (
                       <tr key={product.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="h-10 w-10 bg-gray-200 rounded-lg flex items-center justify-center">
@@ -755,8 +759,9 @@ export default function ProductsPage() {
                       </td>
                     </tr>
                   ) : (
-                    filteredPlans.map((plan) => (
+                    filteredPlans.map((plan, index) => (
                       <tr key={plan.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
                         <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -875,7 +880,7 @@ export default function ProductsPage() {
                     >
                       <option value="starter">Starter</option>
                       <option value="next">Next</option>
-                      <option value="pro">Pro</option>
+                      <option value="pro">Business</option>
                       <option value="signature">Signature</option>
                       <option value="founders-circle">Founder&apos;s Circle</option>
                       <option value="physical-digital">Physical NFC Card + Digital</option>
@@ -883,6 +888,35 @@ export default function ProductsPage() {
                       <option value="digital-only">Digital Profile Only</option>
                       <option value="founders-club">Founder&apos;s Circle (Legacy)</option>
                     </select>
+                    <div className="mt-2 text-xs text-gray-500 bg-gray-50 rounded-md p-3 space-y-1">
+                      {formData.type === 'starter' && (
+                        <p>Digital-only profile. No physical card, no card customization. Skips configure step. Order prefix: LKFM-SR-</p>
+                      )}
+                      {formData.type === 'next' && (
+                        <p>Digital profile + app access. No physical card. Skips card customization, goes directly to payment. Order prefix: LKFM-NXT-</p>
+                      )}
+                      {formData.type === 'pro' && (
+                        <p>NFC card + digital profile. Includes card customization (material, color, texture, pattern). Order prefix: LKFM-BS-</p>
+                      )}
+                      {formData.type === 'signature' && (
+                        <p>Premium NFC card + digital profile. Full card customization with premium materials. Order prefix: LKFM-SG-</p>
+                      )}
+                      {formData.type === 'founders-circle' && (
+                        <p>Exclusive founders plan. Full card customization + company logo upload, founders-only colors, founding member badge. Requires verified invite. Order prefix: LKFM-FC-</p>
+                      )}
+                      {formData.type === 'physical-digital' && (
+                        <p>Standard NFC card + digital profile. Full card customization with material-based pricing. Order prefix: LKFM-CDPLA-</p>
+                      )}
+                      {formData.type === 'digital-with-app' && (
+                        <p>Digital profile with app access. No physical card. Order prefix: LKFM-DPLA-</p>
+                      )}
+                      {formData.type === 'digital-only' && (
+                        <p>Basic digital profile only. No physical card, no app. Order prefix: LKFM-DO-</p>
+                      )}
+                      {formData.type === 'founders-club' && (
+                        <p>Legacy founders plan. Same as Founder&apos;s Circle but for backward compatibility with older orders.</p>
+                      )}
+                    </div>
                   </div>
 
                   {/* Price */}

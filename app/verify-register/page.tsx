@@ -150,7 +150,7 @@ export default function VerifyRegisterPage() {
             localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
             router.push('/nfc/payment');
           } else if (productSelection === 'physical-digital' || productSelection === 'pro') {
-            // Physical card or Pro plan - go to configure
+            // Physical card or Business plan - go to configure
             router.push('/nfc/configure');
           } else if (productSelection === 'founders-club' || productSelection === 'signature' || productSelection === 'founders-circle') {
             // Founders club, Signature, or Founders Circle - go to configure

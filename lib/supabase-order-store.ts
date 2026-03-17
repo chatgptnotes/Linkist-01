@@ -513,11 +513,14 @@ export const generateOrderNumber = async (
   const cryptic = `${timestamp}${random}`;
 
   // Plan-specific prefixes (checked first for exact plan matching)
+  if (selectedPlanType === 'starter') {
+    return `LKFM-SR-${cryptic}`;
+  }
   if (selectedPlanType === 'signature') {
-    return `LKFM-SIG-${cryptic}`;
+    return `LKFM-SG-${cryptic}`;
   }
   if (selectedPlanType === 'pro') {
-    return `LKFM-PRO-${cryptic}`;
+    return `LKFM-BS-${cryptic}`;
   }
   if (selectedPlanType === 'next') {
     return `LKFM-NXT-${cryptic}`;

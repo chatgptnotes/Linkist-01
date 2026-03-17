@@ -559,12 +559,10 @@ export default function SettingsPage() {
 
   const tabs = [
     { id: 'general', name: 'General', icon: Settings },
-    { id: 'branding', name: 'Branding', icon: Palette },
     { id: 'email', name: 'Email', icon: Mail },
     { id: 'printer', name: 'Printer', icon: Printer },
     { id: 'payment', name: 'Payment', icon: CreditCard },
     { id: 'shipping', name: 'Shipping', icon: Truck },
-    { id: 'security', name: 'Security', icon: Shield },
     { id: 'notifications', name: 'Notifications', icon: Bell }
   ];
 

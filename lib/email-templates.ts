@@ -258,7 +258,7 @@ export const orderConfirmationEmail = (data: OrderData) => {
 
   // Build pricing rows based on plan type
   const planLabels: Record<string, string> = {
-    'pro': 'Pro',
+    'pro': 'Business',
     'signature': 'Signature',
     'next': 'Next',
     'starter': 'Starter',
@@ -801,7 +801,7 @@ export const receiptEmail = (data: OrderData) => {
 
   // Build pricing rows based on plan type (same as orderConfirmationEmail)
   const planLabels: Record<string, string> = {
-    'pro': 'Pro',
+    'pro': 'Business',
     'signature': 'Signature',
     'next': 'Next',
     'starter': 'Starter',

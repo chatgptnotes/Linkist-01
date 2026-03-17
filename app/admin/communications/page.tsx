@@ -274,6 +274,9 @@ export default function CommunicationsPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        S.No.
+                      </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Type
                       </th>
@@ -297,7 +300,7 @@ export default function CommunicationsPage() {
                   <tbody className="bg-white divide-y divide-gray-200">
                     {loading ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center">
+                        <td colSpan={7} className="px-6 py-12 text-center">
                           <div className="flex items-center justify-center">
                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                             <span className="ml-2 text-gray-500">Loading messages...</span>
@@ -306,13 +309,14 @@ export default function CommunicationsPage() {
                       </tr>
                     ) : filteredCommunications.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
+                        <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
                           No messages found
                         </td>
                       </tr>
                     ) : (
-                      filteredCommunications.map((comm) => (
+                      filteredCommunications.map((comm, index) => (
                         <tr key={comm.id} className="hover:bg-gray-50">
+                          <td className="px-4 py-4 text-sm text-gray-500">{index + 1}</td>
                           <td className="px-6 py-4">
                             <div className="flex items-center">
                               {getTypeIcon(comm.type)}

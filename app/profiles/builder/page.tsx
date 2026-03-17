@@ -676,9 +676,9 @@ function ProfileBuilderContent() {
     file: File,
     progressCallback: (progress: number) => void
   ): Promise<string> => {
-    const TARGET_DIMENSION = 800; // Target dimension for upscaling/downscaling
-    const MIN_DIMENSION = 400; // Upscale if smaller than this
-    const QUALITY = 0.7; // 70% quality (aggressive compression)
+    const TARGET_DIMENSION = 600; // Target dimension for upscaling/downscaling
+    const MIN_DIMENSION = 300; // Upscale if smaller than this
+    const QUALITY = 0.5; // 50% quality (aggressive compression to avoid 413 errors)
 
     try {
       return await new Promise((resolve, reject) => {
@@ -832,7 +832,7 @@ function ProfileBuilderContent() {
       pixelCrop.height
     );
 
-    return canvas.toDataURL('image/jpeg', 0.9);
+    return canvas.toDataURL('image/jpeg', 0.6);
   };
 
   const handleCropSave = async () => {
@@ -1909,6 +1909,20 @@ function ProfileBuilderContent() {
           selectedTheme: profileData.selectedTheme,
         }),
       });
+
+      if (!response.ok) {
+        if (response.status === 413) {
+          throw new Error('Profile data is too large. Please use a smaller profile photo or background image.');
+        }
+        let errorMessage = `Server error (${response.status})`;
+        try {
+          const errorResult = await response.json();
+          errorMessage = errorResult.error || errorMessage;
+        } catch {
+          // Response was not JSON (e.g. plain text error from server)
+        }
+        throw new Error(errorMessage);
+      }
 
       const result = await response.json();
 

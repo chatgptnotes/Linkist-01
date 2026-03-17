@@ -81,6 +81,7 @@ export default function AdminDashboard() {
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState('7days');
+  const [showActivityModal, setShowActivityModal] = useState(false);
 
   useEffect(() => {
     fetchDashboardData();
@@ -321,7 +322,10 @@ export default function AdminDashboard() {
               <div className="lg:col-span-2 bg-white rounded-lg p-6 shadow-sm border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-lg font-semibold text-gray-900">Recent Activity</h3>
-                  <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                  <button
+                    onClick={() => setShowActivityModal(true)}
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
                     View all
                   </button>
                 </div>
@@ -366,6 +370,63 @@ export default function AdminDashboard() {
           </>
         )}
       </div>
+
+      {/* Recent Activity Modal */}
+      {showActivityModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-10 mx-auto p-6 border w-11/12 md:w-2/3 lg:w-1/2 shadow-lg rounded-lg bg-white max-h-[80vh] flex flex-col">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-semibold text-gray-900">All Recent Activity</h3>
+              <button
+                onClick={() => setShowActivityModal(false)}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              >
+                &times;
+              </button>
+            </div>
+            <div className="overflow-y-auto flex-1 space-y-4">
+              {recentActivity.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">No recent activity</p>
+              ) : (
+                recentActivity.map((activity) => (
+                  <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50">
+                    <div className="flex-shrink-0">
+                      {activity.type === 'order' && (
+                        <div className="p-2 bg-blue-100 rounded-full">
+                          <Package className="h-4 w-4 text-blue-600" />
+                        </div>
+                      )}
+                      {activity.type === 'customer' && (
+                        <div className="p-2 bg-green-100 rounded-full">
+                          <Users className="h-4 w-4 text-green-600" />
+                        </div>
+                      )}
+                      {activity.type === 'payment' && (
+                        <div className="p-2 bg-purple-100 rounded-full">
+                          <DollarSign className="h-4 w-4 text-purple-600" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-900">{activity.message}</p>
+                      <p className="text-xs text-gray-500">{activity.timestamp}</p>
+                    </div>
+                    {activity.status && (
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        activity.status === 'completed' ? 'bg-green-100 text-green-800' :
+                        activity.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {activity.status}
+                      </span>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

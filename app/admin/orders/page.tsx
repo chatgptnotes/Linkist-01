@@ -20,6 +20,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import PrintIcon from '@mui/icons-material/Print';
+import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 // Icon aliases
 const Search = SearchIcon;
@@ -39,6 +41,8 @@ const User = PersonIcon;
 const Calendar = CalendarTodayIcon;
 const DollarSign = AttachMoneyIcon;
 const Print = PrintIcon;
+const ArrowUp = ArrowUpwardIcon;
+const ArrowDown = ArrowDownwardIcon;
 
 interface Payment {
   id: string;
@@ -109,6 +113,10 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [printerFilter, setPrinterFilter] = useState('all');
+  const [sortBy, setSortBy] = useState<'customer' | 'date' | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [showOrderModal, setShowOrderModal] = useState(false);
   const [showProofModal, setShowProofModal] = useState(false);
@@ -175,6 +183,19 @@ export default function OrdersPage() {
   const isDigitalOrder = (order: Order) => {
     return order.cardConfig.baseMaterial === 'digital' ||
            (order.cardConfig as any).isDigitalOnly === true;
+  };
+
+  const getPlanNameFromOrder = (order: Order): string => {
+    const num = order.orderNumber || '';
+    if (num.startsWith('LKFM-FC-')) return "Founder's Circle";
+    if (num.startsWith('LKFM-SG-') || num.startsWith('LKFM-SIG-')) return 'Signature';
+    if (num.startsWith('LKFM-BS-') || num.startsWith('LKFM-PRO-')) return 'Business';
+    if (num.startsWith('LKFM-SR-')) return 'Starter';
+    if (num.startsWith('LKFM-NXT-')) return 'Next';
+    if (num.startsWith('LKFM-DO-')) return 'Starter';
+    if (num.startsWith('LKFM-DPLA-')) return 'Next';
+    if (num.startsWith('LKFM-CDPLA-')) return 'Business';
+    return 'Standard';
   };
 
   const getPaymentStatusBadge = (payment: Payment | null | undefined) => {
@@ -285,6 +306,22 @@ export default function OrdersPage() {
     }
   };
 
+  const handleHeaderSort = (column: 'customer' | 'date') => {
+    if (sortBy === column) {
+      setSortDirection(prev => prev === 'desc' ? 'asc' : 'desc');
+    } else {
+      setSortBy(column);
+      setSortDirection(column === 'date' ? 'desc' : 'asc');
+    }
+  };
+
+  const SortIndicator = ({ column }: { column: string }) => {
+    if (sortBy !== column) return <ArrowDown className="w-3 h-3 ml-1 text-gray-300" />;
+    return sortDirection === 'desc'
+      ? <ArrowDown className="w-3 h-3 ml-1 text-gray-700" />
+      : <ArrowUp className="w-3 h-3 ml-1 text-gray-700" />;
+  };
+
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          order.customerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -292,7 +329,23 @@ export default function OrdersPage() {
 
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
 
-    return matchesSearch && matchesStatus;
+    const paymentStatus = order.payment?.status || 'no_payment';
+    const matchesPayment = paymentFilter === 'all' || paymentStatus === paymentFilter;
+
+    const printerStatus = isDigitalOrder(order) ? 'digital' : (order.printerEmailSent ? 'sent' : 'pending');
+    const matchesPrinter = printerFilter === 'all' || printerStatus === printerFilter;
+
+    return matchesSearch && matchesStatus && matchesPayment && matchesPrinter;
+  }).sort((a, b) => {
+    if (!sortBy) return 0;
+    const dir = sortDirection === 'asc' ? 1 : -1;
+    if (sortBy === 'customer') {
+      return dir * a.customerName.localeCompare(b.customerName);
+    }
+    if (sortBy === 'date') {
+      return dir * (a.createdAt - b.createdAt);
+    }
+    return 0;
   });
 
   const exportOrders = () => {
@@ -414,9 +467,42 @@ export default function OrdersPage() {
                     <option value="cancelled">Cancelled</option>
                   </select>
                 </div>
+
+                {/* Payment Filter */}
+                <select
+                  value={paymentFilter}
+                  onChange={(e) => setPaymentFilter(e.target.value)}
+                  className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 appearance-none bg-white min-w-40"
+                >
+                  <option value="all">All Payments</option>
+                  <option value="succeeded">Paid</option>
+                  <option value="pending">Pending</option>
+                  <option value="failed">Failed</option>
+                  <option value="refunded">Refunded</option>
+                  <option value="no_payment">No Payment</option>
+                </select>
+
+                {/* Printer Filter */}
+                <select
+                  value={printerFilter}
+                  onChange={(e) => setPrinterFilter(e.target.value)}
+                  className="px-3 py-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 appearance-none bg-white min-w-40"
+                >
+                  <option value="all">All Printer</option>
+                  <option value="sent">Sent</option>
+                  <option value="pending">Pending</option>
+                  <option value="digital">Digital Only</option>
+                </select>
               </div>
 
               <div className="flex space-x-3">
+                <button
+                  onClick={() => { setLoading(true); fetchOrders(); }}
+                  className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  <span>Refresh</span>
+                </button>
                 <button
                   onClick={exportOrders}
                   className="flex items-center space-x-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
@@ -435,11 +521,20 @@ export default function OrdersPage() {
             <table className="w-full">
               <thead className="bg-gray-50 border-b border-gray-200">
                 <tr>
+                  <th className="px-4 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    S.No.
+                  </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Order Details
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Customer
+                  <th
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
+                    onClick={() => handleHeaderSort('customer')}
+                  >
+                    <div className="flex items-center">
+                      Customer
+                      <SortIndicator column="customer" />
+                    </div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Card Config
@@ -456,8 +551,14 @@ export default function OrdersPage() {
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Total
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
+                  <th
+                    className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-gray-700 select-none"
+                    onClick={() => handleHeaderSort('date')}
+                  >
+                    <div className="flex items-center">
+                      Date
+                      <SortIndicator column="date" />
+                    </div>
                   </th>
                   <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Printer
@@ -468,23 +569,19 @@ export default function OrdersPage() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {filteredOrders.map((order) => (
+                {filteredOrders.map((order, index) => (
                   <tr key={order.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-4 text-sm text-gray-500">
+                      {index + 1}
+                    </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 bg-gray-800 rounded-lg flex items-center justify-center">
-                            <span className="text-red-500 text-xs font-bold">L</span>
-                          </div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {order.orderNumber}
                         </div>
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {order.orderNumber}
-                          </div>
-                          <div className="text-sm text-gray-500 flex items-center space-x-1">
-                            <Package className="h-3 w-3" />
-                            <span>Qty: {order.cardConfig.quantity || 1}</span>
-                          </div>
+                        <div className="text-sm text-gray-500 flex items-center space-x-1">
+                          <Package className="h-3 w-3" />
+                          <span>Qty: {order.cardConfig.quantity || 1}</span>
                         </div>
                       </div>
                     </td>
@@ -511,7 +608,7 @@ export default function OrdersPage() {
                           {order.cardConfig.cardFirstName} {order.cardConfig.cardLastName}
                         </div>
                         <div className="text-sm text-gray-500">
-                          {order.cardConfig.title || 'Professional'}
+                          {getPlanNameFromOrder(order)}
                         </div>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {order.cardConfig.baseMaterial && (
@@ -656,12 +753,6 @@ export default function OrdersPage() {
                             <Print className="h-4 w-4" />
                           </button>
                         )}
-                        <button
-                          className="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-lg"
-                          title="More Actions"
-                        >
-                          <MoreHorizontal className="h-4 w-4" />
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -785,8 +876,8 @@ export default function OrdersPage() {
                     </div>
                   )}
                   <div className="bg-white rounded-lg p-3 border border-blue-100">
-                    <p className="text-xs text-gray-500 mb-1">Title</p>
-                    <p className="font-medium text-gray-900">{selectedOrder.cardConfig.title || 'Professional'}</p>
+                    <p className="text-xs text-gray-500 mb-1">Plan</p>
+                    <p className="font-medium text-gray-900">{getPlanNameFromOrder(selectedOrder)}</p>
                   </div>
                   <div className="bg-white rounded-lg p-3 border border-blue-100">
                     <p className="text-xs text-gray-500 mb-1">Quantity</p>
