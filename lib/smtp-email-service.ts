@@ -211,14 +211,21 @@ export async function sendOTPEmail({ to, otp, expiresInMinutes }: SendOTPEmailPa
   }
 }
 
+export interface EmailAttachment {
+  filename: string;
+  content: string | Buffer;
+  contentType?: string;
+}
+
 export interface OrderEmailParams {
   to: string;
   subject: string;
   html: string;
   tags?: Array<{ name: string; value: string }>;
+  attachments?: EmailAttachment[];
 }
 
-export async function sendOrderEmail({ to, subject, html, tags }: OrderEmailParams) {
+export async function sendOrderEmail({ to, subject, html, tags, attachments }: OrderEmailParams) {
   try {
     const transporterInstance = getTransporterInstance();
 
@@ -227,7 +234,7 @@ export async function sendOrderEmail({ to, subject, html, tags }: OrderEmailPara
       return { success: false, error: 'SMTP service not configured' };
     }
 
-    const mailOptions = {
+    const mailOptions: Record<string, any> = {
       from: EMAIL_CONFIG.from,
       to,
       subject,
@@ -239,6 +246,14 @@ export async function sendOrderEmail({ to, subject, html, tags }: OrderEmailPara
         'X-Environment': tags.find(t => t.name === 'environment')?.value || 'development',
       } : undefined
     };
+
+    if (attachments && attachments.length > 0) {
+      mailOptions.attachments = attachments.map(a => ({
+        filename: a.filename,
+        content: a.content,
+        contentType: a.contentType || 'text/csv',
+      }));
+    }
 
     const info = await transporterInstance.sendMail(mailOptions);
 

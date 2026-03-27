@@ -971,28 +971,28 @@ export default function ConfigureNewPage() {
                 <div className="w-full">
                   <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-md`}>
                     <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                    <div className="absolute top-2 right-2">
+                    <div className="absolute top-5 right-5">
                       <img
                         src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
                         alt="AI Assistant"
-                        className={`w-4 h-4 ${formData.colour === 'white' ? '' : 'invert'}`}
+                        className={`w-8 h-8 ${formData.colour === 'white' ? '' : 'invert'}`}
                       />
                     </div>
                     {userPlanType !== 'pro' && (
-                    <div className="absolute bottom-3 left-3">
+                    <div className="absolute bottom-6 left-6">
                       {(() => {
                         const firstName = formData.cardFirstName?.trim() || '';
                         const lastName = formData.cardLastName?.trim() || '';
                         const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
                         if (isSingleCharOnly) {
                           return (
-                            <div className={`${getTextColor()} text-lg font-light`}>
+                            <div className={`${getTextColor()} text-4xl font-bold tracking-widest`}>
                               {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                             </div>
                           );
                         } else {
                           return (
-                            <div className={`${getTextColor()} text-xs font-medium`}>
+                            <div className={`${getTextColor()} text-xl font-bold tracking-wider`}>
                               {firstName.toUpperCase()} {lastName.toUpperCase()}
                             </div>
                           );
@@ -1012,18 +1012,18 @@ export default function ConfigureNewPage() {
                       {isFoundersCirclePlan ? (
                         <>
                           {companyLogoUrl ? (
-                            <img src={companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
+                            <img src={companyLogoUrl} alt="Company Logo" className="h-16 w-auto mb-3 object-contain" />
                           ) : showLinkistLogo ? (
-                            <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                            <img src="/logo_linkist.png" alt="Linkist" className="h-16 w-auto mb-3" />
                           ) : null}
-                          <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                          <div className={`${getTextColor()} text-base font-medium tracking-wider`}>FOUNDING MEMBER</div>
                         </>
                       ) : (
-                        <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                        <img src="/logo_linkist.png" alt="Linkist" className="h-16 w-auto mb-3" />
                       )}
                     </div>
-                    <div className="absolute top-1/2 -translate-y-1/2 right-2">
-                      <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                    <div className="absolute top-1/2 -translate-y-1/2 right-5">
+                      <img src="/nfc2.png" alt="NFC" className="w-10 h-10" />
                     </div>
                   </div>
                   <div className="text-center text-xs text-gray-500 mt-1">Back</div>

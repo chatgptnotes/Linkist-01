@@ -395,15 +395,16 @@ export const SupabaseOrderStore = {
   getUnsentToPrinter: async (): Promise<Order[]> => {
     const supabase = createAdminClient()
 
-    // Get today's start time in UTC
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const todayISO = today.toISOString()
+    // Look back 7 days to catch any missed orders (not just today)
+    const cutoff = new Date()
+    cutoff.setDate(cutoff.getDate() - 7)
+    cutoff.setHours(0, 0, 0, 0)
+    const cutoffISO = cutoff.toISOString()
 
     const { data, error } = await supabase
       .from('orders')
       .select('*')
-      .gte('created_at', todayISO)
+      .gte('created_at', cutoffISO)
       .or('printer_email_sent.is.null,printer_email_sent.eq.false')
       .in('status', ['confirmed', 'production'])
       .order('created_at', { ascending: true })
@@ -413,8 +414,16 @@ export const SupabaseOrderStore = {
       throw new Error(`Failed to fetch unsent orders: ${error.message}`)
     }
 
-    console.log(`📋 Found ${data?.length || 0} orders not yet sent to printer`)
-    return (data || []).map(rowToOrder)
+    // Filter out digital-only orders (no physical card to print)
+    const physicalOrders = (data || [])
+      .map(rowToOrder)
+      .filter(order => {
+        const config = order.cardConfig
+        return config?.baseMaterial !== 'digital' && !(config as any)?.isDigitalOnly
+      })
+
+    console.log(`📋 Found ${physicalOrders.length} physical orders not yet sent to printer (from ${data?.length || 0} total)`)
+    return physicalOrders
   },
 
   /**

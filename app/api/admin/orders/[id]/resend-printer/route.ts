@@ -3,6 +3,7 @@ import { SupabaseOrderStore } from '@/lib/supabase-order-store'
 import { PrinterSettingsStore } from '@/lib/supabase-printer-settings-store'
 import { printerBatchEmail, PrinterOrderData } from '@/lib/email-templates'
 import { sendOrderEmail } from '@/lib/smtp-email-service'
+import { generatePrinterCsv } from '@/lib/printer-csv-generator'
 
 /**
  * POST /api/admin/orders/[id]/resend-printer
@@ -88,11 +89,20 @@ export async function POST(
 
     console.log(`📧 Sending RESEND email to ${settings.printerEmail}...`)
 
-    // Send email with RESEND in subject
+    // Generate CSV for single order
+    const csvContent = generatePrinterCsv([printerOrder])
+    const csvFilename = `linkist-reprint-${order.orderNumber}.csv`
+
+    // Send email with RESEND in subject + CSV attachment
     const result = await sendOrderEmail({
       to: settings.printerEmail,
       subject: `[RESEND] Linkist Print Order - ${order.orderNumber}`,
       html: emailHtml,
+      attachments: [{
+        filename: csvFilename,
+        content: csvContent,
+        contentType: 'text/csv',
+      }],
     })
 
     if (!result.success) {

@@ -769,14 +769,14 @@ export default function NFCPaymentPage() {
 
                             if (isSingleCharOnly) {
                               return (
-                                <div className={`${getTextColor()} text-xl font-light`}>
+                                <div className={`${getTextColor()} text-xl font-light tracking-widest`}>
                                   {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                                 </div>
                               );
                             } else {
                               return (
-                                <div className={`${getTextColor()} text-sm font-medium`}>
-                                  {firstName} {lastName}
+                                <div className={`${getTextColor()} text-sm font-light tracking-wider`}>
+                                  {firstName.toUpperCase()} {lastName.toUpperCase()}
                                 </div>
                               );
                             }

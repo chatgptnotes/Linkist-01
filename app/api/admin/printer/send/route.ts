@@ -3,6 +3,7 @@ import { SupabaseOrderStore } from '@/lib/supabase-order-store'
 import { PrinterSettingsStore } from '@/lib/supabase-printer-settings-store'
 import { printerBatchEmail, PrinterOrderData } from '@/lib/email-templates'
 import { sendOrderEmail } from '@/lib/smtp-email-service'
+import { generatePrinterCsv } from '@/lib/printer-csv-generator'
 
 // API key for cron authentication (optional but recommended)
 const CRON_API_KEY = process.env.CRON_API_KEY
@@ -110,13 +111,22 @@ export async function POST(request: NextRequest) {
 
     const emailHtml = printerBatchEmail(printerOrders, today)
 
-    console.log(`📧 Sending email to ${settings.printerEmail}...`)
+    // Generate CSV attachment
+    const csvContent = generatePrinterCsv(printerOrders)
+    const csvFilename = `linkist-print-orders-${new Date().toISOString().slice(0, 10)}.csv`
 
-    // Send email
+    console.log(`📧 Sending email with CSV to ${settings.printerEmail}...`)
+
+    // Send email with CSV attachment
     const result = await sendOrderEmail({
       to: settings.printerEmail,
       subject: `Linkist Print Orders - ${today} (${pendingOrders.length} order${pendingOrders.length !== 1 ? 's' : ''})`,
       html: emailHtml,
+      attachments: [{
+        filename: csvFilename,
+        content: csvContent,
+        contentType: 'text/csv',
+      }],
     })
 
     if (!result.success) {
