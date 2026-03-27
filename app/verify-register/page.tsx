@@ -63,6 +63,28 @@ export default function VerifyRegisterPage() {
         // Mark email as verified
         localStorage.setItem('emailVerified', 'true');
 
+        // Store authenticated user data in localStorage for session persistence
+        if (data.user) {
+          const existingProfile = localStorage.getItem('userProfile');
+          let merged: Record<string, any> = {};
+          if (existingProfile) {
+            try { merged = JSON.parse(existingProfile); } catch { /* ignore */ }
+          }
+          const userProfile = {
+            ...merged,
+            id: data.user.id,
+            email: data.user.email,
+            firstName: data.user.first_name || merged.firstName || '',
+            lastName: data.user.last_name || merged.lastName || '',
+            mobile: data.user.phone_number || merged.mobile || '',
+            emailVerified: data.user.email_verified,
+            role: data.user.role,
+            isAuthenticated: true,
+          };
+          localStorage.setItem('userProfile', JSON.stringify(userProfile));
+          localStorage.setItem('authToken', 'session-active');
+        }
+
         // Check if this was triggered from product selection flow
         const pendingProductFlow = localStorage.getItem('pendingProductFlow');
         const productSelection = localStorage.getItem('productSelection');

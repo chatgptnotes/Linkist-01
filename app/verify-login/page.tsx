@@ -113,6 +113,22 @@ export default function VerifyLoginPage() {
         localStorage.setItem('verifiedEmail', email);
         localStorage.setItem('emailVerified', 'true');
 
+        // Store authenticated user data in localStorage for session persistence
+        if (data.user) {
+          const userProfile = {
+            id: data.user.id,
+            email: data.user.email,
+            firstName: data.user.first_name || '',
+            lastName: data.user.last_name || '',
+            mobile: data.user.phone_number || '',
+            emailVerified: data.user.email_verified,
+            role: data.user.role,
+            isAuthenticated: true,
+          };
+          localStorage.setItem('userProfile', JSON.stringify(userProfile));
+          localStorage.setItem('authToken', 'session-active');
+        }
+
         // Show success state
         setSuccess(true);
 

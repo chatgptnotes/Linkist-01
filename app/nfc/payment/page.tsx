@@ -9,6 +9,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Footer from '@/components/Footer';
+import { CardPatternOverlay } from '@/components/CardPatternOverlay';
 import { getOrderAmountForVoucher } from '@/lib/pricing-utils';
 import { getCurrencySymbol, getStripeCurrency, fetchExchangeRate, convertToStripeCurrency, isIndia } from '@/lib/country-utils';
 import StripePaymentModal from '@/components/StripePaymentModal';
@@ -748,18 +749,19 @@ export default function NFCPaymentPage() {
 
                   {/* Front Card */}
                   <div className="mb-3 sm:mb-4">
-                    <div className={`w-48 sm:w-56 aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-lg sm:rounded-xl relative overflow-hidden shadow-lg mr-auto`}>
-                      {/* AI Icon top right - No wrapper, no background, no shadow */}
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                      {/* AI Icon top right */}
                       <img
                         src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
                         alt="AI"
-                        className={`absolute top-2 sm:top-3 right-2 sm:right-3 w-3 h-3 sm:w-4 sm:h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
+                        className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
                         style={{ boxShadow: 'none', background: 'transparent' }}
                       />
 
-                      {/* User Name or Initials - Hidden for Pro plan (no name customization) */}
+                      {/* User Name or Initials - Hidden for Pro plan */}
                       {orderData?.cardConfig?.planType !== 'pro' && (
-                        <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4">
+                        <div className="absolute bottom-4 left-4">
                           {(() => {
                             const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
                             const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
@@ -767,13 +769,13 @@ export default function NFCPaymentPage() {
 
                             if (isSingleCharOnly) {
                               return (
-                                <div className={`${getTextColor()} text-lg sm:text-xl font-light`}>
+                                <div className={`${getTextColor()} text-xl font-light`}>
                                   {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                                 </div>
                               );
                             } else {
                               return (
-                                <div className={`${getTextColor()} text-xs sm:text-sm font-medium`}>
+                                <div className={`${getTextColor()} text-sm font-medium`}>
                                   {firstName} {lastName}
                                 </div>
                               );
@@ -782,6 +784,32 @@ export default function NFCPaymentPage() {
                         </div>
                       )}
                     </div>
+                    <div className="text-center text-xs text-gray-500 mt-1">Front</div>
+                  </div>
+
+                  {/* Back Card */}
+                  <div className="mb-3 sm:mb-4">
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        {orderData?.cardConfig?.isFoundingMember ? (
+                          <>
+                            {orderData?.cardConfig?.companyLogoUrl ? (
+                              <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
+                            ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
+                              <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                            ) : null}
+                            <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                          </>
+                        ) : (
+                          <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                        )}
+                      </div>
+                      <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                        <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                      </div>
+                    </div>
+                    <div className="text-center text-xs text-gray-500 mt-1">Back</div>
                   </div>
                 </div>
               )}
