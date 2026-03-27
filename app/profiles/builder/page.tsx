@@ -3902,19 +3902,19 @@ function ProfileBuilderContent() {
                       <div>
                         <div className="flex items-center justify-center bg-gray-50 border-2 border-dashed border-gray-300 rounded-lg p-8">
                           <div className="text-center">
-                            <div className="relative inline-block">
-                              <div className="w-32 h-32 bg-gray-200 rounded-full overflow-hidden">
+                            <div className="relative inline-flex items-center justify-center">
+                              <div className="w-32 h-32 sm:w-36 sm:h-36 bg-gray-200 rounded-full overflow-hidden flex items-center justify-center">
                                 {profileData.profilePhoto ? (
                                   <img
                                     src={profileData.profilePhoto}
                                     alt="Profile"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-center"
                                   />
                                 ) : (
                                   <img
                                     src={`https://ui-avatars.com/api/?name=${profileData.firstName || 'J'}+${profileData.lastName || 'D'}&size=128&background=667eea&color=fff`}
                                     alt="Profile"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-center"
                                   />
                                 )}
                               </div>

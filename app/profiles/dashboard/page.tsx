@@ -412,7 +412,7 @@ export default function ProfileDashboard() {
                       <img
                         src={profile.image}
                         alt={profile.name}
-                        className="w-16 h-16 rounded-full object-cover"
+                        className="w-16 h-16 rounded-full object-cover object-center flex-shrink-0"
                       />
                     ) : (
                       <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-bold text-xl">

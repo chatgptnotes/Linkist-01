@@ -53,15 +53,11 @@ export default function ThemeRenderer({
       />
 
       <BottomSheetCard>
-        {/* Name row with action buttons aligned to first line */}
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <div className="flex-1 min-w-0">
-            <ProfileHeader data={data} />
-          </div>
-          <div className="flex-shrink-0 pt-1">
-            <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
-          </div>
+        {/* Action buttons right-aligned, then name below */}
+        <div className="flex justify-end mb-3">
+          <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
         </div>
+        <ProfileHeader data={data} />
         <SocialIconsRow links={data.socialLinks} />
         <AboutSection summary={data.professionalSummary} />
         <ContactInfoSection items={data.contactItems} />

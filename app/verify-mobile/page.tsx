@@ -231,6 +231,37 @@ function VerifyMobileContent() {
       localStorage.setItem('verifiedPhone', phone);
       localStorage.setItem('mobileVerified', 'true');
 
+      // Fetch authenticated user data and store in localStorage for session persistence
+      try {
+        const meResponse = await fetch('/api/auth/me', { credentials: 'include' });
+        if (meResponse.ok) {
+          const meData = await meResponse.json();
+          if (meData.isAuthenticated && meData.user) {
+            const existingProfile = localStorage.getItem('userProfile');
+            let merged: Record<string, any> = {};
+            if (existingProfile) {
+              try { merged = JSON.parse(existingProfile); } catch { /* ignore */ }
+            }
+            const userProfile = {
+              ...merged,
+              id: meData.user.id,
+              email: meData.user.email,
+              firstName: meData.user.first_name || merged.firstName || '',
+              lastName: meData.user.last_name || merged.lastName || '',
+              mobile: meData.user.phone_number || merged.mobile || phone,
+              emailVerified: meData.user.email_verified,
+              mobileVerified: meData.user.mobile_verified,
+              role: meData.user.role,
+              isAuthenticated: true,
+            };
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            localStorage.setItem('authToken', 'session-active');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to fetch user data after mobile verification:', err);
+      }
+
       // Clear sessionStorage after successful verification
       const otpSentKey = `otp_sent_${phone}`;
       sessionStorage.removeItem(otpSentKey);

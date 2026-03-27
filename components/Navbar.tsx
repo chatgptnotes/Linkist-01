@@ -82,6 +82,7 @@ export default function Navbar() {
       localStorage.removeItem('userOnboarded');
       localStorage.removeItem('userProfile');
       localStorage.removeItem('session');
+      localStorage.removeItem('authToken');
       localStorage.removeItem('claimedUsername');
       localStorage.removeItem('profileUrl');
 

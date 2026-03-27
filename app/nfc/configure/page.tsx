@@ -630,6 +630,7 @@ export default function ConfigureNewPage() {
       texture: formData.texture,
       colour: formData.colour,
       pattern: selectedPattern?.name || `Pattern ${formData.pattern}`,
+      patternKey: selectedPattern?.key || 'none',
       // Plan type (for checkout/payment pricing)
       planType: userPlanType,
       // Founding member exclusive options (only for Founder's Circle plan)
@@ -671,9 +672,9 @@ export default function ConfigureNewPage() {
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pt-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:items-start">
-          {/* Configuration Section - Left Side */}
-          <div className="lg:col-span-7 space-y-4 order-2 lg:order-1">
+        <div className="pb-64 lg:pb-72">
+          {/* Configuration Section - Full Width */}
+          <div className="max-w-3xl mx-auto space-y-4">
 
             {/* Step 1: Personalize Name - Compact Modern Card (hidden for Business plan) */}
             {userPlanType !== 'pro' && (
@@ -962,6 +963,74 @@ export default function ConfigureNewPage() {
               </div>
             )}
 
+            {/* Live Preview */}
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden p-3">
+              <h3 className="text-sm font-semibold text-gray-900 mb-2">Live Preview</h3>
+              <div className="flex flex-col items-center gap-3">
+                {/* Front Card */}
+                <div className="w-full">
+                  <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-md`}>
+                    <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                    <div className="absolute top-2 right-2">
+                      <img
+                        src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
+                        alt="AI Assistant"
+                        className={`w-4 h-4 ${formData.colour === 'white' ? '' : 'invert'}`}
+                      />
+                    </div>
+                    {userPlanType !== 'pro' && (
+                    <div className="absolute bottom-3 left-3">
+                      {(() => {
+                        const firstName = formData.cardFirstName?.trim() || '';
+                        const lastName = formData.cardLastName?.trim() || '';
+                        const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                        if (isSingleCharOnly) {
+                          return (
+                            <div className={`${getTextColor()} text-lg font-light`}>
+                              {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                            </div>
+                          );
+                        } else {
+                          return (
+                            <div className={`${getTextColor()} text-xs font-medium`}>
+                              {firstName.toUpperCase()} {lastName.toUpperCase()}
+                            </div>
+                          );
+                        }
+                      })()}
+                    </div>
+                    )}
+                  </div>
+                  <div className="text-center text-xs text-gray-500 mt-1">Front</div>
+                </div>
+
+                {/* Back Card */}
+                <div className="w-full">
+                  <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-md`}>
+                    <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center">
+                      {isFoundersCirclePlan ? (
+                        <>
+                          {companyLogoUrl ? (
+                            <img src={companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
+                          ) : showLinkistLogo ? (
+                            <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                          ) : null}
+                          <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                        </>
+                      ) : (
+                        <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                      )}
+                    </div>
+                    <div className="absolute top-1/2 -translate-y-1/2 right-2">
+                      <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                    </div>
+                  </div>
+                  <div className="text-center text-xs text-gray-500 mt-1">Back</div>
+                </div>
+              </div>
+            </div>
+
             {/* Continue to Checkout Section */}
             <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
               <div className="p-3">
@@ -1019,113 +1088,6 @@ export default function ConfigureNewPage() {
 
           </div>
 
-          {/* Live Preview - Right Side */}
-          <div className="lg:col-start-8 lg:col-span-5 order-1 lg:order-2">
-            <div className="lg:sticky lg:top-32">
-                {/* Card Preview - Compact Modern */}
-                <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                  <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-                      <button
-                      type="button"
-                      className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
-                      title="AI Assistant"
-                    >
-                    </button>
-                  </div>
-                </div>
-                <div className="p-4 space-y-4">
-                  {/* Front Card */}
-                  <div>
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      {/* Pattern overlay */}
-                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-
-                      {/* AI Icon top right - Plain, no border/shadow */}
-                      <div className="absolute top-4 right-4">
-                        <img
-                          src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
-                          alt="AI Assistant"
-                          className={`w-6 h-6 ${formData.colour === 'white' ? '' : 'invert'}`}
-                        />
-                      </div>
-
-                      {/* User Initials or Name (hidden for Business plan) */}
-                      {userPlanType !== 'pro' && (
-                      <div className="absolute bottom-6 left-6">
-                        {(() => {
-                          const firstName = formData.cardFirstName?.trim() || '';
-                          const lastName = formData.cardLastName?.trim() || '';
-                          const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-
-                          if (isSingleCharOnly) {
-                            return (
-                              <div className={`${getTextColor()} text-2xl font-light`}>
-                                {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                              </div>
-                            );
-                          } else {
-                            return (
-                              <div className={`${getTextColor()} text-base font-medium`}>
-                                {firstName.toUpperCase()} {lastName.toUpperCase()}
-                              </div>
-                            );
-                          }
-                        })()}
-                      </div>
-                      )}
-                    </div>
-                    <div className="text-center text-sm text-gray-600">Front</div>
-                  </div>
-
-                  {/* Back Card */}
-                  <div>
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      {/* Pattern overlay */}
-                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-
-                      {/* Logo Section - Conditionally render based on selected plan */}
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {isFoundersCirclePlan ? (
-                          // Founder's Circle plan: Show company logo, Linkist logo (if enabled), or nothing + FOUNDING MEMBER tag
-                          <>
-                            {companyLogoUrl ? (
-                              <img
-                                src={companyLogoUrl}
-                                alt="Company Logo"
-                                className="h-16 w-auto mb-4 object-contain"
-                              />
-                            ) : showLinkistLogo ? (
-                              <img
-                                src="/logo_linkist.png"
-                                alt="Linkist"
-                                className="h-16 w-auto mb-4"
-                              />
-                            ) : null}
-                            <div className={`${getTextColor()} text-sm font-medium tracking-wider`}>FOUNDING MEMBER</div>
-                          </>
-                        ) : (
-                          // Other plans: Always show Linkist logo, no FOUNDING MEMBER tag
-                          <img
-                            src="/logo_linkist.png"
-                            alt="Linkist"
-                            className="h-16 w-auto mb-4"
-                          />
-                        )}
-                      </div>
-
-                      {/* NFC Symbol - vertically centered on right side */}
-                      <div className="absolute top-1/2 -translate-y-1/2 right-4">
-                        <img src="/nfc2.png" alt="NFC" className="w-9 h-9" />
-                      </div>
-                    </div>
-                    <div className="text-center text-sm text-gray-600 mt-2">Back</div>
-                  </div>
-                </div>
-                </div>
-            </div>
-          </div>
         </div>
       </div>
 

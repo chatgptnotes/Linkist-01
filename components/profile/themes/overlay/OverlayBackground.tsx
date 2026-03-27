@@ -28,7 +28,7 @@ export default function OverlayBackground({
           <img
             src={imageUrl}
             alt="Profile"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover object-center"
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-br from-purple-600 via-blue-500 to-teal-400 flex items-center justify-center">
