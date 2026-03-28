@@ -19,6 +19,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import StarsIcon from '@mui/icons-material/Stars';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import NotificationBell from './NotificationBell';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -301,6 +302,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             </div>
 
             <div className="flex items-center space-x-4">
+              <NotificationBell />
               <div className="text-sm text-gray-500">
                 {currentUser?.first_name || currentUser?.email}
               </div>

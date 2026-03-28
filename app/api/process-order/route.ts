@@ -10,6 +10,7 @@ import { calculatePricing } from '@/lib/pricing-utils';
 import { getCurrency } from '@/lib/country-utils';
 import { SessionStore } from '@/lib/session-store';
 import { getSessionCookieOptions } from '@/lib/cookie-utils';
+import { notifyNewOrder, notifyPaymentReceived } from '@/lib/admin-notifications';
 
 export async function POST(request: NextRequest) {
   try {
@@ -372,6 +373,16 @@ export async function POST(request: NextRequest) {
         // Continue even if this fails - order is already created
         console.error('Process-order: Founders status update error:', founderError);
       }
+    }
+
+    // Fire admin notification (non-blocking)
+    notifyNewOrder(
+      order.orderNumber || order.id,
+      checkoutData.fullName || 'Unknown',
+      totalAmount
+    );
+    if (paymentData) {
+      notifyPaymentReceived(order.orderNumber || order.id, totalAmount);
     }
 
     // Send emails if order is confirmed (has payment) OR is a digital-only order (status 'delivered')

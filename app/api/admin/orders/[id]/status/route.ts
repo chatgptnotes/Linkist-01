@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseOrderStore, type OrderStatus } from '@/lib/supabase-order-store';
 import { requireAdmin } from '@/lib/auth-middleware';
+import { notifyOrderStatusChange } from '@/lib/admin-notifications';
 
 export async function PATCH(
   request: NextRequest,
@@ -25,14 +26,25 @@ export async function PATCH(
       );
     }
 
+    // Fetch current order to get old status and order number
+    const existingOrder = await SupabaseOrderStore.getById(orderId);
+    const oldStatus = existingOrder?.status || 'unknown';
+
     const updatedOrder = await SupabaseOrderStore.updateStatus(orderId, status as OrderStatus);
-    
+
     if (!updatedOrder) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
       );
     }
+
+    // Fire admin notification (non-blocking)
+    notifyOrderStatusChange(
+      updatedOrder.orderNumber || orderId,
+      oldStatus,
+      status
+    );
 
     return NextResponse.json({
       success: true,

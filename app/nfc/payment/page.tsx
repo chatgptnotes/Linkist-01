@@ -71,6 +71,9 @@ export default function NFCPaymentPage() {
   const [currencySymbol, setCurrencySymbol] = useState('$');
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
 
+  // Card flip state
+  const [showBack, setShowBack] = useState(false);
+
   // Stripe Modal state
   const [showStripeModal, setShowStripeModal] = useState(false);
   const [stripeClientSecret, setStripeClientSecret] = useState('');
@@ -630,37 +633,37 @@ export default function NFCPaymentPage() {
     <div className="min-h-screen bg-gray-50 flex flex-col">
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8 flex-1">
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-5 gap-6 lg:gap-6 lg:items-stretch">
           {/* Payment Form - Left Side */}
-          <div className="lg:col-span-2 order-2 lg:order-1">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-6">
+          <div className="lg:col-span-3 order-2 lg:order-1 flex">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm p-4 sm:p-8 lg:p-10 w-full flex flex-col">
               {/* Header - Hidden on mobile */}
-              <div className="hidden lg:flex items-center gap-3 mb-6">
-                <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                  <Lock className="w-5 h-5 text-gray-600" />
+              <div className="hidden lg:flex items-center gap-4 mb-8">
+                <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                  <Lock className="w-6 h-6 text-gray-600" />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-semibold text-gray-900">Secure Payment</h2>
-                  <p className="text-xs sm:text-sm text-gray-500">Powered by Stripe</p>
+                  <h2 className="text-xl sm:text-2xl font-semibold text-gray-900">Secure Payment</h2>
+                  <p className="text-sm text-gray-500">Powered by Stripe</p>
                 </div>
               </div>
 
               {/* Card Brand Logos - Hidden on mobile */}
-              <div className="hidden lg:flex items-center gap-2 mb-6">
-                <div className="px-2 py-1.5 border border-gray-200 rounded bg-white">
-                  <Image src="/visa.png" alt="Visa" width={32} height={20} className="h-4 w-auto" />
+              <div className="hidden lg:flex items-center gap-3 mb-8">
+                <div className="px-3 py-2 border border-gray-200 rounded bg-white">
+                  <Image src="/visa.png" alt="Visa" width={40} height={25} className="h-5 w-auto" />
                 </div>
-                <div className="px-2 py-1.5 border border-gray-200 rounded bg-white">
-                  <Image src="/mc.png" alt="Mastercard" width={28} height={20} className="h-4 w-auto" />
+                <div className="px-3 py-2 border border-gray-200 rounded bg-white">
+                  <Image src="/mc.png" alt="Mastercard" width={36} height={25} className="h-5 w-auto" />
                 </div>
-                <div className="px-2 py-1.5 border border-gray-200 rounded bg-white">
-                  <Image src="/amex.png" alt="Amex" width={28} height={20} className="h-4 w-auto" />
+                <div className="px-3 py-2 border border-gray-200 rounded bg-white">
+                  <Image src="/amex.png" alt="Amex" width={36} height={25} className="h-5 w-auto" />
                 </div>
               </div>
 
               {/* Payment Info - Hidden on mobile */}
-              <div className="hidden lg:block bg-gray-50 rounded-lg p-4 mb-6">
-                <p className="text-sm text-gray-600">
+              <div className="hidden lg:block bg-gray-50 rounded-lg p-5 mb-8">
+                <p className="text-base text-gray-600 leading-relaxed">
                   Click the button below to securely enter your card details. Your payment is protected by industry-standard encryption.
                 </p>
               </div>
@@ -669,7 +672,7 @@ export default function NFCPaymentPage() {
               <button
                 onClick={handlePayment}
                 disabled={processing || !orderData?.orderId}
-                className="w-full py-3 sm:py-4 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full py-3 sm:py-4 lg:py-5 rounded-lg sm:rounded-xl font-semibold text-base sm:text-lg lg:text-xl transition-colors disabled:cursor-not-allowed disabled:opacity-60"
                 style={{
                   backgroundColor: (processing || !orderData?.orderId) ? '#D1D5DB' : '#ff0000',
                   color: '#FFFFFF'
@@ -688,13 +691,13 @@ export default function NFCPaymentPage() {
               </button>
 
               {/* Security Badges - Hidden on mobile */}
-              <div className="hidden lg:flex mt-8 flex-row items-center justify-center gap-8 text-sm text-gray-600">
+              <div className="hidden lg:flex mt-auto pt-10 flex-row items-center justify-center gap-10 text-base text-gray-600">
                 <div className="flex items-center">
-                  <Shield className="w-5 h-5 mr-2 text-blue-500" />
+                  <Shield className="w-6 h-6 mr-2 text-blue-500" />
                   SSL Secure Connection
                 </div>
                 <div className="flex items-center">
-                  <Lock className="w-5 h-5 mr-2 text-blue-500" />
+                  <Lock className="w-6 h-6 mr-2 text-blue-500" />
                   PCI DSS Compliant
                 </div>
               </div>
@@ -702,15 +705,15 @@ export default function NFCPaymentPage() {
           </div>
 
           {/* Order Summary - Right Side */}
-          <div className="lg:col-span-1 lg:sticky lg:top-8 order-1 lg:order-2">
-            <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6">
-              <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Order Summary</h3>
+          <div className="lg:col-span-2 lg:sticky lg:top-4 order-1 lg:order-2 self-start">
+            <div className="bg-white rounded-lg shadow-lg p-3 sm:p-4">
+              <h3 className="text-sm sm:text-base font-semibold mb-2">Order Summary</h3>
 
               {/* Subscription Plan Info - Show for digital-only plans */}
               {orderData?.cardConfig?.baseMaterial === 'digital' && (orderData as any)?.planName && (
-                <div className="mb-4 sm:mb-6 p-4 bg-gray-50 rounded-lg">
-                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">{(orderData as any).planName} Plan</h4>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                <div className="mb-3 sm:mb-4 p-3 bg-gray-50 rounded-lg">
+                  <h4 className="text-xs sm:text-sm font-semibold text-gray-900 mb-0.5">{(orderData as any).planName} Plan</h4>
+                  <p className="text-[11px] sm:text-xs text-gray-600">
                     Digital subscription
                   </p>
                 </div>
@@ -718,15 +721,15 @@ export default function NFCPaymentPage() {
 
               {/* Card Preview - Hide for digital products */}
               {orderData?.cardConfig?.baseMaterial !== 'digital' && (
-                <div className="mb-4 sm:mb-6">
-                  <h4 className="text-sm sm:text-base font-medium mb-2 sm:mb-3">Your NFC Card</h4>
+                <div className="mb-3 sm:mb-4">
+                  <h4 className="text-xs sm:text-sm font-medium mb-1 sm:mb-2">Your NFC Card</h4>
                   {orderData?.cardConfig?.planType !== 'pro' && (
-                    <p className="text-xs sm:text-sm text-gray-600 mb-1.5 sm:mb-2">
+                    <p className="text-[11px] sm:text-xs text-gray-600 mb-1 sm:mb-1.5">
                       {orderData?.cardConfig?.fullName || `${orderData?.cardConfig?.cardFirstName} ${orderData?.cardConfig?.cardLastName}` || 'Custom NFC Card'}
                     </p>
                   )}
                   {orderData?.cardConfig?.baseMaterial && (
-                    <p className="text-xs text-gray-500 mb-3 sm:mb-4">
+                    <p className="text-[10px] sm:text-[11px] text-gray-500 mb-2 sm:mb-3">
                       Material: {orderData.cardConfig.baseMaterial.charAt(0).toUpperCase() + orderData.cardConfig.baseMaterial.slice(1)} •
                       Color: {(() => {
                         const color = orderData.cardConfig.color || 'Black';
@@ -747,75 +750,98 @@ export default function NFCPaymentPage() {
                     </p>
                   )}
 
-                  {/* Front Card */}
-                  <div className="mb-3 sm:mb-4">
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                  {/* Toggleable Card Preview */}
+                  <div className="mb-2 sm:mb-3 lg:max-w-[320px]">
+                    <div
+                      onClick={() => setShowBack(!showBack)}
+                      className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg cursor-pointer transition-transform duration-300 hover:scale-[1.02]`}
+                    >
                       <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                      {/* AI Icon top right */}
-                      <img
-                        src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
-                        alt="AI"
-                        className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
-                        style={{ boxShadow: 'none', background: 'transparent' }}
-                      />
 
-                      {/* User Name or Initials - Hidden for Pro plan */}
-                      {orderData?.cardConfig?.planType !== 'pro' && (
-                        <div className="absolute bottom-4 left-4">
-                          {(() => {
-                            const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
-                            const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
-                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                      {!showBack ? (
+                        <>
+                          {/* Front Side */}
+                          <img
+                            src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
+                            alt="AI"
+                            className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
+                            style={{ boxShadow: 'none', background: 'transparent' }}
+                          />
+                          {orderData?.cardConfig?.planType !== 'pro' && (
+                            <div className="absolute bottom-4 left-4">
+                              {(() => {
+                                const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
+                                const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
+                                const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
 
-                            if (isSingleCharOnly) {
-                              return (
-                                <div className={`${getTextColor()} text-xl font-light tracking-widest`}>
-                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                </div>
-                              );
-                            } else {
-                              return (
-                                <div className={`${getTextColor()} text-sm font-light tracking-wider`}>
-                                  {firstName.toUpperCase()} {lastName.toUpperCase()}
-                                </div>
-                              );
-                            }
-                          })()}
-                        </div>
+                                if (isSingleCharOnly) {
+                                  return (
+                                    <div className={`${getTextColor()} text-xl font-light tracking-widest`}>
+                                      {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <div className={`${getTextColor()} text-sm font-light tracking-wider`}>
+                                      {firstName.toUpperCase()} {lastName.toUpperCase()}
+                                    </div>
+                                  );
+                                }
+                              })()}
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {/* Back Side */}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            {orderData?.cardConfig?.isFoundingMember ? (
+                              <>
+                                {orderData?.cardConfig?.companyLogoUrl ? (
+                                  <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
+                                ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
+                                  <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                                ) : null}
+                                <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
+                              </>
+                            ) : (
+                              <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+                            )}
+                          </div>
+                          <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                            <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                          </div>
+                        </>
                       )}
                     </div>
-                    <div className="text-center text-xs text-gray-500 mt-1">Front</div>
+                    <div className="text-center text-xs text-gray-500 mt-1.5 flex items-center justify-center gap-1">
+                      <span>{showBack ? 'Back' : 'Front'}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-400 cursor-pointer hover:text-gray-600" onClick={() => setShowBack(!showBack)}>
+                        Click to see {showBack ? 'front' : 'back'} side
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Back Card */}
-                  <div className="mb-3 sm:mb-4">
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {orderData?.cardConfig?.isFoundingMember ? (
-                          <>
-                            {orderData?.cardConfig?.companyLogoUrl ? (
-                              <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
-                            ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
-                              <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
-                            ) : null}
-                            <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
-                          </>
-                        ) : (
-                          <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
-                        )}
-                      </div>
-                      <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                        <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
-                      </div>
+                  {/* Shipping Address */}
+                  {orderData?.shipping && (
+                    <div className="mb-2 sm:mb-3 p-2.5 bg-gray-50 rounded-lg">
+                      <h5 className="text-[11px] font-medium text-gray-700 mb-0.5">Delivery Address</h5>
+                      <p className="text-[11px] text-gray-600 leading-snug">
+                        {orderData.shipping.addressLine1}
+                        {orderData.shipping.addressLine2 && <>, {orderData.shipping.addressLine2}</>}
+                        <br />
+                        {orderData.shipping.city}, {orderData.shipping.stateProvince} {orderData.shipping.postalCode}
+                        <br />
+                        {orderData.shipping.country}
+                      </p>
                     </div>
-                    <div className="text-center text-xs text-gray-500 mt-1">Back</div>
-                  </div>
+                  )}
                 </div>
               )}
 
               {/* PRICING BREAKDOWN */}
-              <div className="space-y-2 sm:space-y-3 text-xs sm:text-sm">
+              <div className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
                 {(() => {
                   const planType = orderData?.cardConfig?.planType || '';
 
@@ -920,11 +946,11 @@ export default function NFCPaymentPage() {
                 {/* Voucher Section - ONLY for Non-Founders (Founders have exclusive pricing) */}
                 {!isFoundingMember && (
                   <>
-                    <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3">
-                      <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
-                        <h3 className="text-sm font-medium text-gray-900 mb-3">Have a voucher code?</h3>
+                    <div className="border-t border-dashed border-gray-300 pt-2 mt-2">
+                      <div className="border border-dashed border-gray-300 rounded-lg p-2.5 sm:p-3">
+                        <h3 className="text-xs font-medium text-gray-900 mb-2">Have a voucher code?</h3>
 
-                        <div className="flex gap-2 mb-3">
+                        <div className="flex gap-2 mb-2">
                           <input
                             type="text"
                             value={voucherCode}
@@ -940,7 +966,7 @@ export default function NFCPaymentPage() {
                               }
                             }}
                             placeholder="Enter voucher code"
-                            className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 uppercase cursor-text"
+                            className="flex-1 px-2.5 py-1.5 text-xs border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 uppercase cursor-text"
                           />
 
                           <button
@@ -953,17 +979,17 @@ export default function NFCPaymentPage() {
                               opacity: (applyingVoucher || !voucherCode.trim() || voucherValid === true) ? 0.6 : 1,
                               cursor: (applyingVoucher || !voucherCode.trim() || voucherValid === true) ? 'not-allowed' : 'pointer'
                             }}
-                            className="px-4 py-2 text-sm font-medium rounded-lg whitespace-nowrap"
+                            className="px-3 py-1.5 text-xs font-medium rounded-lg whitespace-nowrap"
                           >
                             {applyingVoucher ? 'Applying...' : 'Apply'}
                           </button>
                         </div>
 
                         {voucherValid === true && (
-                          <div className="p-2.5 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-2">
-                              <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                              <p className="text-sm text-green-700">Voucher applied successfully</p>
+                          <div className="p-2 bg-green-50 border border-green-200 rounded-lg flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5">
+                              <Check className="w-3.5 h-3.5 text-green-600 flex-shrink-0" />
+                              <p className="text-xs text-green-700">Voucher applied successfully</p>
                             </div>
                             <button
                               type="button"
@@ -982,9 +1008,9 @@ export default function NFCPaymentPage() {
                         )}
 
                         {voucherValid === false && (
-                          <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-                            <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                            <p className="text-sm text-red-700">Invalid voucher code</p>
+                          <div className="p-2 bg-red-50 border border-red-200 rounded-lg flex items-center gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 text-red-600 flex-shrink-0" />
+                            <p className="text-xs text-red-700">Invalid voucher code</p>
                           </div>
                         )}
                       </div>
@@ -992,7 +1018,7 @@ export default function NFCPaymentPage() {
 
                     {/* Discount Line - Outside dashed box, only for non-founders */}
                     {voucherValid && voucherAmount > 0 && (
-                      <div className="flex justify-between text-green-600 font-medium text-sm">
+                      <div className="flex justify-between text-green-600 font-medium text-xs">
                         <span>Voucher Discount ({voucherDiscount}% off)</span>
                         <span>-{displayPrice(voucherAmount)}</span>
                       </div>
@@ -1001,18 +1027,18 @@ export default function NFCPaymentPage() {
                 )}
 
                 {/* Total */}
-                <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3 flex justify-between font-semibold text-sm sm:text-base">
+                <div className="border-t border-dashed border-gray-300 pt-2 mt-2 flex justify-between font-semibold text-sm sm:text-base">
                   <span>Total</span>
                   <span>{displayPrice(getFinalAmount())}</span>
                 </div>
               </div>
 
               {/* Security Notice */}
-              <div className="mt-4 sm:mt-6 flex items-start space-x-2 sm:space-x-3 text-xs sm:text-sm text-gray-600">
-                <Shield className="h-4 w-4 sm:h-5 sm:w-5 mt-0.5" />
+              <div className="mt-3 sm:mt-4 flex items-start space-x-2 text-[11px] sm:text-xs text-gray-600">
+                <Shield className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5" />
                 <div>
-                  <p className="font-medium">Secure Payment</p>
-                  <p className="text-xs sm:text-sm">Your payment info is encrypted and secure</p>
+                  <p className="font-medium text-[11px] sm:text-xs">Secure Payment</p>
+                  <p className="text-[10px] sm:text-[11px]">Your payment info is encrypted and secure</p>
                 </div>
               </div>
             </div>

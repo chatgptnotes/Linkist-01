@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmail } from '@/lib/smtp-email-service';
+import { notifyFounderRequest } from '@/lib/admin-notifications';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -144,6 +145,12 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
+
+    // Fire admin notification (non-blocking)
+    notifyFounderRequest(
+      `${firstName.trim()} ${lastName.trim()}`,
+      email.toLowerCase().trim()
+    );
 
     // Send confirmation email to user
     try {
