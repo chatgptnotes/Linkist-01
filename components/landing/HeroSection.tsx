@@ -44,28 +44,27 @@ export default function HeroSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-6 mt-4"
+            className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-4 mt-4"
           >
             Your business network<br />
             isn't the problem.<br />
             Recall is.<br />
           </motion.h2>
+        </div>
 
-          {/* Mobile subtitle - scrolling ticker */}
-          <div className="overflow-hidden w-full mt-4 relative z-20">
-            <div
-              className="flex whitespace-nowrap animate-hero-subtitle"
-            >
-              <span className="text-[16px] font-light hero-subtitle-gradient pr-16">
-                Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-              </span>
-              {/* Duplicate for seamless loop */}
-              <span className="text-[16px] font-light hero-subtitle-gradient pr-16" aria-hidden="true">
-                Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-              </span>
-            </div>
+        {/* Mobile subtitle - scrolling ticker - outside padded container, full viewport width */}
+        <div className="overflow-hidden mt-2 relative z-20 mx-[-1rem] w-[calc(100%+2rem)]">
+          <div
+            className="flex whitespace-nowrap"
+            style={{ animation: 'heroSubtitleScroll 18s linear infinite' }}
+          >
+            <span className="text-[14px] font-light hero-subtitle-gradient pr-12 inline-block">
+              Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+            </span>
+            <span className="text-[14px] font-light hero-subtitle-gradient pr-12 inline-block" aria-hidden="true">
+              Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+            </span>
           </div>
-
         </div>
 
         {/* Hero Image - Mobile */}
