@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden max-w-[100vw]">
+    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-x-hidden max-w-[100vw]">
       {/* Background - curved light lines (mobile only) */}
       <div className="absolute inset-0 top-[10%] md:hidden max-w-full">
         <img
@@ -53,12 +53,8 @@ export default function HeroSection() {
 
           {/* Mobile subtitle - scrolling ticker */}
           <div className="overflow-hidden w-full mt-4 relative z-20">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="flex whitespace-nowrap"
-              style={{ animation: 'heroSubtitleScroll 18s linear infinite' }}
+            <div
+              className="flex whitespace-nowrap animate-hero-subtitle"
             >
               <span className="text-[16px] font-light hero-subtitle-gradient pr-16">
                 Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
@@ -67,7 +63,7 @@ export default function HeroSection() {
               <span className="text-[16px] font-light hero-subtitle-gradient pr-16" aria-hidden="true">
                 Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
               </span>
-            </motion.div>
+            </div>
           </div>
 
         </div>

@@ -674,8 +674,16 @@ div[id*="password-manager"] {
   100% { transform: translateX(-50%); }
 }
 
+.animate-hero-subtitle {
+  animation: heroSubtitleScroll 18s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [style*="heroSubtitleScroll"] {
     animation: none !important;
+  }
+  .animate-hero-subtitle {
+    animation: none;
+    white-space: normal;
   }
 }
