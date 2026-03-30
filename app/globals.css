@@ -668,3 +668,14 @@ div[data-dashlanecreated="true"],
 div[id*="password-manager"] {
   display: none !important;
 }
+
+@keyframes heroSubtitleScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="heroSubtitleScroll"] {
+    animation: none !important;
+  }
+}

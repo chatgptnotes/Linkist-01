@@ -39,25 +39,36 @@ export default function HeroSection() {
         </motion.div>
 
         {/* Text Section */}
-        <div className="pt-24 px-4 text-center relative z-20 mb-6">
+        <div className="pt-24 px-4 text-center relative z-20">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="text-[36px] leading-[36px] min-[450px]:text-[35px] min-[450px]:leading-[38px] font-semibold tracking-[-0.04em] text-center hero-title-gradient mb-6 mt-4"
           >
-            Your network<br />
+            Your business network<br />
             isn't the problem.<br />
             Recall is.<br />
           </motion.h2>
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[16px] leading-normal font-light tracking-normal text-center hero-subtitle-gradient max-w-[400px] mx-auto"
-          >
-           Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive  with relevant actionable insights.
-          </motion.h1>
+
+          {/* Mobile subtitle - scrolling ticker */}
+          <div className="overflow-hidden w-full mt-4 relative z-20">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.8 }}
+              className="flex whitespace-nowrap"
+              style={{ animation: 'heroSubtitleScroll 18s linear infinite' }}
+            >
+              <span className="text-[16px] font-light hero-subtitle-gradient pr-16">
+                Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+              </span>
+              {/* Duplicate for seamless loop */}
+              <span className="text-[16px] font-light hero-subtitle-gradient pr-16" aria-hidden="true">
+                Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+              </span>
+            </motion.div>
+          </div>
 
         </div>
 
@@ -66,7 +77,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="mb-20 flex justify-center relative z-20"
+          className="mb-4 flex justify-center relative z-20"
         >
           <img
             src="/hero-image-2-rev.png"
@@ -81,7 +92,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="relative z-30 px-5 flex flex-col items-center mt-8"
+          className="relative z-30 px-5 flex flex-col items-center mt-2"
         >
           <p className="text-[#666666] text-[12px] mb-6 text-center font-body">
             Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
@@ -113,7 +124,7 @@ export default function HeroSection() {
                 backgroundImage: 'linear-gradient(170.76deg, #09090B -49.89%, #F2F2FC 93.32%)'
               }}
             >
-              Your network<br />
+              Your business network<br />
               isn't the problem.<br />
               Recall is.
             </motion.h1>

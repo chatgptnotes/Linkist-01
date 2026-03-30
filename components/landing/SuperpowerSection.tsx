@@ -123,8 +123,8 @@ export default function SuperpowerSection() {
                 >
                     <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
                         <Image
-                            src="/product-hunt-label-2.png"
-                            alt="Join Linkist"
+                            src="/activate-network.png"
+                            alt="Activate Network"
                             width={276}
                             height={62}
                             className="w-auto h-[48px] object-contain"

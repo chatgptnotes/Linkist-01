@@ -1,4 +1,6 @@
 import { motion } from 'framer-motion';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function InviteOnlySection() {
     const cards = [
@@ -144,6 +146,24 @@ export default function InviteOnlySection() {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* CTA Button */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-[42px] flex justify-center"
+                >
+                    <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
+                        <Image
+                            src="/join-circle.png"
+                            alt="Join the Circle"
+                            width={276}
+                            height={62}
+                            className="w-auto h-[48px] object-contain"
+                        />
+                    </Link>
+                </motion.div>
 
             </div>
         </section>
