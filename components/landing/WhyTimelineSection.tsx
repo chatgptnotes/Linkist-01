@@ -199,8 +199,8 @@ export default function WhyTimelineSection() {
                     >
                         <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/product-hunt-label-2.png"
-                                alt="Join Linkist"
+                                src="/understand-gap.png"
+                                alt="Understand the Gap"
                                 width={276}
                                 height={62}
                                 className="w-auto h-[48px] object-contain"
@@ -242,8 +242,8 @@ export default function WhyTimelineSection() {
                         {/* Desktop CTA */}
                         <Link href="https://linkist.ai/digital-business-card" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
                             <Image
-                                src="/product-hunt-label-2.png"
-                                alt="Join Linkist"
+                                src="/understand-gap.png"
+                                alt="Understand the Gap"
                                 width={276}
                                 height={62}
                                 className="w-auto h-[52px] object-contain"

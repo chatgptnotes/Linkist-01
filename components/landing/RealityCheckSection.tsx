@@ -90,8 +90,8 @@ export default function RealityCheckSection() {
                             >
                                 <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
                                     <Image
-                                        src="/product-hunt-label-2.png"
-                                        alt="Join Linkist"
+                                        src="/upgrade-memory.png"
+                                        alt="Upgrade Memory"
                                         width={276}
                                         height={62}
                                         className="w-auto h-[48px] sm:h-[56px] object-contain"
