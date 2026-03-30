@@ -43,11 +43,13 @@ interface AuthUser {
   email: string;
   first_name?: string;
   last_name?: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'super_admin';
   permissions?: Permission[];
   canAccessAdmin?: boolean;
   isAdmin?: boolean;
+  isSuperAdmin?: boolean;
   isModerator?: boolean;
+  is_super_admin?: boolean;
 }
 
 interface AdminLayoutProps {
@@ -101,7 +103,8 @@ const navigationItems = [
     name: 'Users',
     href: '/admin/users',
     icon: UserCheck,
-    permission: Permission.VIEW_USERS,
+    permission: Permission.ASSIGN_ROLES,
+    superAdminOnly: true,
   },
   {
     name: 'Subscribers',
@@ -128,7 +131,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const pathname = usePathname();
-  const { hasPermission, canAccessAdmin } = usePermissions(currentUser);
+  const { hasPermission, canAccessAdmin, isSuperAdmin } = usePermissions(currentUser);
 
   useEffect(() => {
     getCurrentUser();
@@ -143,8 +146,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       
       if (response.ok) {
         const data = await response.json();
-        setCurrentUser(data.user);
-        
+        setCurrentUser({
+          ...data.user,
+          is_super_admin: data.isSuperAdmin,
+          role: data.isSuperAdmin ? 'super_admin' : data.user.role,
+        });
+
         if (!data.canAccessAdmin) {
           window.location.href = '/';
           return;
@@ -194,9 +201,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  const filteredNavigation = navigationItems.filter(item => 
-    hasPermission(item.permission)
-  );
+  const filteredNavigation = navigationItems.filter(item => {
+    if ((item as any).superAdminOnly && !isSuperAdmin()) return false;
+    return hasPermission(item.permission);
+  });
 
   return (
     <div className="flex h-screen bg-gray-100">

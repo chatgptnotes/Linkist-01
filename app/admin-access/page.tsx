@@ -12,12 +12,14 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 export default function AdminAccessPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [loginMode, setLoginMode] = useState<'email' | 'pin'>('email');
   const router = useRouter();
 
   useEffect(() => {
@@ -51,7 +53,10 @@ export default function AdminAccessPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({
+          password,
+          email: loginMode === 'email' ? email : undefined,
+        }),
       });
 
       const data = await response.json();
@@ -120,7 +125,7 @@ export default function AdminAccessPage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900">Admin Access</h1>
           <p className="mt-2 text-gray-600">
-            Enter your password to access the admin panel
+            Sign in to access the admin panel
           </p>
         </div>
 
@@ -154,9 +159,46 @@ export default function AdminAccessPage() {
         {!isLoggedIn && (
           <div className="bg-white rounded-lg shadow-lg p-8">
             <form onSubmit={handleLogin} className="space-y-6">
+              {/* Toggle between email login and PIN login */}
+              <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setLoginMode('email')}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${loginMode === 'email' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                >
+                  Email Login
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLoginMode('pin')}
+                  className={`flex-1 py-2 text-sm font-medium transition-colors ${loginMode === 'pin' ? 'bg-red-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-50'}`}
+                >
+                  PIN Login
+                </button>
+              </div>
+
+              {/* Email field - only for email login */}
+              {loginMode === 'email' && (
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@linkist.com"
+                    className="block w-full px-4 py-3 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              )}
+
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                  Admin Password
+                  {loginMode === 'email' ? 'Password' : 'Admin PIN'}
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -199,7 +241,7 @@ export default function AdminAccessPage() {
 
               <button
                 type="submit"
-                disabled={loading || !password}
+                disabled={loading || !password || (loginMode === 'email' && !email)}
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-lg font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 {loading ? (

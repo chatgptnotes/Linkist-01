@@ -44,7 +44,7 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     Permission.UPLOAD_FILES, // Own files only
     Permission.VIEW_FILES,   // Own files only
   ],
-  
+
   moderator: [
     Permission.VIEW_ORDERS,
     Permission.UPDATE_ORDERS,
@@ -56,9 +56,27 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     Permission.UPLOAD_FILES,
     Permission.VIEW_FILES,
   ],
-  
+
   admin: [
-    // All permissions for admin
+    // All permissions except user/role management
+    Permission.VIEW_ORDERS,
+    Permission.CREATE_ORDERS,
+    Permission.UPDATE_ORDERS,
+    Permission.DELETE_ORDERS,
+    Permission.VIEW_CUSTOMERS,
+    Permission.UPDATE_CUSTOMERS,
+    Permission.DELETE_CUSTOMERS,
+    Permission.VIEW_STATS,
+    Permission.VIEW_LOGS,
+    Permission.SEND_EMAILS,
+    Permission.VIEW_EMAIL_LOGS,
+    Permission.UPLOAD_FILES,
+    Permission.DELETE_FILES,
+    Permission.VIEW_FILES,
+  ],
+
+  super_admin: [
+    // All permissions including user/role management
     ...Object.values(Permission)
   ]
 }
@@ -83,14 +101,19 @@ export class RBAC {
     return permissions.every(permission => this.hasPermission(user, permission))
   }
 
-  // Check if user is admin
+  // Check if user is admin (includes super_admin)
   static isAdmin(user: AuthUser | null): boolean {
-    return user?.role === 'admin'
+    return user?.role === 'admin' || user?.role === 'super_admin'
+  }
+
+  // Check if user is super admin
+  static isSuperAdmin(user: AuthUser | null): boolean {
+    return user?.role === 'super_admin' || user?.is_super_admin === true
   }
 
   // Check if user is moderator or admin
   static isModerator(user: AuthUser | null): boolean {
-    return user?.role === 'moderator' || user?.role === 'admin'
+    return user?.role === 'moderator' || user?.role === 'admin' || user?.role === 'super_admin'
   }
 
   // Get all permissions for a user
@@ -106,7 +129,7 @@ export class RBAC {
       Permission.VIEW_CUSTOMERS,
       Permission.VIEW_STATS,
       Permission.VIEW_USERS
-    ]) && (user?.role === 'admin' || user?.role === 'moderator')
+    ]) && (user?.role === 'admin' || user?.role === 'moderator' || user?.role === 'super_admin')
   }
 
   // Validate user access to specific resources
@@ -118,6 +141,7 @@ export class RBAC {
   // Get readable role name
   static getRoleName(role: string): string {
     switch (role) {
+      case 'super_admin': return 'Super Admin'
       case 'admin': return 'Administrator'
       case 'moderator': return 'Moderator'
       case 'user': return 'User'
@@ -128,13 +152,15 @@ export class RBAC {
   // Get role description
   static getRoleDescription(role: string): string {
     switch (role) {
-      case 'admin': 
-        return 'Full system access including user management and system settings'
-      case 'moderator': 
+      case 'super_admin':
+        return 'Full system access including user management, role assignment, and system settings'
+      case 'admin':
+        return 'Full system access excluding user management and role assignment'
+      case 'moderator':
         return 'Access to order management, customer support, and reporting'
-      case 'user': 
+      case 'user':
         return 'Access to personal account and order management'
-      default: 
+      default:
         return 'No access'
     }
   }
@@ -173,6 +199,7 @@ export function usePermissions(user: AuthUser | null) {
     hasAnyPermission: (permissions: Permission[]) => RBAC.hasAnyPermission(user, permissions),
     hasAllPermissions: (permissions: Permission[]) => RBAC.hasAllPermissions(user, permissions),
     isAdmin: () => RBAC.isAdmin(user),
+    isSuperAdmin: () => RBAC.isSuperAdmin(user),
     isModerator: () => RBAC.isModerator(user),
     canAccessAdmin: () => RBAC.canAccessAdmin(user),
     getUserPermissions: () => RBAC.getUserPermissions(user)

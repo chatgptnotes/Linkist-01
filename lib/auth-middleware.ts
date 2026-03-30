@@ -41,7 +41,7 @@ const AUTH_CONFIG: {
 export interface AuthUser {
   id: string
   email: string
-  role: 'user' | 'admin' | 'moderator'
+  role: 'user' | 'admin' | 'moderator' | 'super_admin'
   status?: 'pending' | 'active' | 'suspended'
   email_verified?: boolean
   mobile_verified?: boolean
@@ -52,6 +52,7 @@ export interface AuthUser {
   founding_member_since?: string | null
   founding_member_plan?: string | null
   phone_number?: string | null
+  is_super_admin?: boolean
 }
 
 export interface AuthSession {
@@ -92,25 +93,28 @@ function createMiddlewareClient(request: NextRequest) {
 // Get authenticated user from Supabase session
 export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
   try {
-    // First check for admin session (PIN-based admin access)
+    // First check for admin session (PIN-based or per-user admin access)
     const adminSessionId = request.cookies.get('admin_session')?.value
-    const isAdminSession = await verifyAdminSession(adminSessionId)
+    const adminSession = await verifyAdminSession(adminSessionId)
 
-    if (isAdminSession) {
-      // Create admin user from session token
+    if (adminSession.valid) {
+      const p = adminSession.payload || {}
       const adminUser: AuthUser = {
-        id: ADMIN_SESSION_UUID,
-        email: 'admin@linkist.com',
-        role: 'admin',
+        id: (p.admin_id as string) || ADMIN_SESSION_UUID,
+        email: (p.email as string) || 'admin@linkist.com',
+        role: p.is_super_admin ? 'super_admin' : 'admin',
         email_verified: true,
         created_at: new Date().toISOString(),
+        first_name: (p.first_name as string) || null,
+        last_name: (p.last_name as string) || null,
+        is_super_admin: !!p.is_super_admin,
       }
 
       return {
         user: adminUser,
         isAuthenticated: true,
         isAdmin: true,
-        sessionId: ADMIN_SESSION_UUID,
+        sessionId: (p.admin_id as string) || ADMIN_SESSION_UUID,
       }
     }
 
@@ -278,30 +282,33 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
   }
 }
 
-// Verify admin session (temporary solution using encrypted cookies)
-async function verifyAdminSession(sessionId?: string): Promise<boolean> {
-  if (!sessionId) return false
+// Verify admin session and return payload
+async function verifyAdminSession(sessionId?: string): Promise<{ valid: boolean; payload?: any }> {
+  if (!sessionId) return { valid: false }
 
   try {
-    // In a real app, you'd verify this against a database
-    // For now, we'll use a simple time-based token
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
-    await jwtVerify(sessionId, secret)
-    return true
+    const { payload } = await jwtVerify(sessionId, secret)
+    return { valid: true, payload }
   } catch {
-    return false
+    return { valid: false }
   }
 }
 
 // Create admin session token
-export async function createAdminSession(): Promise<string> {
+export async function createAdminSession(adminUser?: { id: string; email: string; role: string; is_super_admin: boolean; first_name?: string; last_name?: string }): Promise<string> {
   try {
     const { SignJWT } = await import('jose')
     const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
-    
-    return await new SignJWT({ 
-      role: 'admin',
-      created: Date.now() 
+
+    return await new SignJWT({
+      role: adminUser?.role || 'admin',
+      admin_id: adminUser?.id || ADMIN_SESSION_UUID,
+      email: adminUser?.email || 'admin@linkist.com',
+      is_super_admin: adminUser?.is_super_admin ?? true,
+      first_name: adminUser?.first_name || 'Admin',
+      last_name: adminUser?.last_name || '',
+      created: Date.now()
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -447,11 +454,34 @@ export function requireAdmin(handler: (request: NextRequest) => Promise<Response
 export function requireAuth(handler: (request: NextRequest, user: AuthUser) => Promise<Response>) {
   return async (request: NextRequest) => {
     const session = await getCurrentUser(request)
-    
+
     if (!session.isAuthenticated || !session.user) {
       return Response.json(
         { error: 'Authentication required' },
         { status: 401 }
+      )
+    }
+
+    return handler(request, session.user)
+  }
+}
+
+// Helper function to require super admin in API routes
+export function requireSuperAdmin(handler: (request: NextRequest, user: AuthUser) => Promise<Response>) {
+  return async (request: NextRequest) => {
+    const session = await getCurrentUser(request)
+
+    if (!session.isAdmin || !session.user) {
+      return Response.json(
+        { error: 'Admin access required' },
+        { status: 401 }
+      )
+    }
+
+    if (!session.user.is_super_admin) {
+      return Response.json(
+        { error: 'Super admin access required' },
+        { status: 403 }
       )
     }
 

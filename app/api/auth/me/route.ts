@@ -80,6 +80,7 @@ export async function GET(request: NextRequest) {
       permissions,
       canAccessAdmin,
       isAdmin: RBAC.isAdmin(user),
+      isSuperAdmin: RBAC.isSuperAdmin(user),
       isModerator: RBAC.isModerator(user)
     });
 
