@@ -52,16 +52,27 @@ export default function HeroSection() {
           </motion.h2>
         </div>
 
-        {/* Mobile subtitle - scrolling ticker - full width, no side padding */}
-        <div className="overflow-hidden mt-2 relative z-20 w-full">
+        {/* Mobile subtitle - scrolling ticker */}
+        <div
+          style={{
+            width: '100vw',
+            overflow: 'hidden',
+            position: 'relative',
+            zIndex: 20,
+            marginTop: '8px',
+          }}
+        >
           <div
-            className="flex whitespace-nowrap"
-            style={{ animation: 'heroSubtitleScroll 18s linear infinite' }}
+            style={{
+              display: 'flex',
+              whiteSpace: 'nowrap',
+              animation: 'heroSubtitleScroll 18s linear infinite',
+            }}
           >
-            <span className="text-[14px] font-light hero-subtitle-gradient pr-12 inline-block">
+            <span style={{ fontSize: '14px', fontWeight: 300, paddingRight: '48px', display: 'inline-block' }} className="hero-subtitle-gradient">
               Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
             </span>
-            <span className="text-[14px] font-light hero-subtitle-gradient pr-12 inline-block" aria-hidden="true">
+            <span style={{ fontSize: '14px', fontWeight: 300, paddingRight: '48px', display: 'inline-block' }} className="hero-subtitle-gradient" aria-hidden="true">
               Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
             </span>
           </div>
@@ -72,7 +83,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="mb-4 flex justify-center relative z-20 px-4"
+          className="mb-4 flex justify-center relative z-20 px-4 mt-4"
         >
           <img
             src="/hero-image-2-rev.png"
