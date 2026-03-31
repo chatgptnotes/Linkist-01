@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function HeroSection() {
   return (
-    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-x-hidden max-w-[100vw]">
+    <section className="relative min-h-[799px] md:min-h-screen flex flex-col bg-black overflow-hidden max-w-[100vw]">
       {/* Background - curved light lines (mobile only) */}
       <div className="absolute inset-0 top-[10%] md:hidden max-w-full">
         <img
@@ -21,7 +21,7 @@ export default function HeroSection() {
       </div>
 
       {/* Mobile Layout */}
-      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto px-4 pb-8">
+      <div className="md:hidden relative z-10 flex flex-col min-h-[799px] w-full max-w-[100vw] mx-auto pb-8">
         {/* Globe - Layer 1 (absolute at bottom of entire section) */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -52,8 +52,8 @@ export default function HeroSection() {
           </motion.h2>
         </div>
 
-        {/* Mobile subtitle - scrolling ticker - outside padded container, full viewport width */}
-        <div className="overflow-hidden mt-2 relative z-20 mx-[-1rem] w-[calc(100%+2rem)]">
+        {/* Mobile subtitle - scrolling ticker - full width, no side padding */}
+        <div className="overflow-hidden mt-2 relative z-20 w-full">
           <div
             className="flex whitespace-nowrap"
             style={{ animation: 'heroSubtitleScroll 18s linear infinite' }}
@@ -72,7 +72,7 @@ export default function HeroSection() {
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, duration: 0.8 }}
-          className="mb-4 flex justify-center relative z-20"
+          className="mb-4 flex justify-center relative z-20 px-4"
         >
           <img
             src="/hero-image-2-rev.png"
