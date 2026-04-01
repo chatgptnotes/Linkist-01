@@ -379,11 +379,15 @@ export async function POST(request: NextRequest) {
     // Create user session (only for active users)
     const sessionId = await SessionStore.create(user.id, user.email, user.role);
 
+    // Check if user is staff (non-'user' role) — they need admin panel access
+    const isStaff = user.role && user.role !== 'user';
+
     // Set session cookie
     const response = NextResponse.json({
       success: true,
       message: 'Email verified successfully',
       verified: true,
+      isStaff,
       user: {
         id: user.id,
         email: user.email,
@@ -400,6 +404,20 @@ export async function POST(request: NextRequest) {
     const cookieOptions = getSessionCookieOptions(requestHost);
 
     response.cookies.set('session', sessionId, cookieOptions);
+
+    // For staff users, also set admin_session JWT so admin panel works
+    if (isStaff) {
+      try {
+        const { createAdminSession } = await import('@/lib/auth-middleware');
+        const adminToken = await createAdminSession();
+        response.cookies.set('admin_session', adminToken, {
+          ...cookieOptions,
+          maxAge: 24 * 60 * 60, // 24 hours for admin session
+        });
+      } catch (err) {
+        console.warn('Failed to create admin session for staff user:', err);
+      }
+    }
 
     return response;
 

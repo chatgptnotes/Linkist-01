@@ -132,9 +132,16 @@ export default function VerifyLoginPage() {
         // Show success state
         setSuccess(true);
 
-        // Redirect to profile dashboard after successful login
+        // Redirect based on role — staff goes to admin, users go to profile
+        const userRole = data.user?.role || 'user';
+        const isStaff = data.isStaff || (userRole !== 'user');
+
         setTimeout(() => {
-          window.location.href = '/profile-dashboard';
+          if (isStaff) {
+            window.location.href = '/admin/dashboard';
+          } else {
+            window.location.href = '/profile-dashboard';
+          }
         }, 2000);
       } else {
         showToast(data.error || 'Invalid verification code', 'error');

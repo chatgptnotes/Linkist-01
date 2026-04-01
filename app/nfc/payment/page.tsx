@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loadStripe } from '@stripe/stripe-js';
@@ -70,6 +71,9 @@ export default function NFCPaymentPage() {
   const [paymentCurrency, setPaymentCurrency] = useState<'usd' | 'inr'>('usd');
   const [currencySymbol, setCurrencySymbol] = useState('$');
   const [exchangeRate, setExchangeRate] = useState<number | null>(null);
+
+  // Card flip state
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
 
   // Stripe Modal state
   const [showStripeModal, setShowStripeModal] = useState(false);
@@ -747,69 +751,101 @@ export default function NFCPaymentPage() {
                     </p>
                   )}
 
-                  {/* Front Card */}
-                  <div className="mb-3 sm:mb-4">
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                      {/* AI Icon top right */}
-                      <img
-                        src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
-                        alt="AI"
-                        className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
-                        style={{ boxShadow: 'none', background: 'transparent' }}
-                      />
-
-                      {/* User Name or Initials - Hidden for Pro plan */}
-                      {orderData?.cardConfig?.planType !== 'pro' && (
-                        <div className="absolute bottom-4 left-4">
-                          {(() => {
-                            const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
-                            const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
-                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-
-                            if (isSingleCharOnly) {
-                              return (
-                                <div className={`${getTextColor()} text-xl font-light`}>
-                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                </div>
-                              );
-                            } else {
-                              return (
-                                <div className={`${getTextColor()} text-sm font-medium`}>
-                                  {firstName} {lastName}
-                                </div>
-                              );
-                            }
-                          })()}
+                  {/* Flip Card Preview */}
+                  <div
+                    className="relative w-full cursor-pointer mb-1"
+                    style={{ perspective: '1000px' }}
+                    onClick={() => setIsCardFlipped(!isCardFlipped)}
+                  >
+                    <motion.div
+                      className="relative w-full"
+                      style={{ transformStyle: 'preserve-3d' }}
+                      animate={{ rotateY: isCardFlipped ? 180 : 0 }}
+                      transition={{ duration: 0.6, type: 'spring', stiffness: 260, damping: 20 }}
+                    >
+                      {/* Front Card */}
+                      <div style={{ backfaceVisibility: 'hidden' }}>
+                        <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                          <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                          <img
+                            src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
+                            alt="AI"
+                            className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
+                            style={{ boxShadow: 'none', background: 'transparent' }}
+                          />
+                          {orderData?.cardConfig?.planType !== 'pro' && (
+                            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
+                              {(() => {
+                                const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
+                                const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
+                                const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                                if (isSingleCharOnly) {
+                                  return (
+                                    <div className={`${getTextColor()} text-lg sm:text-xl font-bold`}>
+                                      {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                    </div>
+                                  );
+                                } else {
+                                  return (
+                                    <div className={`${getTextColor()} text-sm sm:text-base font-bold tracking-wide`}>
+                                      {firstName.toUpperCase()} {lastName.toUpperCase()}
+                                    </div>
+                                  );
+                                }
+                              })()}
+                            </div>
+                          )}
                         </div>
-                      )}
-                    </div>
-                    <div className="text-center text-xs text-gray-500 mt-1">Front</div>
-                  </div>
+                      </div>
 
-                  {/* Back Card */}
-                  <div className="mb-3 sm:mb-4">
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {orderData?.cardConfig?.isFoundingMember ? (
-                          <>
-                            {orderData?.cardConfig?.companyLogoUrl ? (
-                              <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
-                            ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
-                              <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
-                            ) : null}
-                            <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
-                          </>
-                        ) : (
-                          <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
-                        )}
+                      {/* Back Card */}
+                      <div
+                        className="absolute inset-0 w-full"
+                        style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                      >
+                        <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                          <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            {orderData?.cardConfig?.isFoundingMember ? (
+                              <>
+                                {orderData?.cardConfig?.companyLogoUrl ? (
+                                  <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-8 sm:h-10 w-auto mb-2 object-contain" />
+                                ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
+                                  <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
+                                ) : null}
+                                <div className={`${getTextColor()} text-xs sm:text-sm font-bold tracking-wider`}>FOUNDING MEMBER</div>
+                              </>
+                            ) : (
+                              <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
+                            )}
+                          </div>
+                          <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                            <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                        <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
-                      </div>
-                    </div>
-                    <div className="text-center text-xs text-gray-500 mt-1">Back</div>
+                    </motion.div>
+                  </div>
+                  <div className="text-center text-xs text-gray-500 mb-3 sm:mb-4">
+                    {isCardFlipped ? 'Back' : 'Front'} &bull; Click to see {isCardFlipped ? 'front' : 'back'} side
+                  </div>
+                </div>
+              )}
+
+              {/* Delivery Address */}
+              {orderData?.shipping && orderData?.cardConfig?.baseMaterial !== 'digital' && (
+                <div className="mb-4 sm:mb-6">
+                  <h4 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Delivery Address</h4>
+                  <div className="text-xs sm:text-sm text-gray-600 space-y-0.5">
+                    <p>{orderData.customerName}</p>
+                    {orderData.shipping.addressLine1 && <p>{orderData.shipping.addressLine1}</p>}
+                    {orderData.shipping.addressLine2 && <p>{orderData.shipping.addressLine2}</p>}
+                    <p>
+                      {[orderData.shipping.city, orderData.shipping.stateProvince, orderData.shipping.postalCode]
+                        .filter(Boolean)
+                        .join(', ')}
+                    </p>
+                    {orderData.shipping.country && <p>{orderData.shipping.country}</p>}
                   </div>
                 </div>
               )}

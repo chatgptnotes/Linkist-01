@@ -1,4 +1,4 @@
-{
+.{
   "name": "linkist-supabase",
   "description": "Supabase MCP integration for Linkist NFC project",
   "version": "1.0.0",

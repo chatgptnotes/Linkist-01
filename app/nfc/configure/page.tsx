@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import PersonIcon from '@mui/icons-material/Person';
 import PaletteIcon from '@mui/icons-material/Palette';
@@ -52,6 +53,7 @@ export default function ConfigureNewPage() {
   const [userCountry, setUserCountry] = useState<string>('India');
   const [isLoading, setIsLoading] = useState(false);
   const [isFoundingMember, setIsFoundingMember] = useState(false);
+  const [isCardFlipped, setIsCardFlipped] = useState(false);
 
   // Founding Member exclusive states
   const [showLinkistLogo, setShowLinkistLogo] = useState(true);
@@ -671,26 +673,26 @@ export default function ConfigureNewPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 pt-24">
-        <div className="pb-64 lg:pb-72">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 pt-16">
+        <div className="pb-6">
           {/* Configuration Section - Full Width */}
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="max-w-3xl mx-auto space-y-3">
 
             {/* Step 1: Personalize Name - Compact Modern Card (hidden for Business plan) */}
             {userPlanType !== 'pro' && (
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Person className="mr-2 w-5 h-5 text-gray-600" /> Personalize Your Name
+                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                  <Person className="mr-2 w-6 h-6 text-gray-600" /> Personalize Your Name
                 </h2>
               </div>
               <div className="p-6">
-                <p className="text-sm text-gray-600 mb-4">
+                <p className="text-base text-gray-600 mb-4">
                   This name will appear on the card exactly as entered (independent from your profile name)
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Card First Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Card First Name</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -709,7 +711,7 @@ export default function ConfigureNewPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-700 mb-1.5">Card Last Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1.5">Card Last Name</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -735,8 +737,8 @@ export default function ConfigureNewPage() {
             {/* Step 2: Base Material - Modern Grid */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Palette className="mr-2 w-5 h-5 text-gray-600" /> Base Material
+                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                  <Palette className="mr-2 w-6 h-6 text-gray-600" /> Base Material
                 </h2>
               </div>
               <div className="p-4">
@@ -758,8 +760,8 @@ export default function ConfigureNewPage() {
                       }}
                     >
                       <div className="text-center">
-                        <h3 className={`font-semibold text-sm ${formData.baseMaterial === material.value ? 'text-red-600' : 'text-gray-900'}`}>{material.label}</h3>
-                        <p className="text-xs text-gray-500 mt-1 line-clamp-2">{material.description}</p>
+                        <h3 className={`font-bold text-base ${formData.baseMaterial === material.value ? 'text-red-600' : 'text-gray-900'}`}>{material.label}</h3>
+                        <p className="text-sm text-gray-500 mt-1 line-clamp-2">{material.description}</p>
                       </div>
                     </button>
                   ))}
@@ -770,16 +772,16 @@ export default function ConfigureNewPage() {
             {/* Combined Texture & Colour in One Card */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <Brush className="mr-2 w-5 h-5 text-gray-600" /> Texture & Colour
+                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                  <Brush className="mr-2 w-6 h-6 text-gray-600" /> Texture & Colour
                 </h2>
               </div>
 
               <div className="p-4 space-y-4">
                 {/* Texture Section */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Texture</h3>
-                  <div className="grid grid-cols-4 gap-2">
+                  <h3 className="text-base font-bold text-gray-700 mb-2">Texture</h3>
+                  <div className="grid grid-cols-3 gap-2">
                     {allTextures.map((texture) => {
                       const isAvailable = isTextureAvailable(texture.value);
                       const isSelected = formData.texture === texture.value;
@@ -806,7 +808,7 @@ export default function ConfigureNewPage() {
                           }}
                         >
                           <div className="text-center">
-                            <h4 className={`text-xs font-medium ${!isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-900'}`}>
+                            <h4 className={`text-sm font-semibold ${!isAvailable ? 'text-gray-500' : isSelected ? 'text-red-600' : 'text-gray-900'}`}>
                               {texture.label}
                             </h4>
                           </div>
@@ -818,7 +820,7 @@ export default function ConfigureNewPage() {
 
                 {/* Colour Section */}
                 <div>
-                  <h3 className="text-sm font-semibold text-gray-700 mb-2">Colour</h3>
+                  <h3 className="text-base font-bold text-gray-700 mb-2">Colour</h3>
                   <div className="flex flex-wrap gap-3">
                     {allColours
                       .filter((colour) => isColourAvailable(colour.value))
@@ -845,7 +847,7 @@ export default function ConfigureNewPage() {
                               outline: 'none',
                             }}
                           />
-                          <span className={`text-xs mt-1 block text-center font-medium ${
+                          <span className={`text-sm mt-1 block text-center font-semibold ${
                             isSelected ? 'text-red-600' : 'text-gray-700'
                           }`}>
                             {colour.label}
@@ -869,8 +871,8 @@ export default function ConfigureNewPage() {
             {/* Step 4: Pattern - Modern Compact */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
               <div className="bg-gray-50 border-b border-gray-200 px-6 py-3">
-                <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                  <GridPattern className="mr-2 w-5 h-5 text-gray-600" /> Pattern
+                <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                  <GridPattern className="mr-2 w-6 h-6 text-gray-600" /> Pattern
                 </h2>
               </div>
               <div className="p-4">
@@ -902,7 +904,7 @@ export default function ConfigureNewPage() {
                             colour={formData.colour || undefined}
                           />
                         </div>
-                        <span className={`text-xs font-medium ${isSelected ? 'text-red-600' : 'text-gray-700'}`}>{pattern.name}</span>
+                        <span className={`text-sm font-semibold ${isSelected ? 'text-red-600' : 'text-gray-700'}`}>{pattern.name}</span>
                       </button>
                     );
                   })}
@@ -914,16 +916,16 @@ export default function ConfigureNewPage() {
             {isFoundersCirclePlan && (
               <div className="bg-gradient-to-br from-amber-50 to-white rounded-xl shadow-sm border border-amber-200 overflow-hidden">
                 <div className="bg-amber-50 border-b border-amber-200 px-6 py-3">
-                  <h2 className="text-lg font-semibold text-gray-900 flex items-center">
-                    <Crown className="mr-2 w-5 h-5 text-amber-500" /> Founders Circle Exclusive
+                  <h2 className="text-xl font-bold text-gray-900 flex items-center">
+                    <Crown className="mr-2 w-6 h-6 text-amber-500" /> Founders Circle Exclusive
                   </h2>
                 </div>
                 <div className="p-4 space-y-4">
                   {/* Linkist Logo Toggle */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="text-sm font-semibold text-gray-700">Linkist Logo</label>
-                      <p className="text-xs text-gray-500 mt-1">Show Linkist branding on card back</p>
+                      <label className="text-base font-bold text-gray-700">Linkist Logo</label>
+                      <p className="text-sm text-gray-500 mt-1">Show Linkist branding on card back</p>
                     </div>
                     <button
                       type="button"
@@ -963,71 +965,89 @@ export default function ConfigureNewPage() {
               </div>
             )}
 
-            {/* Live Preview */}
+            {/* Live Preview - Tap to Flip */}
             <div className="bg-white rounded-xl border border-gray-100 overflow-hidden p-3">
               <h3 className="text-sm font-semibold text-gray-900 mb-2">Live Preview</h3>
-              <div className="flex flex-col items-center gap-3">
-                {/* Front Card */}
-                <div className="w-full">
-                  <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-md`}>
-                    <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                    <div className="absolute top-2 right-2">
-                      <img
-                        src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
-                        alt="AI Assistant"
-                        className={`w-4 h-4 ${formData.colour === 'white' ? '' : 'invert'}`}
-                      />
-                    </div>
-                    {userPlanType !== 'pro' && (
-                    <div className="absolute bottom-3 left-3">
-                      {(() => {
-                        const firstName = formData.cardFirstName?.trim() || '';
-                        const lastName = formData.cardLastName?.trim() || '';
-                        const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                        if (isSingleCharOnly) {
-                          return (
-                            <div className={`${getTextColor()} text-lg font-light`}>
-                              {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                            </div>
-                          );
-                        } else {
-                          return (
-                            <div className={`${getTextColor()} text-xs font-medium`}>
-                              {firstName.toUpperCase()} {lastName.toUpperCase()}
-                            </div>
-                          );
-                        }
-                      })()}
-                    </div>
-                    )}
-                  </div>
-                  <div className="text-center text-xs text-gray-500 mt-1">Front</div>
-                </div>
-
-                {/* Back Card */}
-                <div className="w-full">
-                  <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-md`}>
-                    <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      {isFoundersCirclePlan ? (
-                        <>
-                          {companyLogoUrl ? (
-                            <img src={companyLogoUrl} alt="Company Logo" className="h-10 w-auto mb-2 object-contain" />
-                          ) : showLinkistLogo ? (
-                            <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
-                          ) : null}
-                          <div className={`${getTextColor()} text-xs font-medium tracking-wider`}>FOUNDING MEMBER</div>
-                        </>
-                      ) : (
-                        <img src="/logo_linkist.png" alt="Linkist" className="h-10 w-auto mb-2" />
+              <div
+                className="relative w-full cursor-pointer"
+                style={{ perspective: '1000px' }}
+                onClick={() => setIsCardFlipped(!isCardFlipped)}
+              >
+                <motion.div
+                  className="relative w-full"
+                  style={{ transformStyle: 'preserve-3d' }}
+                  animate={{ rotateY: isCardFlipped ? 180 : 0 }}
+                  transition={{ duration: 0.6, type: 'spring', stiffness: 260, damping: 20 }}
+                >
+                  {/* Front Card */}
+                  <div
+                    className="w-full"
+                    style={{ backfaceVisibility: 'hidden' }}
+                  >
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                      <div className="absolute top-3 right-3">
+                        <img
+                          src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
+                          alt="AI Assistant"
+                          className={`w-4 h-4 sm:w-7 sm:h-7 ${formData.colour === 'white' ? '' : 'invert'}`}
+                        />
+                      </div>
+                      {userPlanType !== 'pro' && (
+                      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
+                        {(() => {
+                          const firstName = formData.cardFirstName?.trim() || '';
+                          const lastName = formData.cardLastName?.trim() || '';
+                          const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                          if (isSingleCharOnly) {
+                            return (
+                              <div className={`${getTextColor()} text-xl sm:text-4xl font-bold`}>
+                                {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                              </div>
+                            );
+                          } else {
+                            return (
+                              <div className={`${getTextColor()} text-sm sm:text-xl font-bold tracking-wide`}>
+                                {firstName.toUpperCase()} {lastName.toUpperCase()}
+                              </div>
+                            );
+                          }
+                        })()}
+                      </div>
                       )}
                     </div>
-                    <div className="absolute top-1/2 -translate-y-1/2 right-2">
-                      <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                  </div>
+
+                  {/* Back Card */}
+                  <div
+                    className="absolute inset-0 w-full"
+                    style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+                  >
+                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        {isFoundersCirclePlan ? (
+                          <>
+                            {companyLogoUrl ? (
+                              <img src={companyLogoUrl} alt="Company Logo" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2 object-contain" />
+                            ) : showLinkistLogo ? (
+                              <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
+                            ) : null}
+                            <div className={`${getTextColor()} text-xs sm:text-xl font-bold tracking-widest`}>FOUNDING MEMBER</div>
+                          </>
+                        ) : (
+                          <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
+                        )}
+                      </div>
+                      <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                        <img src="/nfc2.png" alt="NFC" className="w-6 h-6 sm:w-10 sm:h-10" />
+                      </div>
                     </div>
                   </div>
-                  <div className="text-center text-xs text-gray-500 mt-1">Back</div>
-                </div>
+                </motion.div>
+              </div>
+              <div className="text-center text-xs text-gray-500 mt-1.5">
+                {isCardFlipped ? 'Back' : 'Front'} &bull; Click to see {isCardFlipped ? 'front' : 'back'} side
               </div>
             </div>
 
@@ -1055,9 +1075,9 @@ export default function ConfigureNewPage() {
 
                   if (missingItems.length > 0) {
                     return (
-                      <div className="mb-3 p-1.5 bg-amber-50 border border-amber-200 rounded-lg">
-                        <p className="text-xs text-amber-700 flex items-center">
-                          <Warning className="mr-1 w-4 h-4" /> Please select: <span className="font-semibold ml-1">{missingItems.join(', ')}</span>
+                      <div className="mb-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
+                        <p className="text-sm text-amber-700 flex items-center">
+                          <Warning className="mr-1.5 w-4 h-4 flex-shrink-0" /> Please select: <span className="font-semibold ml-1">{missingItems.join(', ')}</span>
                         </p>
                       </div>
                     );
@@ -1068,7 +1088,7 @@ export default function ConfigureNewPage() {
                 <button
                   onClick={handleContinue}
                   disabled={!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null || (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) || isLoading}
-                  className={`w-full px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
+                  className={`w-full px-6 py-3 rounded-lg text-base font-semibold transition-all shadow-md ${
                     (formData.baseMaterial && formData.texture && formData.colour && formData.pattern !== null && (userPlanType === 'pro' || (formData.cardFirstName?.trim() && formData.cardLastName?.trim())))
                       ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
                       : 'bg-gray-200 text-gray-400 cursor-not-allowed'

@@ -19,6 +19,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import StarsIcon from '@mui/icons-material/Stars';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
+import SecurityIcon from '@mui/icons-material/Security';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -36,6 +37,7 @@ const User = PersonIcon;
 const Ticket = ConfirmationNumberIcon;
 const Crown = StarsIcon;
 const Newspaper = NewspaperIcon;
+const Roles = SecurityIcon;
 
 interface AuthUser {
   id: string;
@@ -58,61 +60,61 @@ const navigationItems = [
     name: 'Dashboard',
     href: '/admin/dashboard',
     icon: LayoutDashboard,
-    permission: Permission.VIEW_STATS,
+    permission: Permission.READ_ANALYTICS,
   },
   {
     name: 'Orders',
     href: '/admin/orders',
     icon: Package,
-    permission: Permission.VIEW_ORDERS,
+    permission: Permission.READ_ORDERS,
   },
   {
     name: 'Customers',
     href: '/admin/customers',
     icon: Users,
-    permission: Permission.VIEW_CUSTOMERS,
+    permission: Permission.READ_CUSTOMERS,
   },
   {
     name: 'Products',
     href: '/admin/products',
     icon: ShoppingCart,
-    permission: Permission.VIEW_ORDERS,
+    permission: Permission.READ_PRODUCTS,
   },
   {
     name: 'Vouchers',
     href: '/admin/vouchers',
     icon: Ticket,
-    permission: Permission.VIEW_ORDERS,
+    permission: Permission.READ_VOUCHERS,
   },
   {
     name: 'Founders Circle',
     href: '/admin/founders',
     icon: Crown,
-    permission: Permission.VIEW_USERS,
+    permission: Permission.READ_FOUNDERS,
   },
   {
     name: 'Analytics',
     href: '/admin/analytics',
     icon: BarChart,
-    permission: Permission.VIEW_STATS,
+    permission: Permission.READ_ANALYTICS,
   },
   {
     name: 'Users',
     href: '/admin/users',
     icon: UserCheck,
-    permission: Permission.VIEW_USERS,
+    permission: Permission.READ_USERS,
   },
   {
     name: 'Subscribers',
     href: '/admin/subscribers',
     icon: Newspaper,
-    permission: Permission.VIEW_USERS,
+    permission: Permission.READ_SUBSCRIBERS,
   },
   {
     name: 'Communications',
     href: '/admin/communications',
     icon: Mail,
-    permission: Permission.SEND_EMAILS,
+    permission: Permission.READ_COMMUNICATIONS,
   },
   {
     name: 'Settings',

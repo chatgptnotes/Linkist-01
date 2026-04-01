@@ -41,7 +41,7 @@ const AUTH_CONFIG: {
 export interface AuthUser {
   id: string
   email: string
-  role: 'user' | 'admin' | 'moderator'
+  role: string  // Expanded: 'user' | 'admin' | 'super_admin' | 'doctor' | 'receptionist' | 'marketing_staff' | 'accountant' | 'moderator'
   status?: 'pending' | 'active' | 'suspended'
   email_verified?: boolean
   mobile_verified?: boolean
@@ -52,6 +52,10 @@ export interface AuthUser {
   founding_member_since?: string | null
   founding_member_plan?: string | null
   phone_number?: string | null
+  // RBAC fields (loaded from DB)
+  db_permissions?: string[]    // e.g. ["create:patients", "read:billing"]
+  db_role_name?: string        // e.g. "doctor"
+  db_role_display?: string     // e.g. "Doctor"
 }
 
 export interface AuthSession {
@@ -208,10 +212,33 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
           founding_member_plan: foundingMemberPlan,
         }
 
+        // Load RBAC permissions from database
+        try {
+          const adminClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            { auth: { autoRefreshToken: false, persistSession: false } }
+          )
+          const { data: userPerms } = await adminClient
+            .from('user_permissions_view')
+            .select('role_name, role_display_name, module, action')
+            .eq('user_id', sessionData.userId)
+
+          if (userPerms && userPerms.length > 0) {
+            sessionUser.db_role_name = userPerms[0].role_name
+            sessionUser.db_role_display = userPerms[0].role_display_name
+            sessionUser.role = userPerms[0].role_name // override with DB role
+            sessionUser.db_permissions = userPerms.map(p => `${p.action}:${p.module}`)
+          }
+        } catch (rbacErr) {
+          // Non-blocking — falls back to hardcoded RBAC
+          console.warn('Failed to load RBAC permissions from DB:', rbacErr)
+        }
+
         return {
           user: sessionUser,
           isAuthenticated: true,
-          isAdmin: sessionData.role === 'admin',
+          isAdmin: sessionUser.role === 'admin' || sessionUser.role === 'super_admin',
           sessionId: customSessionId,
         }
       }
@@ -358,8 +385,10 @@ export async function authMiddleware(request: NextRequest) {
     pathname.startsWith('/api/stripe-webhook') ||
     pathname.startsWith('/api/process-order') ||
     pathname.startsWith('/api/admin-login') ||
+    pathname.startsWith('/api/super-admin-login') ||
     pathname.startsWith('/admin-login') ||
     pathname.startsWith('/admin-access') ||
+    pathname.startsWith('/super-admin') ||
     pathname.startsWith('/api/send-otp') ||
     pathname.startsWith('/api/verify-otp') ||
     pathname.startsWith('/api/send-mobile-otp') ||
@@ -379,8 +408,12 @@ export async function authMiddleware(request: NextRequest) {
   const session = await getAuthenticatedUser(request)
 
   // Handle admin routes
+  // Allow access for: super_admin, admin, and any staff role with admin panel access
   if (authRequirement === 'admin') {
-    if (!session.isAdmin) {
+    const userRole = session.user?.db_role_name || session.user?.role || 'user'
+    const canAccess = session.isAdmin || (session.isAuthenticated && userRole !== 'user')
+
+    if (!canAccess) {
       // For API routes, return 401
       if (pathname.startsWith('/api/')) {
         return Response.json(
@@ -388,14 +421,14 @@ export async function authMiddleware(request: NextRequest) {
           { status: 401 }
         )
       }
-      
+
       // For page routes, redirect to admin access page
       const loginUrl = new URL('/admin-access', request.url)
       loginUrl.searchParams.set('returnUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
 
-    // Admin authenticated, allow access without Supabase session
+    // Authorized staff, allow access
     return NextResponse.next()
   }
 
@@ -427,19 +460,39 @@ export async function getCurrentUser(request: NextRequest): Promise<AuthSession>
   return await getAuthenticatedUser(request)
 }
 
-// Helper function to require admin in API routes
-export function requireAdmin(handler: (request: NextRequest) => Promise<Response>) {
-  return async (request: NextRequest) => {
+// Helper function to require admin/staff access in API routes
+// Allows: super_admin, admin, and any assigned staff role (doctor, receptionist, etc.)
+export function requireAdmin(handler: (request: NextRequest, ...args: any[]) => Promise<Response>) {
+  return async (request: NextRequest, ...args: any[]) => {
     const session = await getCurrentUser(request)
-    
-    if (!session.isAdmin) {
+    const userRole = session.user?.db_role_name || session.user?.role || 'user'
+    const canAccess = session.isAdmin || (session.isAuthenticated && userRole !== 'user')
+
+    if (!canAccess) {
       return Response.json(
         { error: 'Admin access required' },
         { status: 401 }
       )
     }
 
-    return handler(request)
+    return handler(request, ...args)
+  }
+}
+
+// Helper function to require super_admin only
+export function requireSuperAdmin(handler: (request: NextRequest, ...args: any[]) => Promise<Response>) {
+  return async (request: NextRequest, ...args: any[]) => {
+    const session = await getCurrentUser(request)
+    const userRole = session.user?.db_role_name || session.user?.role
+
+    if (userRole !== 'super_admin') {
+      return Response.json(
+        { error: 'Super admin access required' },
+        { status: 403 }
+      )
+    }
+
+    return handler(request, ...args)
   }
 }
 

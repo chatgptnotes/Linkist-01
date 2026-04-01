@@ -9,14 +9,14 @@ const supabase = createClient(
 interface SessionData {
   userId: string;
   email: string;
-  role: 'user' | 'admin';
+  role: string;  // Expanded: 'user' | 'admin' | 'super_admin' | 'manager' | 'support' | 'viewer' etc.
   expiresAt: number;
   createdAt: number;
 }
 
 export const SessionStore = {
   // Create a new session
-  create: async (userId: string, email: string, role: 'user' | 'admin'): Promise<string> => {
+  create: async (userId: string, email: string, role: string): Promise<string> => {
     const sessionId = generateSessionId();
     const expiresAt = Date.now() + (365 * 24 * 60 * 60 * 1000); // 1 year
 
