@@ -95,25 +95,19 @@ INSERT INTO permissions (module, action, description) VALUES
   ('vouchers','manage','Full voucher management'),
   ('founders','read','View founder requests and members'),('founders','approve','Approve or reject founder requests'),
   ('founders','manage','Full founders program management including codes'),
-  ('cards','create','Create card configurations'),('cards','read','View card designs and options'),
-  ('cards','update','Edit card customization options'),('cards','delete','Delete card configurations'),
-  ('cards','manage','Full card and printer management'),
-  ('profiles','create','Create user profiles'),('profiles','read','View profiles and templates'),
-  ('profiles','update','Edit profiles'),('profiles','delete','Delete profiles'),
-  ('profiles','manage','Full profile and template management'),
-  ('communications','create','Send emails and SMS'),('communications','read','View communication logs'),
-  ('communications','update','Edit email templates and campaigns'),('communications','delete','Delete templates'),
-  ('communications','manage','Full communications management'),
-  ('subscribers','read','View subscriber list'),('subscribers','manage','Manage subscribers and exports'),
-  ('subscribers','export','Export subscriber data'),
+  ('analytics','read','View analytics and reports'),('analytics','export','Export analytics reports'),
+  ('analytics','manage','Full analytics access'),
   ('users','create','Create new user accounts'),('users','read','View user list and details'),
   ('users','update','Edit user profiles and status'),('users','delete','Delete user accounts'),
   ('users','manage','Full user management including role assignment'),
-  ('roles','create','Create new roles'),('roles','read','View roles and permissions'),
-  ('roles','update','Edit roles and assign permissions'),('roles','delete','Delete custom roles'),
-  ('roles','manage','Full RBAC management'),
+  ('subscribers','read','View subscriber list'),('subscribers','manage','Manage subscribers and exports'),
+  ('subscribers','export','Export subscriber data'),
+  ('communications','create','Send emails and SMS'),('communications','read','View communication logs'),
+  ('communications','update','Edit email templates and campaigns'),('communications','delete','Delete templates'),
+  ('communications','manage','Full communications management'),
   ('settings','read','View system settings'),('settings','update','Change system settings'),
-  ('settings','manage','Full settings management including API keys')
+  ('settings','manage','Full settings management including API keys'),
+  ('dashboard','read','View admin dashboard'),('dashboard','manage','Configure dashboard widgets')
 ON CONFLICT (module, action) DO NOTHING;
 
 -- ============ ASSIGN PERMISSIONS TO ROLES ============
@@ -123,37 +117,37 @@ INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'super_admin'
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
--- Admin → All except roles.manage, roles.delete, settings.manage
+-- Admin → All except settings.manage
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'admin'
-  AND NOT (p.module = 'roles' AND p.action IN ('manage', 'delete'))
   AND NOT (p.module = 'settings' AND p.action = 'manage')
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
--- Manager
+-- Manager → Dashboard, Orders, Customers, Vouchers, Founders (full), Products (read/update), Analytics (read/export), Communications (read), Subscribers (read), Users (read)
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'manager'
   AND (p.module IN ('orders','customers','vouchers','founders')
+    OR (p.module = 'dashboard' AND p.action = 'read')
     OR (p.module = 'products' AND p.action IN ('read','update'))
-    OR (p.module = 'cards' AND p.action IN ('read','update'))
     OR (p.module = 'analytics' AND p.action IN ('read','export'))
     OR (p.module = 'communications' AND p.action = 'read')
     OR (p.module = 'subscribers' AND p.action = 'read')
     OR (p.module = 'users' AND p.action = 'read'))
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
--- Support
+-- Support → Dashboard (read), Orders (read/update), Customers (read/update), Vouchers/Founders/Analytics (read)
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'support'
-  AND ((p.module = 'orders' AND p.action IN ('read','update'))
+  AND ((p.module = 'dashboard' AND p.action = 'read')
+    OR (p.module = 'orders' AND p.action IN ('read','update'))
     OR (p.module = 'customers' AND p.action IN ('read','update'))
-    OR (p.module IN ('vouchers','founders','analytics','cards','profiles') AND p.action = 'read'))
+    OR (p.module IN ('vouchers','founders','analytics') AND p.action = 'read'))
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
--- Viewer → read-only
+-- Viewer → read-only on Dashboard, Orders, Customers, Analytics, Products, Vouchers
 INSERT INTO role_permissions (role_id, permission_id)
 SELECT r.id, p.id FROM roles r, permissions p WHERE r.name = 'viewer'
-  AND p.action = 'read' AND p.module IN ('orders','customers','analytics','products','vouchers')
+  AND p.action = 'read' AND p.module IN ('dashboard','orders','customers','analytics','products','vouchers')
 ON CONFLICT (role_id, permission_id) DO NOTHING;
 
 -- User → orders.read only

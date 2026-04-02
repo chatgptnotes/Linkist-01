@@ -9,6 +9,10 @@ import { AuthUser } from './auth-middleware'
 // ============================================================
 
 export enum Permission {
+  // --- Dashboard ---
+  READ_DASHBOARD = 'read:dashboard',
+  MANAGE_DASHBOARD = 'manage:dashboard',
+
   // --- Orders ---
   CREATE_ORDERS = 'create:orders',
   READ_ORDERS = 'read:orders',
@@ -16,13 +20,6 @@ export enum Permission {
   DELETE_ORDERS = 'delete:orders',
   MANAGE_ORDERS = 'manage:orders',
   EXPORT_ORDERS = 'export:orders',
-
-  // --- Products & Plans ---
-  CREATE_PRODUCTS = 'create:products',
-  READ_PRODUCTS = 'read:products',
-  UPDATE_PRODUCTS = 'update:products',
-  DELETE_PRODUCTS = 'delete:products',
-  MANAGE_PRODUCTS = 'manage:products',
 
   // --- Customers ---
   CREATE_CUSTOMERS = 'create:customers',
@@ -32,10 +29,12 @@ export enum Permission {
   MANAGE_CUSTOMERS = 'manage:customers',
   EXPORT_CUSTOMERS = 'export:customers',
 
-  // --- Analytics & Dashboard ---
-  READ_ANALYTICS = 'read:analytics',
-  EXPORT_ANALYTICS = 'export:analytics',
-  MANAGE_ANALYTICS = 'manage:analytics',
+  // --- Products ---
+  CREATE_PRODUCTS = 'create:products',
+  READ_PRODUCTS = 'read:products',
+  UPDATE_PRODUCTS = 'update:products',
+  DELETE_PRODUCTS = 'delete:products',
+  MANAGE_PRODUCTS = 'manage:products',
 
   // --- Vouchers ---
   CREATE_VOUCHERS = 'create:vouchers',
@@ -44,36 +43,15 @@ export enum Permission {
   DELETE_VOUCHERS = 'delete:vouchers',
   MANAGE_VOUCHERS = 'manage:vouchers',
 
-  // --- Founders Program ---
+  // --- Founders Circle ---
   READ_FOUNDERS = 'read:founders',
   APPROVE_FOUNDERS = 'approve:founders',
   MANAGE_FOUNDERS = 'manage:founders',
 
-  // --- NFC Cards & Customization ---
-  CREATE_CARDS = 'create:cards',
-  READ_CARDS = 'read:cards',
-  UPDATE_CARDS = 'update:cards',
-  DELETE_CARDS = 'delete:cards',
-  MANAGE_CARDS = 'manage:cards',
-
-  // --- Digital Profiles ---
-  CREATE_PROFILES = 'create:profiles',
-  READ_PROFILES = 'read:profiles',
-  UPDATE_PROFILES = 'update:profiles',
-  DELETE_PROFILES = 'delete:profiles',
-  MANAGE_PROFILES = 'manage:profiles',
-
-  // --- Communications (Email/SMS/Campaigns) ---
-  CREATE_COMMUNICATIONS = 'create:communications',
-  READ_COMMUNICATIONS = 'read:communications',
-  UPDATE_COMMUNICATIONS = 'update:communications',
-  DELETE_COMMUNICATIONS = 'delete:communications',
-  MANAGE_COMMUNICATIONS = 'manage:communications',
-
-  // --- Subscribers ---
-  READ_SUBSCRIBERS = 'read:subscribers',
-  MANAGE_SUBSCRIBERS = 'manage:subscribers',
-  EXPORT_SUBSCRIBERS = 'export:subscribers',
+  // --- Analytics ---
+  READ_ANALYTICS = 'read:analytics',
+  EXPORT_ANALYTICS = 'export:analytics',
+  MANAGE_ANALYTICS = 'manage:analytics',
 
   // --- Users ---
   CREATE_USERS = 'create:users',
@@ -82,31 +60,37 @@ export enum Permission {
   DELETE_USERS = 'delete:users',
   MANAGE_USERS = 'manage:users',
 
-  // --- Roles & Permissions ---
-  CREATE_ROLES = 'create:roles',
-  READ_ROLES = 'read:roles',
-  UPDATE_ROLES = 'update:roles',
-  DELETE_ROLES = 'delete:roles',
-  MANAGE_ROLES = 'manage:roles',
+  // --- Subscribers ---
+  READ_SUBSCRIBERS = 'read:subscribers',
+  MANAGE_SUBSCRIBERS = 'manage:subscribers',
+  EXPORT_SUBSCRIBERS = 'export:subscribers',
+
+  // --- Communications ---
+  CREATE_COMMUNICATIONS = 'create:communications',
+  READ_COMMUNICATIONS = 'read:communications',
+  UPDATE_COMMUNICATIONS = 'update:communications',
+  DELETE_COMMUNICATIONS = 'delete:communications',
+  MANAGE_COMMUNICATIONS = 'manage:communications',
 
   // --- Settings ---
   READ_SETTINGS = 'read:settings',
   UPDATE_SETTINGS = 'update:settings',
   MANAGE_SETTINGS = 'manage:settings',
 
-  // --- Legacy aliases (backward compat with AdminLayout nav) ---
+  // --- Legacy aliases ---
   VIEW_ORDERS = 'read:orders',
   VIEW_CUSTOMERS = 'read:customers',
   VIEW_USERS = 'read:users',
   VIEW_STATS = 'read:analytics',
   VIEW_LOGS = 'read:analytics',
-  ASSIGN_ROLES = 'manage:roles',
+  ASSIGN_ROLES = 'manage:users',
   SYSTEM_SETTINGS = 'manage:settings',
   SEND_EMAILS = 'create:communications',
   VIEW_EMAIL_LOGS = 'read:communications',
-  UPLOAD_FILES = 'create:cards',
-  DELETE_FILES = 'delete:cards',
-  VIEW_FILES = 'read:cards',
+  READ_ROLES = 'read:users',
+  UPLOAD_FILES = 'create:orders',
+  DELETE_FILES = 'delete:orders',
+  VIEW_FILES = 'read:orders',
 }
 
 // ============================================================
@@ -114,18 +98,16 @@ export enum Permission {
 // ============================================================
 
 export const MODULES = [
+  { key: 'dashboard',      label: 'Dashboard' },
   { key: 'orders',         label: 'Orders' },
-  { key: 'products',       label: 'Products & Plans' },
   { key: 'customers',      label: 'Customers' },
-  { key: 'analytics',      label: 'Analytics & Dashboard' },
+  { key: 'products',       label: 'Products' },
   { key: 'vouchers',       label: 'Vouchers' },
-  { key: 'founders',       label: 'Founders Program' },
-  { key: 'cards',          label: 'NFC Cards' },
-  { key: 'profiles',       label: 'Digital Profiles' },
-  { key: 'communications', label: 'Communications' },
-  { key: 'subscribers',    label: 'Subscribers' },
+  { key: 'founders',       label: 'Founders Circle' },
+  { key: 'analytics',      label: 'Analytics' },
   { key: 'users',          label: 'Users' },
-  { key: 'roles',          label: 'Roles & Permissions' },
+  { key: 'subscribers',    label: 'Subscribers' },
+  { key: 'communications', label: 'Communications' },
   { key: 'settings',       label: 'Settings' },
 ] as const;
 
@@ -165,6 +147,8 @@ const FALLBACK_ROLE_PERMISSIONS: Record<string, string[]> = {
   ),
   manager: [
     // Orders — full
+    Permission.READ_DASHBOARD,
+    // Orders — full
     Permission.CREATE_ORDERS, Permission.READ_ORDERS, Permission.UPDATE_ORDERS,
     Permission.DELETE_ORDERS, Permission.MANAGE_ORDERS, Permission.EXPORT_ORDERS,
     // Customers — full
@@ -177,8 +161,6 @@ const FALLBACK_ROLE_PERMISSIONS: Record<string, string[]> = {
     Permission.READ_FOUNDERS, Permission.APPROVE_FOUNDERS, Permission.MANAGE_FOUNDERS,
     // Products — read/update
     Permission.READ_PRODUCTS, Permission.UPDATE_PRODUCTS,
-    // Cards — read/update
-    Permission.READ_CARDS, Permission.UPDATE_CARDS,
     // Analytics — read/export
     Permission.READ_ANALYTICS, Permission.EXPORT_ANALYTICS,
     // Communications — read
@@ -189,22 +171,15 @@ const FALLBACK_ROLE_PERMISSIONS: Record<string, string[]> = {
     Permission.READ_USERS,
   ],
   support: [
-    // Orders — read/update
+    Permission.READ_DASHBOARD,
     Permission.READ_ORDERS, Permission.UPDATE_ORDERS,
-    // Customers — read/update
     Permission.READ_CUSTOMERS, Permission.UPDATE_CUSTOMERS,
-    // Vouchers — read
     Permission.READ_VOUCHERS,
-    // Founders — read
     Permission.READ_FOUNDERS,
-    // Analytics — read
     Permission.READ_ANALYTICS,
-    // Cards — read
-    Permission.READ_CARDS,
-    // Profiles — read
-    Permission.READ_PROFILES,
   ],
   viewer: [
+    Permission.READ_DASHBOARD,
     Permission.READ_ORDERS,
     Permission.READ_CUSTOMERS,
     Permission.READ_ANALYTICS,

@@ -60,7 +60,7 @@ const navigationItems = [
     name: 'Dashboard',
     href: '/admin/dashboard',
     icon: LayoutDashboard,
-    permission: Permission.READ_ANALYTICS,
+    permission: Permission.READ_DASHBOARD,
   },
   {
     name: 'Orders',

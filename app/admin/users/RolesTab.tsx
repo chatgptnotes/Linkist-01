@@ -41,10 +41,17 @@ interface GroupedPermissions {
 }
 
 const MODULE_LABELS: Record<string, string> = {
-  orders: 'Orders', products: 'Products & Plans', customers: 'Customers',
-  analytics: 'Analytics & Dashboard', vouchers: 'Vouchers', founders: 'Founders Program',
-  cards: 'NFC Cards', profiles: 'Digital Profiles', communications: 'Communications',
-  subscribers: 'Subscribers', users: 'Users', roles: 'Roles & Permissions', settings: 'Settings',
+  dashboard: 'Dashboard',
+  orders: 'Orders',
+  customers: 'Customers',
+  products: 'Products',
+  vouchers: 'Vouchers',
+  founders: 'Founders Circle',
+  analytics: 'Analytics',
+  users: 'Users',
+  subscribers: 'Subscribers',
+  communications: 'Communications',
+  settings: 'Settings',
 };
 
 const ACTION_ORDER = ['create', 'read', 'update', 'delete', 'manage', 'approve', 'export'];

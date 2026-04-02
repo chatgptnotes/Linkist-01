@@ -18,6 +18,10 @@ export default function AdminAccessPage() {
   const [success, setSuccess] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotMessage, setForgotMessage] = useState('');
+  const [forgotError, setForgotError] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -69,6 +73,32 @@ export default function AdminAccessPage() {
       setError('Network error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    setForgotLoading(true);
+    setForgotError('');
+    setForgotMessage('');
+
+    try {
+      const res = await fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'admin' }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setForgotMessage('Password reset link has been sent to the admin email.');
+      } else {
+        setForgotError(data.error || 'Failed to send reset email');
+      }
+    } catch {
+      setForgotError('Network error. Please try again.');
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -212,6 +242,65 @@ export default function AdminAccessPage() {
                 )}
               </button>
             </form>
+
+            {/* Forgot Password Section */}
+            <div className="mt-4 pt-4 border-t border-gray-100">
+              {!forgotMode ? (
+                <button
+                  onClick={() => setForgotMode(true)}
+                  className="w-full text-center text-sm text-gray-500 hover:text-red-600 transition-colors"
+                >
+                  Forgot Password?
+                </button>
+              ) : (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 text-center">
+                    A password reset link will be sent to the admin email.
+                  </p>
+
+                  {forgotMessage && (
+                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                      <div className="flex items-center">
+                        <CheckCircleIcon className="h-5 w-5 text-green-500 mr-2" />
+                        <span className="text-green-800 text-sm">{forgotMessage}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {forgotError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <div className="flex items-center">
+                        <ErrorOutlineIcon className="h-5 w-5 text-red-500 mr-2" />
+                        <span className="text-red-800 text-sm">{forgotError}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleForgotPassword}
+                      disabled={forgotLoading || !!forgotMessage}
+                      className="flex-1 py-2 px-4 text-sm font-medium text-white bg-gray-800 rounded-lg hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                    </button>
+                    <button
+                      onClick={() => { setForgotMode(false); setForgotMessage(''); setForgotError(''); }}
+                      className="py-2 px-4 text-sm font-medium text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Super Admin Link */}
+            <div className="mt-3 text-center">
+              <Link href="/super-admin" className="text-sm text-gray-500 hover:text-red-600 transition-colors">
+                Super Admin login →
+              </Link>
+            </div>
           </div>
         )}
 
