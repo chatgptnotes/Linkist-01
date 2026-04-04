@@ -135,14 +135,28 @@ export default function HeroSection() {
               Recall is.
             </motion.h1>
 
-            <motion.p
+            {/* Desktop subtitle - scrolling ticker */}
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 0.8 }}
-              className="text-lg sm:text-xl md:text-2xl text-[#888888] mb-8 md:mb-12 font-body"
+              className="overflow-hidden mb-8 md:mb-12 max-w-[500px]"
             >
-              Join Linkist. World's first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context & keep relationships alive with relevant actionable insights.
-            </motion.p>
+              <div
+                style={{
+                  display: 'flex',
+                  whiteSpace: 'nowrap',
+                  animation: 'heroSubtitleScroll 18s linear infinite',
+                }}
+              >
+                <span className="text-[#888888] font-body text-lg md:text-xl pr-12 inline-block">
+                  Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+                </span>
+                <span className="text-[#888888] font-body text-lg md:text-xl pr-12 inline-block" aria-hidden="true">
+                  Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
+                </span>
+              </div>
+            </motion.div>
 
             <motion.p
               initial={{ opacity: 0 }}

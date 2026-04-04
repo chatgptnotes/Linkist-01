@@ -68,16 +68,15 @@ export default function InviteOnlySection() {
                 {/* Grid of Cards */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center px-4 md:px-0">
                     
-                    {/* NEW: Promotional Pricing Card - Redesigned */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ delay: 0 }}
-                        className="rounded-[24px] overflow-hidden flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1"
+                        className="rounded-[24px] overflow-hidden flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1 relative"
                     >
-                        {/* Top section - red */}
-                        <div className="relative bg-[#E63929] p-5 md:p-6 flex flex-col text-left" style={{ minHeight: '160px' }}>
+                        {/* Top: Red header */}
+                        <div className="bg-[#E63929] px-6 pt-6 pb-4 flex flex-col text-left relative">
                             {/* Left arrow */}
                             <span
                                 aria-hidden="true"
@@ -102,38 +101,34 @@ export default function InviteOnlySection() {
                                 Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
                             </p>
                         </div>
-                        {/* Bottom section - darker red with pricing */}
-                        <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-5 flex flex-col text-left gap-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                            {/* Main pricing row */}
-                            <div className="flex items-center justify-between w-full">
+                        {/* Bottom: Darker red pricing */}
+                        <div className="bg-[#CC2B1C] px-6 py-5 flex flex-col text-left gap-3">
+                            {/* Pricing row */}
+                            <div className="flex items-center justify-between" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                 {/* Left: 1st year free + $69/year after */}
                                 <div className="flex flex-col">
-                                    <span className="text-white font-bold text-lg md:text-xl leading-tight">1st year free</span>
+                                    <span className="text-white font-bold text-xl md:text-2xl leading-tight">1st year free</span>
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-white font-bold text-xs md:text-sm">+</span>
+                                        <span className="text-white font-normal text-sm">+</span>
                                         <span className="text-white font-bold text-3xl md:text-4xl leading-tight">$69</span>
-                                        <span className="text-white/90 text-xs md:text-sm font-medium">/year after</span>
+                                        <span className="text-white/90 text-sm font-medium">/year after</span>
                                     </div>
                                 </div>
-                                {/* Center: Vs */}
-                                <div className="flex items-center justify-center px-2">
-                                    <span className="text-white/60 text-base md:text-lg font-medium">Vs</span>
-                                </div>
-                                {/* Right: $99 strikethrough + from 1st year */}
-                                <div className="flex flex-col items-start">
+                                {/* Center Vs */}
+                                <span className="text-white/60 text-base font-medium px-2">Vs</span>
+                                {/* Right: $99 strikethrough */}
+                                <div className="flex flex-col items-end">
                                     <div className="flex items-baseline gap-1">
-                                        <span className="text-white/50 text-2xl md:text-3xl font-bold line-through leading-tight">$99</span>
-                                        <span className="text-white/50 text-xs font-medium">/year</span>
+                                        <span className="text-white/60 text-2xl font-bold line-through">$99</span>
+                                        <span className="text-white/60 text-xs">/year</span>
                                     </div>
-                                    <span className="text-white/50 text-xs font-medium">from 1st year</span>
+                                    <span className="text-white/60 text-xs">from 1st year</span>
                                 </div>
                             </div>
-                            {/* Savings line */}
-                            <div className="w-full text-center">
-                                <span className="text-white text-sm md:text-base font-medium">
-                                    Savings of <span className="font-bold">$129</span> in 2 years
-                                </span>
-                            </div>
+                            {/* Savings */}
+                            <p className="text-white/90 text-sm text-center font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                                Savings of <strong>$129</strong> in 2 years
+                            </p>
                         </div>
                     </motion.div>
 
