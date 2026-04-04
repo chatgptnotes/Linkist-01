@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Timeline Item Component
 interface TimelineItemProps {
@@ -190,19 +191,10 @@ export default function WhyTimelineSection() {
                     </motion.div>
 
                     {/* Mobile CTA */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="mt-[42px]"
-                    >
-                        <a
-                            href="https://linkist.ai/digital-business-card"
-                            className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
-                            style={{ fontFamily: 'Poppins, sans-serif' }}
-                        >
-                            See How Linkist Fixes This
-                        </a>
+                    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-[42px]">
+                        <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
+                            <Image src="/See-How-Linkist-Fixes-This.png" alt="See How Linkist Fixes This" width={276} height={62} className="w-auto h-[48px] object-contain" />
+                        </Link>
                     </motion.div>
                 </div>
 
@@ -238,13 +230,9 @@ export default function WhyTimelineSection() {
 
                         {/* Desktop CTA */}
                         <div className="mt-[42px]">
-                            <a
-                                href="https://linkist.ai/digital-business-card"
-                                className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
-                                style={{ fontFamily: 'Poppins, sans-serif' }}
-                            >
-                                See How Linkist Fixes This
-                            </a>
+                            <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
+                                <Image src="/See-How-Linkist-Fixes-This.png" alt="See How Linkist Fixes This" width={276} height={62} className="w-auto h-[52px] object-contain" />
+                            </Link>
                         </div>
                     </motion.div>
 
