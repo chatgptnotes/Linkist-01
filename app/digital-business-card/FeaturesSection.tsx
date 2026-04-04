@@ -125,6 +125,17 @@ export default function FeaturesSection() {
               </div>
 
             </div>
+            
+            {/* CTA Button */}
+            <div className="mt-10 flex justify-center lg:justify-start">
+              <a
+                href="/choose-plan"
+                className="inline-block bg-[#FF3A29] hover:bg-[#e8321f] text-white font-bold text-sm md:text-base py-4 px-8 rounded-full transition-all duration-300"
+                style={{ boxShadow: '0 4px 20px rgba(255,58,41,0.3)' }}
+              >
+                Turn Contacts Into Leverage
+              </a>
+            </div>
           </div>
         </div>
       </div>
