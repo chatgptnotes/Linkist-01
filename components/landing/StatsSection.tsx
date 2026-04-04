@@ -79,6 +79,17 @@ export default function StatsSection() {
                     ))}
                 </div>
 
+                <motion.p
+                    initial={{ opacity: 0, y: 10 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-8 text-center"
+                    style={{ color: '#E02424', fontFamily: 'Poppins, sans-serif', fontWeight: 500, fontSize: '18px', lineHeight: '28px' }}
+                >
+                    This is where Linkist steps in.
+                </motion.p>
+
             </div>
         </section>
     );
