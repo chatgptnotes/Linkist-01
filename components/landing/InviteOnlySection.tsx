@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
 
 export default function InviteOnlySection() {
     const cards = [
@@ -62,38 +60,78 @@ export default function InviteOnlySection() {
                         backgroundClip: 'text'
                     }}
                 >
-                    Limited-time invite only offer
+                    Limited-time offer
                 </motion.h2>
 
                 {/* Grid of Cards */}
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-5 justify-items-center px-4 md:px-0">
                     
-                    {/* NEW: Promotional Pricing Card */}
+                    {/* NEW: Promotional Pricing Card - Redesigned */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0 }} // Starts first
+                        transition={{ delay: 0 }}
                         className="rounded-[24px] overflow-hidden flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1"
                     >
-                        <div className="bg-[#E63929] p-5 md:p-6 flex flex-col flex-1 text-left">
-                            <h3 className="text-white font-bold text-lg md:text-xl mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                        {/* Top section - red */}
+                        <div className="relative bg-[#E63929] p-5 md:p-6 flex flex-col text-left" style={{ minHeight: '160px' }}>
+                            {/* Left arrow */}
+                            <span
+                                aria-hidden="true"
+                                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
+                                style={{ background: 'rgba(0,0,0,0.3)' }}
+                            >
+                                &#8249;
+                            </span>
+                            {/* Right arrow */}
+                            <span
+                                aria-hidden="true"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
+                                style={{ background: 'rgba(0,0,0,0.3)' }}
+                            >
+                                &#8250;
+                            </span>
+                            <h3 className="text-white font-bold text-xl md:text-2xl mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                 Founding Member Rate
                             </h3>
-                            <p className="text-white/95 text-sm leading-snug" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            <p className="text-white text-sm leading-snug" style={{ fontFamily: 'Poppins, sans-serif' }}>
                                 <span className="italic font-bold block mb-1">Locked in for life.</span>
                                 Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
                             </p>
                         </div>
-                        <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-4 flex flex-col text-left">
-                            <div className="flex items-baseline gap-2 flex-wrap mb-1" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
-                                <span className="text-white/90 text-sm md:text-base font-medium">/year</span>
-                                <span className="text-white/60 text-sm md:text-base font-medium ml-1">vs <span className="line-through">$99 /year</span></span>
+                        {/* Bottom section - darker red with pricing */}
+                        <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-5 flex flex-col text-left gap-3" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            {/* Main pricing row */}
+                            <div className="flex items-center justify-between w-full">
+                                {/* Left: 1st year free + $69/year after */}
+                                <div className="flex flex-col">
+                                    <span className="text-white font-bold text-lg md:text-xl leading-tight">1st year free</span>
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-white font-bold text-xs md:text-sm">+</span>
+                                        <span className="text-white font-bold text-3xl md:text-4xl leading-tight">$69</span>
+                                        <span className="text-white/90 text-xs md:text-sm font-medium">/year after</span>
+                                    </div>
+                                </div>
+                                {/* Center: Vs */}
+                                <div className="flex items-center justify-center px-2">
+                                    <span className="text-white/60 text-base md:text-lg font-medium">Vs</span>
+                                </div>
+                                {/* Right: $99 strikethrough + from 1st year */}
+                                <div className="flex flex-col items-start">
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-white/50 text-2xl md:text-3xl font-bold line-through leading-tight">$99</span>
+                                        <span className="text-white/50 text-xs font-medium">/year</span>
+                                    </div>
+                                    <span className="text-white/50 text-xs font-medium">from 1st year</span>
+                                </div>
                             </div>
-                            <p className="text-white/80 text-xs font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                (First year free; Chargeable from second year onwards)
-                            </p>
+                            {/* Savings line */}
+                            <div className="w-full text-center">
+                                <span className="text-white text-sm md:text-base font-medium">
+                                    Savings of <span className="font-bold">$129</span> in 2 years
+                                </span>
+                            </div>
                         </div>
                     </motion.div>
 
@@ -147,22 +185,16 @@ export default function InviteOnlySection() {
                     ))}
                 </div>
 
-                {/* CTA Button */}
+                {/* Transition line */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    className="mt-[42px] flex justify-center"
+                    className="mt-[42px] text-center"
                 >
-                    <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
-                        <Image
-                            src="/join-circle.png"
-                            alt="Join the Circle"
-                            width={276}
-                            height={62}
-                            className="w-auto h-[48px] object-contain"
-                        />
-                    </Link>
+                    <p style={{ color: '#E02424', fontFamily: 'Poppins, sans-serif', fontSize: '18px', fontWeight: 500 }}>
+                        This is where Linkist steps in.
+                    </p>
                 </motion.div>
 
             </div>

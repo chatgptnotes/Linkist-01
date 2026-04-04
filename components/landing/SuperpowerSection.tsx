@@ -1,6 +1,5 @@
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 
 interface FeatureCardProps {
     iconSrc: string;
@@ -121,15 +120,13 @@ export default function SuperpowerSection() {
                     viewport={{ once: true }}
                     className="mt-[42px] flex justify-center"
                 >
-                    <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
-                        <Image
-                            src="/activate-network.png"
-                            alt="Activate Network"
-                            width={276}
-                            height={62}
-                            className="w-auto h-[48px] object-contain"
-                        />
-                    </Link>
+                    <a
+                        href="https://linkist.ai/digital-business-card"
+                        className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
+                        style={{ fontFamily: 'Poppins, sans-serif' }}
+                    >
+                        Activate Your Network
+                    </a>
                 </motion.div>
 
             </div>

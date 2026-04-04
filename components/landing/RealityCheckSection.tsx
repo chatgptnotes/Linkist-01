@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
 
 export default function RealityCheckSection() {
     return (
@@ -80,7 +78,7 @@ export default function RealityCheckSection() {
                                 />
                             </motion.div>
 
-                            {/* Join Linkist Button */}
+                            {/* Start Remembering Better Button */}
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 whileInView={{ opacity: 1, y: 0 }}
@@ -88,15 +86,13 @@ export default function RealityCheckSection() {
                                 transition={{ delay: 0.8, duration: 0.6 }}
                                 className="flex flex-col items-center md:items-start mt-6 md:mt-8"
                             >
-                                <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
-                                    <Image
-                                        src="/upgrade-memory.png"
-                                        alt="Upgrade Memory"
-                                        width={276}
-                                        height={62}
-                                        className="w-auto h-[48px] sm:h-[56px] object-contain"
-                                    />
-                                </Link>
+                                <a
+                                    href="https://linkist.ai/digital-business-card"
+                                    className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
+                                    style={{ fontFamily: 'Poppins, sans-serif' }}
+                                >
+                                    Start Remembering Better
+                                </a>
                             </motion.div>
                         </div>
                     </div>

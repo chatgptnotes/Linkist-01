@@ -1,6 +1,4 @@
 import { motion } from 'framer-motion';
-import Link from 'next/link';
-import Image from 'next/image';
 
 export default function StatsSection() {
     const stats = [
@@ -80,6 +78,18 @@ export default function StatsSection() {
                         </motion.div>
                     ))}
                 </div>
+
+                {/* Transition line */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="mt-10 text-center"
+                >
+                    <p style={{ color: '#E02424', fontFamily: 'Poppins, sans-serif', fontSize: '18px', fontWeight: 500 }}>
+                        This is where Linkist steps in.
+                    </p>
+                </motion.div>
 
             </div>
         </section>
