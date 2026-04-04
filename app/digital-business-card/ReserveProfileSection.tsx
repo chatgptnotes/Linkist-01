@@ -104,7 +104,7 @@ export default function ReserveProfileSection() {
               onMouseEnter={() => setIsHovering(true)}
               onMouseLeave={() => setIsHovering(false)}
             >
-              Reserve
+              Start Remembering Better
             </a>
           </div>
         </div>

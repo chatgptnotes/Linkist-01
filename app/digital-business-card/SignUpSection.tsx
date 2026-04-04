@@ -100,6 +100,11 @@ export default function SignUpSection() {
           </div>
 
         </div>
+
+        {/* Transition line */}
+        <p className="text-sm md:text-lg text-center mt-10" style={{ color: '#FF3A29' }}>
+          This is where Linkist steps in.
+        </p>
       </div>
     </section>
   );

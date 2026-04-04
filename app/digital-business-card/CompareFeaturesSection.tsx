@@ -171,7 +171,7 @@ export default function CompareFeatures() {
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
                     >
-                      Start Now
+                      See How Linkist Fixes This
                     </a>
                   </td>
                 ))}

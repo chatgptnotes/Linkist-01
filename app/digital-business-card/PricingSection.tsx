@@ -409,7 +409,7 @@ export default function PricingSection() {
                       href="https://www.linkist.ai/choose-plan"
                       className="card-btn w-full py-[14px] px-4 rounded-full border border-white/30 bg-transparent text-white text-center font-medium transition-all duration-300 block no-underline"
                     >
-                      Get Started
+                      {index === 2 ? 'Claim Your Founding Member Access' : 'Get Started'}
                     </a>
                   </div>
                 </div>
@@ -484,7 +484,7 @@ export default function PricingSection() {
                         borderColor: 'rgba(255,255,255,0.3)'
                       }}
                     >
-                      Get Started
+                      {index === 2 ? 'Claim Your Founding Member Access' : 'Get Started'}
                     </a>
                   </div>
                 </div>

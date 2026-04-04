@@ -21,32 +21,68 @@ export default function FoundingMembersSection() {
               backgroundClip: 'text',
             }}
           >
-            Limited-time invite only offer
+            Limited-time offer
           </h2>
         </div>
 
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           
-          {/* Promo Card (Standardized to match others) */}
-          <div className="rounded-3xl md:rounded-[32px] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
-            <div className="bg-[#E63929] p-5 md:p-6 flex flex-col flex-1">
-              <h3 className="text-white font-bold text-lg md:text-xl mb-2">
+          {/* Promo Card */}
+          <div className="rounded-3xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
+            {/* Top section - red background with nav arrows */}
+            <div className="bg-[#E63929] px-8 py-6 flex flex-col relative">
+              {/* Left arrow - decorative */}
+              <span
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
+                style={{ background: 'rgba(0,0,0,0.3)' }}
+              >
+                &#8249;
+              </span>
+              {/* Right arrow - decorative */}
+              <span
+                aria-hidden="true"
+                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
+                style={{ background: 'rgba(0,0,0,0.3)' }}
+              >
+                &#8250;
+              </span>
+
+              <h3 className="text-white font-bold text-xl md:text-2xl mb-2">
                 Founding Member Rate
               </h3>
-              <p className="text-white/95 text-sm leading-snug">
+              <p className="text-white text-sm leading-snug">
                 <span className="italic font-bold block mb-1">Locked in for life.</span>
                 Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
               </p>
             </div>
-            <div className="bg-[#CC2B1C] p-5 md:px-6 md:py-4 flex flex-col">
-              <div className="flex items-baseline gap-2 flex-wrap mb-1">
-                <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
-                <span className="text-white/90 text-sm md:text-base font-medium">/year</span>
-                <span className="text-white/60 text-sm md:text-base font-medium ml-1">vs <span className="line-through">$99 /year</span></span>
+
+            {/* Bottom section - darker red */}
+            <div className="bg-[#CC2B1C] px-5 py-4 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
+                {/* Left: 1st year free + $69/year after */}
+                <div className="flex flex-col">
+                  <span className="text-white font-bold text-base md:text-lg">1st year free</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-white font-bold text-3xl md:text-4xl">+ $69</span>
+                    <span className="text-white text-sm">/year after</span>
+                  </div>
+                </div>
+
+                {/* Center: Vs */}
+                <span className="text-gray-400 text-sm font-medium mx-2">Vs</span>
+
+                {/* Right: $99/year strikethrough */}
+                <div className="flex flex-col items-end">
+                  <span className="text-white/60 text-base line-through">$99 /year</span>
+                  <span className="text-white/60 text-xs">from 1st year</span>
+                </div>
               </div>
-              <p className="text-white/80 text-xs font-medium">
-                (First year free; Chargeable from second year onwards)
+
+              {/* Savings line */}
+              <p className="text-center text-white/80 text-xs">
+                Savings of <span className="font-bold text-white">$129</span> in 2 years
               </p>
             </div>
           </div>
@@ -151,6 +187,17 @@ export default function FoundingMembersSection() {
             </div>
           </div>
 
+        </div>
+
+        {/* CTA Button */}
+        <div className="flex justify-center mt-10 md:mt-14">
+          <a
+            href="/choose-plan"
+            className="inline-block bg-[#FF3A29] hover:bg-[#e8321f] text-white font-bold text-sm md:text-base py-4 px-8 rounded-full transition-all duration-300"
+            style={{ boxShadow: '0 4px 20px rgba(255,58,41,0.3)' }}
+          >
+            Claim Your Founding Member Access
+          </a>
         </div>
       </div>
     </section>
