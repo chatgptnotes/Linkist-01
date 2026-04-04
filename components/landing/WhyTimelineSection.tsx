@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import Link from 'next/link';
 
 // Timeline Item Component
 interface TimelineItemProps {
@@ -197,15 +196,13 @@ export default function WhyTimelineSection() {
                         viewport={{ once: true }}
                         className="mt-[42px]"
                     >
-                        <Link href="https://linkist.ai/digital-business-card" className="transition-transform hover:scale-105 active:scale-95">
-                            <Image
-                                src="/understand-gap.png"
-                                alt="Understand the Gap"
-                                width={276}
-                                height={62}
-                                className="w-auto h-[48px] object-contain"
-                            />
-                        </Link>
+                        <a
+                            href="https://linkist.ai/digital-business-card"
+                            className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
+                            style={{ fontFamily: 'Poppins, sans-serif' }}
+                        >
+                            See How Linkist Fixes This
+                        </a>
                     </motion.div>
                 </div>
 
@@ -240,15 +237,15 @@ export default function WhyTimelineSection() {
                         </h2>
 
                         {/* Desktop CTA */}
-                        <Link href="https://linkist.ai/digital-business-card" className="mt-[42px] inline-block transition-transform hover:scale-105 active:scale-95">
-                            <Image
-                                src="/understand-gap.png"
-                                alt="Understand the Gap"
-                                width={276}
-                                height={62}
-                                className="w-auto h-[52px] object-contain"
-                            />
-                        </Link>
+                        <div className="mt-[42px]">
+                            <a
+                                href="https://linkist.ai/digital-business-card"
+                                className="inline-block bg-[#E02424] hover:bg-[#c01f1f] text-white font-semibold text-base py-3 px-8 rounded-full transition-all duration-300"
+                                style={{ fontFamily: 'Poppins, sans-serif' }}
+                            >
+                                See How Linkist Fixes This
+                            </a>
+                        </div>
                     </motion.div>
 
                     {/* Right Timeline Visual - Component based */}
