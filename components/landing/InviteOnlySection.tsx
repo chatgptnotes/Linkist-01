@@ -76,59 +76,49 @@ export default function InviteOnlySection() {
                         className="rounded-[24px] overflow-hidden flex flex-col w-full max-w-[350px] transition-transform duration-300 hover:-translate-y-1 relative"
                     >
                         {/* Top: Red header */}
-                        <div className="bg-[#E63929] px-6 pt-6 pb-4 flex flex-col text-left relative">
-                            {/* Left arrow */}
-                            <span
-                                aria-hidden="true"
-                                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
-                                style={{ background: 'rgba(0,0,0,0.3)' }}
-                            >
-                                &#8249;
-                            </span>
-                            {/* Right arrow */}
-                            <span
-                                aria-hidden="true"
-                                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
-                                style={{ background: 'rgba(0,0,0,0.3)' }}
-                            >
-                                &#8250;
-                            </span>
-                            <h3 className="text-white font-bold text-xl md:text-2xl mb-2" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                Founding Member Rate
+                        <div className="bg-[#E63929] px-6 pt-6 pb-5 flex flex-col text-left" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            <h3 className="text-white font-bold text-2xl md:text-3xl mb-1">
+                                Founding Member Pricing
                             </h3>
-                            <p className="text-white text-sm leading-snug" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                <span className="italic font-bold block mb-1">Locked in for life.</span>
-                                Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
+                            <p className="text-white italic text-sm mb-1">
+                                Lock in your rate for life.
+                            </p>
+                            <p className="text-white text-xs leading-snug">
+                                Join before June 2026 to keep this founding price forever.
                             </p>
                         </div>
-                        {/* Bottom: Darker red pricing */}
-                        <div className="bg-[#CC2B1C] px-6 py-5 flex flex-col text-left gap-3">
-                            {/* Pricing row */}
-                            <div className="flex items-center justify-between" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                {/* Left: 1st year free + $69/year after */}
-                                <div className="flex flex-col">
-                                    <span className="text-white font-bold text-xl md:text-2xl leading-tight">1st year free</span>
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-white font-normal text-sm">+</span>
-                                        <span className="text-white font-bold text-3xl md:text-4xl leading-tight">$69</span>
-                                        <span className="text-white/90 text-sm font-medium">/year after</span>
-                                    </div>
+                        {/* Bottom: Darker red pricing rows */}
+                        <div className="bg-[#CC2B1C] px-6 py-4 flex flex-col" style={{ fontFamily: 'Poppins, sans-serif' }}>
+                            {/* Row 1: Year 1 - Free */}
+                            <div className="flex items-center justify-between py-3 border-b border-white/20">
+                                <div className="border-l-2 border-white/40 pl-3">
+                                    <span className="text-white text-sm">Year 1</span>
                                 </div>
-                                {/* Center Vs */}
-                                <span className="text-white/60 text-base font-medium px-2">Vs</span>
-                                {/* Right: $99 strikethrough */}
-                                <div className="flex flex-col items-end">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-white/60 text-2xl font-bold line-through">$99</span>
-                                        <span className="text-white/60 text-xs">/year</span>
-                                    </div>
-                                    <span className="text-white/60 text-xs">from 1st year</span>
+                                <span className="text-white font-bold text-2xl">Free</span>
+                            </div>
+                            {/* Row 2: Year 2 onward - $69/year */}
+                            <div className="flex items-center justify-between py-3 border-b border-white/20">
+                                <div className="border-l-2 border-white/40 pl-3">
+                                    <span className="text-white text-sm">Year 2 onward</span>
+                                </div>
+                                <div className="flex items-baseline gap-1">
+                                    <span className="text-white font-bold text-2xl">$69</span>
+                                    <span className="text-white/90 text-xs">/year</span>
                                 </div>
                             </div>
-                            {/* Savings */}
-                            <p className="text-white/90 text-sm text-center font-medium" style={{ fontFamily: 'Poppins, sans-serif' }}>
-                                Savings of <strong>$129</strong> in 2 years
-                            </p>
+                            {/* Row 3: Regular price - $99/year strikethrough (intentionally no vertical bar accent — muted/secondary row) */}
+                            <div className="flex items-center justify-between py-3">
+                                <div className="pl-3">
+                                    <span className="text-white/70 text-sm">Regular price</span>
+                                </div>
+                                <div className="flex flex-col items-end">
+                                    <div className="flex items-baseline gap-1">
+                                        <span className="text-white/70 font-bold text-2xl line-through">$99</span>
+                                        <span className="text-white/70 text-xs">/year</span>
+                                    </div>
+                                    <span className="text-white/60 text-xs">from year 1</span>
+                                </div>
+                            </div>
                         </div>
                     </motion.div>
 
