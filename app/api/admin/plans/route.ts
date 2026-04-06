@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SupabasePlansStore } from '@/lib/supabase-plans-store';
-import { getCurrentUser } from '@/lib/auth-middleware';
+import { getCurrentUser, isAdminRole } from '@/lib/auth-middleware';
 
 // GET - Fetch all plans
 export async function GET(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAuthenticated || session.user?.role === 'user') {
+    if (!session.isAuthenticated || !isAdminRole(session.user?.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAuthenticated || session.user?.role === 'user') {
+    if (!session.isAuthenticated || !isAdminRole(session.user?.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAuthenticated || session.user?.role === 'user') {
+    if (!session.isAuthenticated || !isAdminRole(session.user?.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -180,7 +180,7 @@ export async function DELETE(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAuthenticated || session.user?.role === 'user') {
+    if (!session.isAuthenticated || !isAdminRole(session.user?.role)) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

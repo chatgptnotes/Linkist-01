@@ -66,6 +66,7 @@ export default function GoogleMapPicker({
     postalCode: '',
     country: '',
   });
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize Google Maps using script tag
   useEffect(() => {
@@ -543,8 +544,9 @@ export default function GoogleMapPicker({
                 const value = e.target.value;
                 setSearchQuery(value);
                 if (locationError && !useCurrentLocation) setLocationError('');
-                // Trigger autocomplete predictions
-                fetchPredictions(value);
+                // Debounce autocomplete predictions (300ms) to avoid excessive API calls
+                if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+                debounceTimerRef.current = setTimeout(() => fetchPredictions(value), 300);
               }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {

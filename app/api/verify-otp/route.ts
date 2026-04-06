@@ -379,8 +379,9 @@ export async function POST(request: NextRequest) {
     // Create user session (only for active users)
     const sessionId = await SessionStore.create(user.id, user.email, user.role);
 
-    // Check if user is staff (non-'user' role) — they need admin panel access
-    const isStaff = user.role && user.role !== 'user';
+    // Check if user is staff — they need admin panel access
+    const STAFF_ROLES = new Set(['super_admin', 'admin', 'operations_admin', 'customer_support_admin', 'finance_admin', 'marketing_admin', 'product_tech_admin', 'fulfilment_admin', 'manager', 'moderator']);
+    const isStaff = user.role && STAFF_ROLES.has(user.role);
 
     // Set session cookie
     const response = NextResponse.json({

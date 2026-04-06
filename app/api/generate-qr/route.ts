@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import QRCode from 'qrcode';
+import { getCurrentUser } from '@/lib/auth-middleware';
 
 export async function POST(request: NextRequest) {
   try {
+    // Require authenticated user
+    const session = await getCurrentUser(request);
+    if (!session.isAuthenticated) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     const { cardData } = await request.json();
 
     if (!cardData) {

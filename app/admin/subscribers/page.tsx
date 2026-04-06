@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
@@ -65,7 +64,7 @@ export default function SubscribersPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
@@ -213,6 +212,6 @@ export default function SubscribersPage() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

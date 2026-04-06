@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import AddIcon from '@mui/icons-material/Add';
@@ -248,7 +247,7 @@ export default function VouchersPage() {
   });
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Page Header */}
         <div className="mb-8">
@@ -774,6 +773,6 @@ export default function VouchersPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

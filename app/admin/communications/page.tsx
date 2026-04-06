@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import EmailIcon from '@mui/icons-material/Email';
 import SendIcon from '@mui/icons-material/Send';
 import MessageIcon from '@mui/icons-material/Message';
@@ -154,7 +153,7 @@ export default function CommunicationsPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -457,6 +456,6 @@ export default function CommunicationsPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

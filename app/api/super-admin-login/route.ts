@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { createClient } from '@supabase/supabase-js';
-import { createAdminSession } from '@/lib/auth-middleware';
+import { createAdminSession, getCurrentUser, isAdminRole } from '@/lib/auth-middleware';
 import { SessionStore } from '@/lib/session-store';
 
 const supabase = createClient(
@@ -43,11 +43,9 @@ export async function POST(request: NextRequest) {
           .eq('id', creds.id);
       }
     } else {
-      // Table doesn't exist or no row — fallback: check hardcoded default
-      // This allows login before migration is run
-      if (trimmedEmail === 'superadmin@linkist.ai' && password === 'SuperAdmin@2026') {
-        credValid = true;
-      }
+      // Table doesn't exist or no matching credentials — login fails
+      // No hardcoded fallback — super_admin_credentials migration must be run first
+      credValid = false;
     }
 
     if (!credValid) {
@@ -131,9 +129,16 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// PUT — Change super admin password
+// PUT — Change super admin password (requires authenticated super_admin session)
 export async function PUT(request: NextRequest) {
   try {
+    // Require authenticated super_admin session
+    const session = await getCurrentUser(request);
+    const userRole = session.user?.db_role_name || session.user?.role;
+    if (!session.isAuthenticated || userRole !== 'super_admin') {
+      return NextResponse.json({ error: 'Super admin access required' }, { status: 403 });
+    }
+
     const { email, current_password, new_password } = await request.json();
 
     if (!email || !current_password || !new_password) {

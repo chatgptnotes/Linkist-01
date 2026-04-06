@@ -81,6 +81,10 @@ export default function ProfileDashboard() {
           return;
         }
 
+        // Reuse auth response for founding member status (avoids duplicate /api/auth/me call)
+        setIsFoundingMember(authData.user?.has_founders_order || false);
+        setFoundingMemberPlan(authData.user?.founding_member_plan || null);
+
         console.log('✅ Authenticated user:', currentUserEmail);
 
         // Step 2: Fetch profiles from database (filtered by user_id on server)
@@ -192,23 +196,8 @@ export default function ProfileDashboard() {
     }
   };
 
-  useEffect(() => {
-    // Check founding member status from user data
-    const checkFoundingMember = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        if (response.ok) {
-          const data = await response.json();
-          // Only show as founding member if they have an actual founders-club order
-          setIsFoundingMember(data.user?.has_founders_order || false);
-          setFoundingMemberPlan(data.user?.founding_member_plan || null);
-        }
-      } catch (error) {
-        console.error('Error checking founding member status:', error);
-      }
-    };
-    checkFoundingMember();
-  }, []);
+  // Founding member status is now set inside loadProfiles() from the same /api/auth/me response
+  // This eliminates a duplicate network request that added ~500-800ms
 
   if (loading) {
     return (
