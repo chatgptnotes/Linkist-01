@@ -103,7 +103,7 @@ export default function ProductSelectionPage() {
   const [foundersClubUnlocked, setFoundersClubUnlocked] = useState(false);
 
   useEffect(() => {
-    // Check auth
+    // Run auth check and plans fetch in parallel — they are independent
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me');
@@ -137,9 +137,8 @@ export default function ProductSelectionPage() {
         setFoundersClubUnlocked(false);
       }
     };
-    checkAuth();
 
-    // Get user country
+    // Get user country (sync — localStorage)
     const userProfile = localStorage.getItem('userProfile');
     if (userProfile) {
       try {
@@ -150,8 +149,8 @@ export default function ProductSelectionPage() {
       }
     }
 
-    // Fetch plans
-    fetchPlans();
+    // Parallel: auth + plans (saves ~500-1000ms vs sequential)
+    Promise.all([checkAuth(), fetchPlans()]);
   }, []);
 
   const fetchPlans = async () => {

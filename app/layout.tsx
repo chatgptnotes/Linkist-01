@@ -7,6 +7,7 @@ import AdminInitializer from '@/components/AdminInitializer';
 import ConditionalLayout from '@/components/ConditionalLayout';
 import { Toaster } from 'sonner';
 import { PWAProvider } from '@/contexts/PWAContext';
+import NextTopLoader from 'nextjs-toploader';
 
 const inter = Inter({
   subsets: ["latin"],
@@ -98,6 +99,7 @@ export default function RootLayout({
         }} />
       </head>
       <body className={`${inter.variable} ${poppins.variable} ${playfair.variable} antialiased bg-black min-h-screen flex flex-col m-0 p-0`}>
+        <NextTopLoader color="#dc2626" height={3} showSpinner={false} />
         <AdminInitializer />
         <Toaster position="top-center" richColors />
         <PWAProvider>

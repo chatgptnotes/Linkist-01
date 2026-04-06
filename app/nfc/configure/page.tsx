@@ -116,30 +116,31 @@ export default function ConfigureNewPage() {
     localStorage.removeItem('cardConfig');
     console.log('Configure: Cleared old localStorage data');
 
-    // Step 1: Detect country from IP first (single source of truth)
+    // Parallel: IP detection + auth check run simultaneously (saves ~1-2s vs sequential)
     const initializeCountryAndData = async () => {
-      let detectedCountry = 'India'; // Default fallback
+      // Fire both network calls in parallel — they are independent
+      const [countryResult, authResponse] = await Promise.all([
+        detectCountryFromIP().catch(() => ({ countryCode: 'IN', countryName: 'India', phoneCode: '+91' })),
+        fetch('/api/auth/me', { credentials: 'include' }).catch(() => null),
+      ]);
 
-      try {
-        // Try to get country from IP detection
-        const ipData = await detectCountryFromIP();
-        detectedCountry = ipData.countryName;
-        console.log('Configure: Country detected from IP:', detectedCountry);
-      } catch (error) {
-        console.log('Configure: IP detection failed, checking localStorage');
-        // Fallback to localStorage if IP detection fails
+      // Process country result
+      let detectedCountry = countryResult.countryName;
+      // Fallback to localStorage if IP detection returned default
+      if (detectedCountry === 'India') {
         const userProfile = localStorage.getItem('userProfile');
         if (userProfile) {
           try {
             const profile = JSON.parse(userProfile);
-            detectedCountry = profile.country || 'India';
+            if (profile.country && profile.country !== 'India') {
+              detectedCountry = profile.country;
+            }
           } catch (e) {
             console.error('Error parsing user profile:', e);
           }
         }
       }
 
-      // Set the detected country
       setUserCountry(detectedCountry);
       console.log('Configure: Using country:', detectedCountry);
 
@@ -155,10 +156,10 @@ export default function ConfigureNewPage() {
         }
       }
 
-      // Step 2: Check founding member status and fetch pricing with detected country
-      await checkFoundingMemberStatus(detectedCountry);
+      // Process auth result (already fetched in parallel)
+      await processAuthResult(authResponse, detectedCountry);
 
-      // Step 3: Pre-fill card names from userProfile (only if not already set from API)
+      // Pre-fill card names from userProfile (only if not already set from API)
       setFormData(prev => {
         if (prev.cardFirstName || prev.cardLastName) {
           console.log('Configure: Card names already set from API, skipping localStorage fallback');
@@ -185,14 +186,10 @@ export default function ConfigureNewPage() {
       });
     };
 
-    // Check founding member status from API and detect plan type
-    const checkFoundingMemberStatus = async (country: string) => {
+    // Process the already-fetched auth response (no new network call)
+    const processAuthResult = async (response: Response | null, country: string) => {
       try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include',
-          cache: 'no-store'
-        });
-        if (response.ok) {
+        if (response && response.ok) {
           const data = await response.json();
           const foundingMemberStatus = data.user?.is_founding_member || false;
           setIsFoundingMember(foundingMemberStatus);
