@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/auth-middleware';
+import { requireAdmin, requireSuperAdmin } from '@/lib/auth-middleware';
 import { createClient } from '@supabase/supabase-js';
 
 const supabase = createClient(
@@ -7,8 +7,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-// PUT /api/admin/users/[id]/role — Assign a role to a user
-export const PUT = requireAdmin(async function PUT(
+// PUT /api/admin/users/[id]/role — Assign a role to a user (super_admin only)
+export const PUT = requireSuperAdmin(async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
@@ -16,6 +16,11 @@ export const PUT = requireAdmin(async function PUT(
     const { id: userId } = await params;
     const body = await request.json();
     const { role_id, role_name } = body; // Accept either role_id or role_name
+
+    // Block assigning super_admin role via API
+    if (role_name === 'super_admin') {
+      return NextResponse.json({ error: 'Cannot assign super_admin role via API' }, { status: 403 });
+    }
 
     // Resolve role
     let resolvedRoleId = role_id;
@@ -46,6 +51,11 @@ export const PUT = requireAdmin(async function PUT(
       resolvedRoleName = role.name;
     } else {
       return NextResponse.json({ error: 'role_id or role_name is required' }, { status: 400 });
+    }
+
+    // Double-check: block super_admin even if resolved from role_id
+    if (resolvedRoleName === 'super_admin') {
+      return NextResponse.json({ error: 'Cannot assign super_admin role via API' }, { status: 403 });
     }
 
     // Verify user exists

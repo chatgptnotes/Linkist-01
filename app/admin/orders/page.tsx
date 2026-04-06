@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import AdminLayout from '../components/AdminLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -393,7 +392,7 @@ export default function OrdersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="flex items-center justify-center py-12">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500 mx-auto mb-4"></div>
           <p>Loading orders...</p>
@@ -403,7 +402,7 @@ export default function OrdersPage() {
   }
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Page Header */}
         <div className="mb-8">
@@ -1043,6 +1042,6 @@ export default function OrdersPage() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </>
   );
 }

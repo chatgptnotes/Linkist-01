@@ -11,8 +11,9 @@ export async function PATCH(
     const { id: orderId } = await params;
 
     // Check admin access
-    const session = await import('@/lib/auth-middleware').then(m => m.getCurrentUser(request));
-    if (!session.isAuthenticated || session.user?.role === 'user') {
+    const { getCurrentUser, isAdminRole } = await import('@/lib/auth-middleware');
+    const session = await getCurrentUser(request);
+    if (!session.isAuthenticated || !isAdminRole(session.user?.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 401 });
     }
 

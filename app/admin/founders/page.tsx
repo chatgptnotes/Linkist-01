@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -235,7 +234,7 @@ export default function AdminFoundersPage() {
   });
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -662,6 +661,6 @@ export default function AdminFoundersPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

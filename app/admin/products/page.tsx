@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import SearchIcon from '@mui/icons-material/Search';
 import FilterListIcon from '@mui/icons-material/FilterList';
@@ -496,7 +495,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -1353,6 +1352,6 @@ export default function ProductsPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

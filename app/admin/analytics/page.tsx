@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -137,20 +136,20 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <>
         <div className="p-6">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
             <span className="ml-2 text-gray-600">Loading analytics...</span>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   if (!data) {
     return (
-      <AdminLayout>
+      <>
         <div className="p-6">
           <div className="text-center py-12">
             <BarChartMuiIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -158,7 +157,7 @@ export default function AnalyticsPage() {
             <p className="mt-1 text-sm text-gray-500">Analytics data will appear here once you have orders.</p>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
@@ -169,7 +168,7 @@ export default function AnalyticsPage() {
   }));
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -452,6 +451,6 @@ export default function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

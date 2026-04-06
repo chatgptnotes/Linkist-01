@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import SecurityIcon from '@mui/icons-material/Security';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -137,7 +136,7 @@ export default function RolesPage() {
   };
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -320,6 +319,6 @@ export default function RolesPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </>
   );
 }

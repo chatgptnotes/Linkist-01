@@ -9,6 +9,24 @@ import { SessionStore } from './session-store'
 // Using a well-formed UUID allows database operations that expect UUID type
 const ADMIN_SESSION_UUID = '00000000-0000-0000-0000-000000000001'
 
+// Explicit allowlist of roles that can access the admin panel
+const ADMIN_ROLES = new Set([
+  'super_admin',
+  'admin',
+  'operations_admin',
+  'customer_support_admin',
+  'finance_admin',
+  'marketing_admin',
+  'product_tech_admin',
+  'fulfilment_admin',
+  'manager',
+  'moderator',
+])
+
+export function isAdminRole(role: string | undefined | null): boolean {
+  return !!role && ADMIN_ROLES.has(role)
+}
+
 // ============================================================
 // IN-MEMORY AUTH CACHE
 // Caches getAuthenticatedUser() results for 60 seconds per session.
@@ -307,7 +325,7 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
         const sessionResult: AuthSession = {
           user: sessionUser,
           isAuthenticated: true,
-          isAdmin: sessionUser.role !== 'user',
+          isAdmin: isAdminRole(sessionUser.role),
           sessionId: customSessionId,
         }
         if (customSessionId) setCachedAuth(customSessionId, sessionResult)
@@ -406,9 +424,12 @@ async function verifyAdminSession(sessionId?: string): Promise<boolean> {
   if (!sessionId) return false
 
   try {
-    // In a real app, you'd verify this against a database
-    // For now, we'll use a simple time-based token
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      console.error('JWT_SECRET environment variable is not set')
+      return false
+    }
+    const secret = new TextEncoder().encode(jwtSecret)
     await jwtVerify(sessionId, secret)
     return true
   } catch {
@@ -420,7 +441,11 @@ async function verifyAdminSession(sessionId?: string): Promise<boolean> {
 export async function createAdminSession(): Promise<string> {
   try {
     const { SignJWT } = await import('jose')
-    const secret = new TextEncoder().encode(process.env.JWT_SECRET || 'fallback-secret')
+    const jwtSecret = process.env.JWT_SECRET
+    if (!jwtSecret) {
+      throw new Error('JWT_SECRET environment variable is not set')
+    }
+    const secret = new TextEncoder().encode(jwtSecret)
     
     return await new SignJWT({ 
       role: 'admin',
@@ -507,7 +532,7 @@ export async function authMiddleware(request: NextRequest) {
   // Allow access for: super_admin, admin, and any staff role with admin panel access
   if (authRequirement === 'admin') {
     const userRole = session.user?.db_role_name || session.user?.role || 'user'
-    const canAccess = session.isAdmin || (session.isAuthenticated && userRole !== 'user')
+    const canAccess = session.isAdmin || (session.isAuthenticated && isAdminRole(userRole))
 
     if (!canAccess) {
       // For API routes, return 401
@@ -562,7 +587,7 @@ export function requireAdmin(handler: (request: NextRequest, ...args: any[]) => 
   return async (request: NextRequest, ...args: any[]) => {
     const session = await getCurrentUser(request)
     const userRole = session.user?.db_role_name || session.user?.role || 'user'
-    const canAccess = session.isAdmin || (session.isAuthenticated && userRole !== 'user')
+    const canAccess = session.isAdmin || (session.isAuthenticated && isAdminRole(userRole))
 
     if (!canAccess) {
       return Response.json(

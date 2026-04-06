@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import { type Order } from '@/lib/order-store';
 import SearchIcon from '@mui/icons-material/Search';
 import PersonIcon from '@mui/icons-material/Person';
@@ -198,7 +197,7 @@ export default function CustomersPage() {
   // --- Customer Detail View ---
   if (selectedCustomer) {
     return (
-      <AdminLayout>
+      <>
         <div className="p-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center space-x-4">
@@ -338,13 +337,13 @@ export default function CustomersPage() {
             </div>
           )}
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   // --- Customer List View ---
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="mb-6">
@@ -503,6 +502,6 @@ export default function CustomersPage() {
           )}
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

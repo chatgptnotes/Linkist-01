@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import AdminLayout from '../components/AdminLayout';
 import SettingsIcon from '@mui/icons-material/Settings';
 import SaveIcon from '@mui/icons-material/Save';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
@@ -568,20 +567,20 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <AdminLayout>
+      <>
         <div className="p-6">
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
             <span className="ml-2">Loading settings...</span>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   if (!settings) {
     return (
-      <AdminLayout>
+      <>
         <div className="p-6">
           <div className="text-center py-12">
             <Settings className="mx-auto h-12 w-12 text-gray-400" />
@@ -589,12 +588,12 @@ export default function SettingsPage() {
             <p className="mt-1 text-sm text-gray-500">Unable to load system settings.</p>
           </div>
         </div>
-      </AdminLayout>
+      </>
     );
   }
 
   return (
-    <AdminLayout>
+    <>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -1187,6 +1186,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </>
   );
 }

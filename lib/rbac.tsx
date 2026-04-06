@@ -252,7 +252,8 @@ export class RBAC {
   static canAccessAdmin(user: AuthUserWithPermissions | AuthUser | null): boolean {
     if (!user) return false;
     const role = (user as AuthUserWithPermissions).db_role_name || user.role;
-    return role !== 'user';
+    const ADMIN_ROLES = new Set(['super_admin', 'admin', 'operations_admin', 'customer_support_admin', 'finance_admin', 'marketing_admin', 'product_tech_admin', 'fulfilment_admin', 'manager', 'moderator']);
+    return !!role && ADMIN_ROLES.has(role);
   }
 
   static canAccessResource(user: AuthUserWithPermissions | AuthUser | null, resource: string, action: string): boolean {
