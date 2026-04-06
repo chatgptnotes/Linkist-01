@@ -106,7 +106,7 @@ export default function InviteOnlySection() {
                                     <span className="text-white/90 text-xs">/year</span>
                                 </div>
                             </div>
-                            {/* Row 3: Regular price - $99/year strikethrough */}
+                            {/* Row 3: Regular price - $99/year strikethrough (intentionally no vertical bar accent — muted/secondary row) */}
                             <div className="flex items-center justify-between py-3">
                                 <div className="pl-3">
                                     <span className="text-white/70 text-sm">Regular price</span>
