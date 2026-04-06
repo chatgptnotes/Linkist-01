@@ -52,31 +52,24 @@ export default function HeroSection() {
           </motion.h2>
         </div>
 
-        {/* Mobile subtitle - scrolling ticker */}
-        <div
+        {/* Mobile subtitle - static paragraph */}
+        <p
           style={{
-            width: '100vw',
-            overflow: 'hidden',
+            fontSize: '14px',
+            fontWeight: 300,
             position: 'relative',
             zIndex: 20,
             marginTop: '8px',
+            textAlign: 'center',
+            lineHeight: '1.6',
+            padding: '0 16px',
           }}
+          className="hero-subtitle-gradient"
         >
-          <div
-            style={{
-              display: 'flex',
-              whiteSpace: 'nowrap',
-              animation: 'heroSubtitleScroll 18s linear infinite',
-            }}
-          >
-            <span style={{ fontSize: '14px', fontWeight: 300, paddingRight: '48px', display: 'inline-block' }} className="hero-subtitle-gradient">
-              Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-            </span>
-            <span style={{ fontSize: '14px', fontWeight: 300, paddingRight: '48px', display: 'inline-block' }} className="hero-subtitle-gradient" aria-hidden="true">
-              Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-            </span>
-          </div>
-        </div>
+          Join Linkist. World&apos;s first Personal Relationship Manager (PRM)<br />
+          that helps you remember every contact, capture context &amp;<br />
+          keep relationships alive with relevant actionable insights.
+        </p>
 
         {/* Hero Image - Mobile */}
         <motion.div
