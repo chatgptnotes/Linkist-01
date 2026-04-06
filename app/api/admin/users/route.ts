@@ -131,6 +131,20 @@ export const POST = requireAdmin(
         // Non-fatal if roles table doesn't exist yet
       }
 
+      // Save module access if provided
+      const { modules } = body;
+      if (modules && Array.isArray(modules) && modules.length > 0) {
+        try {
+          const moduleRows = modules.map((moduleKey: string) => ({
+            user_id: user.id,
+            module_key: moduleKey,
+          }));
+          await supabase.from('user_module_access').insert(moduleRows);
+        } catch {
+          // Non-fatal if table doesn't exist yet
+        }
+      }
+
       return NextResponse.json({
         success: true,
         user: {

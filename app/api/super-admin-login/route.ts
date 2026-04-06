@@ -90,8 +90,7 @@ export async function POST(request: NextRequest) {
 
     // Create session (same as OTP login flow — stores in user_sessions)
     // SessionStore.create expects (userId, email, role) as separate args
-    // Role must be 'admin' for session store compatibility
-    const sessionId = await SessionStore.create(user.id, user.email, 'admin');
+    const sessionId = await SessionStore.create(user.id, user.email, user.role || 'super_admin');
 
     // Also create admin session JWT (for admin panel access)
     const adminToken = await createAdminSession();

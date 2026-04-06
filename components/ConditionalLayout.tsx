@@ -335,7 +335,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
   // For normal routes, render with navbar and footer (except landing/home page)
   return (
     <div className="min-h-screen flex flex-col">
-      {!isLandingPage && <Navbar />}
+      {!isLandingPage && <Navbar
+        initialUserData={userData ? { email: userData.email, firstName: userData.first_name, lastName: userData.last_name } : null}
+        initialAuthLoading={isAuthLoading}
+      />}
       <main className={`${!isLandingPage ? 'pt-16' : ''} flex-grow bg-white`}>
         {children}
       </main>

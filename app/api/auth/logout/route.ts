@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { SessionStore } from '@/lib/session-store';
+import { invalidateAuthCache } from '@/lib/auth-middleware';
 import { createClient } from '@supabase/supabase-js';
 
 /**
@@ -15,6 +16,9 @@ export async function POST(request: NextRequest) {
     const sessionId = request.cookies.get('session')?.value;
 
     if (sessionId) {
+      // Immediately clear in-memory auth cache so no stale data is served
+      invalidateAuthCache(sessionId)
+
       // Delete session from database
       try {
         const deleted = await SessionStore.delete(sessionId);

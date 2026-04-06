@@ -87,7 +87,7 @@ export enum Permission {
   SYSTEM_SETTINGS = 'manage:settings',
   SEND_EMAILS = 'create:communications',
   VIEW_EMAIL_LOGS = 'read:communications',
-  READ_ROLES = 'read:users',
+  READ_ROLES = 'read:roles',
   UPLOAD_FILES = 'create:orders',
   DELETE_FILES = 'delete:orders',
   VIEW_FILES = 'read:orders',
@@ -108,6 +108,7 @@ export const MODULES = [
   { key: 'users',          label: 'Users' },
   { key: 'subscribers',    label: 'Subscribers' },
   { key: 'communications', label: 'Communications' },
+  { key: 'roles',          label: 'Roles' },
   { key: 'settings',       label: 'Settings' },
 ] as const;
 
@@ -125,7 +126,7 @@ export const ACTIONS = [
 // ROLE TYPES
 // ============================================================
 
-export type RoleName = 'super_admin' | 'admin' | 'manager' | 'support' | 'viewer' | 'user';
+export type RoleName = 'super_admin' | 'admin' | 'operations_admin' | 'customer_support_admin' | 'finance_admin' | 'marketing_admin' | 'product_tech_admin' | 'fulfilment_admin' | 'user';
 
 export interface Role {
   id: string;
@@ -145,46 +146,50 @@ const FALLBACK_ROLE_PERMISSIONS: Record<string, string[]> = {
   admin: Object.values(Permission).filter(
     p => !['manage:roles', 'delete:roles', 'manage:settings'].includes(p)
   ),
-  manager: [
-    // Orders — full
+  operations_admin: [
     Permission.READ_DASHBOARD,
-    // Orders — full
     Permission.CREATE_ORDERS, Permission.READ_ORDERS, Permission.UPDATE_ORDERS,
     Permission.DELETE_ORDERS, Permission.MANAGE_ORDERS, Permission.EXPORT_ORDERS,
-    // Customers — full
-    Permission.CREATE_CUSTOMERS, Permission.READ_CUSTOMERS, Permission.UPDATE_CUSTOMERS,
-    Permission.DELETE_CUSTOMERS, Permission.MANAGE_CUSTOMERS, Permission.EXPORT_CUSTOMERS,
-    // Vouchers — full
-    Permission.CREATE_VOUCHERS, Permission.READ_VOUCHERS, Permission.UPDATE_VOUCHERS,
-    Permission.DELETE_VOUCHERS, Permission.MANAGE_VOUCHERS,
-    // Founders — full
+    Permission.READ_CUSTOMERS, Permission.UPDATE_CUSTOMERS,
+    Permission.READ_VOUCHERS, Permission.UPDATE_VOUCHERS,
     Permission.READ_FOUNDERS, Permission.APPROVE_FOUNDERS, Permission.MANAGE_FOUNDERS,
-    // Products — read/update
-    Permission.READ_PRODUCTS, Permission.UPDATE_PRODUCTS,
-    // Analytics — read/export
     Permission.READ_ANALYTICS, Permission.EXPORT_ANALYTICS,
-    // Communications — read
-    Permission.READ_COMMUNICATIONS,
-    // Subscribers — read
-    Permission.READ_SUBSCRIBERS,
-    // Users — read
-    Permission.READ_USERS,
   ],
-  support: [
+  customer_support_admin: [
     Permission.READ_DASHBOARD,
     Permission.READ_ORDERS, Permission.UPDATE_ORDERS,
-    Permission.READ_CUSTOMERS, Permission.UPDATE_CUSTOMERS,
+    Permission.READ_CUSTOMERS, Permission.UPDATE_CUSTOMERS, Permission.MANAGE_CUSTOMERS,
     Permission.READ_VOUCHERS,
     Permission.READ_FOUNDERS,
+    Permission.READ_COMMUNICATIONS,
+  ],
+  finance_admin: [
+    Permission.READ_DASHBOARD,
+    Permission.READ_ORDERS, Permission.EXPORT_ORDERS,
+    Permission.READ_CUSTOMERS, Permission.EXPORT_CUSTOMERS,
+    Permission.READ_ANALYTICS, Permission.EXPORT_ANALYTICS, Permission.MANAGE_ANALYTICS,
+    Permission.READ_VOUCHERS,
+  ],
+  marketing_admin: [
+    Permission.READ_DASHBOARD,
+    Permission.CREATE_COMMUNICATIONS, Permission.READ_COMMUNICATIONS, Permission.UPDATE_COMMUNICATIONS,
+    Permission.DELETE_COMMUNICATIONS, Permission.MANAGE_COMMUNICATIONS,
+    Permission.READ_SUBSCRIBERS, Permission.MANAGE_SUBSCRIBERS, Permission.EXPORT_SUBSCRIBERS,
+    Permission.READ_ANALYTICS, Permission.EXPORT_ANALYTICS,
+    Permission.READ_CUSTOMERS,
+  ],
+  product_tech_admin: [
+    Permission.READ_DASHBOARD,
+    Permission.CREATE_PRODUCTS, Permission.READ_PRODUCTS, Permission.UPDATE_PRODUCTS,
+    Permission.DELETE_PRODUCTS, Permission.MANAGE_PRODUCTS,
+    Permission.READ_SETTINGS, Permission.UPDATE_SETTINGS, Permission.MANAGE_SETTINGS,
     Permission.READ_ANALYTICS,
   ],
-  viewer: [
+  fulfilment_admin: [
     Permission.READ_DASHBOARD,
-    Permission.READ_ORDERS,
+    Permission.READ_ORDERS, Permission.UPDATE_ORDERS, Permission.EXPORT_ORDERS,
     Permission.READ_CUSTOMERS,
-    Permission.READ_ANALYTICS,
-    Permission.READ_PRODUCTS,
-    Permission.READ_VOUCHERS,
+    Permission.READ_FOUNDERS,
   ],
   user: [
     Permission.READ_ORDERS,
@@ -256,8 +261,10 @@ export class RBAC {
 
   static getRoleName(role: string): string {
     const names: Record<string, string> = {
-      super_admin: 'Super Admin', admin: 'Admin', manager: 'Manager',
-      support: 'Support', viewer: 'Viewer', user: 'User',
+      super_admin: 'Super Admin', admin: 'Admin', user: 'User',
+      operations_admin: 'Operations Admin', customer_support_admin: 'Customer Support Admin',
+      finance_admin: 'Finance Admin', marketing_admin: 'Marketing Admin',
+      product_tech_admin: 'Product / Tech Admin', fulfilment_admin: 'Fulfilment / Logistics Admin',
     };
     return names[role] || role;
   }

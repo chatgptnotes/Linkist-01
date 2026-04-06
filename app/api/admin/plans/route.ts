@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAdmin) {
+    if (!session.isAuthenticated || session.user?.role === 'user') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAdmin) {
+    if (!session.isAuthenticated || session.user?.role === 'user') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -109,7 +109,7 @@ export async function PUT(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAdmin) {
+    if (!session.isAuthenticated || session.user?.role === 'user') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
@@ -180,7 +180,7 @@ export async function DELETE(request: NextRequest) {
   try {
     // Verify admin access
     const session = await getCurrentUser(request);
-    if (!session.isAdmin) {
+    if (!session.isAuthenticated || session.user?.role === 'user') {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }

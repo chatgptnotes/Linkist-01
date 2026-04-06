@@ -15,11 +15,12 @@ export async function POST(request: NextRequest) {
     
     console.log('🔍 Generating QR code with URL:', qrDataUrl);
 
-    // Generate QR code as data URL
+    // Generate QR code with high error correction for center logo overlay
     console.log('🎨 Generating QR code with options...');
     const qrCodeDataUrl = await QRCode.toDataURL(qrDataUrl, {
       width: 200,
       margin: 2,
+      errorCorrectionLevel: 'H',
       color: {
         dark: '#000000',
         light: '#FFFFFF'

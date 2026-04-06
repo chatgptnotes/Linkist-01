@@ -10,7 +10,7 @@ export async function POST(
   try {
     // Check admin access
     const session = await import('@/lib/auth-middleware').then(m => m.getCurrentUser(request));
-    if (!session.isAdmin) {
+    if (!session.isAuthenticated || session.user?.role === 'user') {
       return NextResponse.json({ error: 'Admin access required' }, { status: 401 });
     }
     

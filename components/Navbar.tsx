@@ -6,11 +6,19 @@ import Link from 'next/link';
 import Logo from './Logo';
 import { toast } from 'sonner';
 
-export default function Navbar() {
+// Optional props: when provided, Navbar skips its own /api/auth/me fetch
+// and uses the parent's data instead (avoids duplicate requests).
+interface NavbarProps {
+  initialUserData?: { email: string; firstName: string; lastName: string } | null;
+  initialAuthLoading?: boolean;
+}
+
+export default function Navbar({ initialUserData, initialAuthLoading }: NavbarProps = {}) {
   const router = useRouter();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isAuthLoading, setIsAuthLoading] = useState(true);
-  const [userData, setUserData] = useState<any>(null);
+  const hasParentData = initialAuthLoading !== undefined;
+  const [isLoggedIn, setIsLoggedIn] = useState(hasParentData ? !!initialUserData : false);
+  const [isAuthLoading, setIsAuthLoading] = useState(hasParentData ? initialAuthLoading! : true);
+  const [userData, setUserData] = useState<any>(hasParentData ? initialUserData : null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -18,14 +26,25 @@ export default function Navbar() {
   const [isJoinLoading, setIsJoinLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+  // Sync from parent when props change
   useEffect(() => {
-    // Check if user is logged in
+    if (hasParentData) {
+      setIsLoggedIn(!!initialUserData);
+      setUserData(initialUserData);
+      setIsAuthLoading(initialAuthLoading!);
+    }
+  }, [initialUserData, initialAuthLoading, hasParentData]);
+
+  useEffect(() => {
+    // Only fetch if no parent provided the data (standalone usage)
+    if (hasParentData) return;
+
     const checkAuth = async () => {
       try {
         const response = await fetch('/api/auth/me', {
           credentials: 'include',
           cache: 'no-store'
-        }).catch(() => null); // Suppress fetch errors in console
+        }).catch(() => null);
 
         if (!response) {
           setIsLoggedIn(false);
@@ -43,7 +62,6 @@ export default function Navbar() {
             });
           }
         } else {
-          // 401 is expected when not logged in
           setIsLoggedIn(false);
         }
       } catch (error) {
@@ -54,7 +72,7 @@ export default function Navbar() {
     };
 
     checkAuth();
-  }, []);
+  }, [hasParentData]);
 
   // Close dropdown when clicking outside
   useEffect(() => {

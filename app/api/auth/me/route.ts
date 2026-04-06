@@ -69,6 +69,8 @@ export async function GET(request: NextRequest) {
         email_verified: user.email_verified,
         mobile_verified: user.mobile_verified,
         role: user.role,
+        db_role_name: (user as any).db_role_name || user.role,
+        db_permissions: permissions,
         created_at: user.created_at,
         is_founding_member: user.is_founding_member || false,
         has_founders_order: hasFoundersOrder,

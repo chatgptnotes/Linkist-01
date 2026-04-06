@@ -33,6 +33,20 @@ const Download = CloudDownloadIcon;
 const X = CloseIcon;
 const PersonAvatar = PersonIcon;
 
+const MODULE_OPTIONS = [
+  { key: 'customers', label: 'Customers' },
+  { key: 'orders', label: 'Orders' },
+  { key: 'products', label: 'Products' },
+  { key: 'vouchers', label: 'Vouchers' },
+  { key: 'subscribers', label: 'Subscribers' },
+  { key: 'founders', label: 'Founders Circle' },
+  { key: 'analytics', label: 'Analytics' },
+  { key: 'communications', label: 'Communications' },
+  { key: 'users', label: 'Admin Users' },
+  { key: 'roles', label: 'Roles' },
+  { key: 'settings', label: 'Settings' },
+];
+
 interface User {
   id: string;
   name: string;
@@ -62,15 +76,13 @@ interface UserFilters {
 const ROLE_COLORS: Record<string, string> = {
   super_admin: 'bg-purple-100 text-purple-800',
   admin: 'bg-red-100 text-red-800',
-  doctor: 'bg-blue-100 text-blue-800',
-  receptionist: 'bg-teal-100 text-teal-800',
-  marketing_staff: 'bg-orange-100 text-orange-800',
-  accountant: 'bg-green-100 text-green-800',
-  moderator: 'bg-yellow-100 text-yellow-800',
+  operations_admin: 'bg-blue-100 text-blue-800',
+  customer_support_admin: 'bg-teal-100 text-teal-800',
+  finance_admin: 'bg-green-100 text-green-800',
+  marketing_admin: 'bg-orange-100 text-orange-800',
+  product_tech_admin: 'bg-indigo-100 text-indigo-800',
+  fulfilment_admin: 'bg-amber-100 text-amber-800',
   user: 'bg-gray-100 text-gray-800',
-  customer: 'bg-gray-100 text-gray-800',
-  manager: 'bg-blue-100 text-blue-800',
-  staff: 'bg-green-100 text-green-800',
 };
 
 const RolesIcon = Shield;
@@ -87,6 +99,7 @@ export default function UsersPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [saving, setSaving] = useState(false);
 
   // Form state
   const [formName, setFormName] = useState('');
@@ -94,6 +107,7 @@ export default function UsersPage() {
   const [formPhone, setFormPhone] = useState('');
   const [formRole, setFormRole] = useState('user');
   const [formStatus, setFormStatus] = useState('active');
+  const [formModules, setFormModules] = useState<string[]>([]);
 
   useEffect(() => {
     fetchUsers();
@@ -136,14 +150,26 @@ export default function UsersPage() {
     fetchUsers();
   }, [filters]);
 
-  const openEditModal = (user: User) => {
+  const openEditModal = async (user: User) => {
     setEditingUser(user);
     setFormName(user.name);
     setFormEmail(user.email);
     setFormPhone(user.phone || '');
     setFormRole(user.role);
     setFormStatus(user.status);
+    setFormModules([]);
     setShowUserModal(true);
+
+    // Fetch user's current module access
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}/modules`);
+      if (res.ok) {
+        const data = await res.json();
+        setFormModules(data.modules || []);
+      }
+    } catch {
+      // Non-fatal
+    }
   };
 
   const openCreateModal = () => {
@@ -153,12 +179,14 @@ export default function UsersPage() {
     setFormPhone('');
     setFormRole('user');
     setFormStatus('active');
+    setFormModules([]);
     setShowUserModal(true);
   };
 
   const handleSaveUser = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSaving(true);
 
     try {
       if (editingUser) {
@@ -166,7 +194,7 @@ export default function UsersPage() {
         const roleRes = await fetch(`/api/admin/users/${editingUser.id}/role`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ role_name: formRole }),
+          body: JSON.stringify({ role_name: formRole, modules: formModules }),
         });
 
         if (!roleRes.ok) {
@@ -187,6 +215,7 @@ export default function UsersPage() {
             phone: formPhone,
             role: formRole,
             status: formStatus,
+            modules: formModules,
           }),
         });
 
@@ -204,6 +233,8 @@ export default function UsersPage() {
       fetchUsers();
     } catch {
       setError('Network error');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -277,7 +308,7 @@ export default function UsersPage() {
             }`}
           >
             <RolesIcon className="h-4 w-4" />
-            <span>Roles & Permissions</span>
+            <span>Roles</span>
           </button>
         </div>
 
@@ -501,6 +532,12 @@ export default function UsersPage() {
                   </button>
                 </div>
 
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                    {error}
+                  </div>
+                )}
+
                 <form onSubmit={handleSaveUser} className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -571,6 +608,44 @@ export default function UsersPage() {
                     </div>
                   </div>
 
+                  {/* Module Access Checkboxes */}
+                  {formRole !== 'user' && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Module Access</label>
+                      <p className="text-xs text-gray-500 mb-3">
+                        Select which admin modules this user can access. Dashboard is always visible.
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {MODULE_OPTIONS.map((mod) => {
+                          const isSuperAdmin = formRole === 'super_admin';
+                          return (
+                            <label key={mod.key} className="flex items-center space-x-2 text-sm cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={isSuperAdmin || formModules.includes(mod.key)}
+                                disabled={isSuperAdmin}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setFormModules([...formModules, mod.key]);
+                                  } else {
+                                    setFormModules(formModules.filter(m => m !== mod.key));
+                                  }
+                                }}
+                                className="rounded border-gray-300 text-red-600 focus:ring-red-500 h-4 w-4"
+                              />
+                              <span className={isSuperAdmin ? 'text-gray-400' : 'text-gray-700'}>
+                                {mod.label}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                      {formRole === 'super_admin' && (
+                        <p className="text-xs text-gray-400 mt-2">Super Admin has access to all modules.</p>
+                      )}
+                    </div>
+                  )}
+
                   {!editingUser && (
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
@@ -596,9 +671,15 @@ export default function UsersPage() {
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800"
+                      disabled={saving}
+                      className="px-4 py-2 bg-red-700 text-white rounded-md hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                     >
-                      {editingUser ? 'Update Role' : 'Create User'}
+                      {saving && (
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent" />
+                      )}
+                      {saving
+                        ? (editingUser ? 'Updating...' : 'Creating...')
+                        : (editingUser ? 'Update Role' : 'Create User')}
                     </button>
                   </div>
                 </form>

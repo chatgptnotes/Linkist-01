@@ -83,6 +83,26 @@ export const PUT = requireAdmin(async function PUT(
       .update({ role: resolvedRoleName, updated_at: new Date().toISOString() })
       .eq('id', userId);
 
+    // Update module access if provided
+    const { modules } = body;
+    if (modules && Array.isArray(modules)) {
+      try {
+        // Delete existing module access
+        await supabase.from('user_module_access').delete().eq('user_id', userId);
+
+        // Insert new module access
+        if (modules.length > 0) {
+          const moduleRows = modules.map((moduleKey: string) => ({
+            user_id: userId,
+            module_key: moduleKey,
+          }));
+          await supabase.from('user_module_access').insert(moduleRows);
+        }
+      } catch {
+        // Non-fatal if table doesn't exist yet
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user_id: userId,

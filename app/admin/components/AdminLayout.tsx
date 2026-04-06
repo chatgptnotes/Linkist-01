@@ -105,6 +105,12 @@ const navigationItems = [
     permission: Permission.READ_USERS,
   },
   {
+    name: 'Roles',
+    href: '/admin/roles',
+    icon: Roles,
+    permission: Permission.READ_ROLES,
+  },
+  {
     name: 'Subscribers',
     href: '/admin/subscribers',
     icon: Newspaper,
@@ -212,10 +218,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       )}
 
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-800 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:static lg:inset-0 ${
+      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-800 transform transition-transform duration-200 ease-in-out lg:translate-x-0 lg:relative lg:inset-0 flex flex-col h-screen flex-shrink-0 ${
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
-        <div className="flex items-center justify-between h-16 px-4 bg-slate-900">
+        <div className="flex items-center justify-between h-16 px-4 bg-slate-900 flex-shrink-0">
           <div className="flex items-center">
             <div className="text-white font-bold text-xl">Linkist Admin</div>
           </div>
@@ -227,12 +233,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </button>
         </div>
 
-        <nav className="mt-5 px-2">
+        <nav className="flex-1 overflow-y-auto mt-5 px-2">
           <div className="space-y-1">
             {filteredNavigation.map((item) => {
-              const isActive = pathname === item.href || 
+              const isActive = pathname === item.href ||
                              (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
-              
+
               return (
                 <Link
                   key={item.name}
@@ -258,29 +264,27 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </nav>
 
         {/* User section */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-slate-900">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <User className="h-8 w-8 text-slate-400" />
-              </div>
-              <div className="ml-3">
-                <p className="text-sm font-medium text-white">
-                  {currentUser?.first_name || currentUser?.email}
-                </p>
-                <p className="text-xs text-slate-400">
-                  {RBAC.getRoleName(currentUser?.role || '')}
-                </p>
-              </div>
+        <div className="flex-shrink-0 bg-slate-900">
+          <div className="px-4 py-3 flex items-center">
+            <div className="flex-shrink-0">
+              <User className="h-8 w-8 text-slate-400" />
             </div>
-            <button
-              onClick={handleLogout}
-              className="text-slate-400 hover:text-white"
-              title="Logout"
-            >
-              <LogOut className="h-5 w-5" />
-            </button>
+            <div className="ml-3 min-w-0 flex-1">
+              <p className="text-sm font-medium text-white truncate">
+                {currentUser?.first_name || currentUser?.email}
+              </p>
+              <p className="text-xs text-slate-400 truncate">
+                {RBAC.getRoleName(currentUser?.role || '')}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-red-600 hover:text-white transition-colors border-t border-slate-700"
+          >
+            <LogOut className="h-4 w-4" />
+            Logout
+          </button>
         </div>
       </div>
 

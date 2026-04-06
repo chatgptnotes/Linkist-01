@@ -9,6 +9,43 @@ import { SessionStore } from './session-store'
 // Using a well-formed UUID allows database operations that expect UUID type
 const ADMIN_SESSION_UUID = '00000000-0000-0000-0000-000000000001'
 
+// ============================================================
+// IN-MEMORY AUTH CACHE
+// Caches getAuthenticatedUser() results for 60 seconds per session.
+// Eliminates 3-5 repeated DB queries on every request.
+// Cache is automatically invalidated on logout (session deletion).
+// ============================================================
+interface CachedAuth {
+  result: AuthSession
+  timestamp: number
+}
+const AUTH_CACHE = new Map<string, CachedAuth>()
+const AUTH_CACHE_TTL = 60 * 1000 // 60 seconds
+
+function getCachedAuth(sessionId: string): AuthSession | null {
+  const cached = AUTH_CACHE.get(sessionId)
+  if (!cached) return null
+  if (Date.now() - cached.timestamp > AUTH_CACHE_TTL) {
+    AUTH_CACHE.delete(sessionId)
+    return null
+  }
+  return cached.result
+}
+
+function setCachedAuth(sessionId: string, result: AuthSession): void {
+  // Prevent unbounded cache growth — evict oldest entries if over 500
+  if (AUTH_CACHE.size > 500) {
+    const oldest = AUTH_CACHE.keys().next().value
+    if (oldest) AUTH_CACHE.delete(oldest)
+  }
+  AUTH_CACHE.set(sessionId, { result, timestamp: Date.now() })
+}
+
+/** Call on logout or session invalidation to immediately clear cached auth */
+export function invalidateAuthCache(sessionId: string): void {
+  AUTH_CACHE.delete(sessionId)
+}
+
 // Auth configuration
 const AUTH_CONFIG: {
   adminRoutes: string[];
@@ -96,39 +133,30 @@ function createMiddlewareClient(request: NextRequest) {
 // Get authenticated user from Supabase session
 export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSession> {
   try {
-    // First check for admin session (PIN-based admin access)
-    const adminSessionId = request.cookies.get('admin_session')?.value
-    const isAdminSession = await verifyAdminSession(adminSessionId)
-
-    if (isAdminSession) {
-      // Create admin user from session token
-      const adminUser: AuthUser = {
-        id: ADMIN_SESSION_UUID,
-        email: 'admin@linkist.com',
-        role: 'admin',
-        email_verified: true,
-        created_at: new Date().toISOString(),
-      }
-
-      return {
-        user: adminUser,
-        isAuthenticated: true,
-        isAdmin: true,
-        sessionId: ADMIN_SESSION_UUID,
-      }
+    // Check in-memory cache first (keyed by session cookie)
+    const sessionCookie = request.cookies.get('session')?.value
+    const adminCookie = request.cookies.get('admin_session')?.value
+    const cacheKey = adminCookie || sessionCookie
+    if (cacheKey) {
+      const cached = getCachedAuth(cacheKey)
+      if (cached) return cached
     }
 
-    // Check for custom session cookie (from OTP login)
-    const customSessionId = request.cookies.get('session')?.value
+    // Check for custom session cookie (from OTP login) FIRST — it has actual user data + module permissions
+    const customSessionId = sessionCookie
 
     if (customSessionId) {
       const sessionData = await SessionStore.get(customSessionId)
 
       if (sessionData) {
-        // Auto-refresh session if it expires within 30 days (keeps active users logged in)
+        // Auto-refresh session if it expires within 30 days AND hasn't been refreshed in the last 24h.
+        // This avoids an UPDATE query on every single request.
         const thirtyDaysFromNow = Date.now() + (30 * 24 * 60 * 60 * 1000);
-        if (sessionData.expiresAt < thirtyDaysFromNow) {
-          // Refresh session in the background (non-blocking)
+        const oneDayMs = 24 * 60 * 60 * 1000;
+        const sessionAge = Date.now() - sessionData.createdAt;
+        const timeSinceLastPossibleRefresh = sessionAge % oneDayMs; // approximate daily gate
+        if (sessionData.expiresAt < thirtyDaysFromNow && timeSinceLastPossibleRefresh < 60000) {
+          // Refresh session in the background (non-blocking), roughly once per day
           SessionStore.refresh(customSessionId).catch(err => {
             console.warn('Failed to refresh session:', err);
           });
@@ -230,18 +258,84 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
             sessionUser.role = userPerms[0].role_name // override with DB role
             sessionUser.db_permissions = userPerms.map(p => `${p.action}:${p.module}`)
           }
+
+          // Load per-user module access (overrides role-based permissions for sidebar visibility)
+          if (sessionUser.role !== 'super_admin') {
+            try {
+              const { data: moduleAccess } = await adminClient
+                .from('user_module_access')
+                .select('module_key')
+                .eq('user_id', sessionData.userId)
+
+              if (moduleAccess && moduleAccess.length > 0) {
+                // User has explicit module access — use it instead of role-based permissions
+                const MODULE_TO_PERMISSIONS: Record<string, string[]> = {
+                  customers: ['read:customers', 'create:customers', 'update:customers', 'delete:customers', 'manage:customers', 'export:customers'],
+                  orders: ['read:orders', 'create:orders', 'update:orders', 'delete:orders', 'manage:orders', 'export:orders'],
+                  products: ['read:products', 'create:products', 'update:products', 'delete:products', 'manage:products'],
+                  vouchers: ['read:vouchers', 'create:vouchers', 'update:vouchers', 'delete:vouchers', 'manage:vouchers'],
+                  subscribers: ['read:subscribers', 'manage:subscribers', 'export:subscribers'],
+                  founders: ['read:founders', 'approve:founders', 'manage:founders'],
+                  analytics: ['read:analytics', 'export:analytics', 'manage:analytics'],
+                  communications: ['read:communications', 'create:communications', 'update:communications', 'delete:communications', 'manage:communications'],
+                  users: ['read:users', 'create:users', 'update:users', 'delete:users', 'manage:users'],
+                  roles: ['read:roles', 'manage:roles'],
+                  settings: ['read:settings', 'update:settings', 'manage:settings'],
+                }
+
+                const modulePermissions: string[] = [
+                  'read:dashboard',
+                  'manage:dashboard',
+                ]
+
+                for (const row of moduleAccess) {
+                  const perms = MODULE_TO_PERMISSIONS[row.module_key]
+                  if (perms) modulePermissions.push(...perms)
+                }
+
+                sessionUser.db_permissions = modulePermissions
+              }
+            } catch {
+              // Non-fatal — keep role-based permissions
+            }
+          }
         } catch (rbacErr) {
           // Non-blocking — falls back to hardcoded RBAC
           console.warn('Failed to load RBAC permissions from DB:', rbacErr)
         }
 
-        return {
+        const sessionResult: AuthSession = {
           user: sessionUser,
           isAuthenticated: true,
-          isAdmin: sessionUser.role === 'admin' || sessionUser.role === 'super_admin',
+          isAdmin: sessionUser.role !== 'user',
           sessionId: customSessionId,
         }
+        if (customSessionId) setCachedAuth(customSessionId, sessionResult)
+        return sessionResult
       }
+    }
+
+    // Fallback: check for admin session (PIN-based admin access)
+    const adminSessionId = adminCookie
+    const isAdminSession = await verifyAdminSession(adminSessionId)
+
+    if (isAdminSession) {
+      const adminUser: AuthUser = {
+        id: ADMIN_SESSION_UUID,
+        email: 'admin@linkist.com',
+        role: 'admin',
+        email_verified: true,
+        created_at: new Date().toISOString(),
+      }
+
+      const adminResult: AuthSession = {
+        user: adminUser,
+        isAuthenticated: true,
+        isAdmin: true,
+        sessionId: ADMIN_SESSION_UUID,
+      }
+      if (adminCookie) setCachedAuth(adminCookie, adminResult)
+      return adminResult
     }
 
     // Check for regular Supabase user session
@@ -292,12 +386,14 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
       founding_member_plan: foundingMemberPlan,
     }
 
-    return {
+    const supabaseResult: AuthSession = {
       user: authUser,
       isAuthenticated: true,
       isAdmin: false,
       sessionId: user.id,
     }
+    setCachedAuth(user.id, supabaseResult)
+    return supabaseResult
 
   } catch (error) {
     console.error('Auth middleware error:', error)
