@@ -160,8 +160,8 @@ export default function SuperAdminLoginPage() {
               </form>
 
               <div className="mt-6 pt-4 border-t border-gray-100 text-center">
-                <a href="/admin-access" className="text-sm text-gray-500 hover:text-red-600 transition-colors">
-                  Staff login (PIN access) →
+                <a href="/login" className="text-sm text-gray-500 hover:text-red-600 transition-colors">
+                  Staff login (OTP) →
                 </a>
               </div>
             </>

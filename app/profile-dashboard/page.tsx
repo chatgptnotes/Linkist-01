@@ -591,23 +591,29 @@ export default function AccountPage() {
       ? `${user.first_name} ${user.last_name}`
       : user?.first_name || profileData?.first_name || 'My Profile';
 
-    const customSlug = profileData?.customUrl || profileData?.custom_url;
-    const profileUrl = customSlug
-      ? `linkist.ai/${customSlug}`
-      : user?.first_name
-      ? `linkist.ai/${user.first_name.toLowerCase().replace(/\s+/g, '-')}`
-      : '';
+    // Derive URL using same logic as QR code generation
+    let username = 'your-profile';
+    if (profileData?.customUrl || profileData?.custom_url) {
+      username = profileData.customUrl || profileData.custom_url;
+    } else if (user?.first_name) {
+      username = user.first_name.toLowerCase().replace(/\s+/g, '-');
+    } else if (profileData?.first_name) {
+      username = profileData.first_name.toLowerCase().replace(/\s+/g, '-');
+    } else if (profileData?.email) {
+      username = profileData.email.split('@')[0];
+    }
+    const profileUrl = `linkist.ai/${username}`;
 
     const img = new Image();
     img.onload = () => {
       const padding = 40;
       const nameHeight = 30;
-      const urlHeight = profileUrl ? 22 : 0;
-      const gap = profileUrl ? 6 : 0;
-      const topTextHeight = nameHeight + gap + urlHeight + 16;
+      const urlHeight = 22;
+      const gap = 6;
+      const qrTopY = padding + nameHeight + gap + urlHeight + 16;
       const bottomPadding = 30;
       const canvasWidth = img.width + padding * 2;
-      const canvasHeight = img.height + padding + topTextHeight + bottomPadding;
+      const canvasHeight = qrTopY + img.height + bottomPadding;
 
       const canvas = document.createElement('canvas');
       canvas.width = canvasWidth;
@@ -625,14 +631,12 @@ export default function AccountPage() {
       ctx.fillText(ownerName, canvasWidth / 2, padding + nameHeight - 6);
 
       // Draw profile URL below name
-      if (profileUrl) {
-        ctx.fillStyle = '#6B7280';
-        ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-        ctx.fillText(profileUrl, canvasWidth / 2, padding + nameHeight + gap + urlHeight - 6);
-      }
+      ctx.fillStyle = '#6B7280';
+      ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.fillText(profileUrl, canvasWidth / 2, padding + nameHeight + gap + urlHeight - 6);
 
       // Draw QR code below text
-      ctx.drawImage(img, padding, topTextHeight, img.width, img.height);
+      ctx.drawImage(img, padding, qrTopY, img.width, img.height);
 
       // Download
       const a = document.createElement('a');
@@ -1222,11 +1226,9 @@ export default function AccountPage() {
                     ? `${user.first_name} ${user.last_name}`
                     : user?.first_name || profileData?.first_name || 'My Profile'}
                 </p>
-                {(profileData?.customUrl || user?.first_name) && (
-                  <p className="text-xs text-gray-500 mt-0.5">
-                    linkist.ai/{profileData?.customUrl || user?.first_name?.toLowerCase().replace(/\s+/g, '-') || ''}
-                  </p>
-                )}
+                <p className="text-xs text-gray-500 mt-0.5">
+                  linkist.ai/{profileData?.customUrl || profileData?.custom_url || user?.first_name?.toLowerCase().replace(/\s+/g, '-') || profileData?.first_name?.toLowerCase().replace(/\s+/g, '-') || 'your-profile'}
+                </p>
               </div>
               <img
                 src={qrCodeUrl}

@@ -9,8 +9,6 @@ import BrushIcon from '@mui/icons-material/Brush';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import WarningIcon from '@mui/icons-material/Warning';
 import StarsIcon from '@mui/icons-material/Stars';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
 import { calculateFoundersPricing, FoundersPricingBreakdown } from '@/lib/pricing-utils';
 import { detectCountryFromIP } from '@/lib/country-utils';
 import { buildHierarchyKey } from '@/lib/supabase-card-customization-store';
@@ -475,8 +473,25 @@ export default function ConfigureNewPage() {
   // Handle base material change
   const handleBaseMaterialChange = (material: BaseMaterial) => {
     const availableTextures = textureOptions[material] || [];
-    const availableColours = colourOptions[material] || [];
     const materialDefaults = customizationOptions?.defaults?.[material];
+
+    // Determine the texture first (needed for colour hierarchy lookup)
+    const newTexture: TextureOption | null = formData.texture && availableTextures.includes(formData.texture)
+      ? formData.texture
+      : (materialDefaults?.texture && availableTextures.includes(materialDefaults.texture)
+        ? materialDefaults.texture as TextureOption
+        : null);
+
+    // Use hierarchy key ("material|texture") to look up available colours
+    const colourHierarchyKey = newTexture ? buildHierarchyKey(material, newTexture) : null;
+    const availableColours = (colourHierarchyKey && colourOptions[colourHierarchyKey]) || colourOptions[material] || [];
+
+    // Determine colour
+    const newColour: ColourOption | null = formData.colour && availableColours.includes(formData.colour)
+      ? formData.colour
+      : (materialDefaults?.colour && availableColours.includes(materialDefaults.colour)
+        ? materialDefaults.colour as ColourOption
+        : null);
 
     // Build the new patterns list for the target material using the shared helper
     const newMaterialPatterns = buildPatternsForMaterial(material);
@@ -505,23 +520,11 @@ export default function ConfigureNewPage() {
     const newFormData: StepData = {
       ...formData,
       baseMaterial: material,
-      // Keep current texture if valid, otherwise apply default, otherwise null
-      texture: formData.texture && availableTextures.includes(formData.texture)
-        ? formData.texture
-        : (materialDefaults?.texture && availableTextures.includes(materialDefaults.texture)
-          ? materialDefaults.texture as TextureOption
-          : null),
-      // Keep current colour if valid, otherwise apply default, otherwise null
-      colour: formData.colour && availableColours.includes(formData.colour)
-        ? formData.colour
-        : (materialDefaults?.colour && availableColours.includes(materialDefaults.colour)
-          ? materialDefaults.colour as ColourOption
-          : null),
-      // Keep current pattern if still available, otherwise default, otherwise Blank
+      texture: newTexture,
+      colour: newColour,
       pattern: newPatternId
     };
     setFormData(newFormData);
-    console.log('Base material changed:', newFormData);
   };
 
   // Handle other selections — texture change resets colour & pattern (hierarchy)
@@ -532,10 +535,18 @@ export default function ConfigureNewPage() {
       const availableColours = hierarchyKey && hierarchyKey in colourOptions ? colourOptions[hierarchyKey] : null;
       const currentColourStillValid = formData.colour && availableColours?.includes(formData.colour);
 
+      // If current colour is not valid, try applying the default colour
+      const materialDefaults = formData.baseMaterial ? customizationOptions?.defaults?.[formData.baseMaterial] : null;
+      const defaultColour = materialDefaults?.colour && availableColours?.includes(materialDefaults.colour)
+        ? materialDefaults.colour as ColourOption
+        : null;
+
+      const newColour = currentColourStillValid ? formData.colour : defaultColour;
+
       setFormData({
         ...formData,
         texture,
-        colour: currentColourStillValid ? formData.colour : null,
+        colour: newColour,
         pattern: currentColourStillValid ? formData.pattern : null
       });
     }
@@ -657,8 +668,7 @@ export default function ConfigureNewPage() {
   if (optionsLoading || !customizationOptions) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center min-h-[60vh] pt-24">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] pt-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
           <p className="text-gray-500 text-lg">Loading card customization options...</p>
         </div>
@@ -668,9 +678,7 @@ export default function ConfigureNewPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <Navbar />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="pb-6">
           {/* Configuration Section - Full Width */}
           <div className="max-w-3xl mx-auto space-y-3">
@@ -1108,7 +1116,6 @@ export default function ConfigureNewPage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }

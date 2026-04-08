@@ -19,7 +19,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import StarsIcon from '@mui/icons-material/Stars';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
-import SecurityIcon from '@mui/icons-material/Security';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -37,7 +36,6 @@ const User = PersonIcon;
 const Ticket = ConfirmationNumberIcon;
 const Crown = StarsIcon;
 const Newspaper = NewspaperIcon;
-const Roles = SecurityIcon;
 
 interface AuthUser {
   id: string;
@@ -103,12 +101,6 @@ const navigationItems = [
     href: '/admin/users',
     icon: UserCheck,
     permission: Permission.READ_USERS,
-  },
-  {
-    name: 'Roles',
-    href: '/admin/roles',
-    icon: Roles,
-    permission: Permission.READ_ROLES,
   },
   {
     name: 'Subscribers',
@@ -263,13 +255,14 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
         </nav>
 
-        {/* User section */}
+        {/* User section with logout */}
         <div className="flex-shrink-0 bg-slate-900">
-          <div className="px-4 py-3 flex items-center">
-            <div className="flex-shrink-0">
-              <User className="h-8 w-8 text-slate-400" />
-            </div>
-            <div className="ml-3 min-w-0 flex-1">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-red-600 hover:text-white transition-colors border-t border-slate-700"
+          >
+            <User className="h-8 w-8 text-slate-400 flex-shrink-0" />
+            <div className="min-w-0 flex-1 text-left">
               <p className="text-sm font-medium text-white truncate">
                 {currentUser?.first_name || currentUser?.email}
               </p>
@@ -277,13 +270,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 {RBAC.getRoleName(currentUser?.role || '')}
               </p>
             </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-red-600 hover:text-white transition-colors border-t border-slate-700"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
+            <LogOut className="h-4 w-4 flex-shrink-0" />
           </button>
         </div>
       </div>

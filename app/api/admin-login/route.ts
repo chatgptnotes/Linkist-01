@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminSession } from '@/lib/auth-middleware'
+import { createAdminSession, getCurrentUser, isAdminRole } from '@/lib/auth-middleware'
 import { supabaseAdmin } from '@/lib/supabase/admin-client'
 import bcrypt from 'bcryptjs'
 import { getCookieDomain } from '@/lib/cookie-utils'
@@ -12,6 +12,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Password is required' },
         { status: 400 }
+      )
+    }
+
+    // Require an existing user session — admin password is a secondary gate,
+    // not a standalone login. The user must already be logged in.
+    const session = await getCurrentUser(request)
+    if (!session.isAuthenticated || !session.user) {
+      return NextResponse.json(
+        { success: false, error: 'You must be logged in first' },
+        { status: 401 }
+      )
+    }
+
+    // Only staff roles can unlock the admin panel
+    if (!isAdminRole(session.user.db_role_name || session.user.role)) {
+      return NextResponse.json(
+        { success: false, error: 'Insufficient permissions' },
+        { status: 403 }
       )
     }
 
@@ -34,17 +52,14 @@ export async function POST(request: NextRequest) {
     const isValidPassword = await bcrypt.compare(password, adminPassword.password_hash)
 
     if (!isValidPassword) {
-      console.log('Invalid admin password attempt')
       return NextResponse.json(
         { success: false, error: 'Invalid password' },
         { status: 401 }
       )
     }
 
-    // Create admin session token
-    const sessionToken = await createAdminSession()
-
-    console.log('Admin login successful')
+    // Create admin session token with the authenticated user's ID
+    const sessionToken = await createAdminSession(session.user.id)
 
     // Set secure cookie with the session token (24 hours)
     const response = NextResponse.json({
@@ -74,8 +89,6 @@ export async function POST(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    console.log('Admin logout requested')
-
     // Clear admin session cookie
     const response = NextResponse.json({
       success: true,

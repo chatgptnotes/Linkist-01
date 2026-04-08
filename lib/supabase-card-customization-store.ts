@@ -675,18 +675,26 @@ export const SupabaseCardCustomizationStore = {
         .eq('option_id', toggle.option_id);
 
       const query = applyHierarchyFilters(baseQuery, toggle);
-      const { data: existing, error: fetchError } = await query.maybeSingle();
+      const { data: existingRows, error: fetchError } = await query.limit(1);
 
       if (fetchError) {
         console.error('Error checking plan option:', fetchError);
         return false;
       }
 
+      const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
+
       if (existing) {
-        const { error } = await supabase
-          .from('plan_customization_options')
-          .update({ is_enabled: toggle.is_enabled, updated_at: new Date().toISOString() })
-          .eq('id', existing.id);
+        // Update ALL matching rows to handle potential duplicates
+        const updateQuery = applyHierarchyFilters(
+          supabase
+            .from('plan_customization_options')
+            .update({ is_enabled: toggle.is_enabled, updated_at: new Date().toISOString() })
+            .eq('plan_id', planId)
+            .eq('option_id', toggle.option_id),
+          toggle
+        );
+        const { error } = await updateQuery;
         return !error;
       } else {
         const { error } = await supabase
@@ -815,6 +823,8 @@ export const SupabaseCardCustomizationStore = {
     await clearQuery;
 
     // Find or create the record and set as default
+    // Use .limit(1) instead of .maybeSingle() to handle potential duplicate rows
+    // (PostgreSQL UNIQUE constraints treat NULLs as distinct, so duplicates can exist)
     const findQuery = applyHierarchyFilters(
       supabase
         .from('plan_customization_options')
@@ -823,13 +833,23 @@ export const SupabaseCardCustomizationStore = {
         .eq('option_id', optionId),
       keys
     );
-    const { data: existing } = await findQuery.maybeSingle();
+    const { data: existingRows, error: findError } = await findQuery.limit(1);
+
+    if (findError) { console.error('Error finding option for default:', findError); return false; }
+
+    const existing = existingRows && existingRows.length > 0 ? existingRows[0] : null;
 
     if (existing) {
-      const { error } = await supabase
-        .from('plan_customization_options')
-        .update({ is_default: true, updated_at: new Date().toISOString() })
-        .eq('id', existing.id);
+      // Update ALL matching rows (not just one) to handle duplicates
+      const updateQuery = applyHierarchyFilters(
+        supabase
+          .from('plan_customization_options')
+          .update({ is_default: true, updated_at: new Date().toISOString() })
+          .eq('plan_id', planId)
+          .eq('option_id', optionId),
+        keys
+      );
+      const { error } = await updateQuery;
       if (error) { console.error('Error setting default option:', error); return false; }
     } else {
       const { error } = await supabase

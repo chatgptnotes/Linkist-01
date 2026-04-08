@@ -380,8 +380,32 @@ export async function POST(request: NextRequest) {
     const sessionId = await SessionStore.create(user.id, user.email, user.role);
 
     // Check if user is staff — they need admin panel access
-    const STAFF_ROLES = new Set(['super_admin', 'admin', 'operations_admin', 'customer_support_admin', 'finance_admin', 'marketing_admin', 'product_tech_admin', 'fulfilment_admin', 'manager', 'moderator']);
-    const isStaff = user.role && STAFF_ROLES.has(user.role);
+    // Check both the users.role column AND the RBAC user_roles table
+    const STAFF_ROLES = new Set(['super_admin', 'admin', 'operations_admin', 'customer_support_admin', 'finance_admin', 'marketing_admin', 'product_tech_admin', 'fulfilment_admin', 'manager', 'moderator', 'support', 'viewer']);
+    let isStaff = user.role && STAFF_ROLES.has(user.role);
+
+    // Also check RBAC assignment — user may have a role via user_roles table
+    if (!isStaff) {
+      try {
+        const { createClient } = await import('@supabase/supabase-js');
+        const adminClient = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!
+        );
+        const { data: userRole } = await adminClient
+          .from('user_permissions_view')
+          .select('role_name')
+          .eq('user_id', user.id)
+          .limit(1)
+          .maybeSingle();
+
+        if (userRole && userRole.role_name && userRole.role_name !== 'user') {
+          isStaff = true;
+        }
+      } catch {
+        // Non-fatal — proceed with role-based check only
+      }
+    }
 
     // Set session cookie
     const response = NextResponse.json({
@@ -410,7 +434,7 @@ export async function POST(request: NextRequest) {
     if (isStaff) {
       try {
         const { createAdminSession } = await import('@/lib/auth-middleware');
-        const adminToken = await createAdminSession();
+        const adminToken = await createAdminSession(user.id);
         response.cookies.set('admin_session', adminToken, {
           ...cookieOptions,
           maxAge: 24 * 60 * 60, // 24 hours for admin session

@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     const sessionId = await SessionStore.create(user.id, user.email, user.role || 'super_admin');
 
     // Also create admin session JWT (for admin panel access)
-    const adminToken = await createAdminSession();
+    const adminToken = await createAdminSession(user.id);
 
     // Set both cookies
     const response = NextResponse.json({

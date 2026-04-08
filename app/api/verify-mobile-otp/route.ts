@@ -9,10 +9,10 @@ import { getSessionCookieOptions } from '@/lib/cookie-utils';
 import { createAdminSession } from '@/lib/auth-middleware';
 
 // Helper: set admin_session cookie for staff users
-async function setStaffAdminCookie(response: NextResponse, userRole: string, requestHost: string) {
+async function setStaffAdminCookie(response: NextResponse, userId: string, userRole: string, requestHost: string) {
   if (userRole && userRole !== 'user') {
     try {
-      const adminToken = await createAdminSession();
+      const adminToken = await createAdminSession(userId);
       response.cookies.set('admin_session', adminToken, {
         ...getSessionCookieOptions(requestHost),
         maxAge: 24 * 60 * 60,
@@ -127,7 +127,7 @@ export async function POST(request: NextRequest) {
             response.cookies.set('session', sessionId, {
               ...getSessionCookieOptions(request.headers.get('host') || '')
             });
-            await setStaffAdminCookie(response, user.role || 'user', request.headers.get('host') || '');
+            await setStaffAdminCookie(response, user.id, user.role || 'user', request.headers.get('host') || '');
 
             return response;
           }
@@ -200,7 +200,7 @@ export async function POST(request: NextRequest) {
               response.cookies.set('session', sessionId, {
                 ...getSessionCookieOptions(request.headers.get('host') || '')
               });
-              await setStaffAdminCookie(response, finalUser.role || 'user', request.headers.get('host') || '');
+              await setStaffAdminCookie(response, finalUser.id, finalUser.role || 'user', request.headers.get('host') || '');
 
               return response;
             } catch (createError) {
@@ -362,7 +362,7 @@ export async function POST(request: NextRequest) {
       response.cookies.set('session', sessionId, {
         ...getSessionCookieOptions(request.headers.get('host') || '')
       });
-      await setStaffAdminCookie(response, user.role || 'user', request.headers.get('host') || '');
+      await setStaffAdminCookie(response, user.id, user.role || 'user', request.headers.get('host') || '');
 
       return response;
     }
@@ -435,7 +435,7 @@ export async function POST(request: NextRequest) {
         response.cookies.set('session', sessionId, {
           ...getSessionCookieOptions(request.headers.get('host') || '')
         });
-        await setStaffAdminCookie(response, finalUser.role || 'user', request.headers.get('host') || '');
+        await setStaffAdminCookie(response, finalUser.id, finalUser.role || 'user', request.headers.get('host') || '');
 
         return response;
       } catch (createError) {

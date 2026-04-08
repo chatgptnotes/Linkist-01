@@ -5,9 +5,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 import { SessionStore } from './session-store'
 
-// Static UUID for PIN-based admin sessions
-// Using a well-formed UUID allows database operations that expect UUID type
-const ADMIN_SESSION_UUID = '00000000-0000-0000-0000-000000000001'
+// Supabase client for resolving admin users from JWT sessions
+const supabaseService = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 // Explicit allowlist of roles that can access the admin panel
 const ADMIN_ROLES = new Set([
@@ -21,6 +23,8 @@ const ADMIN_ROLES = new Set([
   'fulfilment_admin',
   'manager',
   'moderator',
+  'support',
+  'viewer',
 ])
 
 export function isAdminRole(role: string | undefined | null): boolean {
@@ -73,7 +77,6 @@ const AUTH_CONFIG: {
   protectedApiRoutes: string[];
   publicApiRoutes: string[];
   sessionDuration: number;
-  adminPin: string;
 } = {
   // Protected admin routes
   adminRoutes: ['/admin'],
@@ -89,8 +92,6 @@ const AUTH_CONFIG: {
   publicApiRoutes: ['/api/user/profile'],
   // Session duration
   sessionDuration: 365 * 24 * 60 * 60 * 1000, // 1 year in milliseconds
-  // Admin PIN for admin access (in production, this should be more secure)
-  adminPin: process.env.ADMIN_PIN || '1234',
 }
 
 export interface AuthUser {
@@ -333,24 +334,51 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
       }
     }
 
-    // Fallback: check for admin session (PIN-based admin access)
+    // Fallback: check for admin session JWT (secondary admin panel gate)
     const adminSessionId = adminCookie
-    const isAdminSession = await verifyAdminSession(adminSessionId)
+    const adminVerify = await verifyAdminSession(adminSessionId)
 
-    if (isAdminSession) {
-      const adminUser: AuthUser = {
-        id: ADMIN_SESSION_UUID,
-        email: 'admin@linkist.com',
-        role: 'admin',
-        email_verified: true,
-        created_at: new Date().toISOString(),
+    if (adminVerify.valid) {
+      // Resolve the real admin user from DB using the userId embedded in the JWT
+      let adminUser: AuthUser | null = null
+
+      if (adminVerify.userId) {
+        const { data: dbUser } = await supabaseService
+          .from('users')
+          .select('id, email, role, status, email_verified, created_at, first_name, last_name')
+          .eq('id', adminVerify.userId)
+          .single()
+
+        if (dbUser) {
+          adminUser = {
+            id: dbUser.id,
+            email: dbUser.email,
+            role: dbUser.role || 'admin',
+            status: dbUser.status,
+            email_verified: dbUser.email_verified,
+            created_at: dbUser.created_at,
+            first_name: dbUser.first_name,
+            last_name: dbUser.last_name,
+          }
+        }
+      }
+
+      // If no userId in JWT (legacy token) or user not found, create a minimal admin identity
+      if (!adminUser) {
+        adminUser = {
+          id: crypto.randomUUID(),
+          email: 'admin@linkist.com',
+          role: 'admin',
+          email_verified: true,
+          created_at: new Date().toISOString(),
+        }
       }
 
       const adminResult: AuthSession = {
         user: adminUser,
         isAuthenticated: true,
         isAdmin: true,
-        sessionId: ADMIN_SESSION_UUID,
+        sessionId: adminCookie,
       }
       if (adminCookie) setCachedAuth(adminCookie, adminResult)
       return adminResult
@@ -419,26 +447,26 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
   }
 }
 
-// Verify admin session (temporary solution using encrypted cookies)
-async function verifyAdminSession(sessionId?: string): Promise<boolean> {
-  if (!sessionId) return false
+// Verify admin session JWT and return payload (includes sub = userId if present)
+async function verifyAdminSession(sessionId?: string): Promise<{ valid: boolean; userId?: string }> {
+  if (!sessionId) return { valid: false }
 
   try {
     const jwtSecret = process.env.JWT_SECRET
     if (!jwtSecret) {
       console.error('JWT_SECRET environment variable is not set')
-      return false
+      return { valid: false }
     }
     const secret = new TextEncoder().encode(jwtSecret)
-    await jwtVerify(sessionId, secret)
-    return true
+    const { payload } = await jwtVerify(sessionId, secret)
+    return { valid: true, userId: payload.sub as string | undefined }
   } catch {
-    return false
+    return { valid: false }
   }
 }
 
 // Create admin session token
-export async function createAdminSession(): Promise<string> {
+export async function createAdminSession(userId?: string): Promise<string> {
   try {
     const { SignJWT } = await import('jose')
     const jwtSecret = process.env.JWT_SECRET
@@ -446,10 +474,11 @@ export async function createAdminSession(): Promise<string> {
       throw new Error('JWT_SECRET environment variable is not set')
     }
     const secret = new TextEncoder().encode(jwtSecret)
-    
-    return await new SignJWT({ 
+
+    return await new SignJWT({
       role: 'admin',
-      created: Date.now() 
+      created: Date.now(),
+      ...(userId ? { sub: userId } : {}),
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
@@ -529,10 +558,11 @@ export async function authMiddleware(request: NextRequest) {
   const session = await getAuthenticatedUser(request)
 
   // Handle admin routes
-  // Allow access for: super_admin, admin, and any staff role with admin panel access
+  // Allow access for: super_admin, admin, any staff role, or any user with RBAC permissions
   if (authRequirement === 'admin') {
     const userRole = session.user?.db_role_name || session.user?.role || 'user'
-    const canAccess = session.isAdmin || (session.isAuthenticated && isAdminRole(userRole))
+    const hasDbPermissions = session.user?.db_permissions && session.user.db_permissions.length > 0
+    const canAccess = session.isAdmin || (session.isAuthenticated && (isAdminRole(userRole) || hasDbPermissions))
 
     if (!canAccess) {
       // For API routes, return 401
@@ -544,7 +574,7 @@ export async function authMiddleware(request: NextRequest) {
       }
 
       // For page routes, redirect to admin access page
-      const loginUrl = new URL('/admin-access', request.url)
+      const loginUrl = new URL('/super-admin', request.url)
       loginUrl.searchParams.set('returnUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
@@ -587,7 +617,8 @@ export function requireAdmin(handler: (request: NextRequest, ...args: any[]) => 
   return async (request: NextRequest, ...args: any[]) => {
     const session = await getCurrentUser(request)
     const userRole = session.user?.db_role_name || session.user?.role || 'user'
-    const canAccess = session.isAdmin || (session.isAuthenticated && isAdminRole(userRole))
+    const hasDbPermissions = session.user?.db_permissions && session.user.db_permissions.length > 0
+    const canAccess = session.isAdmin || (session.isAuthenticated && (isAdminRole(userRole) || hasDbPermissions))
 
     if (!canAccess) {
       return Response.json(
