@@ -412,21 +412,58 @@ export default function ProfilePreviewPage() {
     fetchProfileData();
   }, []);
 
-  // Generate QR Code when custom URL is set
+  // Generate QR Code with Linkist logo when custom URL is set
   useEffect(() => {
     const generateQrCode = async () => {
       if (!customUrl) return;
 
       try {
         const qrDataUrl = await QRCode.toDataURL(customUrl, {
-          width: 300,
+          width: 600,
           margin: 2,
+          errorCorrectionLevel: 'H',
           color: {
             dark: '#000000',
             light: '#FFFFFF'
           }
         });
-        setQrCodeUrl(qrDataUrl);
+
+        // Overlay Linkist logo at center of QR code
+        const qrImg = new Image();
+        qrImg.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = qrImg.width;
+          canvas.height = qrImg.height;
+          const ctx = canvas.getContext('2d')!;
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = 'high';
+          ctx.drawImage(qrImg, 0, 0);
+
+          const logo = new Image();
+          logo.onload = () => {
+            const centerX = qrImg.width / 2;
+            const centerY = qrImg.height / 2;
+            const radius = qrImg.width * 0.15;
+            // White circular background
+            ctx.fillStyle = '#FFFFFF';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius + 4, 0, Math.PI * 2);
+            ctx.fill();
+            // Clip to circle
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.clip();
+            const drawSize = radius * 2 * 1.5;
+            const offsetX = 0;
+            const offsetY = drawSize * 0.08;
+            ctx.drawImage(logo, centerX - drawSize / 2 + offsetX, centerY - drawSize / 2 + offsetY, drawSize, drawSize);
+            ctx.restore();
+            setQrCodeUrl(canvas.toDataURL('image/png'));
+          };
+          logo.src = '/logo_linkist.png';
+        };
+        qrImg.src = qrDataUrl;
       } catch (error) {
         console.error('Error generating QR code:', error);
       }
@@ -525,10 +562,57 @@ export default function ProfilePreviewPage() {
   const handleDownloadQrCode = () => {
     if (!qrCodeUrl) return;
 
-    const a = document.createElement('a');
-    a.href = qrCodeUrl;
-    a.download = `profile-qr-code.png`;
-    a.click();
+    const ownerName = profileData
+      ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'My Profile'
+      : 'My Profile';
+
+    const profileUrl = customUrl
+      ? customUrl.replace(/^https?:\/\//, '')
+      : '';
+
+    const img = new Image();
+    img.onload = () => {
+      const padding = 40;
+      const nameHeight = 30;
+      const urlHeight = profileUrl ? 22 : 0;
+      const gap = profileUrl ? 6 : 0;
+      const qrTopY = padding + nameHeight + gap + urlHeight + 16;
+      const bottomPadding = 30;
+      const canvasWidth = img.width + padding * 2;
+      const canvasHeight = qrTopY + img.height + bottomPadding;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+      const ctx = canvas.getContext('2d')!;
+
+      // White background
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // Draw owner name at the top
+      ctx.fillStyle = '#111827';
+      ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(ownerName, canvasWidth / 2, padding + nameHeight - 6);
+
+      // Draw profile URL below name
+      if (profileUrl) {
+        ctx.fillStyle = '#6B7280';
+        ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.fillText(profileUrl, canvasWidth / 2, padding + nameHeight + gap + urlHeight - 6);
+      }
+
+      // Draw QR code below text
+      ctx.drawImage(img, padding, qrTopY, img.width, img.height);
+
+      // Download
+      const a = document.createElement('a');
+      a.href = canvas.toDataURL('image/png');
+      a.download = `${ownerName.replace(/\s+/g, '-').toLowerCase()}-qr-code.png`;
+      a.click();
+    };
+    img.src = qrCodeUrl;
   };
 
   const handleShareQrCode = async () => {
@@ -820,10 +904,18 @@ export default function ProfilePreviewPage() {
             </div>
 
             <div className="flex flex-col items-center">
+              <p className="text-lg font-semibold text-gray-900">
+                {profileData ? `${profileData.firstName || ''} ${profileData.lastName || ''}`.trim() || 'My Profile' : 'My Profile'}
+              </p>
+              {customUrl && (
+                <p className="text-sm text-gray-500 mt-1">
+                  {customUrl.replace(/^https?:\/\//, '')}
+                </p>
+              )}
               <img
                 src={qrCodeUrl}
                 alt="Profile QR Code"
-                className="w-64 h-64 border-2 border-blue-300 rounded-lg bg-white p-4"
+                className="w-64 h-64 border-2 border-gray-300 rounded-xl bg-white p-4 mt-4"
               />
               <p className="text-sm text-gray-600 mt-4 text-center">
                 Scan this QR code to visit this profile

@@ -19,7 +19,6 @@ import PersonIcon from '@mui/icons-material/Person';
 import ConfirmationNumberIcon from '@mui/icons-material/ConfirmationNumber';
 import StarsIcon from '@mui/icons-material/Stars';
 import NewspaperIcon from '@mui/icons-material/Newspaper';
-import SecurityIcon from '@mui/icons-material/Security';
 
 // Icon aliases
 const LayoutDashboard = DashboardIcon;
@@ -37,7 +36,6 @@ const User = PersonIcon;
 const Ticket = ConfirmationNumberIcon;
 const Crown = StarsIcon;
 const Newspaper = NewspaperIcon;
-const Roles = SecurityIcon;
 
 interface AuthUser {
   id: string;
@@ -103,12 +101,6 @@ const navigationItems = [
     href: '/admin/users',
     icon: UserCheck,
     permission: Permission.READ_USERS,
-  },
-  {
-    name: 'Roles',
-    href: '/admin/roles',
-    icon: Roles,
-    permission: Permission.READ_ROLES,
   },
   {
     name: 'Subscribers',

@@ -9,8 +9,6 @@ import BrushIcon from '@mui/icons-material/Brush';
 import GridOnIcon from '@mui/icons-material/GridOn';
 import WarningIcon from '@mui/icons-material/Warning';
 import StarsIcon from '@mui/icons-material/Stars';
-import Footer from '@/components/Footer';
-import Navbar from '@/components/Navbar';
 import { calculateFoundersPricing, FoundersPricingBreakdown } from '@/lib/pricing-utils';
 import { detectCountryFromIP } from '@/lib/country-utils';
 import { buildHierarchyKey } from '@/lib/supabase-card-customization-store';
@@ -657,8 +655,7 @@ export default function ConfigureNewPage() {
   if (optionsLoading || !customizationOptions) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-        <Navbar />
-        <div className="flex flex-col items-center justify-center min-h-[60vh] pt-24">
+        <div className="flex flex-col items-center justify-center min-h-[60vh] pt-8">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mb-4"></div>
           <p className="text-gray-500 text-lg">Loading card customization options...</p>
         </div>
@@ -668,9 +665,7 @@ export default function ConfigureNewPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <Navbar />
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="pb-6">
           {/* Configuration Section - Full Width */}
           <div className="max-w-3xl mx-auto space-y-3">
@@ -1108,7 +1103,6 @@ export default function ConfigureNewPage() {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 }

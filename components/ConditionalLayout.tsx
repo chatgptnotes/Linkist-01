@@ -45,6 +45,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                       pathname.startsWith('/profile-dashboard') ||
                       pathname.startsWith('/verify-email') ||
                       pathname.startsWith('/nfc/') ||
+                      pathname.startsWith('/orders') ||
                       pathname.startsWith('/product-selection') ||
                       pathname.startsWith('/choose-plan') ||
                       pathname.startsWith('/welcome-to-linkist') ||
@@ -163,6 +164,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
     // Only show logout on these pages (after user has completed onboarding)
     const showLogout = pathname.startsWith('/product-selection') ||
                        pathname.startsWith('/nfc/') ||
+                       pathname.startsWith('/orders') ||
                        pathname.startsWith('/account') ||
                        pathname.startsWith('/profile-dashboard') ||
                        pathname.startsWith('/checkout') ||
