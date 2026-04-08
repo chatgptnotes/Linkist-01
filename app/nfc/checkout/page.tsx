@@ -13,7 +13,6 @@ import { getOrderAmountForVoucher, calculatePricing } from '@/lib/pricing-utils'
 import { getTaxRate } from '@/lib/country-utils';
 // PIN verification removed - no longer needed
 
-// Dynamically import MapPicker to avoid SSR issues
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -28,14 +27,6 @@ const CreditCard = CreditCardIcon;
 const Shield = SecurityIcon;
 const ArrowLeft = ArrowBackIcon;
 const MapPin = LocationOnIcon;
-const GoogleMapPicker = dynamic(() => import('@/components/GoogleMapPicker'), {
-  ssr: false,
-  loading: () => (
-    <div className="h-96 bg-gray-50 rounded-lg flex items-center justify-center">
-      <p className="text-gray-500">Loading Google Maps...</p>
-    </div>
-  ),
-});
 
 // Dynamically import LocationDropdowns to reduce bundle size (country-state-city is ~8MB)
 const LocationDropdowns = dynamic(() => import('@/components/LocationDropdowns'), {

@@ -60,3 +60,8 @@ check-twilio-config.sh
 # Local Netlify folder
 .netlify
 tsconfig.tsbuildinfo
+
+# Load test artifacts
+k6-results.json
+load-test-*.js
+LOAD-TEST-REPORT.md
