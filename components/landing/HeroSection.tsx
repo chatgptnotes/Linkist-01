@@ -128,37 +128,35 @@ export default function HeroSection() {
               Recall is.
             </motion.h1>
 
-            {/* Desktop subtitle - scrolling ticker */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="overflow-hidden mb-8 md:mb-12 max-w-[500px]"
-            >
-              <div
-                style={{
-                  display: 'flex',
-                  whiteSpace: 'nowrap',
-                  animation: 'heroSubtitleScroll 18s linear infinite',
-                }}
-              >
-                <span className="text-[#888888] font-body text-lg md:text-xl pr-12 inline-block">
-                  Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-                </span>
-                <span className="text-[#888888] font-body text-lg md:text-xl pr-12 inline-block" aria-hidden="true">
-                  Join Linkist. World&apos;s first <b>Personal Relationship Manager (PRM)</b> that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
-                </span>
-              </div>
-            </motion.div>
-
+            {/* Desktop subtitle - static paragraph */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.8 }}
-              className="text-[14px] leading-[16px] font-light tracking-normal text-left hero-subtitle-gradient max-w-[400px]"
+              transition={{ delay: 0.4, duration: 0.8 }}
+              className="text-[16px] md:text-[20px] text-[#A3A3A3] leading-relaxed max-w-[500px] mb-8 md:mb-10"
             >
-              Not a CRM. Not a reminder app. A relationship memory layer for people who build business through conversations.
+              Join Linkist. World&apos;s first Personal Relationship Manager (PRM) that helps you remember every contact, capture context &amp; keep relationships alive with relevant actionable insights.
             </motion.p>
+
+            {/* Desktop CTA Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.6 }}
+            >
+              <a
+                href="https://linkist.ai/digital-business-card"
+                className="inline-block transition-transform hover:scale-105 active:scale-95"
+              >
+                <Image
+                  src="/join-circle.png"
+                  alt="Join Linkist"
+                  width={276}
+                  height={62}
+                  className="w-auto h-[48px] md:h-[56px] object-contain"
+                />
+              </a>
+            </motion.div>
           </div>
 
           {/* Right column - Hero image */}
