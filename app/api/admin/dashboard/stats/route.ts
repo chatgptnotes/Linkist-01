@@ -8,171 +8,151 @@ const supabase = createClient(
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const range = searchParams.get('range') || '7days';
-    
-    // Calculate date range
+    // ── Date boundaries (computed once) ─────────────────────────────
     const now = new Date();
-    const startDate = new Date();
-    
-    switch (range) {
-      case '7days':
-        startDate.setDate(now.getDate() - 7);
-        break;
-      case '30days':
-        startDate.setDate(now.getDate() - 30);
-        break;
-      case '90days':
-        startDate.setDate(now.getDate() - 90);
-        break;
-      default:
-        startDate.setDate(now.getDate() - 7);
-    }
 
-    // Get total orders
-    const { count: totalOrders } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true });
-    
-    // Get total revenue from pricing JSON field
-    const { data: revenueData } = await supabase
-      .from('orders')
-      .select('pricing')
-      .neq('status', 'cancelled');
-    
-    const totalRevenue = revenueData?.reduce((sum, order) => {
-      const pricing = order.pricing as any;
-      return sum + (pricing?.total || 0);
-    }, 0) || 0;
-
-    // Get total customers from profiles table
-    const { count: totalCustomers } = await supabase
-      .from('profiles')
-      .select('*', { count: 'exact', head: true });
-
-    // Get pending orders
-    const { count: pendingOrders } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .eq('status', 'pending');
-
-    // Get today's orders
-    const todayStart = new Date();
+    const todayStart = new Date(now);
     todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
+
+    const todayEnd = new Date(now);
     todayEnd.setHours(23, 59, 59, 999);
 
-    const { count: todaysOrders } = await supabase
-      .from('orders')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', todayStart.toISOString())
-      .lte('created_at', todayEnd.toISOString());
-
-    // Get today's revenue
-    const { data: todaysRevenueData } = await supabase
-      .from('orders')
-      .select('pricing')
-      .gte('created_at', todayStart.toISOString())
-      .lte('created_at', todayEnd.toISOString())
-      .neq('status', 'cancelled');
-
-    const todaysRevenue = todaysRevenueData?.reduce((sum, order) => {
-      const pricing = order.pricing as any;
-      return sum + (pricing?.total || 0);
-    }, 0) || 0;
-
-    // Calculate weekly growth
-    const weekAgoStart = new Date();
-    weekAgoStart.setDate(weekAgoStart.getDate() - 14);
-    weekAgoStart.setHours(0, 0, 0, 0);
-    const weekAgoEnd = new Date();
-    weekAgoEnd.setDate(weekAgoEnd.getDate() - 7);
-    weekAgoEnd.setHours(23, 59, 59, 999);
-
-    const thisWeekStart = new Date();
-    thisWeekStart.setDate(thisWeekStart.getDate() - 7);
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(now.getDate() - 7);
     thisWeekStart.setHours(0, 0, 0, 0);
 
-    const [thisWeek, lastWeek] = await Promise.all([
+    const lastWeekStart = new Date(now);
+    lastWeekStart.setDate(now.getDate() - 14);
+    lastWeekStart.setHours(0, 0, 0, 0);
+
+    const lastWeekEnd = new Date(now);
+    lastWeekEnd.setDate(now.getDate() - 7);
+    lastWeekEnd.setHours(23, 59, 59, 999);
+
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+    // ── Single parallel batch: ALL queries fire at once ─────────────
+    const [
+      totalOrdersResult,
+      totalCustomersResult,
+      pendingOrdersResult,
+      todaysOrdersResult,
+      thisWeekResult,
+      lastWeekResult,
+      allOrdersResult,
+    ] = await Promise.all([
+      // 1. Total orders count
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true }),
+
+      // 2. Total customers count
+      supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true }),
+
+      // 3. Pending orders count
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+
+      // 4. Today's orders count
+      supabase
+        .from('orders')
+        .select('*', { count: 'exact', head: true })
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString()),
+
+      // 5. This week's orders count (for weekly growth)
       supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
         .gte('created_at', thisWeekStart.toISOString()),
+
+      // 6. Last week's orders count (for weekly growth)
       supabase
         .from('orders')
         .select('*', { count: 'exact', head: true })
-        .gte('created_at', weekAgoStart.toISOString())
-        .lte('created_at', weekAgoEnd.toISOString())
+        .gte('created_at', lastWeekStart.toISOString())
+        .lte('created_at', lastWeekEnd.toISOString()),
+
+      // 7. All orders — status + pricing + created_at (single fetch for
+      //    revenue, today's revenue, monthly growth, and status counts)
+      supabase
+        .from('orders')
+        .select('status, pricing, created_at'),
     ]);
 
-    const thisWeekOrders = thisWeek.count || 0;
-    const lastWeekOrders = lastWeek.count || 0;
+    // ── Derive everything from the single orders fetch ──────────────
+    const allOrders = allOrdersResult.data ?? [];
 
-    const weeklyGrowth = lastWeekOrders > 0 
+    let totalRevenue = 0;
+    let todaysRevenue = 0;
+    let thisMonthRevenue = 0;
+    let lastMonthRevenue = 0;
+    const statusCounts: Record<string, number> = {};
+
+    const todayStartMs = todayStart.getTime();
+    const todayEndMs = todayEnd.getTime();
+    const thisMonthStartMs = thisMonthStart.getTime();
+    const lastMonthStartMs = lastMonthStart.getTime();
+
+    for (const order of allOrders) {
+      // Status counts
+      statusCounts[order.status] = (statusCounts[order.status] || 0) + 1;
+
+      const pricing = order.pricing as Record<string, unknown> | null;
+      const orderTotal = Number((pricing as any)?.total) || 0;
+      const isCancelled = order.status === 'cancelled';
+      const createdMs = new Date(order.created_at).getTime();
+
+      // Total revenue (exclude cancelled)
+      if (!isCancelled) {
+        totalRevenue += orderTotal;
+      }
+
+      // Today's revenue (exclude cancelled)
+      if (!isCancelled && createdMs >= todayStartMs && createdMs <= todayEndMs) {
+        todaysRevenue += orderTotal;
+      }
+
+      // This month revenue (exclude cancelled)
+      if (!isCancelled && createdMs >= thisMonthStartMs) {
+        thisMonthRevenue += orderTotal;
+      }
+
+      // Last month revenue (exclude cancelled)
+      if (!isCancelled && createdMs >= lastMonthStartMs && createdMs < thisMonthStartMs) {
+        lastMonthRevenue += orderTotal;
+      }
+    }
+
+    // ── Growth calculations ─────────────────────────────────────────
+    const thisWeekOrders = thisWeekResult.count ?? 0;
+    const lastWeekOrders = lastWeekResult.count ?? 0;
+
+    const weeklyGrowth = lastWeekOrders > 0
       ? Math.round(((thisWeekOrders - lastWeekOrders) / lastWeekOrders) * 100)
       : 0;
 
-    // Calculate monthly growth - simplified approach
-    const lastMonthStart = new Date();
-    lastMonthStart.setMonth(lastMonthStart.getMonth() - 1);
-    lastMonthStart.setDate(1);
-    lastMonthStart.setHours(0, 0, 0, 0);
-
-    const thisMonthStart = new Date();
-    thisMonthStart.setDate(1);
-    thisMonthStart.setHours(0, 0, 0, 0);
-
-    const [thisMonth, lastMonth] = await Promise.all([
-      supabase
-        .from('orders')
-        .select('pricing')
-        .gte('created_at', thisMonthStart.toISOString())
-        .neq('status', 'cancelled'),
-      supabase
-        .from('orders')
-        .select('pricing')
-        .gte('created_at', lastMonthStart.toISOString())
-        .lt('created_at', thisMonthStart.toISOString())
-        .neq('status', 'cancelled')
-    ]);
-
-    const thisMonthRevenueValue = thisMonth.data?.reduce((sum, order) => {
-      const pricing = order.pricing as any;
-      return sum + (pricing?.total || 0);
-    }, 0) || 0;
-
-    const lastMonthRevenueValue = lastMonth.data?.reduce((sum, order) => {
-      const pricing = order.pricing as any;
-      return sum + (pricing?.total || 0);
-    }, 0) || 0;
-
-    const monthlyGrowth = lastMonthRevenueValue > 0 
-      ? Math.round(((thisMonthRevenueValue - lastMonthRevenueValue) / lastMonthRevenueValue) * 100)
+    const monthlyGrowth = lastMonthRevenue > 0
+      ? Math.round(((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100)
       : 0;
 
-    // Get status counts - we'll need to fetch all orders and group them manually
-    const { data: allOrders } = await supabase
-      .from('orders')
-      .select('status');
-
-    const statusCountsObj = allOrders?.reduce((acc, order) => {
-      acc[order.status] = (acc[order.status] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>) || {};
-
-    const stats = {
-      totalOrders: totalOrders ?? 0,
+    // ── Response (identical shape to before) ────────────────────────
+    return NextResponse.json({
+      totalOrders: totalOrdersResult.count ?? 0,
       totalRevenue: Number(totalRevenue) || 0,
-      totalCustomers: totalCustomers ?? 0,
-      pendingOrders: pendingOrders ?? 0,
-      todaysOrders: todaysOrders ?? 0,
+      totalCustomers: totalCustomersResult.count ?? 0,
+      pendingOrders: pendingOrdersResult.count ?? 0,
+      todaysOrders: todaysOrdersResult.count ?? 0,
       todaysRevenue: Number(todaysRevenue) || 0,
-      weeklyGrowth: weeklyGrowth ?? 0,
-      monthlyGrowth: monthlyGrowth ?? 0,
-      statusCounts: statusCountsObj
-    };
-
-    return NextResponse.json(stats);
+      weeklyGrowth,
+      monthlyGrowth,
+      statusCounts,
+    });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
     return NextResponse.json(

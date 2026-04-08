@@ -41,13 +41,22 @@ export async function GET(request: NextRequest) {
 
     console.log(`📋 Getting account data for: ${email}`)
 
-    // Get user's orders from database
-    const orders = await SupabaseOrderStore.getByEmail(email)
-
-    // Get user profile from Supabase (if exists)
     const supabase = createAdminClient()
 
-    // Fetch payment data for all orders in one batch query
+    // ── Parallel batch: orders + profile + user record at once ───────
+    const [orders, profileResult, userRecordResult] = await Promise.all([
+      SupabaseOrderStore.getByEmail(email),
+      supabase.from('profiles').select('*').eq('email', email).single(),
+      supabase.from('users')
+        .select('is_founding_member, founding_member_since, founding_member_plan')
+        .eq('email', email)
+        .single(),
+    ])
+
+    const profile = profileResult.data
+    const userRecord = userRecordResult.data
+
+    // ── Payments batch (depends on orders) ──────────────────────────
     const orderIds = orders.map(o => o.id)
     let paymentsByOrderId = new Map<string, any>()
     if (orderIds.length > 0) {
@@ -69,19 +78,6 @@ export async function GET(request: NextRequest) {
       ...order,
       payment: paymentsByOrderId.get(order.id) || null,
     }))
-
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .single()
-
-    // Fetch founding member status from users table
-    const { data: userRecord } = await supabase
-      .from('users')
-      .select('is_founding_member, founding_member_since, founding_member_plan')
-      .eq('email', email)
-      .single()
 
     // Calculate user stats
     const stats = {
