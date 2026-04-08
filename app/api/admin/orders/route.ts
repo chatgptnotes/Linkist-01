@@ -22,18 +22,13 @@ export const GET = requireAdmin(
     try {
       const supabase = createAdminClient();
 
-      console.log('🔍 Admin orders API: Starting to fetch orders...');
-      const orders = await SupabaseOrderStore.getAll();
-
-      console.log(`📊 Admin orders API: Found ${orders.length} orders in database`);
-
-      // Fetch ALL payment data in one batch query (optimized - no N+1)
-      console.log('💳 Admin orders API: Fetching payments (batch)...');
-      const orderIds = orders.map(o => o.id);
-      const { data: allPayments } = await supabase
-        .from('payments')
-        .select('*')
-        .in('order_id', orderIds);
+      // ── Parallel: fetch orders and ALL payments at the same time ───
+      const [orders, { data: allPayments }] = await Promise.all([
+        SupabaseOrderStore.getAll(),
+        supabase
+          .from('payments')
+          .select('order_id, payment_method, status, amount'),
+      ]);
 
       // Map payments by order_id for quick lookup
       const paymentsByOrderId = new Map(
@@ -45,8 +40,6 @@ export const GET = requireAdmin(
         ...order,
         payment: paymentsByOrderId.get(order.id) || null,
       }));
-
-      console.log(`✅ Admin orders API: Fetched payment data for ${ordersWithPayments.length} orders`);
 
       return NextResponse.json({
         success: true,

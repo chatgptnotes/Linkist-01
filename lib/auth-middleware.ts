@@ -181,7 +181,30 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
           });
         }
 
-        // Fetch user details from database to get first_name, last_name, status, and founding member fields
+        // ── Parallel: fetch user details + RBAC permissions at once ──
+        const adminClient = createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          { auth: { autoRefreshToken: false, persistSession: false } }
+        )
+
+        const [userDataResult, permsResult, moduleAccessResult] = await Promise.all([
+          adminClient
+            .from('users')
+            .select('first_name, last_name, status, is_founding_member, founding_member_since, founding_member_plan')
+            .eq('id', sessionData.userId)
+            .maybeSingle(),
+          adminClient
+            .from('user_permissions_view')
+            .select('role_name, role_display_name, module, action')
+            .eq('user_id', sessionData.userId),
+          adminClient
+            .from('user_module_access')
+            .select('module_key')
+            .eq('user_id', sessionData.userId),
+        ])
+
+        // Process user details
         let firstName: string | null = null
         let lastName: string | null = null
         let userStatus: 'pending' | 'active' | 'suspended' = 'active'
@@ -189,55 +212,35 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
         let foundingMemberSince: string | null = null
         let foundingMemberPlan: string | null = null
 
-        try {
-          // Use admin client (service_role) to bypass RLS on users table
-          // The anon key can't read users table due to RLS requiring auth.uid() match
-          const adminClient = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            { auth: { autoRefreshToken: false, persistSession: false } }
-          )
-          const { data: userData, error: userError } = await adminClient
-            .from('users')
-            .select('first_name, last_name, status, is_founding_member, founding_member_since, founding_member_plan')
-            .eq('id', sessionData.userId)
-            .maybeSingle() // Use maybeSingle to avoid errors if user not found
+        const userData = userDataResult.data
+        if (userData) {
+          firstName = userData.first_name || null
+          lastName = userData.last_name || null
+          userStatus = userData.status || 'active'
+          isFoundingMember = userData.is_founding_member || false
+          foundingMemberSince = userData.founding_member_since || null
+          foundingMemberPlan = userData.founding_member_plan || null
 
-          if (!userError && userData) {
-            firstName = userData.first_name || null
-            lastName = userData.last_name || null
-            userStatus = userData.status || 'active'
-            isFoundingMember = userData.is_founding_member || false
-            foundingMemberSince = userData.founding_member_since || null
-            foundingMemberPlan = userData.founding_member_plan || null
+          // Check if user is suspended - reject session
+          if (userStatus === 'suspended') {
+            console.warn('Suspended user attempted to access:', sessionData.email)
+            return { user: null, isAuthenticated: false, isAdmin: false }
+          }
 
-            // Check if user is suspended - reject session
-            if (userStatus === 'suspended') {
-              console.warn('Suspended user attempted to access:', sessionData.email)
-              return { user: null, isAuthenticated: false, isAdmin: false }
-            }
-
-            // If user has a valid session but status is still 'pending', auto-activate them.
-            // Having a valid session means they already completed OTP verification successfully.
-            // The status was not updated due to a previous bug — self-heal it here.
-            if (userStatus === 'pending') {
-              console.log('🔄 Auto-activating pending user with valid session:', sessionData.email)
-              try {
-                await adminClient
-                  .from('users')
-                  .update({ status: 'active', mobile_verified: true, updated_at: new Date().toISOString() })
-                  .eq('id', sessionData.userId)
-                userStatus = 'active'
-              } catch (activateError) {
-                console.error('Failed to auto-activate pending user:', activateError)
-                // Don't block the user - let them through since they have a valid session
-                userStatus = 'active'
-              }
+          // If user has a valid session but status is still 'pending', auto-activate them.
+          if (userStatus === 'pending') {
+            console.log('🔄 Auto-activating pending user with valid session:', sessionData.email)
+            try {
+              await adminClient
+                .from('users')
+                .update({ status: 'active', mobile_verified: true, updated_at: new Date().toISOString() })
+                .eq('id', sessionData.userId)
+              userStatus = 'active'
+            } catch (activateError) {
+              console.error('Failed to auto-activate pending user:', activateError)
+              userStatus = 'active'
             }
           }
-        } catch (error) {
-          // Silently fail user data fetch - not critical for auth
-          console.warn('Failed to fetch user details:', error)
         }
 
         // Only allow active users to authenticate
@@ -259,68 +262,45 @@ export async function getAuthenticatedUser(request: NextRequest): Promise<AuthSe
           founding_member_plan: foundingMemberPlan,
         }
 
-        // Load RBAC permissions from database
-        try {
-          const adminClient = createClient(
-            process.env.NEXT_PUBLIC_SUPABASE_URL!,
-            process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            { auth: { autoRefreshToken: false, persistSession: false } }
-          )
-          const { data: userPerms } = await adminClient
-            .from('user_permissions_view')
-            .select('role_name, role_display_name, module, action')
-            .eq('user_id', sessionData.userId)
+        // Process RBAC permissions (already fetched in parallel)
+        const userPerms = permsResult.data
+        if (userPerms && userPerms.length > 0) {
+          sessionUser.db_role_name = userPerms[0].role_name
+          sessionUser.db_role_display = userPerms[0].role_display_name
+          sessionUser.role = userPerms[0].role_name
+          sessionUser.db_permissions = userPerms.map(p => `${p.action}:${p.module}`)
+        }
 
-          if (userPerms && userPerms.length > 0) {
-            sessionUser.db_role_name = userPerms[0].role_name
-            sessionUser.db_role_display = userPerms[0].role_display_name
-            sessionUser.role = userPerms[0].role_name // override with DB role
-            sessionUser.db_permissions = userPerms.map(p => `${p.action}:${p.module}`)
-          }
-
-          // Load per-user module access (overrides role-based permissions for sidebar visibility)
-          if (sessionUser.role !== 'super_admin') {
-            try {
-              const { data: moduleAccess } = await adminClient
-                .from('user_module_access')
-                .select('module_key')
-                .eq('user_id', sessionData.userId)
-
-              if (moduleAccess && moduleAccess.length > 0) {
-                // User has explicit module access — use it instead of role-based permissions
-                const MODULE_TO_PERMISSIONS: Record<string, string[]> = {
-                  customers: ['read:customers', 'create:customers', 'update:customers', 'delete:customers', 'manage:customers', 'export:customers'],
-                  orders: ['read:orders', 'create:orders', 'update:orders', 'delete:orders', 'manage:orders', 'export:orders'],
-                  products: ['read:products', 'create:products', 'update:products', 'delete:products', 'manage:products'],
-                  vouchers: ['read:vouchers', 'create:vouchers', 'update:vouchers', 'delete:vouchers', 'manage:vouchers'],
-                  subscribers: ['read:subscribers', 'manage:subscribers', 'export:subscribers'],
-                  founders: ['read:founders', 'approve:founders', 'manage:founders'],
-                  analytics: ['read:analytics', 'export:analytics', 'manage:analytics'],
-                  communications: ['read:communications', 'create:communications', 'update:communications', 'delete:communications', 'manage:communications'],
-                  users: ['read:users', 'create:users', 'update:users', 'delete:users', 'manage:users'],
-                  roles: ['read:roles', 'manage:roles'],
-                  settings: ['read:settings', 'update:settings', 'manage:settings'],
-                }
-
-                const modulePermissions: string[] = [
-                  'read:dashboard',
-                  'manage:dashboard',
-                ]
-
-                for (const row of moduleAccess) {
-                  const perms = MODULE_TO_PERMISSIONS[row.module_key]
-                  if (perms) modulePermissions.push(...perms)
-                }
-
-                sessionUser.db_permissions = modulePermissions
-              }
-            } catch {
-              // Non-fatal — keep role-based permissions
+        // Process per-user module access (already fetched in parallel)
+        if (sessionUser.role !== 'super_admin') {
+          const moduleAccess = moduleAccessResult.data
+          if (moduleAccess && moduleAccess.length > 0) {
+            const MODULE_TO_PERMISSIONS: Record<string, string[]> = {
+              customers: ['read:customers', 'create:customers', 'update:customers', 'delete:customers', 'manage:customers', 'export:customers'],
+              orders: ['read:orders', 'create:orders', 'update:orders', 'delete:orders', 'manage:orders', 'export:orders'],
+              products: ['read:products', 'create:products', 'update:products', 'delete:products', 'manage:products'],
+              vouchers: ['read:vouchers', 'create:vouchers', 'update:vouchers', 'delete:vouchers', 'manage:vouchers'],
+              subscribers: ['read:subscribers', 'manage:subscribers', 'export:subscribers'],
+              founders: ['read:founders', 'approve:founders', 'manage:founders'],
+              analytics: ['read:analytics', 'export:analytics', 'manage:analytics'],
+              communications: ['read:communications', 'create:communications', 'update:communications', 'delete:communications', 'manage:communications'],
+              users: ['read:users', 'create:users', 'update:users', 'delete:users', 'manage:users'],
+              roles: ['read:roles', 'manage:roles'],
+              settings: ['read:settings', 'update:settings', 'manage:settings'],
             }
+
+            const modulePermissions: string[] = [
+              'read:dashboard',
+              'manage:dashboard',
+            ]
+
+            for (const row of moduleAccess) {
+              const perms = MODULE_TO_PERMISSIONS[row.module_key]
+              if (perms) modulePermissions.push(...perms)
+            }
+
+            sessionUser.db_permissions = modulePermissions
           }
-        } catch (rbacErr) {
-          // Non-blocking — falls back to hardcoded RBAC
-          console.warn('Failed to load RBAC permissions from DB:', rbacErr)
         }
 
         const sessionResult: AuthSession = {

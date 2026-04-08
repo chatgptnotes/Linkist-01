@@ -66,19 +66,19 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fetch user's country from users table
-    const { data: userData } = await supabase
-      .from('users')
-      .select('country, country_code')
-      .eq('id', userId)
-      .single();
-
-    // Fetch services for this profile
-    const { data: services } = await supabase
-      .from('profile_services')
-      .select('*')
-      .eq('profile_id', profile.id)
-      .order('display_order', { ascending: true });
+    // ── Parallel: fetch user country + services at once ────────────
+    const [{ data: userData }, { data: services }] = await Promise.all([
+      supabase
+        .from('users')
+        .select('country, country_code')
+        .eq('id', userId)
+        .single(),
+      supabase
+        .from('profile_services')
+        .select('*')
+        .eq('profile_id', profile.id)
+        .order('display_order', { ascending: true }),
+    ]);
 
     // Transform database fields to match frontend expectations
     const transformedProfile = {
