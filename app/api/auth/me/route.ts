@@ -24,39 +24,30 @@ export async function GET(request: NextRequest) {
     const permissions = RBAC.getUserPermissions(user);
     const canAccessAdmin = RBAC.canAccessAdmin(user);
 
-    // Check if user actually has a Founder's Club/Circle order
-    let hasFoundersOrder = false;
-    if (user.is_founding_member) {
-      try {
-        const orders = await SupabaseOrderStore.getByEmail(user.email);
-        hasFoundersOrder = orders.some(order => {
-          const planType = (order.cardConfig as any)?.planType;
-          return planType === 'founders-club' || planType === 'founders-circle';
-        });
-      } catch {
-        // Non-fatal - default to false
-      }
-    }
+    // ── Parallel: fetch founders order check + claimed URL at once ──
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Check if user has already claimed a URL (has a profile with custom_url)
-    let hasClaimedUrl = false;
-    let claimedUsername: string | null = null;
-    try {
-      const supabase = createClient(supabaseUrl, supabaseServiceKey);
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('custom_url')
-        .eq('email', user.email)
-        .not('custom_url', 'is', null)
-        .maybeSingle();
+    const [ordersResult, profileResult] = await Promise.all([
+      user.is_founding_member
+        ? SupabaseOrderStore.getByEmail(user.email).catch(() => [] as any[])
+        : Promise.resolve([] as any[]),
+      Promise.resolve(
+        supabase
+          .from('profiles')
+          .select('custom_url')
+          .eq('email', user.email)
+          .not('custom_url', 'is', null)
+          .maybeSingle()
+      ).then(r => r.data).catch(() => null),
+    ]);
 
-      if (profile?.custom_url) {
-        hasClaimedUrl = true;
-        claimedUsername = profile.custom_url;
-      }
-    } catch {
-      // Non-fatal - default to false
-    }
+    const hasFoundersOrder = ordersResult.some((order: any) => {
+      const planType = order.cardConfig?.planType;
+      return planType === 'founders-club' || planType === 'founders-circle';
+    });
+
+    const hasClaimedUrl = !!profileResult?.custom_url;
+    const claimedUsername = profileResult?.custom_url || null;
 
     return NextResponse.json({
       isAuthenticated: true,
