@@ -84,39 +84,40 @@ export default function InviteOnlySection() {
                                 Lock in your rate for life.
                             </p>
                             <p className="text-white text-xs leading-snug">
-                                Join before June 2026 to keep this founding price forever.
+                                Join before June 2026 to keep this founding member price for PRM App forever.
                             </p>
                         </div>
                         {/* Bottom: Darker red pricing rows */}
                         <div className="bg-[#CC2B1C] px-6 py-4 flex flex-col" style={{ fontFamily: 'Poppins, sans-serif' }}>
                             {/* Row 1: Year 1 - Free */}
-                            <div className="flex items-center justify-between py-3 border-b border-white/20">
-                                <div className="border-l-2 border-white/40 pl-3">
+                            <div className="flex justify-between items-center py-3">
+                                <div className="border-l-2 border-white pl-3">
                                     <span className="text-white text-sm">Year 1</span>
                                 </div>
-                                <span className="text-white font-bold text-2xl">Free</span>
+                                <span className="text-white font-bold text-xl">Free</span>
                             </div>
+                            <hr className="border-white/30" />
                             {/* Row 2: Year 2 onward - $69/year */}
-                            <div className="flex items-center justify-between py-3 border-b border-white/20">
-                                <div className="border-l-2 border-white/40 pl-3">
+                            <div className="flex justify-between items-center py-3">
+                                <div className="border-l-2 border-white pl-3">
                                     <span className="text-white text-sm">Year 2 onward</span>
                                 </div>
                                 <div className="flex items-baseline gap-1">
                                     <span className="text-white font-bold text-2xl">$69</span>
-                                    <span className="text-white/90 text-xs">/year</span>
+                                    <span className="text-white/80 text-sm"> /year</span>
                                 </div>
                             </div>
+                            <hr className="border-white/30" />
                             {/* Row 3: Regular price - $99/year strikethrough (intentionally no vertical bar accent — muted/secondary row) */}
-                            <div className="flex items-center justify-between py-3">
+                            <div className="flex justify-between items-center py-3">
                                 <div className="pl-3">
-                                    <span className="text-white/70 text-sm">Regular price</span>
+                                    <span className="text-white/70">Regular price</span>
                                 </div>
-                                <div className="flex flex-col items-end">
-                                    <div className="flex items-baseline gap-1">
-                                        <span className="text-white/70 font-bold text-2xl line-through">$99</span>
-                                        <span className="text-white/70 text-xs">/year</span>
-                                    </div>
-                                    <span className="text-white/60 text-xs">from year 1</span>
+                                <div className="text-right">
+                                    <span className="text-white/50 line-through">$99</span>
+                                    <span className="text-white/50 text-sm"> /year</span>
+                                    <br />
+                                    <span className="text-white/50 text-xs">from year 1</span>
                                 </div>
                             </div>
                         </div>
