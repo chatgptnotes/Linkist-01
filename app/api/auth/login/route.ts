@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import bcrypt from 'bcryptjs';
 import { rateLimitMiddleware, RateLimits } from '@/lib/rate-limit';
 import { getCookieDomain } from '@/lib/cookie-utils';
+import { SessionStore } from '@/lib/session-store';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -61,7 +62,9 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ User logged in successfully:', normalizedEmail);
 
-    // Create session (in production, use JWT or session tokens)
+    // Create database-backed session with random token
+    const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
+
     const response = NextResponse.json({
       success: true,
       message: 'Login successful',
@@ -77,8 +80,8 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Set session cookie
-    response.cookies.set('session', user.id, {
+    // Set session cookie with random token (never raw user ID)
+    response.cookies.set('session', sessionId, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax' as const,

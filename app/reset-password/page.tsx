@@ -24,7 +24,7 @@ function ResetPasswordContent() {
   const [success, setSuccess] = useState(false);
 
   const typeLabel = type === 'super_admin' ? 'Super Admin' : 'Staff Admin';
-  const redirectPath = type === 'super_admin' ? '/super-admin' : '/admin-access';
+  const redirectPath = '/super-admin';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +73,7 @@ function ResetPasswordContent() {
           <h2 className="text-xl font-bold text-gray-900 mb-2">Invalid Reset Link</h2>
           <p className="text-gray-600 mb-6">This password reset link is invalid or has expired.</p>
           <Link
-            href="/admin-access"
+            href="/super-admin"
             className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
           >
             <ArrowBackIcon className="h-4 w-4 mr-1" />

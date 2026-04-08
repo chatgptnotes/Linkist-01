@@ -1,11 +1,18 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { SupabaseEmailOTPStore, SupabaseMobileOTPStore } from '@/lib/supabase-otp-store';
+import { getCurrentUser } from '@/lib/auth-middleware';
 
-// Development only - View all active OTPs
-export async function GET() {
-  // Only allow in development
-  if (process.env.NODE_ENV !== 'development') {
-    return NextResponse.json({ error: 'Not available in production' }, { status: 403 });
+// Development/debug endpoint - View all active OTPs
+// Requires BOTH: ENABLE_DEV_ROUTES=true AND authenticated super_admin session
+export async function GET(request: NextRequest) {
+  if (process.env.ENABLE_DEV_ROUTES !== 'true') {
+    return NextResponse.json({ error: 'Not available' }, { status: 404 });
+  }
+
+  const session = await getCurrentUser(request);
+  const userRole = session.user?.db_role_name || session.user?.role;
+  if (!session.isAuthenticated || userRole !== 'super_admin') {
+    return NextResponse.json({ error: 'Super admin access required' }, { status: 403 });
   }
 
   try {

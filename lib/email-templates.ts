@@ -441,7 +441,6 @@ export const orderConfirmationEmail = (data: OrderData) => {
         <li>Your card will be printed and programmed (1-2 business days)</li>
         <li>You'll receive a production update email with photos</li>
         <li>Your order will be shipped with tracking information</li>
-        <li>Expected delivery: <strong>${data.estimatedDelivery || 'Sep 06, 2025'}</strong></li>
       </ul>
 
       <p>Questions? Reply to this email or contact our support team.</p>

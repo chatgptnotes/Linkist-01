@@ -358,7 +358,7 @@ export default function CardCustomizationTab() {
           action: 'setDefault',
           plan_id: selectedPlanId,
           material_key: selectedMaterial || null,
-          texture_key: option.category === 'colour' ? selectedTexture || null : null,
+          texture_key: (option.category === 'colour' || option.category === 'pattern') ? selectedTexture || null : null,
           colour_key: option.category === 'pattern' ? selectedColour || null : null,
           category: option.category,
           is_default: !isCurrentlyDefault,
