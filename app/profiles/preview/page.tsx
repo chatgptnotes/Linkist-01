@@ -444,20 +444,47 @@ export default function ProfilePreviewPage() {
             const centerX = qrImg.width / 2;
             const centerY = qrImg.height / 2;
             const radius = qrImg.width * 0.15;
+
+            // Auto-detect the actual mark bounds by scanning non-white pixels
+            const tmpCanvas = document.createElement('canvas');
+            tmpCanvas.width = logo.naturalWidth;
+            tmpCanvas.height = logo.naturalHeight;
+            const tmpCtx = tmpCanvas.getContext('2d')!;
+            tmpCtx.drawImage(logo, 0, 0);
+            const { data, width: iw, height: ih } = tmpCtx.getImageData(0, 0, logo.naturalWidth, logo.naturalHeight);
+            let minX = iw, maxX = 0, minY = ih, maxY = 0;
+            for (let y = 0; y < ih; y++) {
+              for (let x = 0; x < iw; x++) {
+                const i = (y * iw + x) * 4;
+                // Non-white (or non-transparent) pixel = part of the mark
+                if (data[i + 3] > 10 && (data[i] < 240 || data[i + 1] < 240 || data[i + 2] < 240)) {
+                  if (x < minX) minX = x;
+                  if (x > maxX) maxX = x;
+                  if (y < minY) minY = y;
+                  if (y > maxY) maxY = y;
+                }
+              }
+            }
+
             // White circular background
             ctx.fillStyle = '#FFFFFF';
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius + 4, 0, Math.PI * 2);
+            ctx.arc(centerX, centerY, radius + 8, 0, Math.PI * 2);
             ctx.fill();
             // Clip to circle
             ctx.save();
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
             ctx.clip();
-            const drawSize = radius * 2 * 1.5;
-            const offsetX = 0;
-            const offsetY = drawSize * 0.08;
-            ctx.drawImage(logo, centerX - drawSize / 2 + offsetX, centerY - drawSize / 2 + offsetY, drawSize, drawSize);
+
+            // Crop exactly to the detected mark and center it in the circle
+            const markW = maxX - minX;
+            const markH = maxY - minY;
+            const targetSize = radius * 0.63; // fill ~63% of radius — full mark visible with padding
+            const scale = targetSize * 2 / Math.max(markW, markH);
+            const dw = markW * scale;
+            const dh = markH * scale;
+            ctx.drawImage(logo, minX, minY, markW, markH, centerX - dw / 2 - radius * 0.06, centerY - dh / 2, dw, dh);
             ctx.restore();
             setQrCodeUrl(canvas.toDataURL('image/png'));
           };
@@ -533,7 +560,7 @@ export default function ProfilePreviewPage() {
       if (navigator.share) {
         await navigator.share({
           title: `${profileData?.firstName} ${profileData?.lastName}'s Profile`,
-          text: `Check out my digital profile! ${customUrl}`,
+          text: 'Check out my digital profile!',
           url: customUrl
         });
         setShared(true);
@@ -573,11 +600,11 @@ export default function ProfilePreviewPage() {
     const img = new Image();
     img.onload = () => {
       const padding = 40;
-      const nameHeight = 30;
-      const urlHeight = profileUrl ? 22 : 0;
-      const gap = profileUrl ? 6 : 0;
-      const qrTopY = padding + nameHeight + gap + urlHeight + 16;
-      const bottomPadding = 30;
+      const nameHeight = 72;
+      const urlHeight = profileUrl ? 52 : 0;
+      const gap = profileUrl ? 14 : 0;
+      const qrTopY = padding + nameHeight + gap + urlHeight + 24;
+      const bottomPadding = 40;
       const canvasWidth = img.width + padding * 2;
       const canvasHeight = qrTopY + img.height + bottomPadding;
 
@@ -592,14 +619,14 @@ export default function ProfilePreviewPage() {
 
       // Draw owner name at the top
       ctx.fillStyle = '#111827';
-      ctx.font = 'bold 22px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(ownerName, canvasWidth / 2, padding + nameHeight - 6);
+      ctx.fillText(ownerName, canvasWidth / 2, padding + nameHeight - 8);
 
       // Draw profile URL below name
       if (profileUrl) {
         ctx.fillStyle = '#6B7280';
-        ctx.font = '15px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.font = '40px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillText(profileUrl, canvasWidth / 2, padding + nameHeight + gap + urlHeight - 6);
       }
 
@@ -616,10 +643,9 @@ export default function ProfilePreviewPage() {
   };
 
   const handleShareQrCode = async () => {
-    const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const profileUrl = customUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
     try {
-      // First try Web Share API with just URL (works on most browsers)
       if (navigator.share) {
         await navigator.share({
           title: `${profileData?.firstName} ${profileData?.lastName}'s Profile`,
@@ -630,7 +656,6 @@ export default function ProfilePreviewPage() {
       }
     } catch (error: any) {
       if (error.name === 'AbortError') return; // User cancelled
-      // Share failed, fall through to clipboard fallback
     }
 
     // Fallback: copy URL to clipboard

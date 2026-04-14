@@ -11,7 +11,6 @@ import CheckIcon from '@mui/icons-material/Check';
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import Footer from '@/components/Footer';
 import { CardPatternOverlay } from '@/components/CardPatternOverlay';
-import { getOrderAmountForVoucher } from '@/lib/pricing-utils';
 import { getCurrencySymbol, getStripeCurrency, fetchExchangeRate, convertToStripeCurrency, isIndia } from '@/lib/country-utils';
 import StripePaymentModal from '@/components/StripePaymentModal';
 
@@ -62,6 +61,7 @@ export default function NFCPaymentPage() {
   const [voucherType, setVoucherType] = useState<'percentage' | 'fixed'>('percentage');
   const [voucherAmount, setVoucherAmount] = useState(0);
   const [appliedVoucherCode, setAppliedVoucherCode] = useState('');
+  const [voucherErrorMessage, setVoucherErrorMessage] = useState('Invalid voucher code');
   const [originalTotal, setOriginalTotal] = useState(0);
 
   // Founding member status
@@ -174,80 +174,10 @@ export default function NFCPaymentPage() {
 
       // Set the founding member state
       setIsFoundingMember(foundingMemberStatus);
-
-      // STEP 2: Only auto-apply LINKISTFM voucher for FOUNDING MEMBERS
-      if (foundingMemberStatus) {
-        setVoucherCode('LINKISTFM');
-
-        // Load voucher from order data if present
-        if (data.pricing?.voucherCode) {
-          setVoucherDiscount(data.pricing.voucherDiscount || 0);
-          setVoucherValid(true);
-          setAppliedVoucherCode(data.pricing.voucherCode);
-          setVoucherAmount(data.pricing.voucherAmount || 120);
-
-        } else {
-          // STEP 3: Auto-validate LINKISTFM with correct founding member status
-
-          try {
-            // FIXED: Use unified pricing utility for consistent order amount calculation
-            const country = data.shipping?.country || 'IN';
-            const orderAmount = getOrderAmountForVoucher({
-              cardConfig: {
-                baseMaterial: data.cardConfig?.baseMaterial || 'pvc',
-                quantity: data.cardConfig?.quantity || 1,
-              },
-              country: country,
-              isFoundingMember: foundingMemberStatus,
-            });
-
-            const response = await fetch('/api/vouchers/validate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                code: 'LINKISTFM',
-                orderAmount: orderAmount,
-                userEmail: data.email,
-                isFoundingMember: foundingMemberStatus, // NEW: Pass founding member status
-              }),
-            });
-
-            if (response.ok) {
-              const voucherData = await response.json();
-              if (voucherData.valid && voucherData.voucher) {
-                setVoucherType(voucherData.voucher.discount_type);
-                setVoucherAmount(voucherData.voucher.discount_amount);
-                const discountPercent = voucherData.voucher.discount_type === 'percentage'
-                  ? voucherData.voucher.discount_value
-                  : Math.round((voucherData.voucher.discount_amount / (orderAmount || 1)) * 100);
-                setVoucherDiscount(discountPercent);
-                setVoucherValid(true);
-                setAppliedVoucherCode('LINKISTFM');
-
-              } else {
-                console.error('❌ LINKISTFM validation failed:', voucherData.message || 'Unknown error');
-              }
-            } else {
-              const errorData = await response.json();
-              console.error('❌ Voucher validation API error:', {
-                status: response.status,
-                message: errorData?.message || 'No message',
-                error: errorData?.error || 'Unknown'
-              });
-            }
-          } catch (error) {
-            console.error('❌ Error auto-applying LINKISTFM:', error);
-          }
-        }
-      }
-      // Non-founding members: voucher field starts empty, no auto-apply
     };
 
     initializePaymentPage();
   }, [router]);
-
-  // NOTE: Founding member check and voucher auto-apply are now handled
-  // together in the initialization useEffect above to prevent race conditions
 
   const validateVoucher = async () => {
     if (!voucherCode.trim()) {
@@ -265,16 +195,8 @@ export default function NFCPaymentPage() {
 
     setApplyingVoucher(true);
     try {
-      // FIXED: Use unified pricing utility for consistent order amount
-      const country = orderData?.shipping?.country || 'IN';
-      const orderAmount = getOrderAmountForVoucher({
-        cardConfig: {
-          baseMaterial: orderData?.cardConfig?.baseMaterial || 'pvc',
-          quantity: orderData?.cardConfig?.quantity || 1,
-        },
-        country: country,
-        isFoundingMember: isFoundingMember,
-      });
+      // Use actual plan price from the page — the single source of truth for what the user pays
+      const orderAmount = getSubtotal();
 
       const response = await fetch('/api/vouchers/validate', {
         method: 'POST',
@@ -293,12 +215,12 @@ export default function NFCPaymentPage() {
         setVoucherType(result.voucher.discount_type);
         setVoucherAmount(result.voucher.discount_amount);
 
-        // Calculate discount percentage for display (for backward compatibility)
-        const discountPercent = result.voucher.discount_type === 'percentage'
-          ? result.voucher.discount_value
-          : Math.round((result.voucher.discount_amount / (orderAmount || 1)) * 100);
-
-        setVoucherDiscount(discountPercent);
+        // Calculate effective discount percentage based on actual amount applied.
+        // For percentage vouchers with a max_discount_amount cap the raw discount_value
+        // (e.g. 100%) is misleading when the cap reduces the actual deduction, so we
+        // always derive the display % from what was actually discounted.
+        const effectivePercent = Math.round((result.voucher.discount_amount / (orderAmount || 1)) * 100);
+        setVoucherDiscount(effectivePercent);
         setVoucherValid(true);
         setAppliedVoucherCode(voucherCode.toUpperCase());
       } else {
@@ -307,7 +229,7 @@ export default function NFCPaymentPage() {
         setVoucherType('percentage');
         setVoucherAmount(0);
         setAppliedVoucherCode('');
-        alert('Invalid voucher code');
+        setVoucherErrorMessage(result.message || 'Invalid voucher code');
       }
     } catch (error) {
       console.error('Error validating voucher:', error);
@@ -1020,7 +942,7 @@ export default function NFCPaymentPage() {
                         {voucherValid === false && (
                           <div className="p-2.5 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
                             <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-                            <p className="text-sm text-red-700">Invalid voucher code</p>
+                            <p className="text-sm text-red-700">{voucherErrorMessage}</p>
                           </div>
                         )}
                       </div>

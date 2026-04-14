@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { performLogout } from '@/lib/logout';
 import { RBAC, Permission, usePermissions } from '@/lib/rbac';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
@@ -161,10 +162,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include'
-      });
+      await performLogout();
       window.location.href = '/';
     } catch (error) {
       console.error('Failed to logout:', error);

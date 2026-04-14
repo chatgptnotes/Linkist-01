@@ -36,7 +36,7 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
       <h1
         className="text-white capitalize"
         style={{
-          fontFamily: 'var(--font-playfair), Playfair Display, serif',
+          fontFamily: 'var(--font-inter), Inter, sans-serif',
           fontWeight: 700,
           fontSize: '62px',
           lineHeight: '68px',
@@ -50,7 +50,7 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
       <h2
         className="text-white capitalize -mt-1"
         style={{
-          fontFamily: 'var(--font-playfair), Playfair Display, serif',
+          fontFamily: 'var(--font-inter), Inter, sans-serif',
           fontWeight: 700,
           fontSize: '42px',
           lineHeight: '48px',
