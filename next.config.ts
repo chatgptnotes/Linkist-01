@@ -1,6 +1,36 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      // Legacy payment flow → Modern Stripe flow
+      {
+        source: '/confirm-payment',
+        destination: '/nfc/payment',
+        permanent: true,
+      },
+      {
+        source: '/checkout',
+        destination: '/nfc/checkout',
+        permanent: true,
+      },
+      {
+        source: '/payment',
+        destination: '/nfc/payment',
+        permanent: true,
+      },
+      {
+        source: '/preview',
+        destination: '/nfc/configure',
+        permanent: true,
+      },
+      {
+        source: '/thank-you',
+        destination: '/nfc/success',
+        permanent: true,
+      },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

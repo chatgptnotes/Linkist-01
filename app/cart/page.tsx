@@ -251,7 +251,7 @@ export default function CartPage() {
             </div>
 
             <button
-              onClick={() => router.push('/checkout')}
+              onClick={() => router.push('/nfc/checkout')}
               className="w-full bg-red-500 text-white py-3 rounded font-medium hover:bg-red-600 transition-colors mt-6"
             >
               Proceed to Checkout

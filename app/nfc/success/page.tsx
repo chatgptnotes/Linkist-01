@@ -49,12 +49,95 @@ export default function SuccessPage() {
 
     const handleBackButton = () => {
       window.history.pushState(null, '', window.location.href);
-      // Optionally redirect to home or dashboard instead
-      // router.push('/');
     };
 
     // Initialize back button prevention
     disableBackButton();
+
+    // --- Handle Stripe redirect-based payments (3DS, UPI, Net Banking) ---
+    // When redirect: 'if_required' causes a redirect, Stripe appends these params to returnUrl
+    const searchParams = new URLSearchParams(window.location.search);
+    const redirectStatus = searchParams.get('redirect_status');
+    const paymentIntentId = searchParams.get('payment_intent');
+
+    if (redirectStatus) {
+      if (redirectStatus === 'failed' || redirectStatus === 'canceled') {
+        // Payment was declined or cancelled — send user back to payment page with error
+        router.replace('/nfc/payment?payment_error=Your+payment+was+declined.+Please+try+a+different+card+or+payment+method.');
+        return;
+      }
+
+      if (redirectStatus === 'succeeded' && paymentIntentId) {
+        // Payment succeeded via redirect — finalize the order, then show success
+        const finalizeRedirectOrder = async () => {
+          const pendingOrderRaw = localStorage.getItem('pendingOrder');
+          if (!pendingOrderRaw) {
+            // No pending order to finalize — redirect home
+            router.replace('/');
+            return;
+          }
+
+          const data = JSON.parse(pendingOrderRaw);
+          try {
+            const response = await fetch('/api/process-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: data.orderId,
+                cardConfig: data.cardConfig,
+                checkoutData: {
+                  email: data.email,
+                  fullName: data.customerName,
+                  phoneNumber: data.phoneNumber,
+                  addressLine1: data.shipping?.addressLine1 || '',
+                  addressLine2: data.shipping?.addressLine2 || '',
+                  city: data.shipping?.city || '',
+                  state: data.shipping?.stateProvince || '',
+                  country: data.shipping?.country || '',
+                  postalCode: data.shipping?.postalCode || '',
+                },
+                paymentData: {
+                  paymentMethod: 'card',
+                  paymentId: paymentIntentId,
+                },
+                pricing: data.pricing,
+              }),
+            });
+
+            if (!response.ok) {
+              // Process-order failed — still show success (payment went through) but log error
+              console.error('[success] process-order failed after redirect payment');
+            }
+          } catch (err) {
+            console.error('[success] Error finalizing redirect payment order:', err);
+          }
+
+          // Build orderConfirmation from pendingOrder data so the page renders correctly
+          const orderConfirmationData = {
+            ...data,
+            paymentMethod: 'card',
+            paymentId: paymentIntentId,
+            timestamp: new Date().toISOString(),
+          };
+          const orderDataForPage = {
+            orderNumber: data.orderNumber || ('LFND' + Math.random().toString(36).substring(2, 8).toUpperCase()),
+            ...orderConfirmationData,
+            cardConfig: data.cardConfig || { fullName: data.customerName },
+            shipping: data.shipping || {},
+            pricing: data.pricing || { total: data.amount },
+          };
+
+          setOrderData(orderDataForPage);
+          localStorage.setItem('lastCompletedOrder', JSON.stringify(orderDataForPage));
+          localStorage.removeItem('pendingOrder');
+          localStorage.removeItem('checkoutData');
+        };
+
+        finalizeRedirectOrder();
+        return;
+      }
+    }
+    // --- End Stripe redirect handling ---
 
     // Read plan info from localStorage
     const storedPlanName = localStorage.getItem('selectedPlanName') || '';
