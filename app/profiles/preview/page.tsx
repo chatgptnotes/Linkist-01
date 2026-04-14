@@ -560,7 +560,7 @@ export default function ProfilePreviewPage() {
       if (navigator.share) {
         await navigator.share({
           title: `${profileData?.firstName} ${profileData?.lastName}'s Profile`,
-          text: `Check out my digital profile! ${customUrl}`,
+          text: 'Check out my digital profile!',
           url: customUrl
         });
         setShared(true);
@@ -600,10 +600,10 @@ export default function ProfilePreviewPage() {
     const img = new Image();
     img.onload = () => {
       const padding = 40;
-      const nameHeight = 52;
-      const urlHeight = profileUrl ? 36 : 0;
-      const gap = profileUrl ? 10 : 0;
-      const qrTopY = padding + nameHeight + gap + urlHeight + 20;
+      const nameHeight = 72;
+      const urlHeight = profileUrl ? 52 : 0;
+      const gap = profileUrl ? 14 : 0;
+      const qrTopY = padding + nameHeight + gap + urlHeight + 24;
       const bottomPadding = 40;
       const canvasWidth = img.width + padding * 2;
       const canvasHeight = qrTopY + img.height + bottomPadding;
@@ -619,14 +619,14 @@ export default function ProfilePreviewPage() {
 
       // Draw owner name at the top
       ctx.fillStyle = '#111827';
-      ctx.font = 'bold 38px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+      ctx.font = 'bold 56px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText(ownerName, canvasWidth / 2, padding + nameHeight - 8);
 
       // Draw profile URL below name
       if (profileUrl) {
         ctx.fillStyle = '#6B7280';
-        ctx.font = '26px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        ctx.font = '40px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
         ctx.fillText(profileUrl, canvasWidth / 2, padding + nameHeight + gap + urlHeight - 6);
       }
 
@@ -643,10 +643,9 @@ export default function ProfilePreviewPage() {
   };
 
   const handleShareQrCode = async () => {
-    const profileUrl = typeof window !== 'undefined' ? window.location.href : '';
+    const profileUrl = customUrl || (typeof window !== 'undefined' ? window.location.href : '');
 
     try {
-      // First try Web Share API with just URL (works on most browsers)
       if (navigator.share) {
         await navigator.share({
           title: `${profileData?.firstName} ${profileData?.lastName}'s Profile`,
@@ -657,7 +656,6 @@ export default function ProfilePreviewPage() {
       }
     } catch (error: any) {
       if (error.name === 'AbortError') return; // User cancelled
-      // Share failed, fall through to clipboard fallback
     }
 
     // Fallback: copy URL to clipboard

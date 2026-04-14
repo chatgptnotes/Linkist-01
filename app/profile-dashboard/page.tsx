@@ -600,13 +600,6 @@ export default function AccountPage() {
 
   const profileCompletion = calculateProfileCompletion();
 
-  const handleLogout = () => {
-    // Clear any auth tokens
-    document.cookie = 'session=; Max-Age=0; path=/;';
-    localStorage.removeItem('verifiedEmail');
-    localStorage.removeItem('emailVerified');
-    router.push('/login');
-  };
 
   const handleDownloadQrCode = () => {
     if (!qrCodeUrl) return;

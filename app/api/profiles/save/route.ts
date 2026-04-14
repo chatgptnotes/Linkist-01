@@ -84,10 +84,24 @@ export async function POST(request: NextRequest) {
     let finalCustomUrl: string
 
     if (existingUserProfile?.custom_url) {
-      // User already claimed a custom URL - preserve it!
+      // User already claimed a custom URL via junction table - preserve it!
       finalCustomUrl = existingUserProfile.custom_url
-      console.log('✅ [POST /api/profiles/save] Preserving claimed custom URL:', finalCustomUrl)
+      console.log('✅ [POST /api/profiles/save] Preserving claimed custom URL (junction):', finalCustomUrl)
     } else {
+      // Fallback: check profiles table directly by email
+      // This handles the case where the user claimed a URL but profile_users entry doesn't exist yet
+      // (claim-url/save only updates profiles table, not profile_users junction)
+      const { data: profileByEmail } = await supabase
+        .from('profiles')
+        .select('id, custom_url')
+        .eq('email', data.email)
+        .maybeSingle()
+
+      if (profileByEmail?.custom_url) {
+        // Found a claimed custom URL via email lookup - preserve it!
+        finalCustomUrl = profileByEmail.custom_url
+        console.log('✅ [POST /api/profiles/save] Preserving claimed custom URL (email fallback):', finalCustomUrl)
+      } else {
       // No claimed URL - generate custom_url from firstName-lastName
       let customUrl = `${data.firstName}-${data.lastName}`
         .toLowerCase()
@@ -129,7 +143,8 @@ export async function POST(request: NextRequest) {
       }
 
       console.log('🔗 [POST /api/profiles/save] Final custom URL:', finalCustomUrl)
-    }
+      } // end else (no claimed URL found by email)
+    } // end else (no junction entry)
 
     // Get base URL from request origin or referer
     const origin = request.headers.get('origin') || request.headers.get('referer') || '';

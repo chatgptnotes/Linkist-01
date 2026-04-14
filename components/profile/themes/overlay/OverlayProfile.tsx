@@ -36,7 +36,7 @@ export default function OverlayProfile({
 
       {/* Main scrollable content area */}
       <div className="relative z-20 min-h-screen flex flex-col">
-        {/* Spacer to push content below the photo visible area */}
+        {/* Spacer to push content below the photo visible area — kept transparent so photo shows through */}
         <div className="flex-shrink-0" style={{ height: '42vh' }} />
 
         {/* Action buttons (top right, floating) */}
@@ -44,8 +44,8 @@ export default function OverlayProfile({
           <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
         </div>
 
-        {/* Content */}
-        <div className="px-5 pb-24">
+        {/* Content — solid dark background so glass cards blur against dark, not the white body */}
+        <div className="px-5 pb-24" style={{ backgroundColor: 'rgb(25, 0, 0)' }}>
           <OverlayHeader data={data} />
           <OverlaySocialIcons links={data.socialLinks} />
           <OverlayAboutSection summary={data.professionalSummary} />

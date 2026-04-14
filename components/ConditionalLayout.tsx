@@ -9,6 +9,7 @@ import Logo from './Logo';
 import UserProfileDropdown from './UserProfileDropdown';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { toast } from 'sonner';
+import { performLogout } from '@/lib/logout';
 
 // Icon aliases
 const LogOut = LogoutIcon;
@@ -113,25 +114,8 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   const handleLogout = async () => {
     try {
-      // Clear localStorage data but preserve GDPR consent
-      const gdprConsent = localStorage.getItem('gdpr-consent');
-      localStorage.clear();
-      if (gdprConsent) {
-        localStorage.setItem('gdpr-consent', gdprConsent);
-      }
-
-      // Call logout API
-      await fetch('/api/auth/logout', { method: 'POST' });
-
-      // Clear cookies with proper attributes matching how they were set
-      document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-      document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-      document.cookie = 'admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-
-      // Show success message
+      await performLogout();
       toast.success('Logged out successfully!');
-
-      // Redirect to home
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);

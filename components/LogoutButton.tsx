@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { performLogout } from '@/lib/logout';
 
 // Icon aliases
 const LogOut = LogoutIcon;
@@ -15,29 +16,8 @@ export default function LogoutButton() {
     setIsLoggingOut(true);
 
     try {
-      // Call logout API
-      const response = await fetch('/api/auth/logout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (response.ok) {
-        // Clear local storage
-        localStorage.clear();
-
-        // Clear cookies with proper attributes matching how they were set
-        document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-        document.cookie = 'userEmail=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-        document.cookie = 'admin_session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure; SameSite=None';
-
-        // Redirect to home
-        router.push('/');
-      } else {
-        console.error('Logout failed');
-        setIsLoggingOut(false);
-      }
+      await performLogout();
+      router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
       setIsLoggingOut(false);

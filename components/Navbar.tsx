@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Logo from './Logo';
 import { toast } from 'sonner';
+import { performLogout } from '@/lib/logout';
 
 // Optional props: when provided, Navbar skips its own /api/auth/me fetch
 // and uses the parent's data instead (avoids duplicate requests).
@@ -96,25 +97,13 @@ export default function Navbar({ initialUserData, initialAuthLoading }: NavbarPr
     setIsDropdownOpen(false);
 
     try {
-      // Clear localStorage
-      localStorage.removeItem('userOnboarded');
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('session');
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('claimedUsername');
-      localStorage.removeItem('profileUrl');
-
-      // Call logout API
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await performLogout();
 
       // Update state
       setIsLoggedIn(false);
       setUserData(null);
 
-      // Show success message
       toast.success('Logged out successfully!');
-
-      // Redirect to home page
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
