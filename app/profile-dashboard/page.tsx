@@ -122,6 +122,7 @@ export default function AccountPage() {
   const [copied, setCopied] = useState(false);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+  const [isAdminUser, setIsAdminUser] = useState(false);
 
   // Check if user actually has a Founder's Club/Circle order (not just the registration flag)
   const hasFoundersClubOrder = orders.some(order =>
@@ -332,6 +333,7 @@ export default function AccountPage() {
       }
 
       const userEmail = authData.user.email;
+      setIsAdminUser(!!authData.canAccessAdmin);
       console.log('🔍 Loading account data for:', userEmail);
 
       // Load account data from API
@@ -755,6 +757,19 @@ export default function AccountPage() {
 
             {/* Right side: Badge + Edit button */}
             <div className="flex items-center gap-2 sm:gap-3 self-end sm:self-auto">
+              {/* Admin Panel button — only for admin-role users */}
+              {isAdminUser && (
+                <Link
+                  href="/admin/dashboard"
+                  className="inline-flex items-center gap-1.5 bg-slate-800 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium hover:bg-slate-700 transition-colors shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                      d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                  Admin Panel
+                </Link>
+              )}
               {/* Founding Member Badge */}
               {isActualFounder && (
                 <div className="inline-flex items-center bg-gradient-to-r from-yellow-400 to-amber-500 text-black px-3 sm:px-4 py-1.5 sm:py-2 rounded-full shadow-md">

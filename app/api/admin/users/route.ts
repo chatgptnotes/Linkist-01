@@ -58,63 +58,95 @@ export const GET = requireAdmin(
   }
 );
 
-// POST — Create a new staff user
+// POST — Create a new staff user, or upgrade an existing customer to staff
 export const POST = requireAdmin(
   async function POST(request: NextRequest) {
     try {
       const body = await request.json();
-      const { name, email, phone, role, status } = body;
+      const { name, email, phone, role, status, modules } = body;
 
-      if (!email || !phone || !name) {
-        return NextResponse.json({ error: 'Name, email, and phone are required' }, { status: 400 });
+      if (!email || !name) {
+        return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
       }
 
-      // Check if email already exists
-      const { data: existing } = await supabase
+      const normalizedEmail = email.toLowerCase().trim();
+
+      // Check if user already exists by email
+      const { data: existingByEmail } = await supabase
         .from('users')
-        .select('id')
-        .eq('email', email.toLowerCase().trim())
+        .select('*')
+        .eq('email', normalizedEmail)
         .single();
 
-      if (existing) {
-        return NextResponse.json({ error: 'A user with this email already exists' }, { status: 409 });
+      // If phone provided, check it doesn't belong to a *different* user
+      if (phone) {
+        const { data: existingByPhone } = await supabase
+          .from('users')
+          .select('id')
+          .eq('phone_number', phone.trim())
+          .single();
+
+        if (existingByPhone && existingByPhone.id !== existingByEmail?.id) {
+          return NextResponse.json(
+            { error: 'A different user with this phone number already exists' },
+            { status: 409 }
+          );
+        }
       }
 
-      // Check if phone already exists
-      const { data: existingPhone } = await supabase
-        .from('users')
-        .select('id')
-        .eq('phone_number', phone.trim())
-        .single();
+      let user: { id: string; first_name: string; last_name: string; email: string; phone_number: string | null; role: string; status: string; created_at: string };
 
-      if (existingPhone) {
-        return NextResponse.json({ error: 'A user with this phone number already exists' }, { status: 409 });
+      if (existingByEmail) {
+        // User already exists — upgrade their role and module access
+        const { data: updated, error: updateError } = await supabase
+          .from('users')
+          .update({
+            role: role || existingByEmail.role,
+            status: status || existingByEmail.status,
+            ...(phone ? { phone_number: phone.trim(), mobile_verified: true } : {}),
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingByEmail.id)
+          .select()
+          .single();
+
+        if (updateError || !updated) {
+          return NextResponse.json({ error: 'Failed to update user permissions' }, { status: 500 });
+        }
+
+        user = updated;
+
+        // Clear old module access and replace with new selection
+        await supabase.from('user_module_access').delete().eq('user_id', user.id);
+      } else {
+        // New user — create them
+        const nameParts = name?.split(' ') || [];
+        const firstName = nameParts[0] || '';
+        const lastName = nameParts.slice(1).join(' ') || '';
+
+        const { data: created, error: createError } = await supabase
+          .from('users')
+          .insert({
+            email: normalizedEmail,
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: phone ? phone.trim() : null,
+            role: role || 'user',
+            status: status || 'active',
+            email_verified: true,
+            mobile_verified: !!phone,
+          })
+          .select()
+          .single();
+
+        if (createError || !created) {
+          return NextResponse.json({ error: createError?.message || 'Failed to create user' }, { status: 500 });
+        }
+
+        user = created;
       }
 
-      const nameParts = name?.split(' ') || [];
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-
-      const { data: user, error } = await supabase
-        .from('users')
-        .insert({
-          email: email.toLowerCase().trim(),
-          first_name: firstName,
-          last_name: lastName,
-          phone_number: phone || null,
-          role: role || 'user',
-          status: status || 'active',
-          email_verified: true,
-          mobile_verified: !!phone,
-        })
-        .select()
-        .single();
-
-      if (error) {
-        return NextResponse.json({ error: error.message || 'Failed to create user' }, { status: 500 });
-      }
-
-      // Also assign role in user_roles table if roles table exists
+      // Assign role in user_roles RBAC table
       try {
         const { data: roleRecord } = await supabase
           .from('roles')
@@ -132,7 +164,6 @@ export const POST = requireAdmin(
       }
 
       // Save module access if provided
-      const { modules } = body;
       if (modules && Array.isArray(modules) && modules.length > 0) {
         try {
           const moduleRows = modules.map((moduleKey: string) => ({
@@ -147,6 +178,7 @@ export const POST = requireAdmin(
 
       return NextResponse.json({
         success: true,
+        upgraded: !!existingByEmail,
         user: {
           id: user.id,
           name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
@@ -158,7 +190,7 @@ export const POST = requireAdmin(
         },
       });
     } catch (error) {
-      console.error('Error creating user:', error);
+      console.error('Error creating/upgrading user:', error);
       return NextResponse.json({ error: 'Failed to create user' }, { status: 500 });
     }
   }

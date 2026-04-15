@@ -39,8 +39,8 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
           fontFamily: 'var(--font-inter), Inter, sans-serif',
           fontWeight: 700,
           fontSize: '62px',
-          lineHeight: '68px',
-          letterSpacing: '-0.5px',
+          lineHeight: '1.0',
+          letterSpacing: '-0.01em',
         }}
       >
         {data.firstName}
@@ -53,8 +53,8 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
           fontFamily: 'var(--font-inter), Inter, sans-serif',
           fontWeight: 700,
           fontSize: '42px',
-          lineHeight: '48px',
-          letterSpacing: '-0.3px',
+          lineHeight: '1.0',
+          letterSpacing: '-0.01em',
         }}
       >
         {data.lastName}
@@ -62,17 +62,17 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
 
       {/* Username */}
       {data.username && (
-        <p className="text-sm text-white/60 mt-2">@{data.username}</p>
+        <p className="text-white/50 mt-2" style={{ fontSize: '13px' }}>@{data.username}</p>
       )}
 
       {/* Job Title */}
       {data.jobTitle && (
-        <p className="text-base text-white/80 mt-1">{data.jobTitle}</p>
+        <p className="text-white/70 mt-0.5" style={{ fontSize: '15px' }}>{data.jobTitle}</p>
       )}
 
       {/* Company with logo */}
       {data.companyName && (
-        <div className="flex items-center justify-center gap-2.5 mt-2">
+        <div className="flex items-center justify-center gap-2.5 mt-3">
           {logoSrc && !logoError && (
             <img
               src={logoSrc}
@@ -83,7 +83,7 @@ export default function OverlayHeader({ data }: OverlayHeaderProps) {
           )}
           <span
             className="text-white font-semibold"
-            style={{ fontSize: '18px' }}
+            style={{ fontSize: '17px' }}
           >
             {data.companyName}
           </span>

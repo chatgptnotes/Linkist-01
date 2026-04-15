@@ -26,7 +26,7 @@ export default function OverlayProfile({
 }: OverlayProfileProps) {
   return (
     <>
-      {/* Full-screen background with red gradient */}
+      {/* Full-screen background */}
       <OverlayBackground
         profilePhoto={data.profilePhoto}
         backgroundImage={data.backgroundImage}
@@ -34,9 +34,21 @@ export default function OverlayProfile({
         lastName={data.lastName}
       />
 
-      {/* Main scrollable content area */}
+      {/* Glass fade layer — starts from bottom, fades to 0 at 50% height */}
+      <div
+        className="fixed inset-0 z-10 pointer-events-none md:absolute"
+        style={{
+          backdropFilter: 'blur(8px)',
+          WebkitBackdropFilter: 'blur(8px)',
+          background: 'linear-gradient(to top, rgba(10,0,0,0.4) 0%, transparent 50%)',
+          WebkitMaskImage: 'linear-gradient(to top, black 0%, transparent 50%)',
+          maskImage: 'linear-gradient(to top, black 0%, transparent 50%)',
+        }}
+      />
+
+      {/* Main scrollable content area — no background, sits above the glass layer */}
       <div className="relative z-20 min-h-screen flex flex-col">
-        {/* Spacer to push content below the photo visible area — kept transparent so photo shows through */}
+        {/* Spacer so photo is visible above content */}
         <div className="flex-shrink-0" style={{ height: '42vh' }} />
 
         {/* Action buttons (top right, floating) */}
@@ -44,15 +56,14 @@ export default function OverlayProfile({
           <ActionButtons onShare={onShare} onSaveContact={onSaveContact} extraActions={extraActions} />
         </div>
 
-        {/* Content — solid dark background so glass cards blur against dark, not the white body */}
-        <div className="px-5 pb-24" style={{ backgroundColor: 'rgb(25, 0, 0)' }}>
+        {/* Content — no background, glass layer behind handles the effect */}
+        <div className="px-5 pb-24">
           <OverlayHeader data={data} />
           <OverlaySocialIcons links={data.socialLinks} />
           <OverlayAboutSection summary={data.professionalSummary} />
           <OverlayContactSection items={data.contactItems} />
           <OverlaySkillsSection skills={data.skills} />
 
-          {/* Page-specific content (certifications, services, etc.) */}
           {children}
         </div>
       </div>
