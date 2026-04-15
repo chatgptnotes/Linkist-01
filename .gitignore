@@ -65,3 +65,7 @@ tsconfig.tsbuildinfo
 k6-results.json
 load-test-*.js
 LOAD-TEST-REPORT.md
+
+# Playwright
+test-results/
+playwright-report/

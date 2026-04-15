@@ -39,13 +39,10 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                      pathname.startsWith('/verify-email');
 
   // Check if current route is an inner page (checkout flow, account, etc.)
-  const isInnerPage = pathname.startsWith('/checkout') ||
-                      pathname.startsWith('/confirm-payment') ||
-                      pathname.startsWith('/thank-you') ||
+  const isInnerPage = pathname.startsWith('/nfc/') ||
                       pathname.startsWith('/account') ||
                       pathname.startsWith('/profile-dashboard') ||
                       pathname.startsWith('/verify-email') ||
-                      pathname.startsWith('/nfc/') ||
                       pathname.startsWith('/orders') ||
                       pathname.startsWith('/product-selection') ||
                       pathname.startsWith('/choose-plan') ||
@@ -151,8 +148,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
                        pathname.startsWith('/orders') ||
                        pathname.startsWith('/account') ||
                        pathname.startsWith('/profile-dashboard') ||
-                       pathname.startsWith('/checkout') ||
-                       pathname.startsWith('/confirm-payment') ||
+                       pathname.startsWith('/nfc/') ||
                        pathname.startsWith('/profiles/preview') ||
                        pathname.startsWith('/profiles/builder');
 
@@ -297,7 +293,7 @@ export default function ConditionalLayout({ children }: ConditionalLayoutProps) 
 
   // Check if it's a dynamic username route (e.g., /bhu-bala)
   // Username routes are single-level paths that don't match any known routes
-  const knownRoutes = ['/admin', '/api', '/checkout', '/confirm-payment', '/thank-you', '/account',
+  const knownRoutes = ['/admin', '/api', '/checkout', '/account',
                        '/profile-dashboard', '/verify-email', '/nfc', '/product-selection', '/choose-plan',
                        '/welcome-to-linkist', '/verify-mobile', '/verify-login', '/login',
                        '/profiles', '/claim-url', '/help', '/contact', '/about', '/features',

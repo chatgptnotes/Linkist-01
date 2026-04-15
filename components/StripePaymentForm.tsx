@@ -42,7 +42,6 @@ export default function StripePaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isReady, setIsReady] = useState(false);
   const [showExpressCheckout, setShowExpressCheckout] = useState(false);
-  const [expressDebug, setExpressDebug] = useState<string>('loading...');
 
   const confirmPayment = async () => {
     if (!stripe || !elements) {
@@ -101,15 +100,12 @@ export default function StripePaymentForm({
         <ExpressCheckoutElement
           onConfirm={handleExpressCheckoutConfirm}
           onReady={({ availablePaymentMethods }) => {
-            console.log('[Stripe] ExpressCheckout available methods:', availablePaymentMethods);
-            setExpressDebug(JSON.stringify(availablePaymentMethods));
             if (availablePaymentMethods) {
               setShowExpressCheckout(true);
             }
           }}
-          onLoadError={(error) => {
-            console.error('[Stripe] ExpressCheckout load error:', error);
-            setExpressDebug(`error: ${(error as any)?.message || JSON.stringify(error)}`);
+          onLoadError={() => {
+            // Express checkout unavailable — card form is still shown
           }}
           onClick={({ resolve }) => {
             resolve();
@@ -121,8 +117,6 @@ export default function StripePaymentForm({
             },
           }}
         />
-        {/* Temporary debug - remove after testing */}
-        <p className="text-xs text-gray-400 mt-1">Wallet: {expressDebug}</p>
         {showExpressCheckout && (
           <div className="flex items-center gap-3 mt-4 mb-2">
             <div className="flex-1 h-px bg-gray-200" />

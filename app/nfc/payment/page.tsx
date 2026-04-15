@@ -52,6 +52,7 @@ export default function NFCPaymentPage() {
   const [processing, setProcessing] = useState(false);
   const [orderData, setOrderData] = useState<OrderData | null>(null);
   const [hasOrderError, setHasOrderError] = useState(false);
+  const [redirectPaymentError, setRedirectPaymentError] = useState<string | null>(null);
 
   // Voucher details
   const [voucherCode, setVoucherCode] = useState('');
@@ -82,6 +83,15 @@ export default function NFCPaymentPage() {
 
   useEffect(() => {
     const initializePaymentPage = async () => {
+      // Check if returning from a failed Stripe redirect (3DS/UPI/Net Banking)
+      const searchParams = new URLSearchParams(window.location.search);
+      const paymentError = searchParams.get('payment_error');
+      if (paymentError) {
+        setRedirectPaymentError(decodeURIComponent(paymentError));
+        // Clean the URL so the error doesn't persist on refresh
+        window.history.replaceState({}, '', '/nfc/payment');
+      }
+
       // Get order data from localStorage (set by checkout page)
       const storedOrderData = localStorage.getItem('pendingOrder');
       if (!storedOrderData) {
@@ -317,14 +327,6 @@ export default function NFCPaymentPage() {
         orderData.shipping?.country,
         exchangeRate
       );
-
-      console.log('[Payment] Currency flow:', {
-        shippingCountry: orderData.shipping?.country,
-        usdAmount: finalAmount,
-        convertedAmount,
-        currency,
-        exchangeRate,
-      });
 
       // Create payment intent
       // Note: finalAmount already has voucher discount applied by frontend
@@ -590,6 +592,17 @@ export default function NFCPaymentPage() {
                   Click the button below to securely enter your card details. Your payment is protected by industry-standard encryption.
                 </p>
               </div>
+
+              {/* Payment error from failed redirect (3DS/UPI) */}
+              {redirectPaymentError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-red-800">Payment Failed</p>
+                    <p className="text-sm text-red-700 mt-0.5">{redirectPaymentError}</p>
+                  </div>
+                </div>
+              )}
 
               {/* Payment Button - Always visible */}
               <button
