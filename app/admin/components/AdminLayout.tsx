@@ -255,6 +255,13 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
         {/* User section with logout */}
         <div className="flex-shrink-0 bg-slate-900">
+          <Link
+            href="/profile-dashboard"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700"
+          >
+            <User className="h-5 w-5 text-slate-400 flex-shrink-0" />
+            <span>My Profile</span>
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-red-600 hover:text-white transition-colors border-t border-slate-700"

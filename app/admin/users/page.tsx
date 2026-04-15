@@ -218,13 +218,17 @@ export default function UsersPage() {
           }),
         });
 
+        const data = await res.json();
+
         if (!res.ok) {
-          const data = await res.json();
           setError(data.error || 'Failed to create user');
           return;
         }
 
-        setSuccess('User created successfully');
+        setSuccess(data.upgraded
+          ? `Admin permissions granted to existing user ${formEmail}`
+          : 'User created successfully'
+        );
       }
 
       setShowUserModal(false);
@@ -606,6 +610,15 @@ export default function UsersPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Info note for admin roles */}
+                  {formRole !== 'user' && (
+                    <div className="md:col-span-2">
+                      <p className="text-xs text-blue-600 bg-blue-50 border border-blue-200 rounded-md px-3 py-2">
+                        This user will also have access to their personal customer profile dashboard.
+                      </p>
+                    </div>
+                  )}
 
                   {/* Module Access Checkboxes */}
                   {formRole !== 'user' && (

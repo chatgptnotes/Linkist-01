@@ -3,7 +3,7 @@ import { CSSProperties } from 'react';
 export const overlayStyles = {
   gradient: {
     background:
-      'linear-gradient(to top, rgba(60,0,0,0.97) 0%, rgba(70,0,0,0.92) 20%, rgba(60,0,0,0.82) 35%, rgba(40,0,0,0.55) 55%, transparent 80%)',
+      'linear-gradient(to top, rgba(10,0,0,0.55) 0%, rgba(10,0,0,0.35) 25%, rgba(5,0,0,0.15) 50%, transparent 75%)',
   } as CSSProperties,
 
   frostedPill: {
