@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { SupabaseOrderStore } from '@/lib/supabase-order-store'
 import { PrinterSettingsStore } from '@/lib/supabase-printer-settings-store'
 import { printerBatchEmail, PrinterOrderData } from '@/lib/email-templates'
 import { sendOrderEmail } from '@/lib/smtp-email-service'
+
+const createAdminClient = () =>
+  createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 
 /**
  * POST /api/admin/orders/[id]/resend-printer
@@ -48,9 +54,51 @@ export async function POST(
       }, { status: 400 })
     }
 
+    // Fetch Linkist ID and company logo for the order's user (3-strategy lookup)
+    let linkistId: string | null = null
+    let profileCompanyLogoUrl: string | null = null
+
+    const supabase = createAdminClient()
+
+    if (order.userId) {
+      // Strategy 1: profile_users junction table
+      const { data: profileUser } = await supabase
+        .from('profile_users')
+        .select('profiles(custom_url, company_logo_url)')
+        .eq('user_id', order.userId)
+        .single()
+      const profile = profileUser?.profiles as any
+      const p = Array.isArray(profile) ? profile[0] : profile
+      linkistId = p?.custom_url || null
+      profileCompanyLogoUrl = p?.company_logo_url || null
+
+      // Strategy 2: direct profiles.user_id lookup
+      if (!linkistId) {
+        const { data: directProfile } = await supabase
+          .from('profiles')
+          .select('custom_url, company_logo_url')
+          .eq('user_id', order.userId)
+          .single()
+        linkistId = directProfile?.custom_url || null
+        profileCompanyLogoUrl = directProfile?.company_logo_url || null
+      }
+    }
+
+    // Strategy 3: fallback by email
+    if (!linkistId && order.email) {
+      const { data: profileByEmail } = await supabase
+        .from('profiles')
+        .select('custom_url, company_logo_url')
+        .eq('email', order.email)
+        .single()
+      linkistId = profileByEmail?.custom_url || null
+      profileCompanyLogoUrl = profileByEmail?.company_logo_url || null
+    }
+
     // Format order for email
     const printerOrder: PrinterOrderData = {
       orderNumber: order.orderNumber,
+      linkistId,
       cardConfig: {
         cardFirstName: order.cardConfig.cardFirstName,
         cardLastName: order.cardConfig.cardLastName,
@@ -63,6 +111,8 @@ export async function POST(
         texture: order.cardConfig.texture,
         pattern: order.cardConfig.pattern,
         quantity: order.cardConfig.quantity || 1,
+        // Use order's companyLogoUrl, falling back to profile's company_logo_url
+        companyLogoUrl: (order.cardConfig as any).companyLogoUrl || profileCompanyLogoUrl || null,
       },
       shipping: {
         fullName: order.shipping.fullName,

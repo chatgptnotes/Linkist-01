@@ -215,7 +215,31 @@ export default function ProfilePreviewPage() {
       const croppedBase64 = await getCroppedImg(cropImage, croppedAreaPixels);
       if (!croppedBase64) return;
 
-      // Save to server - API requires email, firstName, lastName as mandatory fields
+      // Convert base64 to Blob and upload to profile-photos bucket
+      const res = await fetch(croppedBase64);
+      const blob = await res.blob();
+      const file = new File([blob], `profile-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      // Use a fixed filename per user so each upload overwrites the previous photo
+      const sanitizedEmail = (profileData.primaryEmail || 'user').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      const fixedFilename = `profiles/profile-${sanitizedEmail}.jpg`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'profiles');
+      formData.append('filename', fixedFilename);
+
+      const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const uploadResult = await uploadRes.json();
+
+      if (!uploadResult.url) {
+        throw new Error(uploadResult.error || 'Upload failed');
+      }
+
+      // Append cache-busting param so the browser fetches the new image even though the URL path is the same
+      const photoUrl = `${uploadResult.url}?t=${Date.now()}`;
+
+      // Save URL to server
       const response = await fetch('/api/profiles/save', {
         method: 'POST',
         credentials: 'include',
@@ -224,12 +248,12 @@ export default function ProfilePreviewPage() {
           email: profileData.primaryEmail,
           firstName: profileData.firstName,
           lastName: profileData.lastName,
-          profilePhoto: croppedBase64,
+          profilePhoto: photoUrl,
         }),
       });
 
       if (response.ok) {
-        setProfileData({ ...profileData, profilePhoto: croppedBase64 });
+        setProfileData({ ...profileData, profilePhoto: photoUrl });
       } else {
         console.error('Failed to save cropped photo:', await response.text());
       }

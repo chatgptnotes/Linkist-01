@@ -257,25 +257,25 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         <div className="flex-shrink-0 bg-slate-900">
           <Link
             href="/profile-dashboard"
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-slate-700 hover:text-white transition-colors border-t border-slate-700"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-slate-700 transition-colors border-t border-slate-700"
           >
-            <User className="h-5 w-5 text-slate-400 flex-shrink-0" />
+            <User className="h-5 w-5 text-white flex-shrink-0" />
             <span>My Profile</span>
           </Link>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-300 hover:bg-red-600 hover:text-white transition-colors border-t border-slate-700"
+            className="w-full flex items-center gap-3 px-4 py-3 text-sm text-white hover:bg-red-600 transition-colors border-t border-slate-700"
           >
-            <User className="h-8 w-8 text-slate-400 flex-shrink-0" />
+            <User className="h-8 w-8 text-white flex-shrink-0" />
             <div className="min-w-0 flex-1 text-left">
               <p className="text-sm font-medium text-white truncate">
                 {currentUser?.first_name || currentUser?.email}
               </p>
-              <p className="text-xs text-slate-400 truncate">
+              <p className="text-xs text-slate-300 truncate">
                 {RBAC.getRoleName(currentUser?.role || '')}
               </p>
             </div>
-            <LogOut className="h-4 w-4 flex-shrink-0" />
+            <LogOut className="h-4 w-4 text-white flex-shrink-0" />
           </button>
         </div>
       </div>

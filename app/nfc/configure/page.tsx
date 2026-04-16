@@ -569,24 +569,27 @@ export default function ConfigureNewPage() {
     setLogoUploadError(null);
 
     try {
+      const fileExt = file.name.split('.').pop();
+      const fixedFilename = `logos/company-${Date.now()}.${fileExt}`;
+
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('folder', 'logos');
-      formData.append('isPublic', 'true');
+      formData.append('bucket', 'company-logos');
+      formData.append('filename', fixedFilename);
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch('/api/upload-image', {
         method: 'POST',
         body: formData,
       });
 
       const result = await response.json();
 
-      if (!result.success) {
+      if (!result.url) {
         setLogoUploadError(result.error || 'Upload failed');
         return;
       }
 
-      setCompanyLogoUrl(result.data?.publicUrl || result.publicUrl);
+      setCompanyLogoUrl(`${result.url}?t=${Date.now()}`);
     } catch (error) {
       setLogoUploadError('Failed to upload logo');
       console.error('Logo upload error:', error);
