@@ -30,60 +30,39 @@ export default function FoundingMembersSection() {
           
           {/* Promo Card */}
           <div className="rounded-3xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
-            {/* Top section - red background with nav arrows */}
-            <div className="bg-[#E63929] px-8 py-6 flex flex-col relative">
-              {/* Left arrow - decorative */}
-              <span
-                aria-hidden="true"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
-                style={{ background: 'rgba(0,0,0,0.3)' }}
-              >
-                &#8249;
-              </span>
-              {/* Right arrow - decorative */}
-              <span
-                aria-hidden="true"
-                className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl leading-none select-none"
-                style={{ background: 'rgba(0,0,0,0.3)' }}
-              >
-                &#8250;
-              </span>
-
-              <h3 className="text-white font-bold text-xl md:text-2xl mb-2">
-                Founding Member Rate
+            <div className="bg-[#E63929] px-6 py-8 md:px-8 md:py-9 flex flex-col">
+              <h3 className="text-white font-bold text-3xl leading-tight md:text-[38px] md:leading-[44px] mb-3">
+                Founding Member Pricing
               </h3>
-              <p className="text-white text-sm leading-snug">
-                <span className="italic font-bold block mb-1">Locked in for life.</span>
-                Subscribe now and keep this discounted rate forever! Limited period offer until June 2026.
+              <p className="text-white italic text-sm md:text-base mb-3">
+                Lock in your rate for life.
               </p>
-            </div>
+              <p className="text-white/90 text-sm md:text-base leading-relaxed">
+                Join before June 2026 to keep this founding member price for PRM App forever.
+              </p>
 
-            {/* Bottom section - darker red */}
-            <div className="bg-[#CC2B1C] px-5 py-4 flex flex-col">
-              <div className="flex items-center justify-between mb-3">
-                {/* Left: 1st year free + $69/year after */}
-                <div className="flex flex-col">
-                  <span className="text-white font-bold text-base md:text-lg">1st year free</span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-white font-bold text-3xl md:text-4xl">+ $69</span>
-                    <span className="text-white text-sm">/year after</span>
-                  </div>
-                </div>
+              <div className="border-t border-white/20 mt-6" />
 
-                {/* Center: Vs */}
-                <span className="text-gray-400 text-sm font-medium mx-2">Vs</span>
+              <div className="border-t border-white/20 py-4 flex items-center justify-between">
+                <span className="border-l-2 border-blue-400 pl-3 text-white font-medium text-sm md:text-base">Year 1</span>
+                <span className="text-white font-bold text-xl md:text-2xl">Free</span>
+              </div>
 
-                {/* Right: $99/year strikethrough */}
-                <div className="flex flex-col items-end">
-                  <span className="text-white/60 text-base line-through">$99 /year</span>
-                  <span className="text-white/60 text-xs">from 1st year</span>
+              <div className="border-t border-white/20 py-4 flex items-center justify-between">
+                <span className="border-l-2 border-blue-400 pl-3 text-white font-medium text-sm md:text-base">Year 2 onward</span>
+                <div className="flex items-end gap-1">
+                  <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
+                  <span className="text-white text-sm mb-0.5">/year</span>
                 </div>
               </div>
 
-              {/* Savings line */}
-              <p className="text-center text-white/80 text-xs">
-                Savings of <span className="font-bold text-white">$129</span> in 2 years
-              </p>
+              <div className="border-t border-white/20 pt-4 flex items-start justify-between">
+                <span className="text-white/60 font-medium text-sm md:text-base">Regular price</span>
+                <div className="flex flex-col items-end">
+                  <span className="line-through text-white/50 text-base md:text-lg">$99 /year</span>
+                  <span className="text-white/50 text-xs">from year 1</span>
+                </div>
+              </div>
             </div>
           </div>
 

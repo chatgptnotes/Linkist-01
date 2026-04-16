@@ -165,13 +165,16 @@ export default function CompareFeatures() {
                   <td key={plan} className="py-3 pt-5 pb-5 px-4">
                     <a
                       href="https://linkist.ai/choose-plan"
-                      className={`block w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs text-center transition-all duration-300 no-underline whitespace-nowrap ${
+                      className={`flex items-center justify-center gap-2 w-full max-w-[160px] mx-auto py-2 px-3 rounded-lg font-semibold text-xs transition-all duration-300 no-underline ${
                         i === 1
                           ? 'bg-[#FF3A29] text-white shadow-[0_4px_14px_rgba(255,58,41,0.3)] hover:bg-[#e8321f]'
                           : 'bg-[#FF3A29]/15 text-[#FF3A29] hover:bg-[#FF3A29] hover:text-white'
                       }`}
                     >
-                      See How Linkist Fixes This
+                      Start Now
+                      <svg className="w-[14px] h-[14px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 12h16M13 5l7 7-7 7" />
+                      </svg>
                     </a>
                   </td>
                 ))}
