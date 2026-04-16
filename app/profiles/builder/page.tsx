@@ -836,24 +836,48 @@ function ProfileBuilderContent() {
   };
 
   const handleCropSave = async () => {
-    if (!cropImage || !croppedAreaPixels) return;
+    if (!cropImage || !croppedAreaPixels || isUploadingProfilePhoto) return;
 
     try {
       setIsUploadingProfilePhoto(true);
-      setProfilePhotoUploadProgress(50);
+      setProfilePhotoUploadProgress(30);
 
       const croppedBase64 = await getCroppedImg(cropImage, croppedAreaPixels);
+      if (!croppedBase64) return;
 
-      if (croppedBase64) {
-        setProfileData(prev => ({
-          ...prev,
-          profilePhoto: croppedBase64
-        }));
-        toast.success('Profile photo cropped and saved!');
+      setProfilePhotoUploadProgress(60);
+
+      // Convert base64 to Blob and upload to profile-photos bucket
+      const res = await fetch(croppedBase64);
+      const blob = await res.blob();
+      const file = new File([blob], `profile-${Date.now()}.jpg`, { type: 'image/jpeg' });
+
+      // Use a fixed filename per user so each upload overwrites the previous photo
+      const sanitizedEmail = (profileData.primaryEmail || 'user').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+      const fixedFilename = `profiles/profile-${sanitizedEmail}.jpg`;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('folder', 'profiles');
+      formData.append('filename', fixedFilename);
+
+      const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: formData });
+      const uploadResult = await uploadRes.json();
+
+      if (!uploadResult.url) {
+        throw new Error(uploadResult.error || 'Upload failed');
       }
+
+      // Append cache-busting param so the browser fetches the new image even though the URL path is the same
+      const photoUrl = `${uploadResult.url}?t=${Date.now()}`;
+
+      setProfilePhotoUploadProgress(100);
+      setProfileData(prev => ({ ...prev, profilePhoto: photoUrl }));
+      toast.success('Profile photo saved!');
+
     } catch (error) {
-      console.error('Error cropping image:', error);
-      toast.error('Failed to crop image. Please try again.');
+      console.error('Error saving profile photo:', error);
+      toast.error('Failed to save photo. Please try again.');
     } finally {
       setIsUploadingProfilePhoto(false);
       setProfilePhotoUploadProgress(0);
@@ -2774,24 +2798,34 @@ function ProfileBuilderContent() {
                                   setIsUploadingCompanyLogo(true);
                                   setCompanyLogoUploadProgress(0);
 
-                                  // Compress and convert to Base64 (no upscaling for logos)
-                                  const base64String = await compressImageToBase64(file, (progress) => {
-                                    setCompanyLogoUploadProgress(progress);
-                                  });
+                                  // Upload to company-logos bucket in Supabase Storage
+                                  const sanitizedEmail = (profileData.primaryEmail || 'user').replace(/[^a-zA-Z0-9]/g, '-').toLowerCase();
+                                  const fileExt = file.name.split('.').pop();
+                                  const fixedFilename = `logos/company-${sanitizedEmail}.${fileExt}`;
 
-                                  if (base64String) {
-                                    setProfileData(prev => ({
-                                      ...prev,
-                                      companyLogo: base64String
-                                    }));
-                                    toast.success('Company logo uploaded successfully!');
-                                  } else {
-                                    console.warn('Company logo processing returned empty, but continuing');
+                                  const formData = new FormData();
+                                  formData.append('file', file);
+                                  formData.append('bucket', 'company-logos');
+                                  formData.append('filename', fixedFilename);
+
+                                  setCompanyLogoUploadProgress(50);
+                                  const uploadRes = await fetch('/api/upload-image', { method: 'POST', body: formData });
+                                  const uploadResult = await uploadRes.json();
+
+                                  if (!uploadResult.url) {
+                                    throw new Error(uploadResult.error || 'Upload failed');
                                   }
+
+                                  const logoUrl = `${uploadResult.url}?t=${Date.now()}`;
+                                  setCompanyLogoUploadProgress(100);
+                                  setProfileData(prev => ({
+                                    ...prev,
+                                    companyLogo: logoUrl
+                                  }));
+                                  toast.success('Company logo uploaded successfully!');
                                 } catch (error) {
-                                  // Graceful error handling - never show error to user
                                   console.error('Company logo upload error:', error);
-                                  // Silently continue - the function should have handled this
+                                  toast.error('Failed to upload company logo. Please try again.');
                                 } finally {
                                   setIsUploadingCompanyLogo(false);
                                   setCompanyLogoUploadProgress(0);
@@ -4222,10 +4256,11 @@ function ProfileBuilderContent() {
               </button>
               <button
                 onClick={handleCropSave}
-                className="flex-1 px-4 py-2.5 rounded-lg text-white font-medium transition-colors"
+                disabled={isUploadingProfilePhoto}
+                className="flex-1 px-4 py-2.5 rounded-lg text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{ backgroundColor: '#dc2626' }}
               >
-                Save Photo
+                {isUploadingProfilePhoto ? `Uploading... ${profilePhotoUploadProgress}%` : 'Save Photo'}
               </button>
             </div>
           </div>

@@ -10,34 +10,52 @@ export async function POST(request: Request) {
     const formData = await request.formData()
     const file = formData.get('file') as File
     const folder = formData.get('folder') as string || 'profiles'
+    const fixedFilename = formData.get('filename') as string | null
+    const bucket = formData.get('bucket') as string || 'profile-photos'
 
     if (!file) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Generate unique filename
     const fileExt = file.name.split('.').pop()
-    const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
+    const fileName = fixedFilename
+      ? fixedFilename
+      : `${folder}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`
 
-    // Upload to Supabase Storage
+    console.log(`[upload-image] bucket: ${bucket}, fileName: ${fileName}, fixedFilename: ${fixedFilename}`)
+
+    // Step 1: Delete old file first (ignore errors — might not exist on first upload)
+    if (fixedFilename) {
+      const { error: removeError } = await supabase.storage
+        .from(bucket)
+        .remove([fixedFilename])
+      if (removeError) {
+        console.warn(`[upload-image] remove() failed (continuing with upsert): ${removeError.message}`)
+      } else {
+        console.log(`[upload-image] remove() succeeded for: ${fixedFilename}`)
+      }
+    }
+
+    // Step 2: Upload — upsert:true as backup in case remove() failed
     const { data, error } = await supabase.storage
-      .from('profile-images')
+      .from(bucket)
       .upload(fileName, file, {
-        cacheControl: '3600',
-        upsert: false
+        cacheControl: '0',
+        upsert: !!fixedFilename
       })
 
-    if (error) {
-      console.error('Supabase upload error:', error)
+    if (error || !data?.path) {
+      console.error(`[upload-image] upload() failed: ${error?.message}`)
       return NextResponse.json({
         error: 'Failed to upload image',
-        details: error.message
+        details: error?.message
       }, { status: 500 })
     }
 
-    // Get public URL
+    console.log(`[upload-image] upload() succeeded: ${data.path}`)
+
     const { data: urlData } = supabase.storage
-      .from('profile-images')
+      .from(bucket)
       .getPublicUrl(data.path)
 
     return NextResponse.json({
@@ -46,7 +64,7 @@ export async function POST(request: Request) {
       path: data.path
     })
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('[upload-image] Unexpected error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

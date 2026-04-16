@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { SupabaseOrderStore } from '@/lib/supabase-order-store'
 import { PrinterSettingsStore } from '@/lib/supabase-printer-settings-store'
 import { printerBatchEmail, PrinterOrderData } from '@/lib/email-templates'
 import { sendOrderEmail } from '@/lib/smtp-email-service'
+
+const createAdminClient = () =>
+  createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 
 // API key for cron authentication (optional but recommended)
 const CRON_API_KEY = process.env.CRON_API_KEY
@@ -72,9 +78,69 @@ export async function POST(request: NextRequest) {
 
     console.log(`📋 Found ${pendingOrders.length} orders to send to printer`)
 
+    // Fetch custom_url (Linkist ID) and company_logo_url for all orders
+    const userIds = [...new Set(pendingOrders.map(o => o.userId).filter(Boolean))] as string[]
+    const emails = [...new Set(pendingOrders.map(o => o.email).filter(Boolean))] as string[]
+    const linkistIdMap: Record<string, string> = {}
+    const companyLogoMap: Record<string, string> = {}
+
+    const supabase = createAdminClient()
+
+    // Strategy 1: lookup via profile_users junction table (most reliable)
+    if (userIds.length > 0) {
+      const { data: profileUsers } = await supabase
+        .from('profile_users')
+        .select('user_id, profiles(custom_url, company_logo_url)')
+        .in('user_id', userIds)
+      if (profileUsers) {
+        for (const pu of profileUsers) {
+          const profile = Array.isArray(pu.profiles) ? pu.profiles[0] : pu.profiles as any
+          if (pu.user_id && profile?.custom_url) linkistIdMap[pu.user_id] = profile.custom_url
+          if (pu.user_id && profile?.company_logo_url) companyLogoMap[pu.user_id] = profile.company_logo_url
+        }
+      }
+    }
+
+    // Strategy 2: fallback via profiles.user_id for any still missing
+    const missingUserIds = userIds.filter(id => !linkistIdMap[id])
+    if (missingUserIds.length > 0) {
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, custom_url, company_logo_url')
+        .in('user_id', missingUserIds)
+      if (profiles) {
+        for (const p of profiles) {
+          if (p.user_id && p.custom_url) linkistIdMap[p.user_id] = p.custom_url
+          if (p.user_id && p.company_logo_url) companyLogoMap[p.user_id] = p.company_logo_url
+        }
+      }
+    }
+
+    // Strategy 3: fallback via email for any still missing
+    const missingEmails = emails.filter(email => {
+      const order = pendingOrders.find(o => o.email === email)
+      return order?.userId ? !linkistIdMap[order.userId] : true
+    })
+    if (missingEmails.length > 0) {
+      const { data: profilesByEmail } = await supabase
+        .from('profiles')
+        .select('email, custom_url, company_logo_url')
+        .in('email', missingEmails)
+      if (profilesByEmail) {
+        for (const p of profilesByEmail) {
+          const order = pendingOrders.find(o => o.email === p.email)
+          if (order?.userId) {
+            if (p.custom_url) linkistIdMap[order.userId] = p.custom_url
+            if (p.company_logo_url) companyLogoMap[order.userId] = p.company_logo_url
+          }
+        }
+      }
+    }
+
     // Format orders for email template
     const printerOrders: PrinterOrderData[] = pendingOrders.map(order => ({
       orderNumber: order.orderNumber,
+      linkistId: order.userId ? (linkistIdMap[order.userId] ?? null) : null,
       cardConfig: {
         cardFirstName: order.cardConfig.cardFirstName,
         cardLastName: order.cardConfig.cardLastName,
@@ -87,6 +153,8 @@ export async function POST(request: NextRequest) {
         texture: order.cardConfig.texture,
         pattern: order.cardConfig.pattern,
         quantity: order.cardConfig.quantity || 1,
+        // Use order's companyLogoUrl, falling back to profile's company_logo_url
+        companyLogoUrl: (order.cardConfig as any).companyLogoUrl || (order.userId ? companyLogoMap[order.userId] : null) || null,
       },
       shipping: {
         fullName: order.shipping.fullName,
