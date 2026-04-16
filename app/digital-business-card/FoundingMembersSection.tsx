@@ -29,37 +29,49 @@ export default function FoundingMembersSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           
           {/* Promo Card */}
-          <div className="rounded-3xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1">
-            <div className="bg-[#E63929] px-6 py-8 md:px-8 md:py-9 flex flex-col">
-              <h3 className="text-white font-bold text-3xl leading-tight md:text-[38px] md:leading-[44px] mb-3">
+          <div className="rounded-[24px] overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 justify-self-center w-full max-w-[350px] lg:max-w-none lg:justify-self-stretch">
+            {/* Top: Red header */}
+            <div className="bg-[#E63929] px-6 pt-6 pb-5 flex flex-col text-left" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              <h3 className="text-white font-bold text-2xl md:text-3xl mb-1">
                 Founding Member Pricing
               </h3>
-              <p className="text-white italic text-sm md:text-base mb-3">
+              <p className="text-white italic text-sm mb-1">
                 Lock in your rate for life.
               </p>
-              <p className="text-white/90 text-sm md:text-base leading-relaxed">
+              <p className="text-white text-xs leading-snug">
                 Join before June 2026 to keep this founding member price for PRM App forever.
               </p>
-
-              <div className="border-t border-white/20 mt-6" />
-
-              <div className="border-t border-white/20 py-4 flex items-center justify-between">
-                <span className="border-l-2 border-blue-400 pl-3 text-white font-medium text-sm md:text-base">Year 1</span>
-                <span className="text-white font-bold text-xl md:text-2xl">Free</span>
+            </div>
+            {/* Bottom: Darker red pricing rows */}
+            <div className="bg-[#CC2B1C] px-6 py-4 flex flex-col" style={{ fontFamily: 'Poppins, sans-serif' }}>
+              {/* Row 1: Year 1 - Free */}
+              <div className="flex justify-between items-center py-3">
+                <div className="border-l-2 border-white pl-3">
+                  <span className="text-white text-sm">Year 1</span>
+                </div>
+                <span className="text-white font-bold text-xl">Free</span>
               </div>
-
-              <div className="border-t border-white/20 py-4 flex items-center justify-between">
-                <span className="border-l-2 border-blue-400 pl-3 text-white font-medium text-sm md:text-base">Year 2 onward</span>
-                <div className="flex items-end gap-1">
-                  <span className="text-white font-bold text-2xl md:text-3xl">$69</span>
-                  <span className="text-white text-sm mb-0.5">/year</span>
+              <hr className="border-white/30" />
+              {/* Row 2: Year 2 onward - $69/year */}
+              <div className="flex justify-between items-center py-3">
+                <div className="border-l-2 border-white pl-3">
+                  <span className="text-white text-sm">Year 2 onward</span>
+                </div>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-white font-bold text-2xl">$69</span>
+                  <span className="text-white/80 text-sm"> /year</span>
                 </div>
               </div>
-
-              <div className="border-t border-white/20 pt-4 flex items-start justify-between">
-                <span className="text-white/60 font-medium text-sm md:text-base">Regular price</span>
-                <div className="flex flex-col items-end">
-                  <span className="line-through text-white/50 text-base md:text-lg">$99 /year</span>
+              <hr className="border-white/30" />
+              {/* Row 3: Regular price */}
+              <div className="flex justify-between items-center py-3">
+                <div className="pl-3">
+                  <span className="text-white/70">Regular price</span>
+                </div>
+                <div className="text-right">
+                  <span className="text-white/50 line-through">$99</span>
+                  <span className="text-white/50 text-sm"> /year</span>
+                  <br />
                   <span className="text-white/50 text-xs">from year 1</span>
                 </div>
               </div>
