@@ -61,6 +61,10 @@ export default function ConfigureNewPage() {
   const [foundersTotalPrice, setFoundersTotalPrice] = useState<number | null>(null);
   const [foundersPricing, setFoundersPricing] = useState<FoundersPricingBreakdown | null>(null);
 
+  // Card mockup images from admin
+  const [mockupImages, setMockupImages] = useState<Record<string, string> | null>(null);
+  const [mockupLoading, setMockupLoading] = useState(false);
+
   // Dynamic customization options from API
   const [customizationOptions, setCustomizationOptions] = useState<{
     materials: Array<{ option_key: string; label: string; description: string | null; price: number | null; is_enabled: boolean }>;
@@ -294,6 +298,38 @@ export default function ConfigureNewPage() {
     }
   }, [userCountry, isFoundingMember, foundersTotalPrice]);
 
+  // Fetch card mockup images when material + colour + pattern selection changes
+  useEffect(() => {
+    const patternKey = patterns.find(p => p.id === formData.pattern)?.key || null;
+    if (!formData.baseMaterial || !formData.colour || patternKey === null) {
+      setMockupImages(null);
+      return;
+    }
+
+    const fetchMockup = async () => {
+      setMockupLoading(true);
+      try {
+        const params = new URLSearchParams({
+          material: formData.baseMaterial!,
+          colour: formData.colour!,
+          pattern: (!patternKey || patternKey === 'none') ? 'blank' : patternKey,
+        });
+        const response = await fetch(`/api/card-mockups?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          setMockupImages(data.hasMockups ? data.mockups : null);
+        } else {
+          setMockupImages(null);
+        }
+      } catch {
+        setMockupImages(null);
+      }
+      setMockupLoading(false);
+    };
+
+    fetchMockup();
+  }, [formData.baseMaterial, formData.colour, formData.pattern]);
+
   // Fallback hardcoded options (used if API fails)
   const fallbackPrices: Record<BaseMaterial, number> = {
     pvc: 69,
@@ -374,6 +410,12 @@ export default function ConfigureNewPage() {
 
   // Helper: build patterns list based on hierarchy (material + texture + colour)
   const buildPatternsForMaterial = (material: string | null) => {
+    // Until material + texture + colour are all selected, show only the Blank placeholder.
+    const hasFullPath = !!(material && formData.texture && formData.colour);
+    if (!hasFullPath) {
+      return [{ id: 0, name: 'Blank', key: 'none' }];
+    }
+
     if (!customizationOptions?.patterns) {
       return [
         { id: 0, name: 'Blank', key: 'none' },
@@ -385,31 +427,26 @@ export default function ConfigureNewPage() {
 
     let allowed: string[] | undefined;
     let hierarchyKeyFound = false;
-    if (material && formData.texture && formData.colour && customizationOptions.patternOptions) {
+    if (customizationOptions.patternOptions) {
       // Try hierarchy key: "material|texture|colour"
-      const hKey = buildHierarchyKey(material, formData.texture, formData.colour);
+      const hKey = buildHierarchyKey(material!, formData.texture!, formData.colour!);
       if (hKey in customizationOptions.patternOptions) {
         allowed = customizationOptions.patternOptions[hKey];
         hierarchyKeyFound = true;
       }
     }
-    // Fall back to flat key: "material" (only if no hierarchy key was found)
-    if (!hierarchyKeyFound && material && customizationOptions.patternOptions) {
-      if (material in customizationOptions.patternOptions) {
-        allowed = customizationOptions.patternOptions[material];
+    // Fall back to flat key: "material"
+    if (!hierarchyKeyFound && customizationOptions.patternOptions) {
+      if (material! in customizationOptions.patternOptions) {
+        allowed = customizationOptions.patternOptions[material!];
         hierarchyKeyFound = true;
       }
     }
 
-    // If the full hierarchy path is selected (material + texture + colour) but no key
-    // exists in patternOptions, it means admin has not enabled any patterns — show empty.
-    // Only show all patterns when no hierarchy context exists (no material/texture/colour selected).
-    const hasFullPath = !!(material && formData.texture && formData.colour);
+    // Full path selected but no admin key = admin disabled patterns for this combo → Blank only.
     const filtered = hierarchyKeyFound
       ? customizationOptions.patterns.filter(p => (allowed || []).includes(p.option_key))
-      : hasFullPath
-        ? [] // Full path but no key = admin disabled everything for this path
-        : customizationOptions.patterns;
+      : [];
 
     return [
       { id: 0, name: 'Blank', key: 'none' },
@@ -652,7 +689,9 @@ export default function ConfigureNewPage() {
       isFoundingMember: isFoundersCirclePlan,
       // Founders pricing (for checkout/payment)
       foundersTotalPrice: isFoundersCirclePlan ? foundersTotalPrice : null,
-      foundersPricing: isFoundersCirclePlan ? foundersPricing : null
+      foundersPricing: isFoundersCirclePlan ? foundersPricing : null,
+      // Mockup images for checkout/cart preview
+      mockupImages: mockupImages || null,
     };
 
     console.log('Configure: Saving card data to localStorage:', configData);
@@ -904,15 +943,12 @@ export default function ConfigureNewPage() {
                           outline: 'none',
                         }}
                       >
-                        <div className="mb-2">
-                          <PatternThumbnail
-                            patternKey={pattern.key}
-                            isSelected={isSelected}
-                            baseColor={allColours.find(c => c.value === formData.colour)?.hex || '#374151'}
-                            colour={formData.colour || undefined}
-                          />
-                        </div>
-                        <span className={`text-sm font-semibold ${isSelected ? 'text-red-600' : 'text-gray-700'}`}>{pattern.name}</span>
+                        <PatternThumbnail
+                          patternKey={pattern.key}
+                          isSelected={isSelected}
+                          baseColor={allColours.find(c => c.value === formData.colour)?.hex || '#374151'}
+                          colour={formData.colour || undefined}
+                        />
                       </button>
                     );
                   })}
@@ -973,9 +1009,15 @@ export default function ConfigureNewPage() {
               </div>
             )}
 
-            {/* Live Preview - Tap to Flip */}
-            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden p-3">
-              <h3 className="text-sm font-semibold text-gray-900 mb-2">Live Preview</h3>
+            {/* Live Preview - Tap to Flip. Only shown once user has chosen material + texture + colour. */}
+            {(() => {
+              const hasSelections = !!(formData.baseMaterial && formData.texture && formData.colour);
+              return (
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden px-2 py-0">
+              <h3 className="text-sm font-semibold text-gray-900 mb-0 py-0.5">Live Preview</h3>
+              {hasSelections ? (
+              <>
+              <h4 className='text-sm text-gray-500 pb-2'>Logo preview is Indicative</h4>
               <div
                 className="relative w-full cursor-pointer"
                 style={{ perspective: '1000px' }}
@@ -992,38 +1034,85 @@ export default function ConfigureNewPage() {
                     className="w-full"
                     style={{ backfaceVisibility: 'hidden' }}
                   >
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                      <div className="absolute top-3 right-3">
-                        <img
-                          src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
-                          alt="AI Assistant"
-                          className={`w-4 h-4 sm:w-7 sm:h-7 ${formData.colour === 'white' ? '' : 'invert'}`}
-                        />
+                    {mockupImages?.front ? (
+                      /* Mockup-based front preview */
+                      <div className="w-full flex justify-center overflow-hidden">
+                        <div className="relative" style={{ width: '130%' }}>
+                          <img
+                            src={mockupImages.front}
+                            alt="Card front"
+                            className="w-full h-auto block"
+                            draggable={false}
+                          />
+                          {/* Name overlay — Signature & Founders only, bottom-left of card */}
+                          {userPlanType !== 'pro' && (
+                            <div className="absolute" style={{ bottom: '22%', left: '22%' }}>
+                              {(() => {
+                                const firstName = formData.cardFirstName?.trim() || '';
+                                const lastName = formData.cardLastName?.trim() || '';
+                                const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                                if (isSingleCharOnly) {
+                                  return (
+                                    <div className={`${getTextColor()} text-xl sm:text-3xl font-bold`}>
+                                      {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                    </div>
+                                  );
+                                }
+                                return (
+                                  <div className={`${getTextColor()} text-sm sm:text-lg font-bold tracking-wide`}>
+                                    {firstName.toUpperCase()} {lastName.toUpperCase()}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          )}
+                          {/* Company logo overlay — Founders only, center of card */}
+                          {isFoundersCirclePlan && companyLogoUrl && (
+                            <div className="absolute" style={{ top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                              <img
+                                src={companyLogoUrl}
+                                alt="Company Logo"
+                                className="h-8 sm:h-14 w-auto object-contain"
+                                draggable={false}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {userPlanType !== 'pro' && (
-                      <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-                        {(() => {
-                          const firstName = formData.cardFirstName?.trim() || '';
-                          const lastName = formData.cardLastName?.trim() || '';
-                          const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                          if (isSingleCharOnly) {
-                            return (
-                              <div className={`${getTextColor()} text-xl sm:text-4xl font-bold`}>
-                                {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                              </div>
-                            );
-                          } else {
+                    ) : (
+                      /* Legacy CSS gradient front preview */
+                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                        <div className="absolute top-3 right-3">
+                          <img
+                            src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
+                            alt="AI Assistant"
+                            className={`w-4 h-4 sm:w-7 sm:h-7 ${formData.colour === 'white' ? '' : 'invert'}`}
+                          />
+                        </div>
+                        {userPlanType !== 'pro' && (
+                        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
+                          {(() => {
+                            const firstName = formData.cardFirstName?.trim() || '';
+                            const lastName = formData.cardLastName?.trim() || '';
+                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                            if (isSingleCharOnly) {
+                              return (
+                                <div className={`${getTextColor()} text-xl sm:text-4xl font-bold`}>
+                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                </div>
+                              );
+                            }
                             return (
                               <div className={`${getTextColor()} text-sm sm:text-xl font-bold tracking-wide`}>
                                 {firstName.toUpperCase()} {lastName.toUpperCase()}
                               </div>
                             );
-                          }
-                        })()}
+                          })()}
+                        </div>
+                        )}
                       </div>
-                      )}
-                    </div>
+                    )}
                   </div>
 
                   {/* Back Card */}
@@ -1031,33 +1120,62 @@ export default function ConfigureNewPage() {
                     className="absolute inset-0 w-full"
                     style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                   >
-                    <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                      <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                      <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        {isFoundersCirclePlan ? (
-                          <>
-                            {companyLogoUrl ? (
-                              <img src={companyLogoUrl} alt="Company Logo" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2 object-contain" />
-                            ) : showLinkistLogo ? (
-                              <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                            ) : null}
-                            <div className={`${getTextColor()} text-xs sm:text-xl font-bold tracking-widest`}>FOUNDING MEMBER</div>
-                          </>
-                        ) : (
-                          <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                        )}
+                    {mockupImages?.back_with_logo || mockupImages?.back_without_logo ? (
+                      /* Mockup-based back preview */
+                      <div className="w-full flex justify-center overflow-hidden">
+                        <div className="relative" style={{ width: '130%' }}>
+                          <img
+                            src={
+                              isFoundersCirclePlan && !showLinkistLogo
+                                ? (mockupImages.back_without_logo || mockupImages.back_with_logo!)
+                                : (mockupImages.back_with_logo || mockupImages.back_without_logo!)
+                            }
+                            alt="Card back"
+                            className="w-full h-auto block"
+                            draggable={false}
+                          />
+                        </div>
                       </div>
-                      <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                        <img src="/nfc2.png" alt="NFC" className="w-6 h-6 sm:w-10 sm:h-10" />
+                    ) : (
+                      /* Legacy CSS gradient back preview */
+                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          {isFoundersCirclePlan ? (
+                            <>
+                              {companyLogoUrl ? (
+                                <img src={companyLogoUrl} alt="Company Logo" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2 object-contain" />
+                              ) : showLinkistLogo ? (
+                                <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
+                              ) : null}
+                              <div className={`${getTextColor()} text-xs sm:text-xl font-bold tracking-widest`}>FOUNDING MEMBER</div>
+                            </>
+                          ) : (
+                            <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
+                          )}
+                        </div>
+                        <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                          <img src="/nfc2.png" alt="NFC" className="w-6 h-6 sm:w-10 sm:h-10" />
+                        </div>
                       </div>
-                    </div>
+                    )}
                   </div>
                 </motion.div>
               </div>
-              <div className="text-center text-xs text-gray-500 mt-1.5">
+              <div className="text-center text-xs text-gray-500 mt-0.5">
                 {isCardFlipped ? 'Back' : 'Front'} &bull; Click to see {isCardFlipped ? 'front' : 'back'} side
               </div>
+              </>
+              ) : (
+                <div className="w-full aspect-[1.6/1] rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-center px-4 my-2">
+                  <p className="text-xs text-gray-400">
+                    Choose material, texture, and colour to see your card preview
+                  </p>
+                </div>
+              )}
             </div>
+              );
+            })()}
 
             {/* Continue to Checkout Section */}
             <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">

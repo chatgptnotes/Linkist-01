@@ -266,7 +266,9 @@ export default function CheckoutPage() {
             companyLogoUrl: config.companyLogoUrl,
             // Founders pricing (for checkout/payment) - saved by configure page
             foundersTotalPrice: config.foundersTotalPrice || null,
-            foundersPricing: config.foundersPricing || null
+            foundersPricing: config.foundersPricing || null,
+            // Mockup images for card preview
+            mockupImages: config.mockupImages || null
           };
 
           console.log('Checkout: Processed card config for preview:', processedConfig);

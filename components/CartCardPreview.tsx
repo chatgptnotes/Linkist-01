@@ -18,6 +18,12 @@ interface CartCardPreviewProps {
     twitter?: string;
     profileImage?: string;
     backgroundImage?: string;
+    // Mockup images from card customization
+    mockupImages?: {
+      front?: string;
+      back_with_logo?: string;
+      back_without_logo?: string;
+    } | null;
   };
   size?: 'small' | 'medium';
 }
@@ -27,6 +33,25 @@ export default function CartCardPreview({ config, size = 'small' }: CartCardPrev
   const displayFirstName = config.cardFirstName || config.firstName;
   const displayLastName = config.cardLastName || config.lastName;
 
+  const sizeClasses = {
+    small: 'w-24 h-16',
+    medium: 'w-32 h-20'
+  };
+
+  // Use mockup image if available
+  if (config.mockupImages?.front) {
+    return (
+      <div className={`${sizeClasses[size]} rounded-lg overflow-hidden shadow-lg`}>
+        <img
+          src={config.mockupImages.front}
+          alt="Card preview"
+          className="w-full h-full object-cover"
+        />
+      </div>
+    );
+  }
+
+  // Legacy fallback
   const getBackgroundStyle = () => {
     if (config.backgroundImage) {
       return {
@@ -38,11 +63,6 @@ export default function CartCardPreview({ config, size = 'small' }: CartCardPrev
     return {
       background: 'linear-gradient(135deg, #000000 0%, #1a1a1a 100%)',
     };
-  };
-
-  const sizeClasses = {
-    small: 'w-24 h-16',
-    medium: 'w-32 h-20'
   };
 
   return (

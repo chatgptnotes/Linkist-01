@@ -54,7 +54,9 @@ export default function CompanyLogoUpload({
         Company Logo
       </label>
       <p className="text-xs text-gray-500 mb-3">
-        Upload your company logo to replace the Linkist logo on card back (max 500KB, PNG/JPG/SVG)
+        Upload your company logo in Grayscale/Monochrome.
+        <br className="sm:hidden" />
+        {' '}Colour logos will be printed in Grayscale/Monochrome.
       </p>
 
       {!companyLogoUrl ? (

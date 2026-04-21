@@ -700,37 +700,80 @@ export default function NFCPaymentPage() {
                     >
                       {/* Front Card */}
                       <div style={{ backfaceVisibility: 'hidden' }}>
-                        <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                          <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                          <img
-                            src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
-                            alt="AI"
-                            className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
-                            style={{ boxShadow: 'none', background: 'transparent' }}
-                          />
-                          {orderData?.cardConfig?.planType !== 'pro' && (
-                            <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-                              {(() => {
-                                const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
-                                const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
-                                const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                                if (isSingleCharOnly) {
-                                  return (
-                                    <div className={`${getTextColor()} text-lg sm:text-xl font-bold`}>
-                                      {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                    </div>
-                                  );
-                                } else {
+                        {orderData?.cardConfig?.mockupImages?.front ? (
+                          <div className="w-full flex justify-center overflow-hidden">
+                            <div className="relative" style={{ width: '130%' }}>
+                              <img
+                                src={orderData.cardConfig.mockupImages.front}
+                                alt="Card front"
+                                className="w-full h-auto block"
+                                draggable={false}
+                              />
+                              {orderData?.cardConfig?.planType !== 'pro' && (
+                                <div className="absolute" style={{ bottom: '22%', left: '22%' }}>
+                                  {(() => {
+                                    const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
+                                    const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
+                                    const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                                    if (isSingleCharOnly) {
+                                      return (
+                                        <div className={`${getTextColor()} text-xl sm:text-3xl font-bold`}>
+                                          {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                        </div>
+                                      );
+                                    }
+                                    return (
+                                      <div className={`${getTextColor()} text-sm sm:text-lg font-bold tracking-wide`}>
+                                        {firstName.toUpperCase()} {lastName.toUpperCase()}
+                                      </div>
+                                    );
+                                  })()}
+                                </div>
+                              )}
+                              {orderData?.cardConfig?.isFoundingMember && orderData?.cardConfig?.companyLogoUrl && (
+                                <div className="absolute" style={{ top: '56%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                                  <img
+                                    src={orderData.cardConfig.companyLogoUrl}
+                                    alt="Company Logo"
+                                    className="h-8 sm:h-14 w-auto object-contain"
+                                    draggable={false}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                            <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                            <img
+                              src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
+                              alt="AI"
+                              className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
+                              style={{ boxShadow: 'none', background: 'transparent' }}
+                            />
+                            {orderData?.cardConfig?.planType !== 'pro' && (
+                              <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
+                                {(() => {
+                                  const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
+                                  const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
+                                  const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
+                                  if (isSingleCharOnly) {
+                                    return (
+                                      <div className={`${getTextColor()} text-lg sm:text-xl font-bold`}>
+                                        {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
+                                      </div>
+                                    );
+                                  }
                                   return (
                                     <div className={`${getTextColor()} text-sm sm:text-base font-bold tracking-wide`}>
                                       {firstName.toUpperCase()} {lastName.toUpperCase()}
                                     </div>
                                   );
-                                }
-                              })()}
-                            </div>
-                          )}
-                        </div>
+                                })()}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
 
                       {/* Back Card */}
@@ -738,26 +781,43 @@ export default function NFCPaymentPage() {
                         className="absolute inset-0 w-full"
                         style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
                       >
-                        <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                          <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            {orderData?.cardConfig?.isFoundingMember ? (
-                              <>
-                                {orderData?.cardConfig?.companyLogoUrl ? (
-                                  <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-8 sm:h-10 w-auto mb-2 object-contain" />
-                                ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
-                                  <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
-                                ) : null}
-                                <div className={`${getTextColor()} text-xs sm:text-sm font-bold tracking-wider`}>FOUNDING MEMBER</div>
-                              </>
-                            ) : (
-                              <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
-                            )}
+                        {(orderData?.cardConfig?.mockupImages?.back_with_logo || orderData?.cardConfig?.mockupImages?.back_without_logo) ? (
+                          <div className="w-full flex justify-center overflow-hidden">
+                            <div className="relative" style={{ width: '130%' }}>
+                              <img
+                                src={
+                                  orderData?.cardConfig?.isFoundingMember && orderData?.cardConfig?.showLinkistLogo === false
+                                    ? (orderData.cardConfig.mockupImages.back_without_logo || orderData.cardConfig.mockupImages.back_with_logo!)
+                                    : (orderData.cardConfig.mockupImages.back_with_logo || orderData.cardConfig.mockupImages.back_without_logo!)
+                                }
+                                alt="Card back"
+                                className="w-full h-auto block"
+                                draggable={false}
+                              />
+                            </div>
                           </div>
-                          <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                            <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                        ) : (
+                          <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
+                            <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
+                            <div className="absolute inset-0 flex flex-col items-center justify-center">
+                              {orderData?.cardConfig?.isFoundingMember ? (
+                                <>
+                                  {orderData?.cardConfig?.companyLogoUrl ? (
+                                    <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-8 sm:h-10 w-auto mb-2 object-contain" />
+                                  ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
+                                    <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
+                                  ) : null}
+                                  <div className={`${getTextColor()} text-xs sm:text-sm font-bold tracking-wider`}>FOUNDING MEMBER</div>
+                                </>
+                              ) : (
+                                <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
+                              )}
+                            </div>
+                            <div className="absolute top-1/2 -translate-y-1/2 right-3">
+                              <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </div>
                     </motion.div>
                   </div>
