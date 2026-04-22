@@ -17,7 +17,9 @@ import CreditCardIcon from '@mui/icons-material/CreditCard';
 import SmartphoneIcon from '@mui/icons-material/Smartphone';
 import StarIcon from '@mui/icons-material/Star';
 import TuneIcon from '@mui/icons-material/Tune';
+import ImageIcon from '@mui/icons-material/Image';
 import CardCustomizationTab from './components/CardCustomizationTab';
+import CardMockupUploadTab from './components/CardMockupUploadTab';
 
 // Icon aliases
 const Package = Inventory2Icon;
@@ -72,7 +74,7 @@ interface SubscriptionPlan {
   updated_at: string;
 }
 
-type TabType = 'products' | 'plans' | 'customization';
+type TabType = 'products' | 'plans' | 'customization' | 'mockups';
 
 export default function ProductsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('plans');
@@ -503,7 +505,7 @@ export default function ProductsPage() {
             <h1 className="text-2xl font-bold text-gray-900">Products & Plans</h1>
             <p className="text-gray-500">Manage your products and subscription plans</p>
           </div>
-          {activeTab !== 'customization' && (
+          {activeTab !== 'customization' && activeTab !== 'mockups' && (
             <button
               onClick={() => {
                 if (activeTab === 'products') {
@@ -551,12 +553,25 @@ export default function ProductsPage() {
               <TuneIcon className="h-4 w-4" />
               Card Customization
             </button>
+            <button
+              onClick={() => setActiveTab('mockups')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                activeTab === 'mockups'
+                  ? 'border-red-600 text-red-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <ImageIcon className="h-4 w-4" />
+              Card Mockups
+            </button>
           </nav>
         </div>
 
         {/* Card Customization Tab */}
         {activeTab === 'customization' ? (
           <CardCustomizationTab />
+        ) : activeTab === 'mockups' ? (
+          <CardMockupUploadTab />
         ) : (
           <>
             {/* Stats Cards */}
