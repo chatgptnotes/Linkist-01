@@ -299,12 +299,7 @@ export default function NFCPaymentPage() {
 
     const subtotal = getSubtotal();
 
-    // FOUNDERS: No voucher discount (exclusive pricing, no coupon UI)
-    if (isFoundingMember) {
-      return subtotal;
-    }
-
-    // NON-FOUNDERS: Apply voucher discount if valid
+    // Apply voucher discount if valid
     if (voucherValid && voucherAmount > 0) {
       return Math.max(0, subtotal - voucherAmount);
     }
@@ -328,6 +323,13 @@ export default function NFCPaymentPage() {
         exchangeRate
       );
 
+      // Generate a unique attempt ID for this Pay click — guarantees a fresh
+      // PaymentIntent on each user attempt while keeping network retries idempotent.
+      const paymentAttemptId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
       // Create payment intent
       // Note: finalAmount already has voucher discount applied by frontend
       const response = await fetch('/api/payment/create-intent', {
@@ -338,6 +340,7 @@ export default function NFCPaymentPage() {
           currency,
           country: orderData.shipping?.country || 'IN',
           orderId: orderData.orderId, // Required for idempotency
+          paymentAttemptId, // Per-click attempt token
           orderData: {
             customerName: orderData.customerName,
             email: orderData.email,
@@ -424,6 +427,7 @@ export default function NFCPaymentPage() {
     }
 
     setShowStripeModal(false);
+    setStripeClientSecret('');
     setProcessing(true);
 
     try {
@@ -487,7 +491,16 @@ export default function NFCPaymentPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process order');
+        // Surface the real server error so issues like missing-column or
+        // schema mismatches are visible instead of a generic message.
+        let serverError = 'Failed to process order';
+        try {
+          const errBody = await response.json();
+          if (errBody?.error) serverError = errBody.error;
+        } catch {
+          /* response wasn't JSON */
+        }
+        throw new Error(serverError);
       }
 
       await response.json();
@@ -501,7 +514,8 @@ export default function NFCPaymentPage() {
       router.push('/nfc/success');
     } catch (error) {
       console.error('❌ Error processing order after payment:', error);
-      alert('Payment succeeded but order processing failed. Please contact support with your payment ID: ' + paymentIntentId);
+      const detail = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Payment succeeded but order processing failed.\n\nReason: ${detail}\n\nPlease contact support with your payment ID: ${paymentIntentId}`);
       setProcessing(false);
     }
   };
@@ -510,6 +524,8 @@ export default function NFCPaymentPage() {
   const handleModalPaymentError = (error: string) => {
     console.error('❌ Stripe payment failed in modal:', error);
     setShowStripeModal(false);
+    // Clear stale client secret so the next Pay click creates a fresh PaymentIntent
+    setStripeClientSecret('');
     setProcessing(false);
     alert('Payment failed: ' + error);
   };
@@ -948,8 +964,8 @@ export default function NFCPaymentPage() {
                   );
                 })()}
 
-                {/* Voucher Section - ONLY for Non-Founders (Founders have exclusive pricing) */}
-                {!isFoundingMember && (
+                {/* Voucher Section */}
+                {(
                   <>
                     <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3">
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
@@ -1021,7 +1037,7 @@ export default function NFCPaymentPage() {
                       </div>
                     </div>
 
-                    {/* Discount Line - Outside dashed box, only for non-founders */}
+                    {/* Discount Line */}
                     {voucherValid && voucherAmount > 0 && (
                       <div className="flex justify-between text-green-600 font-medium text-sm">
                         <span>Voucher Discount ({voucherDiscount}% off)</span>
@@ -1057,7 +1073,11 @@ export default function NFCPaymentPage() {
       {showStripeModal && stripeClientSecret && (
         <StripePaymentModal
           isOpen={showStripeModal}
-          onClose={() => setShowStripeModal(false)}
+          onClose={() => {
+            setShowStripeModal(false);
+            // Clear so the next Pay click forces a fresh PaymentIntent
+            setStripeClientSecret('');
+          }}
           clientSecret={stripeClientSecret}
           amount={stripePaymentAmount}
           currency={paymentCurrency}
@@ -1066,9 +1086,8 @@ export default function NFCPaymentPage() {
             email: orderData.email,
             phoneNumber: orderData.phoneNumber,
             orderNumber: orderData.orderNumber,
-            // Only show voucher for non-founders AND only when successfully applied
-            voucherCode: !isFoundingMember && voucherValid && appliedVoucherCode ? appliedVoucherCode : undefined,
-            discount: !isFoundingMember && voucherValid && voucherAmount > 0 ? voucherAmount * 100 : undefined, // Convert to cents
+            voucherCode: voucherValid && appliedVoucherCode ? appliedVoucherCode : undefined,
+            discount: voucherValid && voucherAmount > 0 ? voucherAmount * 100 : undefined, // Convert to cents
           }}
           onPaymentSuccess={handleModalPaymentSuccess}
           onPaymentError={handleModalPaymentError}

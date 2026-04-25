@@ -92,13 +92,14 @@ export async function POST(request: NextRequest) {
     }
 
     if (existingUser) {
-      // 3a. Update existing user as founding member
+      // 3a. Update existing user as founding member.
+      // founding_member_plan is intentionally NOT set here — only set after a verified
+      // payment in app/api/process-order/route.ts, which is when the badge becomes visible.
       const { error: updateUserError } = await supabase
         .from('users')
         .update({
           is_founding_member: true,
-          founding_member_since: new Date().toISOString(),
-          founding_member_plan: 'lifetime'
+          founding_member_since: new Date().toISOString()
         })
         .eq('id', existingUser.id);
 
@@ -119,6 +120,8 @@ export async function POST(request: NextRequest) {
       const firstName = nameParts[0] || null;
       const lastName = nameParts.slice(1).join(' ') || null;
 
+      // founding_member_plan is intentionally NOT set here — only set after a verified
+      // payment in app/api/process-order/route.ts, which is when the badge becomes visible.
       const { error: createUserError } = await supabase
         .from('users')
         .insert({
@@ -127,8 +130,7 @@ export async function POST(request: NextRequest) {
           last_name: lastName,
           phone_number: originalRequest?.phone || inviteCode.phone,
           is_founding_member: true,
-          founding_member_since: new Date().toISOString(),
-          founding_member_plan: 'lifetime'
+          founding_member_since: new Date().toISOString()
         });
 
       if (createUserError) {

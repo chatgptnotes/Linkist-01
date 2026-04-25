@@ -92,6 +92,7 @@ const rowToOrder = (row: OrderRow): Order => ({
   voucherDiscount: row.voucher_discount,
   printerEmailSent: row.printer_email_sent || false,
   printerEmailSentAt: row.printer_email_sent_at ? new Date(row.printer_email_sent_at).getTime() : null,
+  paidAt: row.paid_at ? new Date(row.paid_at).getTime() : null,
   createdAt: new Date(row.created_at).getTime(),
   updatedAt: new Date(row.updated_at).getTime(),
 })
@@ -262,13 +263,31 @@ export const SupabaseOrderStore = {
     if (updates.notes) dbUpdates.notes = updates.notes
     if (updates.voucherCode !== undefined) dbUpdates.voucher_code = updates.voucherCode
     if (updates.voucherDiscount !== undefined) dbUpdates.voucher_discount = updates.voucherDiscount
+    if (updates.paidAt !== undefined) {
+      dbUpdates.paid_at = updates.paidAt ? new Date(updates.paidAt).toISOString() : null
+    }
 
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('orders')
       .update(dbUpdates)
       .eq('id', id)
       .select()
       .single()
+
+    // Graceful fallback: if paid_at column doesn't exist yet (migration not applied),
+    // retry the update without it so the rest of the order data still saves.
+    if (error && dbUpdates.paid_at !== undefined && /paid_at/i.test(error.message || '')) {
+      console.warn('[SupabaseOrderStore.update] paid_at column missing — retrying without it. Run migration 20260425_add_order_paid_at.sql to enable purchase-date tracking.')
+      const { paid_at: _omit, ...fallbackUpdates } = dbUpdates
+      const retry = await supabase
+        .from('orders')
+        .update(fallbackUpdates)
+        .eq('id', id)
+        .select()
+        .single()
+      data = retry.data
+      error = retry.error
+    }
 
     if (error) {
       if (error.code === 'PGRST116') return null // No rows returned

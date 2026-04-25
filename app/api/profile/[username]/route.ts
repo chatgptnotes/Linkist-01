@@ -42,34 +42,19 @@ export async function GET(
       );
     }
 
-    // Fetch user data to get founding member status
+    // Founder's Circle gating is single-sourced from users.founding_member_plan,
+    // populated only after a verified payment in app/api/process-order/route.ts.
     let isFoundingMember = false;
     let foundingMemberPlan: string | null = null;
     if (profile.user_id) {
       const { data: userData } = await supabase
         .from('users')
-        .select('is_founding_member, founding_member_plan')
+        .select('founding_member_plan')
         .eq('id', profile.user_id)
         .maybeSingle();
 
-      if (userData) {
-        foundingMemberPlan = userData.founding_member_plan || null;
-
-        // Only mark as founding member if they have an actual founders-club order
-        if (userData.is_founding_member) {
-          const { data: orders } = await supabase
-            .from('orders')
-            .select('card_config')
-            .eq('user_id', profile.user_id)
-            .not('card_config', 'is', null);
-
-          const hasFoundersOrder = (orders || []).some((order: any) => {
-            const planType = order.card_config?.planType;
-            return planType === 'founders-club' || planType === 'founders-circle';
-          });
-          isFoundingMember = hasFoundersOrder;
-        }
-      }
+      foundingMemberPlan = userData?.founding_member_plan || null;
+      isFoundingMember = !!foundingMemberPlan;
     }
 
     // Fetch services for this profile

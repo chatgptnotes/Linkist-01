@@ -47,23 +47,12 @@ export default async function ProfilePreviewPage({ params }: PageProps) {
       .order('display_order', { ascending: true }),
   ]);
 
-  let isFoundingMember = false;
-  let foundingMemberPlan: string | null = null;
-
+  // Founder's Club status gates on founding_member_plan only — set after a verified
+  // payment via app/api/process-order/route.ts. is_founding_member alone (set on invite
+  // activation) is not enough.
   const userData = founderResult.data;
-  if (userData?.is_founding_member && profile.user_id) {
-    foundingMemberPlan = userData.founding_member_plan || null;
-    const { data: orders } = await supabase
-      .from('orders')
-      .select('card_config')
-      .eq('user_id', profile.user_id)
-      .not('card_config', 'is', null);
-
-    isFoundingMember = (orders || []).some((order: any) => {
-      const planType = order.card_config?.planType;
-      return planType === 'founders-club' || planType === 'founders-circle';
-    });
-  }
+  const foundingMemberPlan: string | null = userData?.founding_member_plan ?? null;
+  const isFoundingMember: boolean = !!foundingMemberPlan;
 
   const services = servicesResult.data;
   const socialLinks = profile.social_links || {};

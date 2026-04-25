@@ -54,6 +54,7 @@ export interface Order {
   };
   createdAt: number;
   updatedAt: number;
+  paidAt?: number | null;
   estimatedDelivery?: string;
   trackingNumber?: string;
   trackingUrl?: string;

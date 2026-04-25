@@ -8,7 +8,8 @@ function getStripe() {
   if (!secretKey) {
     throw new Error('Stripe secret key not configured');
   }
-  return new Stripe(secretKey);
+  // Pin API version for predictable behavior across environments
+  return new Stripe(secretKey, { apiVersion: '2025-08-27.basil' });
 }
 
 // Helper function to get Supabase client
@@ -105,7 +106,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { amount, currency = 'usd', country, orderData, voucherCode, orderId } = body;
+    const { amount, currency = 'usd', country, orderData, voucherCode, orderId, paymentAttemptId } = body;
 
     // Validate amount
     if (!amount || amount <= 0) {
@@ -161,7 +162,9 @@ export async function POST(req: NextRequest) {
     const createParams: Stripe.PaymentIntentCreateParams = {
       amount: amountInCents,
       currency: currency.toLowerCase(),
-      automatic_payment_methods: { enabled: true },
+      // allow_redirects: 'never' keeps Stripe from offering redirect-only methods
+      // that don't work inside the inline modal confirmation flow
+      automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
       ...(country && {
         shipping: {
           name: orderData?.customerName || 'Customer',
@@ -183,8 +186,11 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    // Use timestamp in idempotency key to avoid conflicts from parameter changes
-    const idempotencyKey = `order_${orderId}_${amountInCents}_${currency.toLowerCase()}_v2`;
+    // Per-attempt idempotency: each Pay click sends a fresh paymentAttemptId so
+    // we always create a new PaymentIntent (avoiding stale-intent reuse), while
+    // network retries within one attempt remain idempotent.
+    const attemptToken = paymentAttemptId || `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const idempotencyKey = `order_${orderId}_${attemptToken}`;
 
     const paymentIntent = await stripe.paymentIntents.create(createParams, {
       idempotencyKey,

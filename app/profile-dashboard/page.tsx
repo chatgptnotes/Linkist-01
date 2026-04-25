@@ -124,12 +124,10 @@ export default function AccountPage() {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [isAdminUser, setIsAdminUser] = useState(false);
 
-  // Check if user actually has a Founder's Club/Circle order (not just the registration flag)
-  const hasFoundersClubOrder = orders.some(order =>
-    order.cardConfig?.planType === 'founders-club' ||
-    order.cardConfig?.planType === 'founders-circle'
-  );
-  const isActualFounder = user?.is_founding_member && (hasFoundersClubOrder || (user as any)?.has_founders_order);
+  // Founder's Circle badge gates on founding_member_plan — set only after a verified
+  // founder's-circle payment in app/api/process-order/route.ts. is_founding_member alone
+  // means the user activated an invite code; it does not mean they paid.
+  const isActualFounder = !!user?.founding_member_plan;
 
   // Derive current plan name from the most recent order
   const getCurrentPlanName = (): string => {
