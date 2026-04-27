@@ -694,12 +694,21 @@ export default function ConfigureNewPage() {
   };
 
   const getTextColor = () => {
-    // Return white text for dark backgrounds, black for light backgrounds
+    // Muted tones so the name reads as if engraved into the card surface
+    // rather than overlaid on top of it.
     const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (formData.colour && darkBackgrounds.includes(formData.colour)) {
-      return 'text-white';
+      return 'text-white/50';
     }
-    return 'text-gray-900';
+    return 'text-black/50';
+  };
+
+  const getEngravedShadow = (): string => {
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
+    const isDark = !!formData.colour && darkBackgrounds.includes(formData.colour);
+    return isDark
+      ? '0 1px 0 rgba(0,0,0,0.6), 0 -1px 0 rgba(255,255,255,0.08)'
+      : '0 -1px 0 rgba(255,255,255,0.6), 0 1px 0 rgba(0,0,0,0.2)';
   };
 
   const handleContinue = () => {
@@ -711,6 +720,13 @@ export default function ConfigureNewPage() {
 
     if (!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null) {
       alert('Please complete all configuration options');
+      return;
+    }
+
+    // Starter must wait for the DB-managed card price before continuing,
+    // otherwise checkout would fall back to selectedPlanAmount === '0' and the user gets a free card.
+    if (isStarterPlan && starterCardPrice === null) {
+      alert('Loading card price… please try again in a moment.');
       return;
     }
 
@@ -1161,11 +1177,11 @@ export default function ConfigureNewPage() {
                     {mockupImages?.front ? (
                       /* Mockup-based front preview */
                       <div className="w-full flex justify-center overflow-hidden">
-                        <div className="relative" style={{ width: '130%' }}>
+                        <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                           <img
                             src={mockupImages.front}
                             alt="Card front"
-                            className="w-full h-auto block"
+                            className="w-full h-full object-cover block"
                             draggable={false}
                           />
                           {/* Name overlay — Signature & Founders only, bottom-left of card */}
@@ -1177,13 +1193,19 @@ export default function ConfigureNewPage() {
                                 const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
                                 if (isSingleCharOnly) {
                                   return (
-                                    <div className={`${getTextColor()} text-xl sm:text-3xl font-bold`}>
+                                    <div
+                                      className={`${getTextColor()} text-xl sm:text-3xl font-semibold`}
+                                      style={{ textShadow: getEngravedShadow() }}
+                                    >
                                       {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                                     </div>
                                   );
                                 }
                                 return (
-                                  <div className={`${getTextColor()} text-sm sm:text-lg font-bold tracking-wide`}>
+                                  <div
+                                    className={`${getTextColor()} text-sm sm:text-lg font-semibold tracking-wide`}
+                                    style={{ textShadow: getEngravedShadow() }}
+                                  >
                                     {firstName.toUpperCase()} {lastName.toUpperCase()}
                                   </div>
                                 );
@@ -1204,38 +1226,7 @@ export default function ConfigureNewPage() {
                         </div>
                       </div>
                     ) : (
-                      /* Legacy CSS gradient front preview */
-                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                        <div className="absolute top-3 right-3">
-                          <img
-                            src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
-                            alt="AI Assistant"
-                            className={`w-4 h-4 sm:w-7 sm:h-7 ${formData.colour === 'white' ? '' : 'invert'}`}
-                          />
-                        </div>
-                        {userPlanType !== 'pro' && (
-                        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-                          {(() => {
-                            const firstName = formData.cardFirstName?.trim() || '';
-                            const lastName = formData.cardLastName?.trim() || '';
-                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                            if (isSingleCharOnly) {
-                              return (
-                                <div className={`${getTextColor()} text-xl sm:text-4xl font-bold`}>
-                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                </div>
-                              );
-                            }
-                            return (
-                              <div className={`${getTextColor()} text-sm sm:text-xl font-bold tracking-wide`}>
-                                {firstName.toUpperCase()} {lastName.toUpperCase()}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                        )}
-                      </div>
+                      <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                     )}
                   </div>
 
@@ -1247,7 +1238,7 @@ export default function ConfigureNewPage() {
                     {mockupImages?.back_with_logo || mockupImages?.back_without_logo ? (
                       /* Mockup-based back preview */
                       <div className="w-full flex justify-center overflow-hidden">
-                        <div className="relative" style={{ width: '130%' }}>
+                        <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                           <img
                             src={
                               isFoundersCirclePlan && !showLinkistLogo
@@ -1255,33 +1246,13 @@ export default function ConfigureNewPage() {
                                 : (mockupImages.back_with_logo || mockupImages.back_without_logo!)
                             }
                             alt="Card back"
-                            className="w-full h-auto block"
+                            className="w-full h-full object-cover block"
                             draggable={false}
                           />
                         </div>
                       </div>
                     ) : (
-                      /* Legacy CSS gradient back preview */
-                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          {isFoundersCirclePlan ? (
-                            <>
-                              {companyLogoUrl ? (
-                                <img src={companyLogoUrl} alt="Company Logo" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2 object-contain" />
-                              ) : showLinkistLogo ? (
-                                <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                              ) : null}
-                              <div className={`${getTextColor()} text-xs sm:text-xl font-bold tracking-widest`}>FOUNDING MEMBER</div>
-                            </>
-                          ) : (
-                            <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                          )}
-                        </div>
-                        <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                          <img src="/nfc2.png" alt="NFC" className="w-6 h-6 sm:w-10 sm:h-10" />
-                        </div>
-                      </div>
+                      <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                     )}
                   </div>
                 </motion.div>
@@ -1313,7 +1284,10 @@ export default function ConfigureNewPage() {
               if (formData.pattern === null) missingItems.push('Pattern');
 
               const hasIncomplete = missingItems.length > 0;
-              const isContinueDisabled = hasIncomplete || isLoading;
+              // Starter must wait for the DB price before Continue is clickable —
+              // otherwise the user would check out at $0 (the seeded fallback).
+              const isStarterPriceLoading = isStarterPlan && starterCardPrice === null;
+              const isContinueDisabled = hasIncomplete || isLoading || isStarterPriceLoading;
 
               if (isStarterPlan) {
                 return (
