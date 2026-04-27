@@ -221,8 +221,10 @@ export default function SuccessPage() {
   // Check if this is the Starter plan
   const isStarterPlan = orderData.planName?.toLowerCase() === 'starter';
 
-  // Starter Plan Thank You Page
-  if (isStarterPlan) {
+  // Starter Plan Thank You Page — only for the free / digital-only path (Skip).
+  // Paid Starter customers ($40 NFC card) fall through to the full order details view below,
+  // matching the experience of Pro / Signature / Founders physical-card buyers.
+  if (isStarterPlan && isDigitalOnly) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-6">
@@ -465,8 +467,8 @@ export default function SuccessPage() {
                     );
                   } else {
                     const planType = orderData.cardConfig?.planType || '';
-                    const isPlanBased = planType === 'pro' || planType === 'signature';
-                    const planLabel = planType === 'pro' ? 'Business' : planType === 'signature' ? 'Signature' : (orderData.planName || 'Personal');
+                    const isPlanBased = planType === 'pro' || planType === 'signature' || planType === 'starter';
+                    const planLabel = planType === 'pro' ? 'Business' : planType === 'signature' ? 'Signature' : planType === 'starter' ? 'Starter' : (orderData.planName || 'Personal');
 
                     if (isPlanBased) {
                       return (

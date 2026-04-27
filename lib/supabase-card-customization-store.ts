@@ -305,7 +305,7 @@ export const SupabaseCardCustomizationStore = {
     const { data, error } = await supabase
       .from('subscription_plans')
       .select('id, name, type, price, description, status')
-      .in('type', ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle'])
+      .in('type', ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle', 'starter'])
       .order('type', { ascending: true });
 
     if (error) {

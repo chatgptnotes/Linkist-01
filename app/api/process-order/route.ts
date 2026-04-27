@@ -446,7 +446,11 @@ export async function POST(request: NextRequest) {
 
     // Send emails if order is confirmed (has payment) OR is a digital-only order (status 'delivered')
     let finalOrder = order;
-    const shouldSendEmails = orderStatus === 'confirmed' || orderStatus === 'delivered';
+    // Suppress order receipt / invoice emails for the free Starter (Skip) path —
+    // those customers should only see the simplified activation page, no order paperwork.
+    // Paid Starter customers ($40 card) still receive standard order emails.
+    const isFreeStarterSkip = isDigitalOnlyOrder && cardConfig.planType === 'starter';
+    const shouldSendEmails = (orderStatus === 'confirmed' || orderStatus === 'delivered') && !isFreeStarterSkip;
     
     console.log(`📧 [process-order] Email decision:`, {
       orderNumber: order.orderNumber,
