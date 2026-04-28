@@ -95,59 +95,8 @@ export default function VerifyRegisterPage() {
 
           // Redirect based on selected product/plan type
           if (productSelection === 'digital-only' || productSelection === 'starter') {
-            // Free tier - process order directly and redirect to success
-            try {
-              const userProfileStr = localStorage.getItem('userProfile');
-              let email = '', firstName = 'User', lastName = 'Name', phoneNumber = '', country = 'IN';
-              if (userProfileStr) {
-                try {
-                  const profile = JSON.parse(userProfileStr);
-                  email = profile.email || '';
-                  firstName = profile.firstName || 'User';
-                  lastName = profile.lastName || 'Name';
-                  phoneNumber = profile.mobile || '';
-                  country = profile.country || 'IN';
-                } catch (error) {
-                  console.error('Error parsing user profile:', error);
-                }
-              }
-
-              // Validate email exists before creating order
-              if (!email || !email.includes('@')) {
-                console.error('Email missing for Starter order, redirecting to registration');
-                router.push('/welcome-to-linkist');
-                return;
-              }
-
-              const response = await fetch('/api/process-order', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}`, planType: 'starter' },
-                  checkoutData: { fullName: `${firstName} ${lastName}`, email, phoneNumber, country, addressLine1: 'N/A - Digital Product', addressLine2: '', city: 'N/A', state: 'N/A', postalCode: 'N/A' },
-                  paymentData: null,
-                  pricing: { subtotal: 0, shipping: 0, tax: 0, total: 0 }
-                }),
-              });
-              const result = await response.json();
-              if (result.success && result.order) {
-                localStorage.setItem('orderConfirmation', JSON.stringify({
-                  orderId: result.order.id, orderNumber: result.order.orderNumber,
-                  customerName: `${firstName} ${lastName}`, email, phoneNumber,
-                  cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}` },
-                  shipping: { fullName: `${firstName} ${lastName}`, email, phone: phoneNumber, phoneNumber, country, addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false },
-                  pricing: { subtotal: 0, taxAmount: 0, shippingCost: 0, total: 0 },
-                  isDigitalProduct: true, isDigitalOnly: true
-                }));
-                router.push('/nfc/success');
-              } else {
-                console.error('Failed to create free tier order:', result.error);
-                router.push('/product-selection');
-              }
-            } catch (error) {
-              console.error('Error creating free tier order:', error);
-              router.push('/product-selection');
-            }
+            // Starter: route to card-customization step where user can Continue (buy $30 card) or Skip (digital-only)
+            router.push('/nfc/configure?plan=starter');
           } else if (productSelection === 'next') {
             // Next plan - go directly to payment
             const storedAmount = localStorage.getItem('selectedPlanAmount') || '69';

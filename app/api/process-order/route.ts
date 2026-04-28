@@ -140,6 +140,9 @@ export async function POST(request: NextRequest) {
         updateData.paymentId = paymentData.paymentId;
         updateData.voucherCode = paymentData.voucherCode || null;
         updateData.voucherDiscount = paymentData.voucherDiscount || 0;
+        // Stamp the actual payment time so "Date of Purchase" reflects when the
+        // customer paid, not when the pending order was first initiated.
+        updateData.paidAt = Date.now();
 
         // FIXED: Always use pricing from request if provided (contains actual paid amount)
         // This ensures DB stores the exact amount the user paid, regardless of founders status or vouchers
@@ -183,58 +186,92 @@ export async function POST(request: NextRequest) {
       }
 
     } else {
-      // Create new order
-      // Determine plan type for order ID generation
-      let planType: OrderPlanType = 'nfc-card-full'; // Default: NFC Card + Digital Profile + Linkist App
+      // No orderId provided — check if user already has a pending order for this plan
+      // before creating a new one. Prevents duplicate pending orders when localStorage
+      // is cleared between checkout and payment.
+      const shippingPayload = {
+        fullName: checkoutData.fullName,
+        addressLine1: checkoutData.addressLine1,
+        addressLine2: checkoutData.addressLine2,
+        landmark: checkoutData.landmark,
+        city: checkoutData.city,
+        state: checkoutData.state,
+        country: checkoutData.country,
+        postalCode: checkoutData.postalCode,
+        phoneNumber: checkoutData.phoneNumber || '',
+      };
+      const pricingPayload = {
+        subtotal,
+        shipping: shippingAmount,
+        tax: taxAmount,
+        total: totalAmount,
+      };
 
-      // Check if it's a digital-only order (free tier)
-      if (cardConfig.isDigitalOnly && totalAmount === 0) {
-        planType = 'digital-only';
-      }
-      // Check if it's digital profile + app (digital with subscription)
-      else if (cardConfig.baseMaterial === 'digital' && (cardConfig.isDigitalOnly || totalAmount > 0)) {
-        planType = 'digital-profile-app';
-      }
-      // Physical NFC card + digital profile + app
-      else {
-        planType = 'nfc-card-full';
+      let existingPending = null;
+      if (checkoutData.email) {
+        try {
+          const existingOrders = await SupabaseOrderStore.getByEmail(checkoutData.email);
+          existingPending = existingOrders.find(o =>
+            o.status === 'pending' &&
+            (o.cardConfig as any)?.planType === cardConfig.planType
+          ) || null;
+        } catch (lookupError) {
+          console.error('[process-order] Pending order lookup failed, falling back to create:', lookupError);
+        }
       }
 
-      try {
-        order = await SupabaseOrderStore.create({
-          orderNumber: await generateOrderNumber(planType, cardConfig.isFoundingMember || false, cardConfig.planType || undefined),
-          userId: user.id, // Link order to user
-          status: orderStatus,
+      if (existingPending) {
+        console.log('🔁 [process-order] Resuming existing pending order:', existingPending.orderNumber);
+        order = await SupabaseOrderStore.update(existingPending.id, {
+          cardConfig,
           customerName: checkoutData.fullName,
-          email: checkoutData.email,
           phoneNumber: checkoutData.phoneNumber || '',
-          cardConfig: cardConfig,
-          pricing: {
-            subtotal,
-            shipping: shippingAmount,
-            tax: taxAmount,
-            total: totalAmount,
-          },
-          shipping: {
-            fullName: checkoutData.fullName,
-            addressLine1: checkoutData.addressLine1,
-            addressLine2: checkoutData.addressLine2,
-            landmark: checkoutData.landmark,
-            city: checkoutData.city,
-            state: checkoutData.state,
-            country: checkoutData.country,
-            postalCode: checkoutData.postalCode,
-            phoneNumber: checkoutData.phoneNumber || '',
-          },
-          estimatedDelivery: 'Sep 06, 2025',
-          emailsSent: {},
+          shipping: shippingPayload,
+          pricing: pricingPayload,
         });
 
         if (!order) {
-          throw new Error('Order creation returned null');
+          throw new Error('Failed to resume existing pending order');
         }
-      } catch (orderError) {
-        throw new Error(`Order creation failed: ${orderError instanceof Error ? orderError.message : 'Unknown error'}`);
+      } else {
+        // Create new order
+        // Determine plan type for order ID generation
+        let planType: OrderPlanType = 'nfc-card-full'; // Default: NFC Card + Digital Profile + Linkist App
+
+        // Check if it's a digital-only order (free tier)
+        if (cardConfig.isDigitalOnly && totalAmount === 0) {
+          planType = 'digital-only';
+        }
+        // Check if it's digital profile + app (digital with subscription)
+        else if (cardConfig.baseMaterial === 'digital' && (cardConfig.isDigitalOnly || totalAmount > 0)) {
+          planType = 'digital-profile-app';
+        }
+        // Physical NFC card + digital profile + app
+        else {
+          planType = 'nfc-card-full';
+        }
+
+        try {
+          order = await SupabaseOrderStore.create({
+            orderNumber: await generateOrderNumber(planType, cardConfig.isFoundingMember || false, cardConfig.planType || undefined),
+            userId: user.id, // Link order to user
+            status: orderStatus,
+            customerName: checkoutData.fullName,
+            email: checkoutData.email,
+            phoneNumber: checkoutData.phoneNumber || '',
+            cardConfig: cardConfig,
+            pricing: pricingPayload,
+            shipping: shippingPayload,
+            estimatedDelivery: undefined,
+            emailsSent: {},
+          });
+
+          if (!order) {
+            throw new Error('Order creation returned null');
+          }
+        } catch (orderError) {
+          throw new Error(`Order creation failed: ${orderError instanceof Error ? orderError.message : 'Unknown error'}`);
+        }
       }
     }
 
@@ -333,20 +370,52 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Handle Founders Club member status update - VERIFY server-side before updating
-    if (cardConfig.isFoundingMember && user && order) {
+    // Handle Founders Club member status update - VERIFY server-side before updating.
+    // Only stamp founding_member_plan after a successful payment (orderStatus 'confirmed'
+    // or 'delivered'). Pending orders must not flip the user into "paid founder" state —
+    // that would make the Founder's Circle badge appear before payment.
+    const isPaidOrDelivered = orderStatus === 'confirmed' || orderStatus === 'delivered';
+    if (isPaidOrDelivered && cardConfig.isFoundingMember && user && order) {
       try {
         // SECURITY: Verify the user is actually a founding member in the database
         // Do NOT trust the frontend flag blindly
         const dbUser = await SupabaseUserStore.getByEmail(user.email);
         const isVerifiedFounder = dbUser?.is_founding_member === true;
 
+        const supabase = createClient();
+
+        // Resolve plan tier from the invite code that brought this user in:
+        //   - referral codes inherit the referrer's plan (e.g. 'annual')
+        //   - admin-issued codes (or no code) default to 'lifetime'
+        // Mirrors the original semantic that used to live in founders/activate
+        // before the badge-after-payment refactor moved this write here.
+        const resolveFounderPlan = async (
+          loadedInvite?: { referral_type?: string | null; inherited_plan?: string | null } | null
+        ): Promise<string> => {
+          if (loadedInvite?.referral_type === 'referral' && loadedInvite.inherited_plan) {
+            return loadedInvite.inherited_plan;
+          }
+          if (loadedInvite) return 'lifetime';
+
+          const { data: usedCode } = await supabase
+            .from('founders_invite_codes')
+            .select('referral_type, inherited_plan')
+            .eq('email', user.email)
+            .eq('referral_type', 'referral')
+            .not('used_at', 'is', null)
+            .order('used_at', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+
+          return usedCode?.inherited_plan || 'lifetime';
+        };
+
         if (isVerifiedFounder) {
-          // User is already a verified founding member - update plan if needed
-          await SupabaseUserStore.updateFoundingMemberStatus(user.id, cardConfig.foundingMemberPlan || 'lifetime');
+          // User is already a verified founding member - stamp the resolved plan.
+          const resolvedPlan = await resolveFounderPlan();
+          await SupabaseUserStore.updateFoundingMemberStatus(user.id, resolvedPlan);
         } else if (cardConfig.foundersInviteCode) {
           // User claims to be a new founding member - validate the invite code first
-          const supabase = createClient();
           const { data: inviteCode } = await supabase
             .from('founders_invite_codes')
             .select('*')
@@ -355,7 +424,8 @@ export async function POST(request: NextRequest) {
 
           // Only update status if invite code is valid, unused, and not expired
           if (inviteCode && !inviteCode.used_at && new Date(inviteCode.expires_at) > new Date()) {
-            await SupabaseUserStore.updateFoundingMemberStatus(user.id, cardConfig.foundingMemberPlan || 'lifetime');
+            const resolvedPlan = await resolveFounderPlan(inviteCode);
+            await SupabaseUserStore.updateFoundingMemberStatus(user.id, resolvedPlan);
 
             // Mark the invite code as used
             await supabase
@@ -376,7 +446,11 @@ export async function POST(request: NextRequest) {
 
     // Send emails if order is confirmed (has payment) OR is a digital-only order (status 'delivered')
     let finalOrder = order;
-    const shouldSendEmails = orderStatus === 'confirmed' || orderStatus === 'delivered';
+    // Suppress order receipt / invoice emails for the free Starter (Skip) path —
+    // those customers should only see the simplified activation page, no order paperwork.
+    // Paid Starter customers ($40 card) still receive standard order emails.
+    const isFreeStarterSkip = isDigitalOnlyOrder && cardConfig.planType === 'starter';
+    const shouldSendEmails = (orderStatus === 'confirmed' || orderStatus === 'delivered') && !isFreeStarterSkip;
     
     console.log(`📧 [process-order] Email decision:`, {
       orderNumber: order.orderNumber,

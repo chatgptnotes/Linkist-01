@@ -146,19 +146,15 @@ export async function POST(request: NextRequest) {
         phoneFromRequest = inviteCode.phone;
       }
 
-      // Determine the plan - use inherited_plan for referrals, otherwise 'lifetime'
-      const memberPlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
-        ? inviteCode.inherited_plan
-        : 'lifetime';
-
       // Update existing user as founding member and activate (include phone if available)
+      // founding_member_plan is intentionally NOT set here — it is only set after the user
+      // completes a purchase, which is when the Founder's Club badge becomes visible.
       // Always update phone_number if we have it from founders_requests (even if user already has one)
       const { data: updatedUser, error: updateUserError } = await supabase
         .from('users')
         .update({
           is_founding_member: true,
           founding_member_since: new Date().toISOString(),
-          founding_member_plan: memberPlan,
           status: 'active', // Activate user
           // Update names from referral if user doesn't have them
           ...(inviteCode.referral_type === 'referral' && inviteCode.referred_first_name && !existingUser.first_name && { first_name: inviteCode.referred_first_name }),
@@ -221,12 +217,9 @@ export async function POST(request: NextRequest) {
         phoneNumber = inviteCode.phone || '';
       }
 
-      // Determine the plan - use inherited_plan for referrals, otherwise 'lifetime'
-      const newMemberPlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
-        ? inviteCode.inherited_plan
-        : 'lifetime';
-
       // Create new user with founding member status
+      // founding_member_plan is intentionally NOT set here — it is only set after the user
+      // completes a purchase, which is when the Founder's Club badge becomes visible.
       const { data: newUser, error: createUserError } = await supabase
         .from('users')
         .insert({
@@ -236,7 +229,6 @@ export async function POST(request: NextRequest) {
           phone_number: phoneNumber || null,
           is_founding_member: true,
           founding_member_since: new Date().toISOString(),
-          founding_member_plan: newMemberPlan,
           status: 'active', // Activate immediately - code verification = email verification
           email_verified: true, // Email is verified since they received the code
           role: 'user'
@@ -379,12 +371,8 @@ export async function POST(request: NextRequest) {
     console.log('🔑 [founders/activate] Creating session for user:', user.id);
     const sessionId = await SessionStore.create(user.id, user.email, user.role || 'user');
 
-    // Determine the actual plan for response
-    const responsePlan = inviteCode.referral_type === 'referral' && inviteCode.inherited_plan
-      ? inviteCode.inherited_plan
-      : 'lifetime';
-
     // Create response with user data including profile slug
+    // founding_member_plan is null until user completes a purchase
     const response = NextResponse.json({
       success: true,
       message: 'Welcome to the Founders Circle! Your account has been activated.',
@@ -395,7 +383,7 @@ export async function POST(request: NextRequest) {
         last_name: user.last_name,
         phone_number: user.phone_number,
         is_founding_member: true,
-        founding_member_plan: responsePlan,
+        founding_member_plan: null,
         custom_url: customUrl // Include the auto-generated profile slug
       },
       isFoundingMember: true,

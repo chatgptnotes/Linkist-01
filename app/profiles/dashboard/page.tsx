@@ -81,9 +81,12 @@ export default function ProfileDashboard() {
           return;
         }
 
-        // Reuse auth response for founding member status (avoids duplicate /api/auth/me call)
-        setIsFoundingMember(authData.user?.has_founders_order || false);
-        setFoundingMemberPlan(authData.user?.founding_member_plan || null);
+        // Reuse auth response for founding member status (avoids duplicate /api/auth/me call).
+        // Founder's Circle gating is single-sourced from founding_member_plan, which is only
+        // populated after a verified payment in app/api/process-order/route.ts.
+        const plan = authData.user?.founding_member_plan || null;
+        setIsFoundingMember(!!plan);
+        setFoundingMemberPlan(plan);
 
         console.log('✅ Authenticated user:', currentUserEmail);
 

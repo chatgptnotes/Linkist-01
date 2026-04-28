@@ -39,6 +39,7 @@ interface Order {
   trackingUrl?: string;
   createdAt: number;
   updatedAt: number;
+  paidAt?: number | null;
   payment?: {
     paymentMethod?: string;
     status?: string;
@@ -159,7 +160,7 @@ export default function OrdersPage() {
 
   const getShippingStatusLabel = (order: Order): string => {
     const statusMap: Record<string, string> = {
-      'pending': 'Order Placed',
+      'pending': 'Awaiting Payment',
       'confirmed': 'Order Confirmed',
       'production': 'In Production',
       'shipped': 'Shipped',
@@ -171,6 +172,35 @@ export default function OrdersPage() {
 
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
+  };
+
+  const handleContinuePayment = (order: Order) => {
+    // Payment page expects pricing.materialPrice (per-unit). DB only stores
+    // {subtotal, shipping, tax, total}, so derive materialPrice from subtotal/quantity.
+    const quantity = order.cardConfig?.quantity || 1;
+    const subtotal = order.pricing?.subtotal || 0;
+    const total = order.pricing?.total || 0;
+    const derivedMaterialPrice = subtotal > 0 ? subtotal / quantity : total / quantity;
+
+    const enrichedPricing = {
+      ...order.pricing,
+      materialPrice: (order.pricing as any)?.materialPrice ?? derivedMaterialPrice,
+      basePrice: (order.pricing as any)?.basePrice ?? derivedMaterialPrice,
+    };
+
+    const pendingOrder = {
+      orderId: order.id,
+      orderNumber: order.orderNumber,
+      cardConfig: order.cardConfig,
+      shipping: order.shipping,
+      pricing: enrichedPricing,
+      customerName: order.customerName,
+      email: order.email,
+      phoneNumber: (order as any).phoneNumber || order.shipping?.phoneNumber || '',
+      isFoundingMember: order.cardConfig?.isFoundingMember || false,
+    };
+    localStorage.setItem('pendingOrder', JSON.stringify(pendingOrder));
+    router.push('/nfc/payment');
   };
 
   const getStatusBadge = (status: string) => {
@@ -273,10 +303,19 @@ export default function OrdersPage() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Total Spent</p>
-                  <p className="text-2xl font-bold text-gray-900">
-                    ${orders.filter(o => o.status?.toLowerCase() !== 'pending').reduce((sum, order) => sum + (order.pricing?.total || 0), 0).toFixed(2)}
-                  </p>
+                  {(() => {
+                    const paid = orders.filter(o => o.status?.toLowerCase() !== 'pending').reduce((sum, o) => sum + (o.pricing?.total || 0), 0);
+                    const pending = orders.filter(o => o.status?.toLowerCase() === 'pending').reduce((sum, o) => sum + (o.pricing?.total || 0), 0);
+                    return (
+                      <>
+                        <p className="text-sm text-gray-600">Total Spent</p>
+                        <p className="text-2xl font-bold text-gray-900">${paid.toFixed(2)}</p>
+                        {pending > 0 && (
+                          <p className="text-xs text-yellow-600 mt-0.5">${pending.toFixed(2)} pending</p>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
@@ -302,7 +341,7 @@ export default function OrdersPage() {
                             Order #{order.orderNumber}
                           </h3>
                           <p className="text-sm text-gray-600">
-                            Placed on {new Date(order.createdAt).toLocaleDateString('en-US', {
+                            {order.paidAt ? 'Purchased on' : 'Placed on'} {new Date(order.paidAt || order.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric'
@@ -312,6 +351,18 @@ export default function OrdersPage() {
                       </div>
                       <div className="flex items-center gap-2">
                         {getStatusBadge(order.status)}
+                        {order.status?.toLowerCase() === 'pending' && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleContinuePayment(order);
+                            }}
+                            className="px-4 py-1.5 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors whitespace-nowrap"
+                          >
+                            Continue
+                          </button>
+                        )}
                         {isExpanded ? (
                           <ExpandLessIcon className="w-5 h-5 text-gray-400" />
                         ) : (
@@ -341,27 +392,31 @@ export default function OrdersPage() {
                           <p className="text-sm font-mono font-semibold text-gray-900 break-all">{order.orderNumber}</p>
                         </div>
 
-                        {/* Date of Purchase */}
+                        {/* Date of Purchase / Order Initiated */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Date of Purchase</p>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                            {order.paidAt ? 'Date of Purchase' : 'Order Initiated'}
+                          </p>
                           <p className="text-sm font-semibold text-gray-900">
-                            {new Date(order.createdAt).toLocaleDateString('en-US', {
+                            {new Date(order.paidAt || order.createdAt).toLocaleDateString('en-US', {
                               year: 'numeric',
                               month: 'long',
                               day: 'numeric'
                             })}
                           </p>
                           <p className="text-xs text-gray-500 mt-0.5">
-                            {new Date(order.createdAt).toLocaleTimeString('en-US', {
+                            {new Date(order.paidAt || order.createdAt).toLocaleTimeString('en-US', {
                               hour: '2-digit',
                               minute: '2-digit'
                             })}
                           </p>
                         </div>
 
-                        {/* Amount Paid */}
+                        {/* Amount Paid / Order Amount */}
                         <div className="p-4 bg-gray-50 rounded-lg">
-                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Amount Paid</p>
+                          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
+                            {order.status?.toLowerCase() === 'pending' ? 'Order Amount' : 'Amount Paid'}
+                          </p>
                           <p className="text-xl font-bold text-gray-900">${order.pricing.total.toFixed(2)}</p>
                           <p className="text-xs text-gray-500 mt-0.5">
                             Subtotal: ${order.pricing.subtotal.toFixed(2)} + Shipping: ${order.pricing.shipping.toFixed(2)}
@@ -372,7 +427,9 @@ export default function OrdersPage() {
                         <div className="p-4 bg-gray-50 rounded-lg">
                           <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Mode of Payment</p>
                           <p className="text-sm font-semibold text-gray-900">
-                            {getPaymentMethodLabel(order.payment?.paymentMethod)}
+                            {order.status?.toLowerCase() === 'pending' && !order.payment?.paymentMethod
+                              ? 'Awaiting Payment'
+                              : getPaymentMethodLabel(order.payment?.paymentMethod)}
                           </p>
                           {order.payment?.status && (
                             <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium ${
@@ -396,7 +453,7 @@ export default function OrdersPage() {
                               Tracking: {order.trackingNumber}
                             </p>
                           )}
-                          {order.estimatedDelivery && (
+                          {order.estimatedDelivery && order.status?.toLowerCase() !== 'pending' && (
                             <p className="text-xs text-gray-500 mt-0.5">
                               Est. delivery: {order.estimatedDelivery}
                             </p>

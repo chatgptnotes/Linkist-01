@@ -525,7 +525,7 @@ export default function CheckoutPage() {
     }
 
     // PRO / SIGNATURE / FOUNDERS CIRCLE PLAN: Use plan subscription price (no material price)
-    if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
+    if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club' || cardConfig?.planType === 'starter') {
       const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
       return {
         productPlanPrice: selectedPlanAmount,
@@ -585,7 +585,7 @@ export default function CheckoutPage() {
       let orderAmount: number;
 
       // For Business/Signature/Founders plans, use the fixed plan amount
-      if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
+      if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club' || cardConfig?.planType === 'starter') {
         const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
         orderAmount = selectedPlanAmount * quantity;
       } else {
@@ -798,7 +798,7 @@ export default function CheckoutPage() {
           voucherDiscount: 0,
           isFoundersPricing: true
         };
-      } else if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club') {
+      } else if (cardConfig?.planType === 'pro' || cardConfig?.planType === 'signature' || cardConfig?.planType === 'founders-circle' || cardConfig?.planType === 'founders-club' || cardConfig?.planType === 'starter') {
         // PRO / SIGNATURE / FOUNDERS CIRCLE: Use plan subscription price (no material price)
         const selectedPlanAmount = parseFloat(localStorage.getItem('selectedPlanAmount') || '0');
         console.log('✨ Checkout: Using PLAN pricing:', cardConfig?.planType, selectedPlanAmount, 'x', quantity);

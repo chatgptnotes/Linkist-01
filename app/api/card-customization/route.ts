@@ -10,8 +10,8 @@ export async function GET(request: NextRequest) {
 
     let structuredOptions;
 
-    // Valid plan types that support card customization
-    const validPlanTypes = ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle'];
+    // Valid plan types that support card customization (admin-managed via Card Customization tab)
+    const validPlanTypes = ['physical-digital', 'founders-club', 'signature', 'pro', 'founders-circle', 'starter'];
 
     // If plan_type is provided and valid, return plan-specific options
     if (planType && validPlanTypes.includes(planType)) {

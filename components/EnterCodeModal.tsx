@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -11,14 +11,34 @@ interface EnterCodeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: (validatedData: { code: string; email: string }) => void;
+  prefillEmail?: string;
+  prefillCode?: string;
 }
 
-export default function EnterCodeModal({ isOpen, onClose, onSuccess }: EnterCodeModalProps) {
-  const [code, setCode] = useState('');
-  const [email, setEmail] = useState('');
+function normalizeCodeBody(value: string): string {
+  const upper = value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+  const stripped = upper.startsWith('FC-') ? upper.slice(3) : upper;
+  return stripped.slice(0, 8);
+}
+
+export default function EnterCodeModal({
+  isOpen,
+  onClose,
+  onSuccess,
+  prefillEmail = '',
+  prefillCode = '',
+}: EnterCodeModalProps) {
+  const [code, setCode] = useState(() => normalizeCodeBody(prefillCode));
+  const [email, setEmail] = useState(prefillEmail);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    if (prefillCode) setCode(normalizeCodeBody(prefillCode));
+    if (prefillEmail) setEmail(prefillEmail);
+  }, [isOpen, prefillCode, prefillEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -79,8 +79,21 @@ const PREMIUM_TYPES: string[] = [];
 const ALLOWED_PHYSICAL_CARD_COUNTRIES = ['India', 'UAE', 'USA', 'UK'];
 
 export default function ProductSelectionPage() {
+  return (
+    <Suspense fallback={null}>
+      <ProductSelectionContent />
+    </Suspense>
+  );
+}
+
+function ProductSelectionContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { showToast } = useToast();
+
+  // Invite link prefill (from email "Click here" deep link)
+  const inviteParam = searchParams?.get('invite') ?? '';
+  const inviteEmailParam = searchParams?.get('email') ?? '';
 
   // Plans state
   const [plans, setPlans] = useState<PlanData[]>(FALLBACK_PLANS);
@@ -101,6 +114,14 @@ export default function ProductSelectionPage() {
   const [showSignupOverlay, setShowSignupOverlay] = useState(false);
   const [showBenefitsModal, setShowBenefitsModal] = useState(false);
   const [foundersClubUnlocked, setFoundersClubUnlocked] = useState(false);
+
+  // Auto-open the invite code modal when the user lands here via the
+  // Founders Circle approval email (?invite=FC-XXXX&email=...).
+  useEffect(() => {
+    if (!inviteParam) return;
+    if (foundersClubUnlocked) return;
+    setShowCodeModal(true);
+  }, [inviteParam, foundersClubUnlocked]);
 
   useEffect(() => {
     // Run auth check and plans fetch in parallel — they are independent
@@ -287,68 +308,9 @@ export default function ProductSelectionPage() {
     setLoading(true);
 
     if (productId === 'starter') {
-      // Free tier - create digital-only order
-      const userProfile = localStorage.getItem('userProfile');
-      let email = '', firstName = 'User', lastName = 'Name', phoneNumber = '', country = 'IN';
-      if (userProfile) {
-        try {
-          const profile = JSON.parse(userProfile);
-          email = profile.email || '';
-          firstName = profile.firstName || 'User';
-          lastName = profile.lastName || 'Name';
-          phoneNumber = profile.mobile || '';
-          country = profile.country || 'IN';
-        } catch (error) {
-          console.error('Error parsing user profile:', error);
-        }
-      }
-
-      // Validate email is present before creating order
-      if (!email || !email.includes('@')) {
-        showToast('Please complete registration first. Email is required.', 'error');
-        setLoading(false);
-        router.push('/welcome-to-linkist');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/process-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            cardConfig: {
-              firstName, lastName, baseMaterial: 'digital', color: 'none',
-              quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}`, planType: 'starter'
-            },
-            checkoutData: {
-              fullName: `${firstName} ${lastName}`, email, phoneNumber, country,
-              addressLine1: 'N/A - Digital Product', addressLine2: '', city: 'N/A', state: 'N/A', postalCode: 'N/A'
-            },
-            paymentData: null,
-            pricing: { subtotal: 0, shipping: 0, tax: 0, total: 0 }
-          }),
-        });
-        const result = await response.json();
-        if (result.success && result.order) {
-          const digitalOnlyOrder = {
-            orderId: result.order.id, orderNumber: result.order.orderNumber,
-            customerName: `${firstName} ${lastName}`, email, phoneNumber,
-            cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName: `${firstName} ${lastName}` },
-            shipping: { fullName: `${firstName} ${lastName}`, email, phone: phoneNumber, phoneNumber, country, addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false },
-            pricing: { subtotal: 0, taxAmount: 0, shippingCost: 0, total: 0 },
-            isDigitalProduct: true, isDigitalOnly: true
-          };
-          localStorage.setItem('orderConfirmation', JSON.stringify(digitalOnlyOrder));
-          router.push('/nfc/success');
-        } else {
-          showToast(result.error || 'Failed to create order', 'error');
-          setLoading(false);
-        }
-      } catch (error) {
-        console.error('Error creating order:', error);
-        showToast('Failed to create order. Please try again.', 'error');
-        setLoading(false);
-      }
+      // Starter: route through card-customization step (Continue → buy $30 card / Skip → digital-only)
+      router.push('/nfc/configure?plan=starter');
+      return;
     } else if (productId === 'next') {
       // Next plan - no card customization, go directly to payment
       const userProfile = localStorage.getItem('userProfile');
@@ -578,6 +540,8 @@ export default function ProductSelectionPage() {
         isOpen={showCodeModal}
         onClose={() => setShowCodeModal(false)}
         onSuccess={handleFoundersCodeSuccess}
+        prefillCode={inviteParam}
+        prefillEmail={inviteEmailParam}
       />
       <SignupOverlay
         isOpen={showSignupOverlay}

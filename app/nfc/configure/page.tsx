@@ -81,6 +81,9 @@ export default function ConfigureNewPage() {
   const [userPlanType, setUserPlanType] = useState<string | null>(null);
   const [planTypeChecked, setPlanTypeChecked] = useState(false);
 
+  // Starter card price — fetched from `subscription_plans` (admin-managed via Subscription Plans tab)
+  const [starterCardPrice, setStarterCardPrice] = useState<number | null>(null);
+
   // Fetch customization options from API based on user's plan type
   const fetchCustomizationOptions = async (planType: string) => {
     try {
@@ -108,10 +111,51 @@ export default function ConfigureNewPage() {
     }
   }, [planTypeChecked, userPlanType]);
 
+  // Fetch the Starter card price from `subscription_plans` (DB, admin-editable)
+  useEffect(() => {
+    if (userPlanType !== 'starter') return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/plans/active');
+        if (!res.ok) return;
+        const data = await res.json();
+        const starter = (data.plans || []).find((p: { type: string; price: number }) => p.type === 'starter');
+        if (!cancelled && starter && typeof starter.price === 'number') {
+          setStarterCardPrice(starter.price);
+          localStorage.setItem('selectedPlanAmount', String(starter.price));
+          localStorage.setItem('selectedPlanName', 'Starter');
+        }
+      } catch (err) {
+        console.error('Configure: Failed to fetch Starter card price:', err);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [userPlanType]);
+
   // Clear any existing corrupted data on component mount
   useEffect(() => {
     // Scroll to top when page loads
     window.scrollTo(0, 0);
+
+    // Honor `?plan=` query param so direct links (e.g. /nfc/configure?plan=starter) seed productSelection
+    // before plan-type detection runs.
+    try {
+      const urlPlan = new URLSearchParams(window.location.search).get('plan');
+      const validUrlPlans = ['starter', 'pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+      if (urlPlan && validUrlPlans.includes(urlPlan)) {
+        localStorage.setItem('productSelection', urlPlan);
+        if (urlPlan === 'starter') {
+          localStorage.setItem('selectedPlanName', 'Starter');
+          // Default to $0 — overridden to $30 on Continue
+          if (!localStorage.getItem('selectedPlanAmount')) {
+            localStorage.setItem('selectedPlanAmount', '0');
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Configure: Error reading plan query param:', e);
+    }
 
     // Clear old config data to prevent corruption
     localStorage.removeItem('nfcConfig');
@@ -212,7 +256,7 @@ export default function ConfigureNewPage() {
 
           // Detect plan type from localStorage (set during product selection)
           const selectedProduct = localStorage.getItem('productSelection');
-          const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+          const validCardPlans = ['starter', 'pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
 
           let planType: string;
           if (selectedProduct && validCardPlans.includes(selectedProduct)) {
@@ -252,7 +296,7 @@ export default function ConfigureNewPage() {
         } else {
           // Not logged in - detect plan from localStorage or default
           const selectedProduct = localStorage.getItem('productSelection');
-          const validCardPlans = ['pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
+          const validCardPlans = ['starter', 'pro', 'signature', 'founders-circle', 'founders-club', 'physical-digital'];
           const fallbackPlan = (selectedProduct && validCardPlans.includes(selectedProduct)) ? selectedProduct : 'physical-digital';
           setUserPlanType(fallbackPlan);
           setPlanTypeChecked(true);
@@ -357,6 +401,9 @@ export default function ConfigureNewPage() {
 
   // Founders Circle plan check: exclusive features only when plan is founders-circle/founders-club
   const isFoundersCirclePlan = userPlanType === 'founders-circle' || userPlanType === 'founders-club';
+
+  // Starter plan: shows Continue (DB-priced card) and Skip (digital-only) CTAs
+  const isStarterPlan = userPlanType === 'starter';
 
   // Price display helper
   const getDisplayPrice = (price: number): number => {
@@ -647,12 +694,21 @@ export default function ConfigureNewPage() {
   };
 
   const getTextColor = () => {
-    // Return white text for dark backgrounds, black for light backgrounds
+    // Muted tones so the name reads as if engraved into the card surface
+    // rather than overlaid on top of it.
     const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (formData.colour && darkBackgrounds.includes(formData.colour)) {
-      return 'text-white';
+      return 'text-white/50';
     }
-    return 'text-gray-900';
+    return 'text-black/50';
+  };
+
+  const getEngravedShadow = (): string => {
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
+    const isDark = !!formData.colour && darkBackgrounds.includes(formData.colour);
+    return isDark
+      ? '0 1px 0 rgba(0,0,0,0.6), 0 -1px 0 rgba(255,255,255,0.08)'
+      : '0 -1px 0 rgba(255,255,255,0.6), 0 1px 0 rgba(0,0,0,0.2)';
   };
 
   const handleContinue = () => {
@@ -664,6 +720,13 @@ export default function ConfigureNewPage() {
 
     if (!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null) {
       alert('Please complete all configuration options');
+      return;
+    }
+
+    // Starter must wait for the DB-managed card price before continuing,
+    // otherwise checkout would fall back to selectedPlanAmount === '0' and the user gets a free card.
+    if (isStarterPlan && starterCardPrice === null) {
+      alert('Loading card price… please try again in a moment.');
       return;
     }
 
@@ -699,11 +762,88 @@ export default function ConfigureNewPage() {
     // Save to localStorage and redirect to checkout
     localStorage.setItem('nfcConfig', JSON.stringify(configData));
 
+    // Starter plan: lock in the DB-managed NFC card price for the checkout step
+    if (isStarterPlan && starterCardPrice !== null) {
+      localStorage.setItem('selectedPlanAmount', String(starterCardPrice));
+    }
+
     // Verify the data was saved correctly
     const savedData = localStorage.getItem('nfcConfig');
     console.log('Configure: Verified saved data:', savedData);
 
     router.push('/nfc/checkout');
+  };
+
+  // Starter only: skip the physical card and create the free digital-only order (today's flow).
+  const handleSkipStarterCard = async () => {
+    setIsLoading(true);
+    try {
+      const userProfileStr = localStorage.getItem('userProfile');
+      let email = '', firstName = 'User', lastName = 'Name', phoneNumber = '', country = 'IN';
+      if (userProfileStr) {
+        try {
+          const profile = JSON.parse(userProfileStr);
+          email = profile.email || '';
+          firstName = profile.firstName || 'User';
+          lastName = profile.lastName || 'Name';
+          phoneNumber = profile.mobile || '';
+          country = profile.country || 'IN';
+        } catch (error) {
+          console.error('Configure: Error parsing user profile for skip:', error);
+        }
+      }
+
+      if (!email || !email.includes('@')) {
+        alert('Please complete registration first. Email is required.');
+        setIsLoading(false);
+        router.push('/welcome-to-linkist');
+        return;
+      }
+
+      const fullName = `${firstName} ${lastName}`;
+      const response = await fetch('/api/process-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cardConfig: {
+            firstName, lastName, baseMaterial: 'digital', color: 'none',
+            quantity: 1, isDigitalOnly: true, fullName, planType: 'starter',
+          },
+          checkoutData: {
+            fullName, email, phoneNumber, country,
+            addressLine1: 'N/A - Digital Product', addressLine2: '', city: 'N/A', state: 'N/A', postalCode: 'N/A',
+          },
+          paymentData: null,
+          pricing: { subtotal: 0, shipping: 0, tax: 0, total: 0 },
+        }),
+      });
+      const result = await response.json();
+
+      if (result.success && result.order) {
+        localStorage.setItem('selectedPlanAmount', '0');
+        localStorage.setItem('orderConfirmation', JSON.stringify({
+          orderId: result.order.id,
+          orderNumber: result.order.orderNumber,
+          customerName: fullName, email, phoneNumber,
+          cardConfig: { firstName, lastName, baseMaterial: 'digital', color: 'none', quantity: 1, isDigitalOnly: true, fullName },
+          shipping: {
+            fullName, email, phone: phoneNumber, phoneNumber, country,
+            addressLine1: 'N/A - Digital Product', city: 'N/A', postalCode: 'N/A', isFounderMember: false,
+          },
+          pricing: { subtotal: 0, taxAmount: 0, shippingCost: 0, total: 0 },
+          isDigitalProduct: true, isDigitalOnly: true, planName: 'Starter',
+        }));
+        router.push('/nfc/success');
+      } else {
+        console.error('Configure: Failed to create digital-only Starter order:', result.error);
+        alert(result.error || 'Failed to create order. Please try again.');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Configure: Error creating digital-only Starter order:', error);
+      alert('Failed to create order. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   // Show loading state while options are being fetched
@@ -1037,11 +1177,11 @@ export default function ConfigureNewPage() {
                     {mockupImages?.front ? (
                       /* Mockup-based front preview */
                       <div className="w-full flex justify-center overflow-hidden">
-                        <div className="relative" style={{ width: '130%' }}>
+                        <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                           <img
                             src={mockupImages.front}
                             alt="Card front"
-                            className="w-full h-auto block"
+                            className="w-full h-full object-cover block"
                             draggable={false}
                           />
                           {/* Name overlay — Signature & Founders only, bottom-left of card */}
@@ -1053,13 +1193,19 @@ export default function ConfigureNewPage() {
                                 const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
                                 if (isSingleCharOnly) {
                                   return (
-                                    <div className={`${getTextColor()} text-xl sm:text-3xl font-bold`}>
+                                    <div
+                                      className={`${getTextColor()} text-xl sm:text-3xl font-semibold`}
+                                      style={{ textShadow: getEngravedShadow() }}
+                                    >
                                       {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                                     </div>
                                   );
                                 }
                                 return (
-                                  <div className={`${getTextColor()} text-sm sm:text-lg font-bold tracking-wide`}>
+                                  <div
+                                    className={`${getTextColor()} text-sm sm:text-lg font-semibold tracking-wide`}
+                                    style={{ textShadow: getEngravedShadow() }}
+                                  >
                                     {firstName.toUpperCase()} {lastName.toUpperCase()}
                                   </div>
                                 );
@@ -1080,38 +1226,7 @@ export default function ConfigureNewPage() {
                         </div>
                       </div>
                     ) : (
-                      /* Legacy CSS gradient front preview */
-                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                        <div className="absolute top-3 right-3">
-                          <img
-                            src={formData.colour === 'white' ? '/ai2.png' : '/ai1.png'}
-                            alt="AI Assistant"
-                            className={`w-4 h-4 sm:w-7 sm:h-7 ${formData.colour === 'white' ? '' : 'invert'}`}
-                          />
-                        </div>
-                        {userPlanType !== 'pro' && (
-                        <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-                          {(() => {
-                            const firstName = formData.cardFirstName?.trim() || '';
-                            const lastName = formData.cardLastName?.trim() || '';
-                            const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                            if (isSingleCharOnly) {
-                              return (
-                                <div className={`${getTextColor()} text-xl sm:text-4xl font-bold`}>
-                                  {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                </div>
-                              );
-                            }
-                            return (
-                              <div className={`${getTextColor()} text-sm sm:text-xl font-bold tracking-wide`}>
-                                {firstName.toUpperCase()} {lastName.toUpperCase()}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                        )}
-                      </div>
+                      <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                     )}
                   </div>
 
@@ -1123,7 +1238,7 @@ export default function ConfigureNewPage() {
                     {mockupImages?.back_with_logo || mockupImages?.back_without_logo ? (
                       /* Mockup-based back preview */
                       <div className="w-full flex justify-center overflow-hidden">
-                        <div className="relative" style={{ width: '130%' }}>
+                        <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                           <img
                             src={
                               isFoundersCirclePlan && !showLinkistLogo
@@ -1131,33 +1246,13 @@ export default function ConfigureNewPage() {
                                 : (mockupImages.back_with_logo || mockupImages.back_without_logo!)
                             }
                             alt="Card back"
-                            className="w-full h-auto block"
+                            className="w-full h-full object-cover block"
                             draggable={false}
                           />
                         </div>
                       </div>
                     ) : (
-                      /* Legacy CSS gradient back preview */
-                      <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                        <CardPatternOverlay patternKey={selectedPatternKey} colour={formData.colour || undefined} />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          {isFoundersCirclePlan ? (
-                            <>
-                              {companyLogoUrl ? (
-                                <img src={companyLogoUrl} alt="Company Logo" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2 object-contain" />
-                              ) : showLinkistLogo ? (
-                                <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                              ) : null}
-                              <div className={`${getTextColor()} text-xs sm:text-xl font-bold tracking-widest`}>FOUNDING MEMBER</div>
-                            </>
-                          ) : (
-                            <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-16 w-auto mb-1 sm:mb-2" />
-                          )}
-                        </div>
-                        <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                          <img src="/nfc2.png" alt="NFC" className="w-6 h-6 sm:w-10 sm:h-10" />
-                        </div>
-                      </div>
+                      <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                     )}
                   </div>
                 </motion.div>
@@ -1177,60 +1272,107 @@ export default function ConfigureNewPage() {
               );
             })()}
 
-            {/* Continue to Checkout Section */}
-            <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
-              <div className="p-3">
-                {/* Warning about incomplete selections - always visible */}
-                {(() => {
-                  const missingItems = [];
-                  if (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) {
-                    missingItems.push('Card Name');
-                  }
-                  if (!formData.baseMaterial) {
-                    missingItems.push('Base Material');
-                  }
-                  if (!formData.texture) {
-                    missingItems.push('Texture');
-                  }
-                  if (!formData.colour) {
-                    missingItems.push('Colour');
-                  }
-                  if (formData.pattern === null) {
-                    missingItems.push('Pattern');
-                  }
+            {/* CTA Section — Claude-principles design for Starter; original style for other plans */}
+            {(() => {
+              const missingItems: string[] = [];
+              if (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) {
+                missingItems.push('Card Name');
+              }
+              if (!formData.baseMaterial) missingItems.push('Base Material');
+              if (!formData.texture) missingItems.push('Texture');
+              if (!formData.colour) missingItems.push('Colour');
+              if (formData.pattern === null) missingItems.push('Pattern');
 
-                  if (missingItems.length > 0) {
-                    return (
+              const hasIncomplete = missingItems.length > 0;
+              // Starter must wait for the DB price before Continue is clickable —
+              // otherwise the user would check out at $0 (the seeded fallback).
+              const isStarterPriceLoading = isStarterPlan && starterCardPrice === null;
+              const isContinueDisabled = hasIncomplete || isLoading || isStarterPriceLoading;
+
+              if (isStarterPlan) {
+                return (
+                  <div className="bg-[#FAF9F5] border border-[#E8E5DD] rounded-2xl shadow-[0_1px_2px_rgba(20,16,8,0.04)] p-6 sm:p-7">
+                    {hasIncomplete && (
+                      <div className="mb-5 flex items-start gap-2.5 bg-[#FBF1DC] border border-[#F0DFAE]/70 rounded-xl px-4 py-3">
+                        <Warning className="w-4 h-4 mt-0.5 text-[#9A7D2E] flex-shrink-0" />
+                        <p className="text-sm text-[#6B5719]">
+                          Please select <span className="font-medium text-[#3D331C]">{missingItems.join(', ')}</span>
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Primary: rich card-button */}
+                    <button
+                      onClick={handleContinue}
+                      disabled={isContinueDisabled}
+                      className="w-full bg-red-600 hover:bg-red-700 disabled:bg-[#E8E5DD] disabled:text-[#A8A095] disabled:hover:bg-[#E8E5DD] disabled:cursor-not-allowed cursor-pointer text-white rounded-xl px-6 py-5 shadow-[0_1px_2px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_12px_rgba(220,38,38,0.18)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600/30 focus-visible:ring-offset-2"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center py-1">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-current mr-2"></div>
+                          <span className="font-semibold">Processing…</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center justify-between gap-4">
+                          <div className="text-base font-semibold leading-tight text-left">
+                            Get your NFC Card
+                          </div>
+                          <div className="text-2xl font-semibold tracking-tight">
+                            {starterCardPrice !== null ? `$${starterCardPrice}` : '…'}
+                          </div>
+                        </div>
+                      )}
+                    </button>
+
+                    {/* Secondary: ghost Skip button */}
+                    <button
+                      type="button"
+                      onClick={handleSkipStarterCard}
+                      disabled={isLoading}
+                      className="mt-4 w-full text-center py-2.5 px-4 rounded-lg text-sm font-medium text-[#5C5347] hover:text-[#1F1E1B] hover:bg-[#F0EDE4]/60 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1F1E1B]/20 focus-visible:ring-offset-2"
+                    >
+                      Skip — continue with digital only
+                    </button>
+                    <p className="mt-1.5 text-center text-xs text-[#7A6F60]">
+                      Activate your free Linkist ID and profile.
+                    </p>
+                  </div>
+                );
+              }
+
+              // Non-Starter plans: keep the original CTA block (untouched)
+              return (
+                <div className="bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 overflow-hidden">
+                  <div className="p-3">
+                    {hasIncomplete && (
                       <div className="mb-2 p-2 bg-amber-50 border border-amber-200 rounded-lg">
                         <p className="text-sm text-amber-700 flex items-center">
                           <Warning className="mr-1.5 w-4 h-4 flex-shrink-0" /> Please select: <span className="font-semibold ml-1">{missingItems.join(', ')}</span>
                         </p>
                       </div>
-                    );
-                  }
-                  return null;
-                })()}
-
-                <button
-                  onClick={handleContinue}
-                  disabled={!formData.baseMaterial || !formData.texture || !formData.colour || formData.pattern === null || (userPlanType !== 'pro' && (!formData.cardFirstName?.trim() || !formData.cardLastName?.trim())) || isLoading}
-                  className={`w-full px-6 py-3 rounded-lg text-base font-semibold transition-all shadow-md ${
-                    (formData.baseMaterial && formData.texture && formData.colour && formData.pattern !== null && (userPlanType === 'pro' || (formData.cardFirstName?.trim() && formData.cardLastName?.trim())))
-                      ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
-                      : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  }`}
-                >
-                  {isLoading ? (
-                    <div className="flex items-center justify-center">
-                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                      Processing...
-                    </div>
-                  ) : (
-                    'Continue to Checkout →'
-                  )}
-                </button>
-              </div>
-            </div>
+                    )}
+                    <button
+                      onClick={handleContinue}
+                      disabled={isContinueDisabled}
+                      className={`w-full px-6 py-3 rounded-lg text-base font-semibold transition-all shadow-md ${
+                        !isContinueDisabled
+                          ? 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 hover:shadow-lg transform hover:-translate-y-0.5 cursor-pointer'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      }`}
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Processing...
+                        </div>
+                      ) : (
+                        'Continue to Checkout →'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              );
+            })()}
 
           </div>
 

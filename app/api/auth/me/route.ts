@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth-middleware';
 import { RBAC } from '@/lib/rbac';
-import { SupabaseOrderStore } from '@/lib/supabase-order-store';
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -24,27 +23,19 @@ export async function GET(request: NextRequest) {
     const permissions = RBAC.getUserPermissions(user);
     const canAccessAdmin = RBAC.canAccessAdmin(user);
 
-    // ── Parallel: fetch founders order check + claimed URL at once ──
+    // Founder's Circle gating is single-sourced from `users.founding_member_plan`,
+    // which is only stamped after a verified payment in app/api/process-order/route.ts.
+    // We no longer need to scan orders here.
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const [ordersResult, profileResult] = await Promise.all([
-      user.is_founding_member
-        ? SupabaseOrderStore.getByEmail(user.email).catch(() => [] as any[])
-        : Promise.resolve([] as any[]),
-      Promise.resolve(
-        supabase
-          .from('profiles')
-          .select('custom_url')
-          .eq('email', user.email)
-          .not('custom_url', 'is', null)
-          .maybeSingle()
-      ).then(r => r.data).catch(() => null),
-    ]);
-
-    const hasFoundersOrder = ordersResult.some((order: any) => {
-      const planType = order.cardConfig?.planType;
-      return planType === 'founders-club' || planType === 'founders-circle';
-    });
+    const profileResult = await Promise.resolve(
+      supabase
+        .from('profiles')
+        .select('custom_url')
+        .eq('email', user.email)
+        .not('custom_url', 'is', null)
+        .maybeSingle()
+    ).then(r => r.data).catch(() => null);
 
     const hasClaimedUrl = !!profileResult?.custom_url;
     const claimedUsername = profileResult?.custom_url || null;
@@ -64,7 +55,6 @@ export async function GET(request: NextRequest) {
         db_permissions: permissions,
         created_at: user.created_at,
         is_founding_member: user.is_founding_member || false,
-        has_founders_order: hasFoundersOrder,
         founding_member_since: user.founding_member_since || null,
         founding_member_plan: user.founding_member_plan || null,
         has_claimed_url: hasClaimedUrl,

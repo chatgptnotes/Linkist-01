@@ -259,12 +259,22 @@ export default function NFCPaymentPage() {
   };
 
   const getTextColor = () => {
-    // Return white text for dark backgrounds, black for light backgrounds
+    // Muted tones so the name reads as if engraved into the card surface
+    // rather than overlaid on top of it.
     const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
     if (orderData?.cardConfig?.color && darkBackgrounds.includes(orderData.cardConfig.color)) {
-      return 'text-white';
+      return 'text-white/50';
     }
-    return 'text-gray-900';
+    return 'text-black/50';
+  };
+
+  const getEngravedShadow = (): string => {
+    const darkBackgrounds = ['black', 'cherry', 'rose-gold'];
+    const colour = orderData?.cardConfig?.color;
+    const isDark = !!colour && darkBackgrounds.includes(colour);
+    return isDark
+      ? '0 1px 0 rgba(0,0,0,0.6), 0 -1px 0 rgba(255,255,255,0.08)'
+      : '0 -1px 0 rgba(255,255,255,0.6), 0 1px 0 rgba(0,0,0,0.2)';
   };
 
   // SIMPLIFIED PRICING: Calculate flat price (tax absorbed, no subscription for non-founders)
@@ -299,12 +309,7 @@ export default function NFCPaymentPage() {
 
     const subtotal = getSubtotal();
 
-    // FOUNDERS: No voucher discount (exclusive pricing, no coupon UI)
-    if (isFoundingMember) {
-      return subtotal;
-    }
-
-    // NON-FOUNDERS: Apply voucher discount if valid
+    // Apply voucher discount if valid
     if (voucherValid && voucherAmount > 0) {
       return Math.max(0, subtotal - voucherAmount);
     }
@@ -328,6 +333,13 @@ export default function NFCPaymentPage() {
         exchangeRate
       );
 
+      // Generate a unique attempt ID for this Pay click — guarantees a fresh
+      // PaymentIntent on each user attempt while keeping network retries idempotent.
+      const paymentAttemptId =
+        typeof crypto !== 'undefined' && crypto.randomUUID
+          ? crypto.randomUUID()
+          : `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+
       // Create payment intent
       // Note: finalAmount already has voucher discount applied by frontend
       const response = await fetch('/api/payment/create-intent', {
@@ -338,6 +350,7 @@ export default function NFCPaymentPage() {
           currency,
           country: orderData.shipping?.country || 'IN',
           orderId: orderData.orderId, // Required for idempotency
+          paymentAttemptId, // Per-click attempt token
           orderData: {
             customerName: orderData.customerName,
             email: orderData.email,
@@ -424,6 +437,7 @@ export default function NFCPaymentPage() {
     }
 
     setShowStripeModal(false);
+    setStripeClientSecret('');
     setProcessing(true);
 
     try {
@@ -487,7 +501,16 @@ export default function NFCPaymentPage() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to process order');
+        // Surface the real server error so issues like missing-column or
+        // schema mismatches are visible instead of a generic message.
+        let serverError = 'Failed to process order';
+        try {
+          const errBody = await response.json();
+          if (errBody?.error) serverError = errBody.error;
+        } catch {
+          /* response wasn't JSON */
+        }
+        throw new Error(serverError);
       }
 
       await response.json();
@@ -501,7 +524,8 @@ export default function NFCPaymentPage() {
       router.push('/nfc/success');
     } catch (error) {
       console.error('❌ Error processing order after payment:', error);
-      alert('Payment succeeded but order processing failed. Please contact support with your payment ID: ' + paymentIntentId);
+      const detail = error instanceof Error ? error.message : 'Unknown error';
+      alert(`Payment succeeded but order processing failed.\n\nReason: ${detail}\n\nPlease contact support with your payment ID: ${paymentIntentId}`);
       setProcessing(false);
     }
   };
@@ -510,6 +534,8 @@ export default function NFCPaymentPage() {
   const handleModalPaymentError = (error: string) => {
     console.error('❌ Stripe payment failed in modal:', error);
     setShowStripeModal(false);
+    // Clear stale client secret so the next Pay click creates a fresh PaymentIntent
+    setStripeClientSecret('');
     setProcessing(false);
     alert('Payment failed: ' + error);
   };
@@ -680,6 +706,7 @@ export default function NFCPaymentPage() {
                         : orderData?.cardConfig?.planType === 'pro' ? 'Business'
                         : orderData?.cardConfig?.planType === 'next' ? 'Next'
                         : orderData?.cardConfig?.planType === 'business' ? 'Business'
+                        : orderData?.cardConfig?.planType === 'starter' ? 'Starter'
                         : isFoundingMember ? 'Founders Circle'
                         : 'Personal'
                       }</span>
@@ -702,11 +729,11 @@ export default function NFCPaymentPage() {
                       <div style={{ backfaceVisibility: 'hidden' }}>
                         {orderData?.cardConfig?.mockupImages?.front ? (
                           <div className="w-full flex justify-center overflow-hidden">
-                            <div className="relative" style={{ width: '130%' }}>
+                            <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                               <img
                                 src={orderData.cardConfig.mockupImages.front}
                                 alt="Card front"
-                                className="w-full h-auto block"
+                                className="w-full h-full object-cover block"
                                 draggable={false}
                               />
                               {orderData?.cardConfig?.planType !== 'pro' && (
@@ -717,13 +744,19 @@ export default function NFCPaymentPage() {
                                     const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
                                     if (isSingleCharOnly) {
                                       return (
-                                        <div className={`${getTextColor()} text-xl sm:text-3xl font-bold`}>
+                                        <div
+                                          className={`${getTextColor()} text-xl sm:text-3xl font-semibold`}
+                                          style={{ textShadow: getEngravedShadow() }}
+                                        >
                                           {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
                                         </div>
                                       );
                                     }
                                     return (
-                                      <div className={`${getTextColor()} text-sm sm:text-lg font-bold tracking-wide`}>
+                                      <div
+                                        className={`${getTextColor()} text-sm sm:text-lg font-semibold tracking-wide`}
+                                        style={{ textShadow: getEngravedShadow() }}
+                                      >
                                         {firstName.toUpperCase()} {lastName.toUpperCase()}
                                       </div>
                                     );
@@ -743,36 +776,7 @@ export default function NFCPaymentPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                            <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                            <img
-                              src={orderData?.cardConfig?.color === 'white' ? '/ai2.png' : '/ai1.png'}
-                              alt="AI"
-                              className={`absolute top-3 right-3 w-4 h-4 ${orderData?.cardConfig?.color === 'white' ? '' : 'invert'}`}
-                              style={{ boxShadow: 'none', background: 'transparent' }}
-                            />
-                            {orderData?.cardConfig?.planType !== 'pro' && (
-                              <div className="absolute bottom-3 left-3 sm:bottom-4 sm:left-4">
-                                {(() => {
-                                  const firstName = orderData?.cardConfig?.cardFirstName?.trim() || '';
-                                  const lastName = orderData?.cardConfig?.cardLastName?.trim() || '';
-                                  const isSingleCharOnly = firstName.length <= 1 && lastName.length <= 1;
-                                  if (isSingleCharOnly) {
-                                    return (
-                                      <div className={`${getTextColor()} text-lg sm:text-xl font-bold`}>
-                                        {(firstName || 'J').toUpperCase()}{(lastName || 'D').toUpperCase()}
-                                      </div>
-                                    );
-                                  }
-                                  return (
-                                    <div className={`${getTextColor()} text-sm sm:text-base font-bold tracking-wide`}>
-                                      {firstName.toUpperCase()} {lastName.toUpperCase()}
-                                    </div>
-                                  );
-                                })()}
-                              </div>
-                            )}
-                          </div>
+                          <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                         )}
                       </div>
 
@@ -783,7 +787,7 @@ export default function NFCPaymentPage() {
                       >
                         {(orderData?.cardConfig?.mockupImages?.back_with_logo || orderData?.cardConfig?.mockupImages?.back_without_logo) ? (
                           <div className="w-full flex justify-center overflow-hidden">
-                            <div className="relative" style={{ width: '130%' }}>
+                            <div className="relative flex-shrink-0 w-[140%] sm:w-full aspect-[1.586/1] overflow-hidden">
                               <img
                                 src={
                                   orderData?.cardConfig?.isFoundingMember && orderData?.cardConfig?.showLinkistLogo === false
@@ -791,32 +795,13 @@ export default function NFCPaymentPage() {
                                     : (orderData.cardConfig.mockupImages.back_with_logo || orderData.cardConfig.mockupImages.back_without_logo!)
                                 }
                                 alt="Card back"
-                                className="w-full h-auto block"
+                                className="w-full h-full object-cover block"
                                 draggable={false}
                               />
                             </div>
                           </div>
                         ) : (
-                          <div className={`w-full aspect-[1.6/1] bg-gradient-to-br ${getCardGradient()} rounded-xl relative overflow-hidden shadow-lg`}>
-                            <CardPatternOverlay patternKey={orderData?.cardConfig?.patternKey || null} colour={orderData?.cardConfig?.color || undefined} />
-                            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                              {orderData?.cardConfig?.isFoundingMember ? (
-                                <>
-                                  {orderData?.cardConfig?.companyLogoUrl ? (
-                                    <img src={orderData.cardConfig.companyLogoUrl} alt="Company Logo" className="h-8 sm:h-10 w-auto mb-2 object-contain" />
-                                  ) : orderData?.cardConfig?.showLinkistLogo !== false ? (
-                                    <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
-                                  ) : null}
-                                  <div className={`${getTextColor()} text-xs sm:text-sm font-bold tracking-wider`}>FOUNDING MEMBER</div>
-                                </>
-                              ) : (
-                                <img src="/logo_linkist.png" alt="Linkist" className="h-8 sm:h-10 w-auto mb-2" />
-                              )}
-                            </div>
-                            <div className="absolute top-1/2 -translate-y-1/2 right-3">
-                              <img src="/nfc2.png" alt="NFC" className="w-6 h-6" />
-                            </div>
-                          </div>
+                          <div className="w-full aspect-[1.6/1]" aria-hidden="true" />
                         )}
                       </div>
                     </motion.div>
@@ -870,8 +855,8 @@ export default function NFCPaymentPage() {
                     );
                   }
 
-                  if (planType === 'pro' || planType === 'signature' || planType === 'next' || planType === 'business') {
-                    const planLabel = planType === 'pro' ? 'Business' : planType === 'business' ? 'Business' : planType === 'next' ? 'Next' : 'Signature';
+                  if (planType === 'pro' || planType === 'signature' || planType === 'next' || planType === 'business' || planType === 'starter') {
+                    const planLabel = planType === 'pro' ? 'Business' : planType === 'business' ? 'Business' : planType === 'next' ? 'Next' : planType === 'starter' ? 'Starter' : 'Signature';
                     return (
                       <>
                         {/* BUSINESS / SIGNATURE: Plan subscription price */}
@@ -948,8 +933,8 @@ export default function NFCPaymentPage() {
                   );
                 })()}
 
-                {/* Voucher Section - ONLY for Non-Founders (Founders have exclusive pricing) */}
-                {!isFoundingMember && (
+                {/* Voucher Section */}
+                {(
                   <>
                     <div className="border-t-2 border-dashed border-gray-300 pt-3 mt-3">
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
@@ -1021,7 +1006,7 @@ export default function NFCPaymentPage() {
                       </div>
                     </div>
 
-                    {/* Discount Line - Outside dashed box, only for non-founders */}
+                    {/* Discount Line */}
                     {voucherValid && voucherAmount > 0 && (
                       <div className="flex justify-between text-green-600 font-medium text-sm">
                         <span>Voucher Discount ({voucherDiscount}% off)</span>
@@ -1057,7 +1042,11 @@ export default function NFCPaymentPage() {
       {showStripeModal && stripeClientSecret && (
         <StripePaymentModal
           isOpen={showStripeModal}
-          onClose={() => setShowStripeModal(false)}
+          onClose={() => {
+            setShowStripeModal(false);
+            // Clear so the next Pay click forces a fresh PaymentIntent
+            setStripeClientSecret('');
+          }}
           clientSecret={stripeClientSecret}
           amount={stripePaymentAmount}
           currency={paymentCurrency}
@@ -1066,9 +1055,8 @@ export default function NFCPaymentPage() {
             email: orderData.email,
             phoneNumber: orderData.phoneNumber,
             orderNumber: orderData.orderNumber,
-            // Only show voucher for non-founders AND only when successfully applied
-            voucherCode: !isFoundingMember && voucherValid && appliedVoucherCode ? appliedVoucherCode : undefined,
-            discount: !isFoundingMember && voucherValid && voucherAmount > 0 ? voucherAmount * 100 : undefined, // Convert to cents
+            voucherCode: voucherValid && appliedVoucherCode ? appliedVoucherCode : undefined,
+            discount: voucherValid && voucherAmount > 0 ? voucherAmount * 100 : undefined, // Convert to cents
           }}
           onPaymentSuccess={handleModalPaymentSuccess}
           onPaymentError={handleModalPaymentError}

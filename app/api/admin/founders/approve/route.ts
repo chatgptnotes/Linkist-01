@@ -118,7 +118,7 @@ export async function POST(request: NextRequest) {
       const emailResult = await sendOrderEmail({
         to: foundersRequest.email,
         subject: "You're approved — unlock your Founders Circle access",
-        html: getEmailTemplate(fullName, inviteCode, expiresAt)
+        html: getEmailTemplate(fullName, inviteCode, expiresAt, foundersRequest.email)
       });
 
       if (emailResult.success) {
@@ -147,9 +147,11 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
+function getEmailTemplate(name: string, code: string, expiresAt: Date, email: string): string {
   // Use full name for greeting
   const fullName = name || 'there';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://linkist.ai';
+  const inviteLink = `${siteUrl}/product-selection?invite=${encodeURIComponent(code)}&email=${encodeURIComponent(email)}`;
 
   return `
 <!DOCTYPE html>
@@ -187,7 +189,7 @@ function getEmailTemplate(name: string, code: string, expiresAt: Date): string {
         </p>
 
         <p style="color: #333333; font-size: 16px; line-height: 24px; margin: 0 0 30px;">
-          <a href="https://www.linkist.ai/product-selection" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Circle card customisation.
+          <a href="${inviteLink}" style="color: #f59e0b; text-decoration: underline; font-weight: bold;">Click here</a> to proceed directly to your Founders Circle card customisation.
         </p>
 
         <h3 style="color: #333333; font-size: 18px; margin: 0 0 15px;">How to use your code:</h3>
